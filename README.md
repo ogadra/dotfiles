@@ -15,6 +15,9 @@ brew install chezmoi
 
 # dotfilesの初期化とインストール
 chezmoi init --apply ogadra
+
+# miseで管理された依存関係のインストール
+mise install
 ```
 
 ## 使い方
