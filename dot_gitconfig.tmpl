@@ -1,15 +1,18 @@
 {{- $gitconfig := include "data/gitconfig.yaml" | fromYaml -}}
 {{- $ghPath := output "which" "gh" | trim -}}
 
+[core]
+	editor   = nano
+	autoCRLF = false
 [ghq]
-root = {{ $gitconfig.ghqRoot }}
+	root = {{ $gitconfig.ghqRoot }}
 [credential "https://github.com"]
 	helper = !{{ $ghPath }} auth git-credential
 [credential "https://gist.github.com"]
 	helper = !{{ $ghPath }} auth git-credential
 [user]
-	name = ogadra
-	email = {{ $gitconfig.email }}
+	name       = ogadra
+	email      = {{ $gitconfig.email }}
 	signingkey = {{ $gitconfig.signingKey }}
 [gpg]
 	program = gpg
