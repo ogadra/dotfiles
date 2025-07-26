@@ -1,0 +1,7 @@
+README.md
+.gitignore
+lefthook.yaml
+mise.toml
+
+data/*.yaml
+data/*.yaml.sample

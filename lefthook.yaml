@@ -1,0 +1,6 @@
+pre-commit:
+  parallel: false
+  piped: true
+  commands:
+    01_secrets:
+      run: gitleaks protect --staged -v
