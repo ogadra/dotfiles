@@ -1,0 +1,21 @@
+#!/bin/zsh
+
+{{ if eq .chezmoi.os "linux" }}
+
+    if ! brew --version &>/dev/null; then
+        sudo apt-get install -y build-essential procps curl file git
+        /bin/zsh -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+        echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> ~/.profile
+        eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+        brew install gcc
+    fi
+
+{{ else if eq .chezmoi.os "darwin" }}
+
+    if ! brew --version &>/dev/null; then
+        /bin/zsh -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+        brew bundle --file="$HOME/.Brewfile"
+    fi
+
+{{ end }}
