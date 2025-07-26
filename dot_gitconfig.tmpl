@@ -1,0 +1,23 @@
+{{- $gitconfig := include "data/gitconfig.yaml" | fromYaml -}}
+{{- $ghPath := output "which" "gh" | trim -}}
+
+[ghq]
+root = {{ $gitconfig.ghqRoot }}
+[credential "https://github.com"]
+	helper = !{{ $ghPath }} auth git-credential
+[credential "https://gist.github.com"]
+	helper = !{{ $ghPath }} auth git-credential
+[user]
+	name = ogadra
+	email = {{ $gitconfig.email }}
+	signingkey = {{ $gitconfig.signingKey }}
+[gpg]
+	program = gpg
+[commit]
+	gpgsign = true
+[tag]
+	gpgsign = true
+[init]
+	defaultBranch = main
+[push]
+	default = current
