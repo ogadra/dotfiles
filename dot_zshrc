@@ -1,0 +1,7 @@
+# ~/.zshrc (chezmoi managed)
+export ZDOTDIR="$HOME"
+
+# Source all modular configs
+for f in $HOME/.zshrc.d/*.zsh; do
+    [ -r "$f" ] && source "$f"
+done
