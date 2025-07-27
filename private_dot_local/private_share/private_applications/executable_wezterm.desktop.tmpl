@@ -1,0 +1,12 @@
+{{- if eq .chezmoi.os "linux" -}}
+{{- $path := include "data/path.yaml" | fromYaml -}}
+[Desktop Entry]
+Type=Application
+Name=WezTerm
+Exec={{ $path.brewPath }}/bin/wezterm
+Icon=wezterm-icon
+StartupWMClass=org.wezfurlong.wezterm
+Categories=Utility;TerminalEmulator;
+StartupNotify=false
+Terminal=false
+{{- end -}}
