@@ -1,0 +1,56 @@
+# === global ===
+"$schema" = "https://starship.rs/config-schema.json"
+add_newline = true
+format = """$username$hostname $directory$git_branch$git_state$git_status$git_metrics$character
+\\$ """
+
+# === prompt symbol ===
+[character]
+success_symbol = "[>](bold white) "
+error_symbol   = "[>](bold red) "
+
+# === who/where ===
+[username]
+show_always = true
+format = "[ $user]($style)"
+style_user = "bold bright-green"
+
+[hostname]
+ssh_only = false
+format = "[󰍹 $hostname]($style)"
+style = "bold bright-green"
+
+# === path ===
+[directory]
+home_symbol = "~"
+truncation_length = 0
+truncate_to_repo = false
+style = "bold bright-cyan"
+format = "[ $path]($style) [$read_only]($read_only_style)"
+
+# === git branch ===
+[git_branch]
+format = "([$symbol$branch]($style) )"
+style = "bold purple"
+
+# === git status (差分・↑↓) ===
+[git_status]
+format = "([ $all_status$ahead_behind]($style) )"
+style = "yellow"
+staged = "[+$count](green)"
+modified = "[~$count](yellow)"
+untracked = "[?$count](red)"
+deleted = "[-$count](red)"
+conflicted = "[✖$count](red)"
+stashed = "[$count](cyan)"
+ahead = "[⇡$count](bold green)"
+behind = "[⇣$count](bold red)"
+diverged = "[⇡$ahead_count⇣$behind_count](bold purple)"
+up_to_date = ""
+
+[git_metrics]
+disabled = false
+style = "red"
+only_nonzero_diffs = true
+ignore_submodules = true
+format = "([ ](yellow)([+$added]($added_style))/([-$deleted]($deleted_style)) )"
