@@ -2,9 +2,9 @@
 
 add_newline = true
 format = """
-[](fg:black bg:cyan)$username$hostname[ ](fg:cyan bg:blue)\
-$directory[ ](fg:blue bg:purple)\
-$git_branch[ ](fg:purple)\
+[](fg:#222524 bg:bright-cyan)$username$hostname[ ](fg:bright-cyan bg:bright-blue)\
+$directory[ ](fg:bright-blue bg:bright-purple)\
+$git_branch[ ](fg:bright-purple)\
 $git_state$git_status$git_metrics
 $character\
 """
@@ -18,25 +18,25 @@ $time
 [username]
 show_always = true
 format = "[ $user]($style)"
-style_user = "bright-black bg:cyan"
+style_user = "black bg:bright-cyan"
 
 [hostname]
 ssh_only = false
 format = "[󰍹 $hostname]($style)"
-style = "bright-black bg:cyan"
+style = "black bg:bright-cyan"
 
 # === path ===
 [directory]
 home_symbol = "~"
 truncation_length = 0
 truncate_to_repo = false
-style = "bright-black bg:bright-blue"
+style = "black bg:bright-blue"
 format = "[ $path ]($style)[$read_only]($read_only_style)"
 
 # === git branch ===
 [git_branch]
 format = "([$symbol$branch ]($style))"
-style = "bright-black bg:purple"
+style = "black bg:bright-purple"
 
 # === git status (差分・↑↓) ===
 [git_status]
@@ -69,11 +69,12 @@ error_symbol   = "[󰣧](red) "
 [cmd_duration]
 min_time = 1
 show_milliseconds = true
-style = 'fg:#e0af68'
-format = "[󰄉 $duration]($style)"
+style = 'black bg:bright-yellow'
+format = "[](bright-yellow)[ 󰄉 $duration ]($style)"
 
 [time]
 disabled = false
 utc_time_offset= "9"
 time_format = "%T" # https://docs.rs/chrono/0.4.7/chrono/format/strftime/index.html
-format = '[[  $time ](fg:#a0a9cb)]($style)'
+style = "black bg:bright-green"
+format = '[  $time ]($style)[](bright-green)'
