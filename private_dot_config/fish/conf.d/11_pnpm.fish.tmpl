@@ -1,0 +1,8 @@
+
+{{- if eq .chezmoi.os "linux" -}}
+set -x PNPM_HOME "/home/ogadra/.local/share/pnpm"
+fish_add_path $PNPM_HOME
+{{- else if eq .chezmoi.os "darwin" -}}
+set -x PNPM_HOME "/Users/ogadra/Library/pnpm"
+fish_add_path $PNPM_HOME
+{{- end -}}
