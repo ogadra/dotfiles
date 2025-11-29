@@ -1,0 +1,7 @@
+{{- if eq .chezmoi.os "linux" -}}
+## enable starship
+source (/home/linuxbrew/.linuxbrew/bin/starship init fish --print-full-init | psub)
+{{- else if eq .chezmoi.os "darwin" -}}
+## enable starship
+source (/usr/local/bin/starship init fish --print-full-init | psub)
+{{- end -}}
