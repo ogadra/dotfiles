@@ -37,3 +37,6 @@ node_modules/
 # Claude Code Settings
 **/.claude/settings.local.json
 **/CLAUDE.local.md
+
+# MCP Settings
+.playwright-mcp/*
