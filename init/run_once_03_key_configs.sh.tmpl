@@ -1,0 +1,10 @@
+{{- if eq .chezmoi.os "linux" -}}
+
+#!/bin/bash
+
+# Enable Emacs Keybindings for GTK(Desktop) Applications
+# You have to log out and log back in for the changes to take effect
+# Reference: https://linuxfan.info/emacs-key-theme
+gsettings set org.gnome.desktop.interface gtk-key-theme 'Emacs'
+
+{{- end -}}
