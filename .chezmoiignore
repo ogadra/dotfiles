@@ -7,7 +7,13 @@ data/*.yaml
 data/*.yaml.sample
 
 {{- if ne .chezmoi.os "linux" }}
+
+# run_once
+./init/linux/*
+
+# configs
 .config/systemd/*
 .config/ulauncher/*
 .config/xremap/*
+
 {{- end }}

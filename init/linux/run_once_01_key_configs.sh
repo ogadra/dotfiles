@@ -1,5 +1,3 @@
-{{- if eq .chezmoi.os "linux" -}}
-
 #!/bin/bash
 
 # Enable Emacs Keybindings for GTK(Desktop) Applications
@@ -13,5 +11,3 @@ cargo install xremap --features x11
 
 systemctl --user start xremap.service
 systemctl --user enable xremap.service
-
-{{- end -}}
