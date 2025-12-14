@@ -5,3 +5,7 @@ mise.toml
 
 data/*.yaml
 data/*.yaml.sample
+
+{{- if ne .chezmoi.os "linux" -}}
+.config/ulancher/*
+{{- end -}}
