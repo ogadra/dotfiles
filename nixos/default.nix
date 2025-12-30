@@ -6,21 +6,36 @@
   ...
 }:
 let
-  homeConfig = import ../home-manager {
-    inherit
-      profile
-      username
-      ;
-  };
-  homeManager = inputs.home-manager.nixosModules.home-manager;
+  baseModules = [
+    ./configuration.nix
+    ../profiles/${profile}
+  ];
+
+  homeManagerModules = [
+    inputs.home-manager.nixosModules.home-manager
+    (import ../home-manager/default.nix {
+      inherit
+        profile
+        username
+        ;
+    })
+  ];
+
+  allModules =
+    baseModules
+    ++ homeManagerModules
+    ;
 in
 {
   inherit system;
 
-  modules = [
-    ./configuration.nix
-    ../profiles/${profile}
-    homeConfig
-    homeManager
-  ];
+  specialArgs = {
+    inherit
+      inputs
+      profile
+      username
+      ;
+  };
+
+  modules = allModules;
 }
