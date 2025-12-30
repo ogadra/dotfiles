@@ -30,8 +30,8 @@
         import ./nixos {
           inherit
             inputs
-            system
             profile
+            system
             username
             ;
         };

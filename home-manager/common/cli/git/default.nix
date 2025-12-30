@@ -11,6 +11,8 @@
         name  = username;
         email = "61941819+ogadra@users.noreply.github.com";
       };
+
+      ghq.root = "~/codes";
     };
 
     signing = {

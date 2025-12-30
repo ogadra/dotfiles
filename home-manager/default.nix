@@ -1,6 +1,10 @@
 {
   profile,
   username,
+}:
+{
+  config,
+  pkgs,
   ...
 }:
 {
@@ -11,5 +15,8 @@
     extraSpecialArgs  = {
       inherit username;
     };
+    sharedModules = [
+      ./common/cli/ghq
+    ];
   };
 }
