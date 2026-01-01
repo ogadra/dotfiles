@@ -1,5 +1,9 @@
 { ... }:
 let
+  appConfigs = [
+    ./apps/editor.nix
+  ];
+
   commonConfigs = [
     ../../common/cli/git
   ];
@@ -15,7 +19,8 @@ in
 {
   home.stateVersion = "25.11";
   imports =
-    commonConfigs
+    appConfigs
+    ++ commonConfigs
     ++ nixDesktopConfigs
     ++ deviceConfigs
     ;
