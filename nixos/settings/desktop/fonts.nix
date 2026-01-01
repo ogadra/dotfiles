@@ -6,6 +6,8 @@
       noto-fonts-cjk-serif
       noto-fonts-color-emoji
       nerd-fonts.jetbrains-mono
+      nerd-fonts.code-new-roman
+      nerd-fonts.droid-sans-mono
     ];
 
     fontDir.enable = true;
