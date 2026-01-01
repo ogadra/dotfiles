@@ -1,7 +1,7 @@
 { ... }:
 let
   appConfigs = [
-    ./apps/editor.nix
+    ../../common/apps/editor
   ];
 
   commonConfigs = [
