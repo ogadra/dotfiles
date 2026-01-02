@@ -14,6 +14,10 @@
     claude-code-overlay = {
       url = "github:ryoppippi/claude-code-overlay";
     };
+    wezterm = {
+      url = "github:wez/wezterm?dir=nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =

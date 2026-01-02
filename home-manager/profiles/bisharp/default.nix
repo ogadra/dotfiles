@@ -2,6 +2,7 @@
 let
   appConfigs = [
     ../../common/apps/editor
+    ../../common/apps/terminal
   ];
 
   commonConfigs = [
