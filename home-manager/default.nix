@@ -19,9 +19,5 @@
         inputs
       ;
     };
-    sharedModules = [
-      ./common/cli/ghq
-    ];
   };
 }
-
