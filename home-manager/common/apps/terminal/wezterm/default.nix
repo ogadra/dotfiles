@@ -1,6 +1,7 @@
 { inputs, pkgs, ... }:
 {
   imports = [
+    ./color.nix
     ./tab-bar.nix
   ];
 
@@ -9,11 +10,11 @@
     package = inputs.wezterm.packages.${pkgs.system}.default;
     extraConfig = ''
       local wezterm = require 'wezterm'
+      local color = require 'color'
       local tab_bar = require 'tab-bar'
       local config = {}
 
-      config.color_scheme = 'Ef-Elea-Dark'
-
+      color.apply_to_config(config, wezterm)
       tab_bar.apply_to_config(config, wezterm)
 
       return config

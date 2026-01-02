@@ -14,7 +14,7 @@ let
   ];
 
   nixDesktopConfigs = [
-    ../../nixos/kwin-inputmethod.nix
+    ../../nixos/kwin
   ];
 
   deviceConfigs = [

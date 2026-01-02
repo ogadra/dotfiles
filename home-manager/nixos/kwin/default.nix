@@ -1,0 +1,6 @@
+{ ... }:
+{
+  imports = [
+    ./inputmethod.nix
+  ];
+}
