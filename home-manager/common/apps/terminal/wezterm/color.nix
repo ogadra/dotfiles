@@ -27,8 +27,8 @@
           '#ff3030',  -- bright red (alert)
           '#30ff30',  -- bright green
           '#ff9020',  -- bright yellow -> bright orange
-          '#c060e8',  -- bright magenta
           '#8080ff',  -- bright blue
+          '#c060e8',  -- bright magenta
           '#40f0f0',  -- bright cyan
           '#ffffff',  -- bright white
         },
