@@ -25,6 +25,7 @@
       fcitx5 = {
         addons = with pkgs; [
           fcitx5-mozc
+          fcitx5-gtk
         ];
         waylandFrontend  = true;
         # TODO: home-manager側に寄せて`ignoreUserConfig`を消す
@@ -38,8 +39,8 @@
               "Default Layout" = "us";
               DefaultIM        = "mozc";
             };
-            "Groups/0/Items/0".Name = "mozc";
-            "Groups/0/Items/1".Name = "keyboard-us";
+            "Groups/0/Items/0".Name = "keyboard-us";
+            "Groups/0/Items/1".Name = "mozc";
           };
         };
       };
