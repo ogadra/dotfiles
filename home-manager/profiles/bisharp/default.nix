@@ -10,6 +10,7 @@ let
     ../../common/cli/ghq
     ../../common/cli/gnumake
     ../../common/cli/claude-code
+    ../../common/cli/fish
   ];
 
   nixDesktopConfigs = [

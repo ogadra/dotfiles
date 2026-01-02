@@ -10,6 +10,11 @@ let
     ../../nixos/settings/desktop/fonts.nix
     ../../nixos/settings/desktop/i18n.nix
   ];
+
+  # Shell
+  shellSettings = [
+    ../../nixos/settings/shell/fish.nix
+  ];
 in
 {
   networking.hostName = "bisharp";
@@ -17,7 +22,8 @@ in
   imports = [
     ./hardware-configuration.nix
   ]
-  ++ desktopSettings;
+  ++ desktopSettings
+  ++ shellSettings;
 
   home-manager.sharedModules = [
     inputs.xremap.homeManagerModules.default
