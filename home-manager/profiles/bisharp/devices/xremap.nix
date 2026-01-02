@@ -13,6 +13,16 @@
             CAPSLOCK: LEFTCTRL
             LEFTCTRL: CAPSLOCK
 
+        - name: hhkb-swap-alt-super
+          device:
+            only:
+              - HHKB-Hybrid_4 Keyboard
+          remap:
+            LEFTALT: LEFTMETA
+            LEFTMETA: LEFTALT
+            RIGHTALT: RIGHTMETA
+            RIGHTMETA: RIGHTALT
+
       keymap:
         - name: Default
           application:
