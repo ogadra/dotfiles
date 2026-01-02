@@ -17,6 +17,7 @@ let
       inherit
         profile
         username
+        inputs
         ;
     })
   ];

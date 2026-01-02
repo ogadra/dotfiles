@@ -11,6 +11,9 @@
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.home-manager.follows = "home-manager";
     };
+    claude-code-overlay = {
+      url = "github:ryoppippi/claude-code-overlay";
+    };
   };
 
   outputs =

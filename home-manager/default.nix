@@ -1,6 +1,7 @@
 {
   profile,
   username,
+  inputs,
 }:
 {
   config,
@@ -13,10 +14,14 @@
     useUserPackages   = true;
     users.${username} = import ./profiles/${profile};
     extraSpecialArgs  = {
-      inherit username;
+      inherit
+        username
+        inputs
+      ;
     };
     sharedModules = [
       ./common/cli/ghq
     ];
   };
 }
+

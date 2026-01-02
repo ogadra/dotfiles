@@ -6,6 +6,7 @@ let
 
   commonConfigs = [
     ../../common/cli/git
+    ../../common/cli/claude-code
   ];
 
   nixDesktopConfigs = [
