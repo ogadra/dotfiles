@@ -16,6 +16,20 @@
       hover_fg = p.white,
     }
 
+    -- Get git branch name
+    local function get_git_branch(wezterm, cwd)
+      if not cwd then
+        return nil
+      end
+      local success, stdout, stderr = wezterm.run_child_process({
+        'git', '-C', cwd, 'rev-parse', '--abbrev-ref', 'HEAD'
+      })
+      if success then
+        return stdout:gsub('%s+$', "")
+      end
+      return nil
+    end
+
     -- Get git ahead/behind counts
     local function get_git_ahead_behind(wezterm, cwd)
       if not cwd then
@@ -70,7 +84,12 @@
 
     -- Build git status text from cwd
     local function build_git_text(wezterm, cwd_path)
-      local parts = {}
+      local branch = get_git_branch(wezterm, cwd_path)
+      if not branch then
+        return nil
+      end
+
+      local parts = { ' ' .. branch }
       local ahead, behind = get_git_ahead_behind(wezterm, cwd_path)
       if ahead and ahead > 0 then table.insert(parts, '⇡' .. ahead) end
       if behind and behind > 0 then table.insert(parts, '⇣' .. behind) end
@@ -109,7 +128,7 @@
 
         local status_parts = {}
 
-        if git_text ~= "" then
+        if git_text then
           add_status_segment(status_parts, git_text, SOLID_LEFT)
         end
         add_status_segment(status_parts, hostname, SOLID_LEFT)

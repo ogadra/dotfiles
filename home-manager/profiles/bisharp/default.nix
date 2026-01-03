@@ -12,6 +12,7 @@ let
     ../../common/cli/claude-code
     ../../common/cli/fish
     ../../common/cli/mpv
+    ../../common/cli/starship
   ];
 
   nixDesktopConfigs = [
