@@ -117,7 +117,21 @@
       local SOLID_LEFT = wezterm.nerdfonts.ple_lower_right_triangle
       local SOLID_RIGHT = wezterm.nerdfonts.ple_upper_left_triangle
 
-      -- Right status: NERV HUD style
+      -- Window title
+      config.window_title = 'TERMINAL'
+
+      -- Left status
+      wezterm.on('update-status', function(window, pane)
+        window:set_left_status(wezterm.format({
+          { Foreground = { Color = p.black } },
+          { Background = { Color = p.orange } },
+          { Text = ' TERMINAL ' },
+          { Foreground = { Color = p.orange } },
+          { Background = { Color = p.black } },
+        }))
+      end)
+
+      -- Right status: HUD style
       wezterm.on('update-right-status', function(window, pane)
         local cwd = pane:get_current_working_dir()
         local cwd_path = cwd and (cwd.file_path or tostring(cwd)) or nil
@@ -168,7 +182,7 @@
           { Text = ' ' .. SOLID_LEFT },
           { Background = { Color = bg } },
           { Foreground = { Color = fg } },
-          { Text = ' ' .. title .. ' ' },
+          { Text = title .. ' ' },
           { Background = { Color = tab_colors.bg } },
           { Foreground = { Color = bg } },
           { Text = SOLID_RIGHT },

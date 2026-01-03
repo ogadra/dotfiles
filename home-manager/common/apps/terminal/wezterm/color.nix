@@ -28,6 +28,20 @@
       }
       config.font_size = 12.0
 
+      -- Cursor (blinking HUD style)
+      config.cursor_blink_rate = 500
+      config.default_cursor_style = 'BlinkingBlock'
+      config.cursor_thickness = 2
+
+      -- Selection
+      config.selection_word_boundary = ' \t\n{}[]()"\x27'
+
+      -- Inactive pane dim (focus effect)
+      config.inactive_pane_hsb = {
+        saturation = 0.7,
+        brightness = 0.6,
+      }
+
       -- NERV HUD inspired color scheme
       config.colors = {
         foreground = p.orange,
