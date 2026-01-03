@@ -68,66 +68,63 @@
       return path
     end
 
+    -- Build git status text from cwd
+    local function build_git_text(wezterm, cwd_path)
+      local parts = {}
+      local ahead, behind = get_git_ahead_behind(wezterm, cwd_path)
+      if ahead and ahead > 0 then table.insert(parts, '⇡' .. ahead) end
+      if behind and behind > 0 then table.insert(parts, '⇣' .. behind) end
+
+      local changes = get_git_changes(wezterm, cwd_path)
+      if changes then
+        if changes.staged > 0 then table.insert(parts, '+' .. changes.staged) end
+        if changes.modified > 0 then table.insert(parts, '~' .. changes.modified) end
+        if changes.untracked > 0 then table.insert(parts, '?' .. changes.untracked) end
+      end
+      return table.concat(parts, ' ')
+    end
+
+    -- Add a status segment with NERV style (black text on orange separator, then content)
+    local function add_status_segment(parts, text, separator)
+      table.insert(parts, { Foreground = { Color = p.black } })
+      table.insert(parts, { Background = { Color = p.orange } })
+      table.insert(parts, { Text = separator })
+      table.insert(parts, { Foreground = { Color = p.orange } })
+      table.insert(parts, { Background = { Color = p.black } })
+      table.insert(parts, { Text = ' ' .. text .. ' ' .. separator })
+    end
+
     function module.apply_to_config(config, wezterm)
-      -- Right status: git status + hostname + time
+      local SOLID_LEFT = wezterm.nerdfonts.ple_lower_right_triangle
+      local SOLID_RIGHT = wezterm.nerdfonts.ple_upper_left_triangle
+
+      -- Right status: NERV HUD style
       wezterm.on('update-right-status', function(window, pane)
         local cwd = pane:get_current_working_dir()
         local cwd_path = cwd and (cwd.file_path or tostring(cwd)) or nil
 
-        -- Build git status text
-        local git_parts = {}
-        local ahead, behind = get_git_ahead_behind(wezterm, cwd_path)
-        if ahead and ahead > 0 then
-          table.insert(git_parts, '⇡' .. ahead)
-        end
-        if behind and behind > 0 then
-          table.insert(git_parts, '⇣' .. behind)
-        end
-
-        local changes = get_git_changes(wezterm, cwd_path)
-        if changes then
-          if changes.staged > 0 then
-            table.insert(git_parts, '+' .. changes.staged)
-          end
-          if changes.modified > 0 then
-            table.insert(git_parts, '~' .. changes.modified)
-          end
-          if changes.untracked > 0 then
-            table.insert(git_parts, '?' .. changes.untracked)
-          end
-        end
-
-        local git_text = table.concat(git_parts, ' ')
+        local git_text = build_git_text(wezterm, cwd_path)
         local hostname = wezterm.hostname():gsub('%..*', "")
         local time = wezterm.strftime('%H:%M:%S')
 
         local status_parts = {}
 
-        -- Git status section (only if there's something to show)
         if git_text ~= "" then
-          table.insert(status_parts, { Foreground = { Color = p.white } })
-          table.insert(status_parts, { Background = { Color = p.red } })
-          table.insert(status_parts, { Text = '  ' .. git_text .. ' ' })
+          add_status_segment(status_parts, git_text, SOLID_LEFT)
         end
+        add_status_segment(status_parts, hostname, SOLID_LEFT)
+        add_status_segment(status_parts, time, SOLID_LEFT)
 
-        -- Hostname section
+        -- Trailing cap
         table.insert(status_parts, { Foreground = { Color = p.black } })
         table.insert(status_parts, { Background = { Color = p.orange } })
-        table.insert(status_parts, { Text = ' ' .. hostname .. ' ' })
-
-        -- Time section
-        table.insert(status_parts, { Foreground = { Color = p.black } })
-        table.insert(status_parts, { Background = { Color = p.green } })
-        table.insert(status_parts, { Text = '  ' .. time .. ' ' })
+        table.insert(status_parts, { Text = ' ' })
 
         window:set_right_status(wezterm.format(status_parts))
       end)
 
       -- Tab title: NERV HUD style
       wezterm.on('format-tab-title', function(tab, tabs, panes, cfg, hover, max_width)
-        local SOLID_LEFT_ARROW = wezterm.nerdfonts.ple_lower_right_triangle
-        local SOLID_RIGHT_ARROW = wezterm.nerdfonts.ple_upper_left_triangle
-
         local pane = tab.active_pane
         local cwd = pane.current_working_dir
         local dir_text = ""
@@ -149,13 +146,13 @@
         return {
           { Background = { Color = tab_colors.bg } },
           { Foreground = { Color = bg } },
-          { Text = SOLID_LEFT_ARROW },
+          { Text = ' ' .. SOLID_LEFT },
           { Background = { Color = bg } },
           { Foreground = { Color = fg } },
           { Text = ' ' .. title .. ' ' },
           { Background = { Color = tab_colors.bg } },
           { Foreground = { Color = bg } },
-          { Text = SOLID_RIGHT_ARROW },
+          { Text = SOLID_RIGHT },
         }
       end)
 
