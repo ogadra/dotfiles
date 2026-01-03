@@ -28,6 +28,9 @@
       { key = 'c', mods = 'ALT', action = act.CopyTo("Clipboard") },
       { key = 'Insert', mods = 'CTRL', action = act.CopyTo("Clipboard") },
       { key = 'Insert', mods = 'SHIFT', action = act.PasteFrom("Clipboard") },
+
+      -- Line Edit
+      { key = 'k', mods = 'CTRL', action = act.SendKey { key = 'k', mods = 'CTRL' } },
     }
     end
 
