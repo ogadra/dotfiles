@@ -4,7 +4,7 @@ let
   plasmashellShortcuts = import ./plasmashell.nix { };
   mediaShortcuts = import ./media.nix { };
   systemShortcuts = import ./system.nix { };
-  copyqShortcuts = import ./copyq.nix { };
+  cliphistShortcuts = import ./cliphist.nix { };
 in
 {
   xdg.configFile."kglobalshortcutsrc".text =
@@ -12,5 +12,5 @@ in
     + mediaShortcuts.media
     + kwinShortcuts.kwin
     + plasmashellShortcuts.plasmashell
-    + copyqShortcuts.copyq;
+    + cliphistShortcuts.cliphist;
 }

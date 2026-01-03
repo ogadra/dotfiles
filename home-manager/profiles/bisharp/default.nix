@@ -17,8 +17,9 @@ let
   nixDesktopConfigs = [
     ../../nixos/kwin
     ../../nixos/mouse
-    ../../nixos/copyq
-    ../../nixos/klipper
+    ../../nixos/wl-clipboard
+    ../../nixos/wofi
+    ../../nixos/cliphist
   ];
 
   deviceConfigs = [
