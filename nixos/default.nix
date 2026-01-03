@@ -8,6 +8,7 @@
 let
   baseModules = [
     ./configuration.nix
+    ./settings/security/sudo.nix
     ../profiles/${profile}
   ];
 
