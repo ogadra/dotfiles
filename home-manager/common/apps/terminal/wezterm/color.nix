@@ -3,23 +3,47 @@
   xdg.configFile."wezterm/color.lua".text = ''
     local module = {}
 
+    -- NERV HUD inspired colors (shared across modules)
+    module.palette = {
+      -- Base colors
+      orange = '#f07820',
+      black = '#1a1a1a',
+      deep_black = '#0a0a0a',
+      dim_orange = '#805030',
+      white = '#ffffff',
+      -- Status colors
+      green = '#20d020',
+      red = '#d02020',
+      purple = '#a030e0',
+      teal = '#30c0c0',
+    }
+
     function module.apply_to_config(config, wezterm)
+      local p = module.palette
+
+      -- Font
+      config.font = wezterm.font_with_fallback {
+        'JetBrainsMono Nerd Font Mono',
+        'Noto Sans Mono CJK JP',
+      }
+      config.font_size = 12.0
+
       -- NERV HUD inspired color scheme
       config.colors = {
-        foreground = '#f07820',     -- NERV orange
-        background = '#000000',     -- Deep black
-        cursor_bg = '#f07820',
-        cursor_fg = '#0a0a0a',
-        selection_bg = '#f07820',
-        selection_fg = '#0a0a0a',
+        foreground = p.orange,
+        background = '#000000',
+        cursor_bg = p.orange,
+        cursor_fg = p.deep_black,
+        selection_bg = p.orange,
+        selection_fg = p.deep_black,
         ansi = {
-          '#1a1a1a',  -- black
-          '#d02020',  -- red (warning)
-          '#20d020',  -- green (active)
-          '#f07820',  -- yellow -> NERV orange
+          p.black,    -- black
+          p.red,      -- red (warning)
+          p.green,    -- green (active)
+          p.orange,   -- yellow -> NERV orange
           '#6868f0',  -- blue -> Eva purple-blue
-          '#a030e0',  -- magenta -> Eva Unit 01 purple
-          '#30c0c0',  -- cyan -> teal accent
+          p.purple,   -- magenta -> Eva Unit 01 purple
+          p.teal,     -- cyan -> teal accent
           '#b0b0b0',  -- white
         },
         brights = {

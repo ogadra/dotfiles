@@ -8,7 +8,8 @@
 
 
     config.disable_default_key_bindings = true
-    config.send_composed_key_when_alt_is_pressed = false
+    config.send_composed_key_when_left_alt_is_pressed = false
+    config.send_composed_key_when_right_alt_is_pressed = false
     config.keys = {
       -- Window Control
       { key = 'n', mods = 'ALT', action = act.SpawnWindow },

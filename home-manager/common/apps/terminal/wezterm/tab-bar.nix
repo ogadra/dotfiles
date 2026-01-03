@@ -2,34 +2,19 @@
 {
   xdg.configFile."wezterm/tab-bar.lua".text = ''
     local module = {}
+    local color = require 'color'
+    local p = color.palette
 
-    -- NERV HUD inspired colors
-    local colors = {
-      time_bg = '#20d020',       -- green (system active)
-      time_fg = '#1a1a1a',       -- deep black
-      hostname_bg = '#f07820',   -- NERV orange
-      hostname_fg = '#1a1a1a',   -- deep black
-      dir_bg = '#a030e0',        -- Eva Unit 01 purple
-      dir_fg = '#ffffff',        -- white
-      git_bg = '#30c0c0',        -- teal accent
-      git_fg = '#1a1a1a',        -- deep black
-      git_status_bg = '#d02020', -- warning red
-      git_status_fg = '#ffffff', -- white
+    -- Tab bar colors
+    local tab_colors = {
+      bg = p.orange,
+      active_bg = p.black,
+      active_fg = p.orange,
+      inactive_bg = p.deep_black,
+      inactive_fg = p.dim_orange,
+      hover_bg = p.dim_orange,
+      hover_fg = p.white,
     }
-
-    -- Get git branch for a directory
-    local function get_git_branch(wezterm, cwd)
-      if not cwd then
-        return nil
-      end
-      local success, stdout, stderr = wezterm.run_child_process({
-        'git', '-C', cwd, 'rev-parse', '--abbrev-ref', 'HEAD'
-      })
-      if success then
-        return stdout:gsub('%s+', "")
-      end
-      return nil
-    end
 
     -- Get git ahead/behind counts
     local function get_git_ahead_behind(wezterm, cwd)
@@ -120,55 +105,57 @@
 
         -- Git status section (only if there's something to show)
         if git_text ~= "" then
-          table.insert(status_parts, { Foreground = { Color = colors.git_status_fg } })
-          table.insert(status_parts, { Background = { Color = colors.git_status_bg } })
+          table.insert(status_parts, { Foreground = { Color = p.white } })
+          table.insert(status_parts, { Background = { Color = p.red } })
           table.insert(status_parts, { Text = '  ' .. git_text .. ' ' })
         end
 
         -- Hostname section
-        table.insert(status_parts, { Foreground = { Color = colors.hostname_fg } })
-        table.insert(status_parts, { Background = { Color = colors.hostname_bg } })
+        table.insert(status_parts, { Foreground = { Color = p.black } })
+        table.insert(status_parts, { Background = { Color = p.orange } })
         table.insert(status_parts, { Text = ' ' .. hostname .. ' ' })
 
         -- Time section
-        table.insert(status_parts, { Foreground = { Color = colors.time_fg } })
-        table.insert(status_parts, { Background = { Color = colors.time_bg } })
+        table.insert(status_parts, { Foreground = { Color = p.black } })
+        table.insert(status_parts, { Background = { Color = p.green } })
         table.insert(status_parts, { Text = '  ' .. time .. ' ' })
 
         window:set_right_status(wezterm.format(status_parts))
       end)
 
-      -- Tab title: directory + git branch
+      -- Tab title: NERV HUD style
       wezterm.on('format-tab-title', function(tab, tabs, panes, cfg, hover, max_width)
+        local SOLID_LEFT_ARROW = wezterm.nerdfonts.ple_lower_right_triangle
+        local SOLID_RIGHT_ARROW = wezterm.nerdfonts.ple_upper_left_triangle
+
         local pane = tab.active_pane
         local cwd = pane.current_working_dir
         local dir_text = ""
-        local git_text = ""
 
         if cwd then
           local path = cwd.file_path or tostring(cwd)
           dir_text = shorten_path(path)
-          local branch = get_git_branch(wezterm, path)
-          if branch then
-            git_text = '  ' .. branch
-          end
         end
 
-        local max_len = max_width - 4
-        if #dir_text + #git_text > max_len then
-          local available = max_len - #git_text - 3
-          if available > 0 then
-            dir_text = '...' .. dir_text:sub(-available)
-          end
+        local is_active = tab.is_active
+        local bg = is_active and tab_colors.active_bg or tab_colors.inactive_bg
+        local fg = is_active and tab_colors.active_fg or tab_colors.inactive_fg
+
+        local title = dir_text
+        if #title > max_width - 6 then
+          title = '...' .. title:sub(-(max_width - 9))
         end
 
         return {
-          { Foreground = { Color = colors.dir_fg } },
-          { Background = { Color = colors.dir_bg } },
-          { Text = ' ' .. dir_text .. ' ' },
-          { Foreground = { Color = colors.git_fg } },
-          { Background = { Color = colors.git_bg } },
-          { Text = git_text ~= "" and git_text .. ' ' or "" },
+          { Background = { Color = tab_colors.bg } },
+          { Foreground = { Color = bg } },
+          { Text = SOLID_LEFT_ARROW },
+          { Background = { Color = bg } },
+          { Foreground = { Color = fg } },
+          { Text = ' ' .. title .. ' ' },
+          { Background = { Color = tab_colors.bg } },
+          { Foreground = { Color = bg } },
+          { Text = SOLID_RIGHT_ARROW },
         }
       end)
 
@@ -180,18 +167,18 @@
 
       config.colors = config.colors or {}
       config.colors.tab_bar = {
-        background = '#0a0a0a',          -- deep black
+        background = tab_colors.bg,
         active_tab = {
-          bg_color = colors.dir_bg,
-          fg_color = colors.dir_fg,
+          bg_color = tab_colors.active_bg,
+          fg_color = tab_colors.active_fg,
         },
         inactive_tab = {
-          bg_color = '#1a1a1a',          -- dark gray
-          fg_color = '#ff6b00',          -- NERV orange
+          bg_color = tab_colors.inactive_bg,
+          fg_color = tab_colors.inactive_fg,
         },
         inactive_tab_hover = {
-          bg_color = '#2a2a2a',
-          fg_color = '#ff8c00',          -- brighter orange
+          bg_color = tab_colors.hover_bg,
+          fg_color = tab_colors.hover_fg,
         },
       }
     end
