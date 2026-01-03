@@ -28,7 +28,7 @@
     repeat_action=none,,Manually Invoke Action on Current Clipboard
     show dashboard=Ctrl+F12,Ctrl+F12,Show Desktop
     show-barcode=none,,Show Barcode…
-    show-on-mouse-pos=Meta+V,Meta+V,Show Clipboard Items at Mouse Position
+    show-on-mouse-pos=none,,Show Clipboard Items at Mouse Position
     switch to next activity=none,,Switch to Next Activity
     switch to previous activity=none,,Switch to Previous Activity
     toggle do not disturb=none,,Toggle do not disturb
