@@ -16,7 +16,7 @@
         - name: hhkb-swap-alt-super
           device:
             only:
-              - HHKB-Hybrid_4 Keyboard
+              - HHKB
           remap:
             LEFTALT: LEFTMETA
             LEFTMETA: LEFTALT
