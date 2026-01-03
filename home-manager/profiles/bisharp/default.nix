@@ -16,6 +16,7 @@ let
 
   nixDesktopConfigs = [
     ../../nixos/kwin
+    ../../nixos/mouse
   ];
 
   deviceConfigs = [
