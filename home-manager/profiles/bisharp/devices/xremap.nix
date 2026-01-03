@@ -34,6 +34,24 @@
           };
         }
         {
+          name = "Emacs Like";
+          application.not = [ "/org\\.wezfurlong\\.wezterm/" ];
+          remap = {
+            C-b = { with_mark = "left"; };
+            C-f = { with_mark = "right"; };
+            C-p = { with_mark = "up"; };
+            C-n = { with_mark = "down"; };
+            C-a = { with_mark = "home"; };
+            C-e = { with_mark = "end"; };
+            C-v = { with_mark = "pagedown"; };
+            C-h = "BackSpace";
+            C-d = "Delete";
+            C-m = "enter";
+            C-j = "enter";
+            C-k = [ "Shift-end" "C-x" { set_mark = false; } ];
+          };
+        }
+        {
           name = "Default";
           application.not = [ "/org\\.wezfurlong\\.wezterm/" ];
           remap = {
@@ -59,27 +77,11 @@
             Alt-t = "C-t";
             Alt-u = "C-u";
             Alt-v = "C-v";
+            Alt-Super-v = "Alt-Super-v";
             Alt-w = "C-w";
             Alt-x = "C-x";
             Alt-y = "C-y";
             Alt-z = "C-z";
-          };
-        }
-        {
-          name = "Emacs Like";
-          application.not = [ "/org\\.wezfurlong\\.wezterm/" ];
-          remap = {
-            C-b = { with_mark = "left"; };
-            C-f = { with_mark = "right"; };
-            C-p = { with_mark = "up"; };
-            C-n = { with_mark = "down"; };
-            C-a = { with_mark = "home"; };
-            C-e = { with_mark = "end"; };
-            C-h = "BackSpace";
-            C-d = "Delete";
-            C-m = "enter";
-            C-j = "enter";
-            C-k = [ "Shift-end" "C-x" { set_mark = false; } ];
           };
         }
       ];
