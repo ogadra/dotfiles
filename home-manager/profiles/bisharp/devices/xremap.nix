@@ -3,6 +3,7 @@
   services.xremap = {
     enable     = true;
     watch      = true;
+    withKDE    = true;
     config = {
       modmap = [
         {
@@ -26,16 +27,15 @@
       ];
       keymap = [
         {
-          name = "Terminal";
-          application.only = [ "/org\\.wezfurlong\\.wezterm/" ];
+          name = "wezterm customize";
+          application.only = [ "/wezterm/" ];
           remap = {
-            ALT-c = "C-Shift-c";
-            ALT-v = "Shift-Insert";
+            Alt-v = "Shift-Insert";
           };
         }
         {
           name = "Emacs Like";
-          application.not = [ "/org\\.wezfurlong\\.wezterm/" ];
+          application.not = [ "/wezterm/" ];
           remap = {
             C-b = { with_mark = "left"; };
             C-f = { with_mark = "right"; };
@@ -53,7 +53,7 @@
         }
         {
           name = "Default";
-          application.not = [ "/org\\.wezfurlong\\.wezterm/" ];
+          application.not = [ "/wezterm/" ];
           remap = {
             Alt-a = "C-a";
             Alt-b = "C-b";
