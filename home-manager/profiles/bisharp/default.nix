@@ -17,6 +17,7 @@ let
   nixDesktopConfigs = [
     ../../nixos/kwin
     ../../nixos/mouse
+    ../../nixos/klipper
     ../../nixos/wl-clipboard
     ../../nixos/wofi
     ../../nixos/cliphist

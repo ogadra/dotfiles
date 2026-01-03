@@ -1,6 +1,6 @@
 { ... }:
 {
-  # Disable Klipper to avoid conflict with CopyQ
+  # Disable Klipper to avoid conflict with cliphist
   xdg.configFile."klipperrc".text = ''
     [General]
     KeepClipboardContents=false
