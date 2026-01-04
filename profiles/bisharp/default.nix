@@ -15,6 +15,11 @@ let
   shellSettings = [
     ../../nixos/settings/shell/fish.nix
   ];
+
+  # Nix-ld
+  nixLdSettings = [
+    ../../nixos/settings/nix-ld/default.nix
+  ];
 in
 {
   networking.hostName = "bisharp";
@@ -23,7 +28,8 @@ in
     ./hardware-configuration.nix
   ]
   ++ desktopSettings
-  ++ shellSettings;
+  ++ shellSettings
+  ++ nixLdSettings;
 
   home-manager.sharedModules = [
     inputs.xremap.homeManagerModules.default
