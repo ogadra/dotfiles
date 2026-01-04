@@ -11,6 +11,7 @@ let
     ../../common/cli/gnumake
     ../../common/cli/claude-code
     ../../common/cli/fish
+    ../../common/cli/fzf
     ../../common/cli/mpv
     ../../common/cli/starship
   ];
