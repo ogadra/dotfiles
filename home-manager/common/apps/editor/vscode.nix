@@ -11,10 +11,11 @@
                 "editor.inlineSuggest.enabled" = true;
 
                 "explorer.confirmDelete" = false;
-                
+
                 "files.autoSave"           = "afterDelay";
                 "files.insertFinalNewline" = true;
             };
+            keybindings = import ./vscode-keybindings.nix;
         };
       };
     };
