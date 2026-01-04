@@ -1,0 +1,12 @@
+nix run nixpkgs#imagemagick -- \
+    -size 400x400 xc:'rgba(0,0,0,0.6)' \
+    \( -size 400x400 xc:none \
+    -fill none -stroke 'rgb(240,120,32)' -strokewidth 1 \
+    -draw "stroke-linecap butt" -draw "stroke-linejoin miter" \
+    -draw "line 0,0 15,0"   -draw "line 0,0 0,15" \
+    -draw "line 385,0 400,0" -draw "line 399,0 399,15" \
+    -draw "line 0,385 0,400" -draw "line 1,399 15,399" \
+    -draw "line 399,385 399,400" -draw "line 385,399 400,399" \
+    -alpha on -channel A -evaluate multiply 0.8 +channel \
+    \) -compose over -composite \
+    "$(dirname "$0")/plus-pattern.png"

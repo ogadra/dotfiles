@@ -6,7 +6,7 @@
     settings = {
       add_newline = true;
 
-      format = "[](fg:#0a0a0a bg:#f07820)$username[](fg:#f07820 bg:#1a1a1a)$directory[ ](fg:#1a1a1a)\n$character";
+      format = "$username[](fg:#f07820 bg:#1a1a1a)$directory[ ](fg:#1a1a1a)";
 
       # === who/where ===
       username = {
@@ -22,12 +22,6 @@
         truncate_to_repo = false;
         style = "#f07820 bg:#1a1a1a";
         format = "[ $path ]($style)[$read_only]($read_only_style)";
-      };
-
-      # === prompt symbol ===
-      character = {
-        success_symbol = "[\\$](#f07820) ";
-        error_symbol = "[\\$](#ff3030) ";
       };
     };
   };

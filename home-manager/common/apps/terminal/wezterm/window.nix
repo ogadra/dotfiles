@@ -11,7 +11,7 @@
         inactive_titlebar_bg = "none",
         active_titlebar_bg = "none",
         font = wezterm.font('JetBrainsMono Nerd Font Mono'),
-        font_size = 12.0,
+        font_size   = 12.0,
       }
       config.show_new_tab_button_in_tab_bar = false
       config.show_close_tab_button_in_tabs = false

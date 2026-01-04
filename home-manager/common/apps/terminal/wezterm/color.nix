@@ -27,6 +27,7 @@
         'Noto Sans Mono CJK JP',
       }
       config.font_size = 12.0
+      config.line_height = 1.2
 
       -- Cursor (blinking HUD style)
       config.cursor_blink_rate = 500
@@ -71,7 +72,6 @@
           '#ffffff',  -- bright white
         },
       }
-      config.window_background_opacity = 0.9
     end
 
     return module
