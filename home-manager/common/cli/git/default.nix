@@ -12,6 +12,9 @@
         email = "61941819+ogadra@users.noreply.github.com";
       };
 
+      init.defaultBranch = "main";
+      push.default = "current";
+
       ghq.root = "~/codes";
     };
 
