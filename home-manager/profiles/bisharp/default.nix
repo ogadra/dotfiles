@@ -8,6 +8,7 @@ let
 
   commonConfigs = [
     ../../common/cli/git
+    ../../common/cli/gh
     ../../common/cli/ghq
     ../../common/cli/gnumake
     ../../common/cli/claude-code
