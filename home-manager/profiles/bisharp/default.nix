@@ -1,6 +1,7 @@
 { ... }:
 let
   appConfigs = [
+    ../../common/apps/discord
     ../../common/apps/editor
     ../../common/apps/terminal
   ];
