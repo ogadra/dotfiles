@@ -118,7 +118,9 @@
       local SOLID_RIGHT = wezterm.nerdfonts.ple_upper_left_triangle
 
       -- Window title
-      config.window_title = 'TERMINAL'
+      wezterm.on('format-window-title', function(tab, pane, tabs, panes, config)
+        return 'TERMINAL'
+      end)
 
       -- Left status
       wezterm.on('update-status', function(window, pane)
