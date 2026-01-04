@@ -7,6 +7,7 @@ let
   ];
 
   commonConfigs = [
+    ../../common/cli/direnv
     ../../common/cli/git
     ../../common/cli/gh
     ../../common/cli/ghq
