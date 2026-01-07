@@ -2,6 +2,10 @@
   description = "ogadra's Nix Configuration";
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    nix-darwin = {
+      url = "github:LnL7/nix-darwin";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     home-manager = {
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -24,6 +28,7 @@
   {
     self,
     nixpkgs,
+    nix-darwin,
     home-manager,
     ...
   }@inputs:
@@ -42,13 +47,38 @@
             username
             ;
         };
+
+      darwinSystemArgs =
+        {
+          system,
+          profile,
+          username,
+        }:
+        import ./darwin {
+          inherit
+            inputs
+            profile
+            system
+            username
+            ;
+        };
+
       inherit (nixpkgs.lib) nixosSystem;
+      inherit (nix-darwin.lib) darwinSystem;
     in
     {
       nixosConfigurations = {
         bisharp = nixosSystem (nixosSystemArgs {
           system   = "x86_64-linux";
           profile  = "bisharp";
+          username = "ogadra";
+        });
+      };
+
+      darwinConfigurations = {
+        latias = darwinSystem (darwinSystemArgs {
+          system   = "x86_64-darwin";
+          profile  = "latias";
           username = "ogadra";
         });
       };
