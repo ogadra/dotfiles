@@ -68,6 +68,9 @@
     nerd-fonts.droid-sans-mono
   ];
 
+  # Primary user for darwin-rebuild
+  system.primaryUser = username;
+
   # State version
   system.stateVersion = 5;
 }

@@ -13,12 +13,19 @@ let
 
   homeManagerModules = [
     inputs.home-manager.darwinModules.home-manager
-    (import ../home-manager/default.nix {
-      inherit
-        profile
-        username
-        inputs
-        ;
+    ({ lib, ... }: {
+      home-manager = {
+        useGlobalPkgs = true;
+        useUserPackages = true;
+        users.${username} = {
+          imports = [ ../home-manager/profiles/${profile} ];
+          home.username = username;
+          home.homeDirectory = lib.mkForce "/Users/${username}";
+        };
+        extraSpecialArgs = {
+          inherit username inputs;
+        };
+      };
     })
   ];
 
