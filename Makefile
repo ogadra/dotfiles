@@ -7,18 +7,17 @@ ensure-nix:
 	@command -v nix >/dev/null 2>&1 || { \
 		echo "Nix not found. Installing..."; \
 		curl -L https://nixos.org/nix/install | sh; \
-		echo "Please restart your shell and run make again."; \
-		exit 1; \
+		echo "Restarting shell and running make..."; \
+		exec fish -c "cd $(PWD) && make"; \
 	}
 	@command -v darwin-rebuild >/dev/null 2>&1 || { \
 		echo "darwin-rebuild not found. Bootstrapping nix-darwin..."; \
-		nix --extra-experimental-features 'nix-command flakes' run nix-darwin -- switch --flake .#$(HOST); \
+		sudo nix --extra-experimental-features 'nix-command flakes' run nix-darwin -- switch --flake .#$(HOST); \
 	}
 
 ifeq ($(UNAME), Darwin)
 build: ensure-nix
 	darwin-rebuild build --flake .#$(HOST)
-
 switch: ensure-nix
 	sudo darwin-rebuild switch --flake .#$(HOST)
 else
