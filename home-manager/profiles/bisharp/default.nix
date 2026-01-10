@@ -3,6 +3,7 @@ let
   appConfigs = [
     ../../common/apps/discord
     ../../common/apps/editor
+    ../../common/apps/spotify
     ../../common/apps/terminal
   ];
 
