@@ -8,16 +8,6 @@
         command = "workbench.action.previousEditor";
     }
     {
-        key     = "pageup";
-        command = "-cursorPageUp";
-        when    = "textInputFocus";
-    }
-    {
-        key     = "pagedown";
-        command = "-cursorPageDown";
-        when    = "textInputFocus";
-    }
-    {
         key     = "meta+b";
         command = "-editor.action.toggleSidebarVisibility";
     }
