@@ -25,5 +25,6 @@
     "Bash(git commit -a:*)"
     "Bash(git add .)"
     "Bash(git add -u)"
+    "Bash(git add -A)"
   ];
 }
