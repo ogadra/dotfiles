@@ -1,6 +1,7 @@
 { ... }:
 let
   appConfigs = [
+    ../../common/apps/chrome
     ../../common/apps/discord
     ../../common/apps/editor
     ../../common/apps/spotify
