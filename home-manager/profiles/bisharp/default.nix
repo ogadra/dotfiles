@@ -19,6 +19,7 @@ let
     ../../common/cli/fzf
     ../../common/cli/mpv
     ../../common/cli/starship
+    ../../common/cli/unzip
   ];
 
   nixDesktopConfigs = [
