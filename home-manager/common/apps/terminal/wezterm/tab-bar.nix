@@ -222,12 +222,12 @@
         local status_parts = {}
         local total_width = 1  -- trailing cap
 
+        add_status_segment(status_parts, hostname, SOLID_LEFT)
+        total_width = total_width + #hostname + 4
         if git_text then
           add_status_segment(status_parts, git_text, SOLID_LEFT)
           total_width = total_width + #git_text + 4  -- text + separators + padding
         end
-        add_status_segment(status_parts, hostname, SOLID_LEFT)
-        total_width = total_width + #hostname + 4
         add_status_segment(status_parts, time, SOLID_LEFT)
         total_width = total_width + #time + 4
 
