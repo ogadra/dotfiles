@@ -41,4 +41,7 @@
 
   # MCP Settings
   ".playwright-mcp/*"
+
+  # Nix Settings
+  ".direnv/"
 ]
