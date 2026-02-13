@@ -30,6 +30,7 @@ in
                 "explorer.confirmDelete" = false;
 
                 "files.autoSave"           = "afterDelay";
+                "files.exclude"."**/.git"  = false;
                 "files.insertFinalNewline" = true;
             };
             keybindings = import ./vscode-keybindings.nix;
