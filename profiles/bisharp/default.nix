@@ -20,6 +20,11 @@ let
   nixLdSettings = [
     ../../nixos/settings/nix-ld/default.nix
   ];
+
+  # Virtualization
+  virtualizationSettings = [
+    ../../nixos/settings/virtualization/docker.nix
+  ];
 in
 {
   networking.hostName = "bisharp";
@@ -29,7 +34,8 @@ in
   ]
   ++ desktopSettings
   ++ shellSettings
-  ++ nixLdSettings;
+  ++ nixLdSettings
+  ++ virtualizationSettings;
 
   home-manager.sharedModules = [
     inputs.xremap.homeManagerModules.default
