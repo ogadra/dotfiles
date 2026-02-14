@@ -157,7 +157,7 @@
         return nil
       end
 
-      local parts = { ' ' .. branch }
+      local parts = { branch }
       local ahead, behind = get_git_ahead_behind(wezterm, cwd_path)
       if ahead and ahead > 0 then table.insert(parts, '⇡' .. ahead) end
       if behind and behind > 0 then table.insert(parts, '⇣' .. behind) end
