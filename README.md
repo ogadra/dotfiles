@@ -36,6 +36,22 @@ chezmoi edit <ファイルパス>
 chezmoi add <ファイルパス>
 ```
 
+## NixOS
+
+```bash
+# flake入力を全て更新
+make update
+
+# 特定の入力のみ更新
+make update <input-name>
+
+# ビルド
+make build
+
+# 適用
+make switch
+```
+
 ## 設定のカスタマイズ
 
 設定は`data/`ディレクトリ内の各種YAMLファイルに記載。
