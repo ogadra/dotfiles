@@ -15,6 +15,7 @@
       }
       config.show_new_tab_button_in_tab_bar = false
       config.show_close_tab_button_in_tabs = false
+      config.use_ime = true
     end
 
     return module
