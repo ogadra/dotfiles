@@ -225,7 +225,7 @@
       config.use_fancy_tab_bar = false
       config.tab_bar_at_bottom = false
       config.hide_tab_bar_if_only_one_tab = false
-      config.tab_max_width = 50
+      config.tab_max_width = 100
 
       config.colors = config.colors or {}
       config.colors.tab_bar = {
