@@ -59,7 +59,7 @@
       return nil
     end
 
-    -- Extract file path from URL or return as-is
+    -- Extract file path from URL or return as-is, stripping trailing slashes
     local function extract_path(url_or_path)
       if not url_or_path then
         return nil
@@ -67,11 +67,11 @@
       -- Handle file:// URLs (e.g., file://hostname/path or file:///path)
       local path = url_or_path:match('^file://[^/]*(/.*)$')
       if path then
-        return path
+        return path:gsub('/+$', ''')
       end
       -- Already a path
       if url_or_path:sub(1, 1) == '/' then
-        return url_or_path
+        return url_or_path:gsub('/+$', ''')
       end
       return nil
     end
