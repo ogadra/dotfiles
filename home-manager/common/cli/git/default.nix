@@ -16,6 +16,8 @@
       push.default = "current";
 
       ghq.root = "~/codes";
+
+      url."git@github.com:".insteadOf = "https://github.com/";
     };
 
     signing = {
