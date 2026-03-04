@@ -36,49 +36,6 @@
       return nil
     end
 
-    -- Get git ahead/behind counts
-    local function get_git_ahead_behind(wezterm, cwd)
-      if not cwd then
-        return nil, nil
-      end
-      local success, stdout, stderr = wezterm.run_child_process({
-        'git', '-C', cwd, 'rev-list', '--left-right', '--count', 'HEAD...@{upstream}'
-      })
-      if success then
-        local ahead, behind = stdout:match('(%d+)%s+(%d+)')
-        return tonumber(ahead), tonumber(behind)
-      end
-      return nil, nil
-    end
-
-    -- Get git file change counts
-    local function get_git_changes(wezterm, cwd)
-      if not cwd then
-        return nil
-      end
-      local success, stdout, stderr = wezterm.run_child_process({
-        'git', '-C', cwd, 'status', '--porcelain'
-      })
-      if not success then
-        return nil
-      end
-
-      local staged, modified, untracked = 0, 0, 0
-      for line in stdout:gmatch('[^\n]+') do
-        local index = line:sub(1, 1)
-        local worktree = line:sub(2, 2)
-        if index == '?' then
-          untracked = untracked + 1
-        elseif index ~= ' ' and index ~= '?' then
-          staged = staged + 1
-        end
-        if worktree ~= ' ' and worktree ~= '?' then
-          modified = modified + 1
-        end
-      end
-      return { staged = staged, modified = modified, untracked = untracked }
-    end
-
     -- Shorten home directory to ~
     local function shorten_path(path)
       local home = os.getenv('HOME')
@@ -150,25 +107,9 @@
       return shorten_path(path)
     end
 
-    -- Build git status text from cwd
+    -- Get git branch name for status bar
     local function build_git_text(wezterm, cwd_path)
-      local branch = get_git_branch(wezterm, cwd_path)
-      if not branch then
-        return nil
-      end
-
-      local parts = { branch }
-      local ahead, behind = get_git_ahead_behind(wezterm, cwd_path)
-      if ahead and ahead > 0 then table.insert(parts, '⇡' .. ahead) end
-      if behind and behind > 0 then table.insert(parts, '⇣' .. behind) end
-
-      local changes = get_git_changes(wezterm, cwd_path)
-      if changes then
-        if changes.staged > 0 then table.insert(parts, '+' .. changes.staged) end
-        if changes.modified > 0 then table.insert(parts, '~' .. changes.modified) end
-        if changes.untracked > 0 then table.insert(parts, '?' .. changes.untracked) end
-      end
-      return table.concat(parts, ' ')
+      return get_git_branch(wezterm, cwd_path)
     end
 
     -- Add a status segment with NERV style (black text on orange separator, then content)
