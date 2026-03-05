@@ -32,6 +32,8 @@ in
                 "files.autoSave"           = "afterDelay";
                 "files.exclude"."**/.git"  = false;
                 "files.insertFinalNewline" = true;
+
+                "cSpell.userWords" = [ "ogadra" ];
             };
             keybindings = import ./vscode-keybindings.nix;
         };
