@@ -1,6 +1,6 @@
 { ... }:
 {
   programs.fish.shellAliases = {
-    cc = "claude";
+    cl = "claude";
   };
 }
