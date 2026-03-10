@@ -71,6 +71,16 @@
   # Primary user for darwin-rebuild
   system.primaryUser = username;
 
+  # Trust additional CA certificates from /etc/ssl/certs
+  security.pki.certificateFiles =
+    let
+      certDir = /etc/ssl/certs;
+      entries = builtins.readDir certDir;
+      pemFiles = builtins.filter (name: builtins.match ".*\\.pem$" name != null)
+        (builtins.attrNames entries);
+    in
+    map (name: certDir + "/${name}") pemFiles;
+
   # State version
   system.stateVersion = 5;
 }
