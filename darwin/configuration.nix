@@ -40,27 +40,6 @@
     };
   };
 
-  # Homebrew integration (declarative management)
-  homebrew = {
-    enable = true;
-    onActivation = {
-      autoUpdate = true;
-      cleanup = "zap";
-      upgrade = true;
-    };
-
-    brews = [
-      "gitleaks"
-      "gomi"
-      "lefthook"
-      "mise"
-    ];
-
-    casks = [
-      # Add GUI apps here as needed
-    ];
-  };
-
   # Fonts
   fonts.packages = with pkgs; [
     noto-fonts-cjk-sans
