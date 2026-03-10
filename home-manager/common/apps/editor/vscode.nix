@@ -34,6 +34,10 @@ in
                 "files.exclude"."**/.git"  = false;
                 "files.insertFinalNewline" = true;
 
+                "update.mode" = "none";
+                "extensions.autoUpdate" = false;
+                "extensions.autoCheckUpdates" = false;
+
                 "cSpell.userWords" = [ "ogadra" ];
             };
             keybindings = import ./vscode-keybindings.nix;
