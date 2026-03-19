@@ -15,6 +15,7 @@ let
     ../../common/cli/gh
     ../../common/cli/ghq
     ../../common/cli/gnumake
+    ../../common/cli/jq
     ../../common/cli/claude-code
     ../../common/cli/fish
     ../../common/cli/fzf
