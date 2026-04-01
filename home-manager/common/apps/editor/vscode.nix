@@ -10,12 +10,13 @@ let
     '';
     inherit (pkgs.vscode) pname version;
   };
+  vscodePackage = if pkgs.stdenv.hostPlatform.isDarwin then pkgs.vscode else vscode-with-ime;
 in
 {
     programs = {
       vscode = {
         enable = true;
-        package = vscode-with-ime;
+        package = vscodePackage;
         profiles.default = {
             extensions = with pkgs.vscode-extensions; [
               github.copilot
@@ -32,6 +33,10 @@ in
                 "files.autoSave"           = "afterDelay";
                 "files.exclude"."**/.git"  = false;
                 "files.insertFinalNewline" = true;
+
+                "update.mode" = "none";
+                "extensions.autoUpdate" = false;
+                "extensions.autoCheckUpdates" = false;
 
                 "cSpell.userWords" = [ "ogadra" ];
             };
