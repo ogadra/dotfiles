@@ -3,6 +3,8 @@
   ...
 }:
 {
+  home.file.".ssh/allowed_signers".source = ./allowed_signers;
+
   programs.git = {
     enable = true;
 
@@ -25,6 +27,8 @@
       key           = "~/.ssh/id_ed25519.pub";
       signByDefault = true;
     };
+
+    extraConfig.gpg.ssh.allowedSignersFile = "~/.ssh/allowed_signers";
 
     ignores = import ./ignores.nix;
   };
