@@ -16,6 +16,7 @@ let
     ./settings/clock.nix
     ./settings/window-manager.nix
     ./settings/trackpad.nix
+    ./settings/login.nix
     ../profiles/${profile}
   ];
 
