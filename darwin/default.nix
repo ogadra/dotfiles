@@ -14,6 +14,7 @@ let
     ./settings/finder.nix
     ./settings/screenshot.nix
     ./settings/clock.nix
+    ./settings/window-manager.nix
     ../profiles/${profile}
   ];
 
