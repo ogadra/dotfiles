@@ -8,6 +8,7 @@
 let
   baseModules = [
     ./configuration.nix
+    ./settings/keyboard.nix
     ../profiles/${profile}
   ];
 
