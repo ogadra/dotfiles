@@ -12,6 +12,7 @@ let
     ./settings/dock.nix
     ./settings/hotcorner.nix
     ./settings/finder.nix
+    ./settings/screenshot.nix
     ../profiles/${profile}
   ];
 
