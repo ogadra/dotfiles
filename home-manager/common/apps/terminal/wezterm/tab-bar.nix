@@ -107,11 +107,6 @@
       return shorten_path(path)
     end
 
-    -- Get git branch name for status bar
-    local function build_git_text(wezterm, cwd_path)
-      return get_git_branch(wezterm, cwd_path)
-    end
-
     -- Add a status segment with NERV style (black text on orange separator, then content)
     local function add_status_segment(parts, text, separator)
       table.insert(parts, { Foreground = { Color = p.black } })
@@ -156,19 +151,19 @@
           end
         end
 
-        local git_text = build_git_text(wezterm, cwd_path)
+        local git_text = get_git_branch(wezterm, cwd_path)
         local hostname = wezterm.hostname():gsub('%..*', "")
         local time = wezterm.strftime('%H:%M:%S')
 
         local status_parts = {}
         local total_width = 1  -- trailing cap
 
-        add_status_segment(status_parts, hostname, SOLID_LEFT)
-        total_width = total_width + #hostname + 4
         if git_text then
           add_status_segment(status_parts, git_text, SOLID_LEFT)
-          total_width = total_width + #git_text + 4  -- text + separators + padding
+          total_width = total_width + #git_text + 4
         end
+        add_status_segment(status_parts, hostname, SOLID_LEFT)
+        total_width = total_width + #hostname + 4
         add_status_segment(status_parts, time, SOLID_LEFT)
         total_width = total_width + #time + 4
 
@@ -198,15 +193,6 @@
         local fg = is_active and tab_colors.active_fg or tab_colors.inactive_fg
 
         local title = dir_text
-        -- Calculate available width: terminal width - left status - right status - tab decorations
-        local term_width = pane.width or 80
-        local num_tabs = #tabs
-        local tab_decorations = 4  -- separators and padding per tab
-        local available_per_tab = math.floor((term_width - left_status_width - right_status_width) / num_tabs) - tab_decorations
-        local available_width = math.min(max_width - tab_decorations, available_per_tab)
-        if available_width > 0 and #title > available_width then
-          title = '...' .. title:sub(-(available_width - 3))
-        end
 
         return {
           { Background = { Color = tab_colors.bg } },
@@ -214,7 +200,7 @@
           { Text = ' ' .. SOLID_LEFT },
           { Background = { Color = bg } },
           { Foreground = { Color = fg } },
-          { Text = ' ' .. title .. ' ' },
+          { Text = title },
           { Background = { Color = tab_colors.bg } },
           { Foreground = { Color = bg } },
           { Text = SOLID_RIGHT },
@@ -225,7 +211,7 @@
       config.use_fancy_tab_bar = false
       config.tab_bar_at_bottom = false
       config.hide_tab_bar_if_only_one_tab = false
-      config.tab_max_width = 100
+      config.tab_max_width = 200
 
       config.colors = config.colors or {}
       config.colors.tab_bar = {
