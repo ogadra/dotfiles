@@ -28,10 +28,6 @@
     NSGlobalDomain = {
       AppleShowAllExtensions = true;
     };
-    dock = {
-      autohide = true;
-      show-recents = false;
-    };
     finder = {
       AppleShowAllFiles = true;
       FXPreferredViewStyle = "Nlsv";
