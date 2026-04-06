@@ -23,17 +23,6 @@
   ];
   users.users.${username}.shell = "/etc/profiles/per-user/${username}/bin/fish";
 
-  # macOS system defaults
-  system.defaults = {
-    NSGlobalDomain = {
-      AppleShowAllExtensions = true;
-    };
-    finder = {
-      AppleShowAllFiles = true;
-      FXPreferredViewStyle = "Nlsv";
-    };
-  };
-
   # Fonts
   fonts.packages = with pkgs; [
     noto-fonts-cjk-sans

@@ -11,6 +11,7 @@ let
     ./settings/keyboard.nix
     ./settings/dock.nix
     ./settings/hotcorner.nix
+    ./settings/finder.nix
     ../profiles/${profile}
   ];
 
