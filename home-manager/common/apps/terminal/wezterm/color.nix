@@ -26,7 +26,7 @@
         'JetBrainsMono Nerd Font Mono',
         'Noto Sans Mono CJK JP',
       }
-      config.font_size = 12.0
+      config.font_size = 16.0
       config.line_height = 1.2
 
       -- Cursor (blinking HUD style)
