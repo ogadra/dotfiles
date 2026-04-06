@@ -13,6 +13,7 @@ let
     ./settings/hotcorner.nix
     ./settings/finder.nix
     ./settings/screenshot.nix
+    ./settings/clock.nix
     ../profiles/${profile}
   ];
 
