@@ -17,6 +17,7 @@ let
     ./settings/window-manager.nix
     ./settings/trackpad.nix
     ./settings/login.nix
+    ./settings/controlcenter.nix
     ../profiles/${profile}
   ];
 
