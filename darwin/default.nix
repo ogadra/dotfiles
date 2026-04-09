@@ -19,6 +19,7 @@ let
     ./settings/login.nix
     ./settings/controlcenter.nix
     ./settings/screensaver.nix
+    ./settings/spaces.nix
     ../profiles/${profile}
   ];
 
