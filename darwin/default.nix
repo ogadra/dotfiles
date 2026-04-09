@@ -13,9 +13,11 @@ let
     ./settings/controlcenter.nix
     ./settings/dock.nix
     ./settings/finder.nix
+    ./settings/globalpreferences.nix
     ./settings/hitoolbox.nix
     ./settings/hotcorner.nix
     ./settings/keyboard.nix
+    ./settings/launchservices.nix
     ./settings/login.nix
     ./settings/screensaver.nix
     ./settings/screenshot.nix
