@@ -20,6 +20,7 @@ let
     ./settings/controlcenter.nix
     ./settings/screensaver.nix
     ./settings/spaces.nix
+    ./settings/universalaccess.nix
     ../profiles/${profile}
   ];
 
