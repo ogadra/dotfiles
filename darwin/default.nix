@@ -8,19 +8,20 @@
 let
   baseModules = [
     ./configuration.nix
-    ./settings/keyboard.nix
-    ./settings/dock.nix
-    ./settings/hotcorner.nix
-    ./settings/finder.nix
-    ./settings/screenshot.nix
     ./settings/clock.nix
-    ./settings/window-manager.nix
-    ./settings/trackpad.nix
-    ./settings/login.nix
     ./settings/controlcenter.nix
+    ./settings/dock.nix
+    ./settings/finder.nix
+    ./settings/hotcorner.nix
+    ./settings/keyboard.nix
+    ./settings/login.nix
     ./settings/screensaver.nix
+    ./settings/screenshot.nix
+    ./settings/softwareupdate.nix
     ./settings/spaces.nix
+    ./settings/trackpad.nix
     ./settings/universalaccess.nix
+    ./settings/window-manager.nix
     ../profiles/${profile}
   ];
 
