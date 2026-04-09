@@ -18,6 +18,7 @@ let
     ./settings/trackpad.nix
     ./settings/login.nix
     ./settings/controlcenter.nix
+    ./settings/screensaver.nix
     ../profiles/${profile}
   ];
 
