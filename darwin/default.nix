@@ -12,6 +12,7 @@ let
     ./settings/controlcenter.nix
     ./settings/dock.nix
     ./settings/finder.nix
+    ./settings/hitoolbox.nix
     ./settings/hotcorner.nix
     ./settings/keyboard.nix
     ./settings/login.nix
