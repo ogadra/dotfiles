@@ -78,4 +78,12 @@
     # 0=無効, 2=Mission Control / App Expose
     TrackpadFourFingerVertSwipeGesture = 0;
   };
+
+  system.defaults.NSGlobalDomain = {
+    # 強押しクリック
+    "com.apple.trackpad.forceClick" = false;
+
+    # トラックパッド速度
+    "com.apple.trackpad.scaling" = 3.0;
+  };
 }
