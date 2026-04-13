@@ -19,11 +19,11 @@ let
     ./settings/keyboard.nix
     ./settings/launchservices.nix
     ./settings/login.nix
+    ./settings/pointing
     ./settings/screensaver.nix
     ./settings/screenshot.nix
     ./settings/softwareupdate.nix
     ./settings/spaces.nix
-    ./settings/trackpad.nix
     ./settings/universalaccess.nix
     ./settings/window-manager.nix
     ../profiles/${profile}
