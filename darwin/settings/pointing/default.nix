@@ -5,8 +5,8 @@
     ./trackpad.nix
   ];
 
-  system.defaults.NSGlobalDomain = {
+  system.activationScripts.postActivation.text = ''
     # カーソルを振った時に拡大する機能を無効化
-    CGDisableCursorLocationMagnification = true;
-  };
+    defaults write NSGlobalDomain CGDisableCursorLocationMagnification -bool true
+  '';
 }
