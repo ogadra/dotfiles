@@ -13,6 +13,7 @@ let
     ../../common/cli/gh
     ../../common/cli/ghq
     ../../common/cli/gnumake
+    ../../common/cli/gomi
     ../../common/cli/claude-code
     ../../common/cli/fish
     ../../common/cli/fzf
