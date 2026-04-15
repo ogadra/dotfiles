@@ -20,6 +20,7 @@ let
     ../../common/cli/mpv
     ../../common/cli/nano
     ../../common/cli/starship
+    ../../common/cli/tree
   ];
 in
 {
