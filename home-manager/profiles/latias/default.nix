@@ -18,6 +18,7 @@ let
     ../../common/cli/fish
     ../../common/cli/fzf
     ../../common/cli/mpv
+    ../../common/cli/nano
     ../../common/cli/starship
   ];
 in
