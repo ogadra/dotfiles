@@ -3,6 +3,7 @@ let
   # GUI Applications (cross-platform)
   appConfigs = [
     ../../common/apps/1password
+    ../../common/apps/alt-tab
     ../../common/apps/editor
     ../../common/apps/terminal
   ];
