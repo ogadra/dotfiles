@@ -8,5 +8,8 @@
 
     # メニューバーやサイドバー等の透過効果を無効化
     defaults -currentHost write com.apple.universalaccess reduceTransparency -bool true
+
+    # Tahoe の Liquid Glass (ガラス効果) を完全無効化（再起動後に反映）
+    defaults write -g com.apple.SwiftUI.DisableSolarium -bool true
   '';
 }
