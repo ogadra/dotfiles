@@ -5,6 +5,7 @@ let
     ../../common/apps/1password
     ../../common/apps/alt-tab
     ../../common/apps/editor
+    ../../common/apps/karabiner
     ../../common/apps/terminal
   ];
 
