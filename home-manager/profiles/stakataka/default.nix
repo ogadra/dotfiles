@@ -4,6 +4,7 @@ let
   appConfigs = [
     ../../common/apps/1password
     ../../common/apps/alt-tab
+    ../../common/apps/docker
     ../../common/apps/editor
     ../../common/apps/karabiner
     ../../common/apps/terminal
