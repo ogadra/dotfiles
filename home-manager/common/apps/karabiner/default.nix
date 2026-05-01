@@ -1,5 +1,8 @@
-{ pkgs, ... }:
+{ lib, ... }:
 let
+  version = "15.9.0";
+  dmgUrl = "https://github.com/pqrs-org/Karabiner-Elements/releases/download/v${version}/Karabiner-Elements-${version}.dmg";
+  dmgSha256 = "c495f131165a4deefbe32e4a8ff5b3ffb000fcd5507140344899b8fee31574ee";
   emacsLikeExcludedApps = [
     "^com\\.microsoft\\.VSCode$"
     "^com\\.github\\.wez\\.wezterm$"
@@ -111,9 +114,21 @@ let
   };
 in
 {
-  home.packages = [ pkgs.karabiner-elements ];
-
   home.file.".config/karabiner/karabiner.json" = {
     text = builtins.toJSON karabinerConfig;
   };
+
+  home.activation.installKarabinerElements = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    if [ ! -d "/Applications/Karabiner-Elements.app" ]; then
+      _dmg=$(mktemp /tmp/karabiner-XXXXXX.dmg)
+      echo "Downloading Karabiner-Elements ${version}..."
+      /usr/bin/curl -L -o "$_dmg" "${dmgUrl}"
+      echo "${dmgSha256}  $_dmg" | /usr/bin/shasum -a 256 -c - || { echo "SHA256 mismatch!"; rm -f "$_dmg"; exit 1; }
+      _mnt=$(/usr/bin/mktemp -d /tmp/karabiner-mnt-XXXXXX)
+      /usr/bin/hdiutil attach "$_dmg" -mountpoint "$_mnt" -quiet
+      /usr/bin/sudo /usr/sbin/installer -pkg "$_mnt/Karabiner-Elements.pkg" -target /
+      /usr/bin/hdiutil detach "$_mnt" -quiet
+      rm -f "$_dmg"
+    fi
+  '';
 }
