@@ -3,6 +3,7 @@
   profile,
   system,
   username,
+  nixLib,
   ...
 }:
 let
@@ -41,7 +42,7 @@ let
           home.homeDirectory = lib.mkForce "/Users/${username}";
         };
         extraSpecialArgs = {
-          inherit username inputs;
+          inherit username inputs nixLib;
         };
       };
     })

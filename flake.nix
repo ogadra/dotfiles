@@ -36,6 +36,10 @@
       supportedSystems = [ "x86_64-linux" "x86_64-darwin" "aarch64-darwin" ];
       forAllSystems = nixpkgs.lib.genAttrs supportedSystems;
 
+      mkNixLib = system:
+        let pkgs = nixpkgs.legacyPackages.${system};
+        in import ./lib { inherit (nixpkgs) lib; inherit pkgs; };
+
       nixosSystemArgs =
         {
           system,
@@ -64,6 +68,7 @@
             system
             username
             ;
+          nixLib = mkNixLib system;
         };
 
       inherit (nixpkgs.lib) nixosSystem;
