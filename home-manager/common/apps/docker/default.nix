@@ -1,12 +1,36 @@
-{ lib, pkgs, ... }:
+{ lib, pkgs, nixLib, ... }:
 let
   version = "4.71.0";
   build = "225177";
   dmgUrl = "https://desktop.docker.com/mac/main/arm64/${build}/Docker.dmg";
   dmgSha256 = "56a78b132696b747c40b151af57ecdbd8529b5f4dac4d436cd0d767721a957b4";
+
+  daemonConfig = {
+    builder.gc = {
+      defaultKeepStorage = "20GB";
+      enabled = true;
+    };
+    experimental = false;
+    ip = "127.0.0.1";
+  };
+
+  # Only keys that Docker Desktop persists to settings-store.json are managed here.
+  # Keys not written by Docker Desktop itself will be ignored/removed on next launch.
+  desktopSettings = {
+    AnalyticsEnabled = false;
+    AutoDownloadUpdates = false;
+    EnableCLIHints = false;
+    EnableDockerAI = false;
+    EnableIntegrityCheck = false;
+    SbomIndexing = false;
+  };
+
 in
 lib.mkIf pkgs.stdenv.isDarwin {
   home.activation.installDockerDesktop = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    ${nixLib.mergeJson "$HOME/.docker/daemon.json" daemonConfig}
+    ${nixLib.mergeJson "$HOME/Library/Group Containers/group.com.docker/settings-store.json" desktopSettings}
+
     if [ ! -d "/Applications/Docker.app" ]; then
       _dmg=$(mktemp /tmp/docker-XXXXXX.dmg)
       echo "Downloading Docker Desktop ${version}..."
