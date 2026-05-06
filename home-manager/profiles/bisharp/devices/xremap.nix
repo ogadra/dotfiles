@@ -27,13 +27,6 @@
       ];
       keymap = [
         {
-          name = "wezterm customize";
-          application.only = [ "/wezterm/" ];
-          remap = {
-            Alt-v = "Shift-Insert";
-          };
-        }
-        {
           name = "Emacs Like";
           application.not = [ "/wezterm/" ];
           remap = {

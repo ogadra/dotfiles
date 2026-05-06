@@ -1,4 +1,11 @@
-{ ... }:
+{ pkgs, ... }:
+let
+  mod = if pkgs.stdenv.isDarwin then "SUPER" else "ALT";
+  altCompose = if pkgs.stdenv.isDarwin then ''
+    config.send_composed_key_when_left_alt_is_pressed = false
+    config.send_composed_key_when_right_alt_is_pressed = false
+  '' else "";
+in
 {
   xdg.configFile."wezterm/keybinds.lua".text = ''
     local module = {}
@@ -8,33 +15,31 @@
 
 
     config.disable_default_key_bindings = true
-    config.send_composed_key_when_left_alt_is_pressed = false
-    config.send_composed_key_when_right_alt_is_pressed = false
+    ${altCompose}
     config.keys = {
       -- Window Control
-      { key = 'n', mods = 'ALT', action = act.SpawnWindow },
+      { key = 'n', mods = '${mod}', action = act.SpawnWindow },
       { key = '=', mods = 'CTRL', action = act.IncreaseFontSize },
       { key = '-', mods = 'CTRL', action = act.DecreaseFontSize },
-      { key = '=', mods = 'ALT', action = act.IncreaseFontSize },
-      { key = '-', mods = 'ALT', action = act.DecreaseFontSize },
+      { key = '=', mods = '${mod}', action = act.IncreaseFontSize },
+      { key = '-', mods = '${mod}', action = act.DecreaseFontSize },
 
       -- Tab Control
-      { key = 't', mods = 'ALT', action = act.SpawnTab("CurrentPaneDomain") },
-      { key = 'w', mods = 'ALT', action = act.CloseCurrentTab({ confirm = false }) },
+      { key = 't', mods = '${mod}', action = act.SpawnTab("CurrentPaneDomain") },
+      { key = 'w', mods = '${mod}', action = act.CloseCurrentTab({ confirm = false }) },
 
       { key = 'Tab', mods = 'CTRL', action = act.ActivateTabRelative(1) },
       { key = 'Tab', mods = 'SHIFT|CTRL', action = act.ActivateTabRelative(-1) },
 
       -- Copy & Paste
-      { key = 'c', mods = 'ALT', action = act.CopyTo("Clipboard") },
-      { key = 'Insert', mods = 'CTRL', action = act.CopyTo("Clipboard") },
-      { key = 'Insert', mods = 'SHIFT', action = act.PasteFrom("Clipboard") },
+      { key = 'c', mods = '${mod}', action = act.CopyTo("Clipboard") },
+      { key = 'v', mods = '${mod}', action = act.PasteFrom("Clipboard") },
 
       -- Line Edit
       { key = 'k', mods = 'CTRL', action = act.SendKey { key = 'k', mods = 'CTRL' } },
 
       -- Pane Split
-      { key = 'd', mods = 'ALT', action = act.SplitHorizontal { domain = 'CurrentPaneDomain' } },
+      { key = 'd', mods = '${mod}', action = act.SplitHorizontal { domain = 'CurrentPaneDomain' } },
 
       -- CopyMode
       {
@@ -63,6 +68,10 @@
         { key = "n", mods = "CTRL", action = act.CopyMode("MoveDown") },
         { key = "a", mods = "CTRL", action = act.CopyMode("MoveToStartOfLineContent") },
         { key = "e", mods = "CTRL", action = act.CopyMode("MoveToEndOfLineContent") },
+        { key = "LeftArrow", mods = "NONE", action = act.CopyMode("MoveLeft") },
+        { key = "RightArrow", mods = "NONE", action = act.CopyMode("MoveRight") },
+        { key = "UpArrow", mods = "NONE", action = act.CopyMode("MoveUp") },
+        { key = "DownArrow", mods = "NONE", action = act.CopyMode("MoveDown") },
 
         -- Word movement
         { key = "f", mods = "ALT", action = act.CopyMode("MoveForwardWord") },
@@ -76,8 +85,8 @@
 
         -- Selection (C-Space to set mark)
         { key = "v", mods = "NONE", action = act.CopyMode({ SetSelectionMode = "Cell" }) },
-        { key = "V", mods = "SHIFT", action = act.CopyMode({ SetSelectionMode = "Line" }) },
-        { key = "V", mods = "CTRL|SHIFT", action = act.CopyMode({ SetSelectionMode = "Block" }) },
+        { key = "v", mods = "SHIFT", action = act.CopyMode({ SetSelectionMode = "Line" }) },
+        { key = "v", mods = "CTRL|SHIFT", action = act.CopyMode({ SetSelectionMode = "Block" }) },
 
         -- Copy (M-w) and cancel selection (C-g)
         { key = "w", mods = "ALT", action = act.Multiple({ { CopyTo = "ClipboardAndPrimarySelection" }, { CopyMode = "Close" } }) },
@@ -85,7 +94,7 @@
         -- Search
         { key = "s", mods = "CTRL", action = act.Search("CurrentSelectionOrEmptyString") },
         { key = "r", mods = "CTRL", action = act.Search("CurrentSelectionOrEmptyString") },
-      }
+      },
     }
     end
 

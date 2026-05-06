@@ -1,42 +1,28 @@
 { ... }:
 let
+  # GUI Applications (cross-platform)
   appConfigs = [
-    ../../common/apps/chrome
-    ../../common/apps/discord
+    ../../common/apps/1password
     ../../common/apps/editor
-    ../../common/apps/obs
-    ../../common/apps/spotify
+    ../../common/apps/karabiner
     ../../common/apps/terminal
   ];
 
+  # CLI tools (cross-platform)
   commonConfigs = [
     ../../common/cli/direnv
     ../../common/cli/git
     ../../common/cli/gh
     ../../common/cli/ghq
     ../../common/cli/gnumake
-    ../../common/cli/jq
+    ../../common/cli/gomi
     ../../common/cli/claude-code
-    ../../common/cli/takt
     ../../common/cli/fish
     ../../common/cli/fzf
     ../../common/cli/mpv
+    ../../common/cli/nano
     ../../common/cli/starship
     ../../common/cli/tree
-    ../../common/cli/unzip
-  ];
-
-  nixDesktopConfigs = [
-    ../../nixos/kwin
-    ../../nixos/mouse
-    ../../nixos/klipper
-    ../../nixos/wl-clipboard
-    ../../nixos/wofi
-    ../../nixos/cliphist
-  ];
-
-  deviceConfigs = [
-    ./devices/xremap.nix
   ];
 in
 {
@@ -44,7 +30,5 @@ in
   imports =
     appConfigs
     ++ commonConfigs
-    ++ nixDesktopConfigs
-    ++ deviceConfigs
     ;
 }

@@ -1,59 +1,43 @@
 # dotfiles
 
-[chezmoi](https://www.chezmoi.io/)を使用して管理
+[Nix Flakes](https://nixos.wiki/wiki/Flakes) + [Home Manager](https://github.com/nix-community/home-manager) で管理
 
-## 必要なもの
+## マシン構成
 
-- [chezmoi](https://www.chezmoi.io/)
-- git
+| ホスト名 | OS | アーキテクチャ |
+|---|---|---|
+| `bisharp` | NixOS (KDE Plasma 6) | x86_64-linux |
+| `latias` | macOS (nix-darwin) | x86_64-darwin |
+| `stakataka` | macOS (nix-darwin) | aarch64-darwin |
 
-## インストール
-
-```bash
-# chezmoiのインストール
-brew install chezmoi
-
-# dotfilesの初期化とインストール
-chezmoi init --apply ogadra
-
-# miseで管理された依存関係のインストール
-mise install
-```
-
-## 使い方
+## セットアップ
 
 ```bash
-# 変更を確認
-chezmoi diff
+# 適用
+make switch
 
-# 設定を適用
-chezmoi apply
-
-# テンプレートファイルを編集
-chezmoi edit <ファイルパス>
-
-# 変更をリポジトリに追加
-chezmoi add <ファイルパス>
-```
-
-## NixOS
-
-```bash
 # flake入力を全て更新
 make update
 
-# 特定の入力のみ更新
-make update <input-name>
-
-# ビルド
-make build
-
-# 適用
-make switch
+# 特定の入力のみ更新 (例: claude-code)
+make update claude-code-overlay
 ```
 
-## 設定のカスタマイズ
+## ディレクトリ構成
 
-設定は`data/`ディレクトリ内の各種YAMLファイルに記載。
-
-`data/`ディレクトリ内の`.sample`ファイルを参考にして設定。
+```
+.
+├── flake.nix                # エントリポイント
+├── nixos/                   # NixOS システム設定
+├── darwin/                  # macOS システム設定
+├── profiles/                # マシン固有のシステムプロファイル
+├── home-manager/            # ユーザー環境設定
+│   ├── common/              # クロスプラットフォーム
+│   │   ├── apps/            # GUI (wezterm, vscode, etc.)
+│   │   └── cli/             # CLI (fish, git, starship, etc.)
+│   ├── nixos/               # Linux 固有 (kwin, wofi, etc.)
+│   └── profiles/            # マシン固有のユーザープロファイル
+├── private_dot_config/      # chezmoi管理 (レガシー)
+├── data/                    # 設定データ
+└── init/                    # 初期化スクリプト (レガシー)
+```

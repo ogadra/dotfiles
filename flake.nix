@@ -2,6 +2,10 @@
   description = "ogadra's Nix Configuration";
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    nix-darwin = {
+      url = "github:LnL7/nix-darwin";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     home-manager = {
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -27,10 +31,18 @@
   {
     self,
     nixpkgs,
+    nix-darwin,
     home-manager,
     ...
   }@inputs:
     let
+      supportedSystems = [ "x86_64-linux" "x86_64-darwin" "aarch64-darwin" ];
+      forAllSystems = nixpkgs.lib.genAttrs supportedSystems;
+
+      mkNixLib = system:
+        let pkgs = nixpkgs.legacyPackages.${system};
+        in import ./lib { inherit (nixpkgs) lib; inherit pkgs; };
+
       nixosSystemArgs =
         {
           system,
@@ -45,7 +57,25 @@
             username
             ;
         };
+
+      darwinSystemArgs =
+        {
+          system,
+          profile,
+          username,
+        }:
+        import ./darwin {
+          inherit
+            inputs
+            profile
+            system
+            username
+            ;
+          nixLib = mkNixLib system;
+        };
+
       inherit (nixpkgs.lib) nixosSystem;
+      inherit (nix-darwin.lib) darwinSystem;
     in
     {
       nixosConfigurations = {
@@ -55,5 +85,32 @@
           username = "ogadra";
         });
       };
+
+      darwinConfigurations = {
+        latias = darwinSystem (darwinSystemArgs {
+          system   = "x86_64-darwin";
+          profile  = "latias";
+          username = "ogadra";
+        });
+        stakataka = darwinSystem (darwinSystemArgs {
+          system   = "aarch64-darwin";
+          profile  = "stakataka";
+          username = "ogadra";
+        });
+      };
+
+      devShells = forAllSystems (system:
+        let
+          pkgs = nixpkgs.legacyPackages.${system};
+        in
+        {
+          default = pkgs.mkShell {
+            packages = with pkgs; [
+              gitleaks
+              lefthook
+            ];
+          };
+        }
+      );
     };
 }
