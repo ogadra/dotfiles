@@ -10,6 +10,7 @@ let
     hooks = import ./hooks.nix;
     alwaysThinkingEnabled = false;
     autoUpdates = false;
+    defaultModel = "opus";
   };
 in
 {
