@@ -10,6 +10,7 @@ let
     permissions = import ./permissions.nix;
     hooks = import ./hooks.nix;
     alwaysThinkingEnabled = false;
+    defaultModel = "opus";
   };
 in
 {
