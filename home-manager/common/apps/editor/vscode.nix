@@ -1,14 +1,15 @@
 { pkgs, lib, ... }:
 let
   vscode-with-ime = pkgs.symlinkJoin {
-    name = "vscode";
+    name = "code";
+    pname = "code";
     paths = [ pkgs.vscode ];
     buildInputs = [ pkgs.makeWrapper ];
     postBuild = ''
       wrapProgram $out/bin/code \
         --append-flags "--enable-wayland-ime"
     '';
-    inherit (pkgs.vscode) pname version;
+    inherit (pkgs.vscode) version;
   };
   vscodePackage = if pkgs.stdenv.hostPlatform.isDarwin then pkgs.vscode else vscode-with-ime;
 in
