@@ -17,6 +17,7 @@ let
     ../../common/cli/gnumake
     ../../common/cli/jq
     ../../common/cli/claude-code
+    ../../common/cli/codex
     ../../common/cli/takt
     ../../common/cli/fish
     ../../common/cli/fzf
