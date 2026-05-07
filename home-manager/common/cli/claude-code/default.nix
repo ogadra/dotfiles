@@ -4,13 +4,13 @@
   ...
 }:
 let
-  claude-code = inputs.claude-code-overlay.packages.${pkgs.system}.default;
+  claude-code = inputs.llm-agents.packages.${pkgs.system}.claude-code;
   settingsJson = builtins.toJSON {
     permissions = import ./permissions.nix;
     hooks = import ./hooks.nix;
     alwaysThinkingEnabled = false;
     autoUpdates = false;
-    defaultModel = "opus";
+    model = "opus";
   };
 in
 {

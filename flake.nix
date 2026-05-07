@@ -15,8 +15,8 @@
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.home-manager.follows = "home-manager";
     };
-    claude-code-overlay = {
-      url = "github:ryoppippi/claude-code-overlay";
+    llm-agents = {
+      url = "github:numtide/llm-agents.nix";
     };
     nix-takt = {
       url = "github:ogadra/nix-takt";
