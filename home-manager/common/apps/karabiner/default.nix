@@ -52,9 +52,23 @@ let
             };
             simple_modifications = [
               { from.key_code = "caps_lock";    to = [{ key_code = "left_control"; }]; }
-              { from.key_code = "left_command"; to = [{ key_code = "left_option"; }]; }
               { from.key_code = "left_control"; to = [{ key_code = "caps_lock"; }]; }
+              { from.key_code = "left_command"; to = [{ key_code = "left_option"; }]; }
               { from.key_code = "left_option";  to = [{ key_code = "left_command"; }]; }
+            ];
+          }
+          # REALFORCE (Topre): swap command <-> option
+          {
+            identifiers = {
+              is_keyboard = true;
+              product_id = 327;
+              vendor_id = 2131;
+            };
+            simple_modifications = [
+              { from.key_code = "left_command";  to = [{ key_code = "left_option"; }]; }
+              { from.key_code = "left_option";   to = [{ key_code = "left_command"; }]; }
+              { from.key_code = "right_command"; to = [{ key_code = "right_option"; }]; }
+              { from.key_code = "right_option";  to = [{ key_code = "right_command"; }]; }
             ];
           }
           # Default (all other keyboards): swap caps_lock <-> left_control
