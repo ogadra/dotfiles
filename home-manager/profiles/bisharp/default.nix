@@ -19,6 +19,7 @@ let
     ../../common/cli/ghq
     ../../common/cli/git
     ../../common/cli/gnumake
+    ../../common/cli/gomi
     ../../common/cli/jq
     ../../common/cli/mpv
     ../../common/cli/starship
