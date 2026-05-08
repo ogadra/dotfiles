@@ -1,0 +1,8 @@
+# Git config applied only inside Claude Code sessions.
+# Loaded via GIT_CONFIG_GLOBAL by the claude-code wrapper.
+
+[include]
+	path = ~/.config/git/config
+
+[push]
+	default = nothing

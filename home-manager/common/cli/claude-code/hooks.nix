@@ -32,4 +32,15 @@
       ];
     }
   ];
+  PreToolUse = [
+    {
+      matcher = "Bash";
+      hooks = [
+        {
+          type = "command";
+          command = "$HOME/.claude/scripts/block-push-to-default-branch.sh";
+        }
+      ];
+    }
+  ];
 }
