@@ -26,6 +26,11 @@ let
   virtualizationSettings = [
     ../../nixos/settings/virtualization/docker.nix
   ];
+
+  # Hardware
+  hardwareSettings = [
+    ../../nixos/settings/hardware/thunderbolt.nix
+  ];
 in
 {
   networking.hostName = "bisharp";
@@ -36,7 +41,8 @@ in
   ++ desktopSettings
   ++ shellSettings
   ++ nixLdSettings
-  ++ virtualizationSettings;
+  ++ virtualizationSettings
+  ++ hardwareSettings;
 
   home-manager.sharedModules = [
     inputs.xremap.homeManagerModules.default
