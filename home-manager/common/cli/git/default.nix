@@ -28,7 +28,7 @@
       signByDefault = true;
     };
 
-    extraConfig.gpg.ssh.allowedSignersFile = "~/.ssh/allowed_signers";
+    settings.gpg.ssh.allowedSignersFile = "~/.ssh/allowed_signers";
 
     ignores = import ./ignores.nix;
   };
