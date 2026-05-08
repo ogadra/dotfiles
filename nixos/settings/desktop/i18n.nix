@@ -32,6 +32,15 @@
         ignoreUserConfig = true;
 
         settings = {
+          globalOptions = {
+            Hotkey = {
+              EnumerateWithTriggerKeys = false;
+            };
+            "Hotkey/AltTriggerKeys" = { };
+            "Hotkey/EnumerateForwardKeys" = { };
+            "Hotkey/EnumerateBackwardKeys" = { };
+            "Hotkey/TriggerKeys"."0" = "Control+space";
+          };
           inputMethod = {
             GroupOrder."0" = "Default";
             "Groups/0" = {
