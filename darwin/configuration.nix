@@ -19,9 +19,10 @@
   programs.zsh.enable = true;
   programs.fish.enable = true;
   environment.shells = [
+    "/etc/profiles/per-user/${username}/bin/zsh"
     "/etc/profiles/per-user/${username}/bin/fish"
   ];
-  users.users.${username}.shell = "/etc/profiles/per-user/${username}/bin/fish";
+  users.users.${username}.shell = "/etc/profiles/per-user/${username}/bin/zsh";
 
   # Fonts
   fonts.packages = with pkgs; [

@@ -14,6 +14,7 @@ let
   # Shell
   shellSettings = [
     ../../nixos/settings/shell/fish.nix
+    ../../nixos/settings/shell/zsh.nix
   ];
 
   # Nix-ld

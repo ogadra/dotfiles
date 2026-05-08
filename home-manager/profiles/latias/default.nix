@@ -23,6 +23,7 @@ let
     ../../common/cli/nano
     ../../common/cli/starship
     ../../common/cli/tree
+    ../../common/cli/zsh
   ];
 in
 {

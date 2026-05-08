@@ -10,21 +10,22 @@ let
   ];
 
   commonConfigs = [
-    ../../common/cli/direnv
-    ../../common/cli/git
-    ../../common/cli/gh
-    ../../common/cli/ghq
-    ../../common/cli/gnumake
-    ../../common/cli/jq
     ../../common/cli/claude-code
     ../../common/cli/codex
-    ../../common/cli/takt
+    ../../common/cli/direnv
     ../../common/cli/fish
     ../../common/cli/fzf
+    ../../common/cli/gh
+    ../../common/cli/ghq
+    ../../common/cli/git
+    ../../common/cli/gnumake
+    ../../common/cli/jq
     ../../common/cli/mpv
     ../../common/cli/starship
+    ../../common/cli/takt
     ../../common/cli/tree
     ../../common/cli/unzip
+    ../../common/cli/zsh
   ];
 
   nixDesktopConfigs = [
