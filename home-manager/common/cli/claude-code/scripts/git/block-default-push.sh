@@ -1,16 +1,10 @@
 #!/usr/bin/env bash
-# PreToolUse(Bash) hook: block `git push` to the remote's default branch.
+# Block `git push` to the remote's default branch.
+# Input: one git command per stdin line (e.g., "git push origin main").
 set -u
 
-INPUT=$(cat)
-CMD=$(printf '%s' "$INPUT" | jq -r '.tool_input.command // ""')
-CWD=$(printf '%s' "$INPUT" | jq -r '.cwd // ""')
-[ -n "$CWD" ] && cd "$CWD" 2>/dev/null
-
-# Iterate each ;/&&/|| separated segment so chained pushes are also caught.
-# Use process substitution so `exit 2` terminates the script, not just a pipeline subshell.
 while IFS= read -r SEG; do
-  SEG="${SEG#"${SEG%%[![:space:]]*}"}"
+  [ -n "$SEG" ] || continue
   case "$SEG" in
     "git push"|"git push "*) ;;
     *) continue ;;
@@ -65,5 +59,5 @@ while IFS= read -r SEG; do
     printf 'Blocked: pushing to default branch "%s" on "%s" is not allowed. Open a PR instead.\n' "$DEFAULT" "$REMOTE" >&2
     exit 2
   fi
-done < <(printf '%s\n' "$CMD" | tr ';&|' '\n')
+done
 exit 0
