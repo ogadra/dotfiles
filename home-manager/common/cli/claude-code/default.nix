@@ -15,9 +15,10 @@ let
         --set-default GIT_CONFIG_SYSTEM /dev/null
     '';
   };
+  hooksConfig = import ./hooks.nix;
   settingsJson = builtins.toJSON {
     permissions = import ./permissions.nix;
-    hooks = import ./hooks.nix;
+    hooks = hooksConfig.hooks;
     alwaysThinkingEnabled = false;
     autoUpdates = false;
     model = "opus";
@@ -31,9 +32,5 @@ in
     ".claude/sounds/stop.mp3".source = ./sounds/stop.mp3;
     ".claude/settings.json".text = settingsJson;
     ".claude/config/.gitconfig".source = ./.gitconfig;
-    ".claude/scripts/block-push-to-default-branch.sh" = {
-      source = ./scripts/block-push-to-default-branch.sh;
-      executable = true;
-    };
-  };
+  } // hooksConfig.scripts;
 }
