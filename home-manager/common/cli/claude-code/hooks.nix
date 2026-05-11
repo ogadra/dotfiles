@@ -34,6 +34,7 @@ in
         hooks = [
           {
             type = "command";
+            # ファイル末尾が改行で終わっていなければ改行を1つ追記する。
             command = ''FILE_PATH=$(jq -r '.tool_input.file_path') && [ -n "$(tail -c1 "$FILE_PATH")" ] && echo >> "$FILE_PATH"'';
           }
         ];
