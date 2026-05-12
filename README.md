@@ -19,8 +19,8 @@ make switch
 # flake入力を全て更新
 make update
 
-# 特定の入力のみ更新 (例: claude-code)
-make update claude-code-overlay
+# 特定の入力のみ更新 (例: llm-agents.nix)
+make update llm-agents
 ```
 
 ## ディレクトリ構成

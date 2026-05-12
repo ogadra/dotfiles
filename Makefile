@@ -29,4 +29,7 @@ switch:
 endif
 
 update:
-	nix flake update $(filter-out $@,$(MAKECMDGOALS))
+	nix flake update --access-tokens "github.com=$$(gh auth token)" $(filter-out $@,$(MAKECMDGOALS))
+
+%:
+	@:
