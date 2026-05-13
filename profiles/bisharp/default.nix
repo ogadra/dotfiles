@@ -31,6 +31,11 @@ let
   hardwareSettings = [
     ../../nixos/settings/hardware/thunderbolt.nix
   ];
+
+  # Programs
+  programsSettings = [
+    ../../nixos/settings/programs/steam.nix
+  ];
 in
 {
   networking.hostName = "bisharp";
@@ -42,7 +47,8 @@ in
   ++ shellSettings
   ++ nixLdSettings
   ++ virtualizationSettings
-  ++ hardwareSettings;
+  ++ hardwareSettings
+  ++ programsSettings;
 
   home-manager.sharedModules = [
     inputs.xremap.homeManagerModules.default
