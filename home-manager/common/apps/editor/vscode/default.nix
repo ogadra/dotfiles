@@ -41,7 +41,7 @@ in
 
                 "cSpell.userWords" = [ "ogadra" ];
             };
-            keybindings = import ./vscode-keybindings.nix;
+            keybindings = import ./keybindings.nix;
         };
       };
     };

@@ -1,9 +1,9 @@
 { ... }:
 let
-  vscode = [
-    ./vscode.nix
+  editors = [
+    ./vscode
   ];
 in
 {
-  imports = vscode;
+  imports = editors;
 }
