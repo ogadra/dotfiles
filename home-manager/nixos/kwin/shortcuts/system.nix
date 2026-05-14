@@ -16,7 +16,7 @@
 
     [ksmserver]
     Halt Without Confirmation=none,,Shut Down Without Confirmation
-    Lock Session=Screensaver,Meta+L\tScreensaver,Lock Session
+    Lock Session=Ctrl+F11,Meta+L\tScreensaver,Lock Session
     Log Out=Ctrl+Alt+Del,Ctrl+Alt+Del,Show Logout Screen
     Log Out Without Confirmation=none,,Log Out Without Confirmation
     LogOut=none,,Log Out

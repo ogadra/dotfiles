@@ -11,10 +11,9 @@ let
     ../../nixos/settings/desktop/i18n.nix
   ];
 
-  # Shell
-  shellSettings = [
-    ../../nixos/settings/shell/fish.nix
-    ../../nixos/settings/shell/zsh.nix
+  # Hardware
+  hardwareSettings = [
+    ../../nixos/settings/hardware/thunderbolt.nix
   ];
 
   # Nix-ld
@@ -22,19 +21,25 @@ let
     ../../nixos/settings/nix-ld/default.nix
   ];
 
-  # Virtualization
-  virtualizationSettings = [
-    ../../nixos/settings/virtualization/docker.nix
-  ];
-
-  # Hardware
-  hardwareSettings = [
-    ../../nixos/settings/hardware/thunderbolt.nix
+  # Power
+  powerSettings = [
+    ../../nixos/settings/power
   ];
 
   # Programs
   programsSettings = [
     ../../nixos/settings/programs/steam.nix
+  ];
+
+  # Shell
+  shellSettings = [
+    ../../nixos/settings/shell/fish.nix
+    ../../nixos/settings/shell/zsh.nix
+  ];
+
+  # Virtualization
+  virtualizationSettings = [
+    ../../nixos/settings/virtualization/docker.nix
   ];
 in
 {
@@ -44,11 +49,12 @@ in
     ./hardware-configuration.nix
   ]
   ++ desktopSettings
-  ++ shellSettings
-  ++ nixLdSettings
-  ++ virtualizationSettings
   ++ hardwareSettings
-  ++ programsSettings;
+  ++ nixLdSettings
+  ++ powerSettings
+  ++ programsSettings
+  ++ shellSettings
+  ++ virtualizationSettings;
 
   home-manager.sharedModules = [
     inputs.xremap.homeManagerModules.default
