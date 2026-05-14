@@ -2,6 +2,7 @@
 let
   editors = [
     ./vscode
+    ./emacs
   ];
 in
 {
