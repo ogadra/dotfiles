@@ -55,6 +55,7 @@ in
 
   scripts = {
     ".claude/scripts/pre-bash.sh" = mkScript ./scripts/pre-bash.sh;
+    ".claude/scripts/statusline.sh" = mkScript ./scripts/statusline.sh;
     ".claude/scripts/git/check.sh" = mkScript ./scripts/git/check.sh;
     ".claude/scripts/git/block-default-push.sh" = mkScript ./scripts/git/block-default-push.sh;
     ".claude/scripts/git/block-no-verify.sh" = mkScript ./scripts/git/block-no-verify.sh;

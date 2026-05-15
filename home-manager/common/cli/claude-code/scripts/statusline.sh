@@ -1,0 +1,110 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+input=$(cat)
+
+model=$(jq -r '.model.display_name // .model.id // ""' <<<"$input")
+ctx_pct=$(jq -r '.context_window.used_percentage // empty' <<<"$input")
+ctx_used=$(jq -r '.context_window.total_input_tokens // empty' <<<"$input")
+ctx_total=$(jq -r '.context_window.context_window_size // empty' <<<"$input")
+rl_5h=$(jq -r '.rate_limits.five_hour.used_percentage // empty' <<<"$input")
+rl_7d=$(jq -r '.rate_limits.seven_day.used_percentage // empty' <<<"$input")
+
+fmt_tokens() {
+  awk -v n="$1" 'BEGIN {
+    if (n >= 1000000) printf "%.1fM", n/1000000
+    else if (n >= 1000) printf "%.1fk", n/1000
+    else printf "%d", n
+  }'
+}
+
+# 10セルのバー (10%ごとに1セル)
+make_bar() {
+  awk -v p="$1" 'BEGIN {
+    width = 10
+    if (p > 100) p = 100
+    if (p < 0) p = 0
+    filled = int(p / 10 + 0.5)
+    s = ""
+    for (i = 0; i < filled; i++) s = s "█"
+    for (i = filled; i < width; i++) s = s "░"
+    print s
+  }'
+}
+
+# ccusage呼び出し結果のキャッシュ。
+# 月次は重いので15分、当日は1分。stale-while-revalidate的に古い値があれば即返す。
+cache_dir="${XDG_CACHE_HOME:-$HOME/.cache}/claude-statusline"
+mkdir -p "$cache_dir"
+
+# 引数: <cache_file> <ttl_sec> <jq_filter> <ccusage args...>
+get_cost() {
+  local cache_file="$1" ttl="$2" filter="$3"
+  shift 3
+  local now mtime age
+  now=$(date +%s)
+  if [ -f "$cache_file" ]; then
+    mtime=$(stat -c %Y "$cache_file" 2>/dev/null || stat -f %m "$cache_file" 2>/dev/null || echo 0)
+    age=$((now - mtime))
+    if [ "$age" -lt "$ttl" ]; then
+      jq -r "$filter" <"$cache_file" 2>/dev/null || echo ""
+      return
+    fi
+  fi
+  if json=$(ccusage "$@" --json 2>/dev/null); then
+    printf '%s' "$json" >"$cache_file"
+    jq -r "$filter" <<<"$json" 2>/dev/null || echo ""
+  elif [ -f "$cache_file" ]; then
+    jq -r "$filter" <"$cache_file" 2>/dev/null || echo ""
+  fi
+}
+
+today=$(date +%Y%m%d)
+month_prefix=$(date +%Y-%m)
+
+today_cost=$(get_cost "$cache_dir/today.json" 60 \
+  ".daily[0].totalCost // empty" \
+  daily --since "$today" --until "$today" --offline)
+
+month_cost=$(get_cost "$cache_dir/month.json" 900 \
+  ".monthly[] | select(.month == \"$month_prefix\") | .totalCost" \
+  monthly --offline)
+
+# --- 表示順: ctx / limit / cost / model ---
+parts=()
+
+if [ -n "$ctx_pct" ] && [ -n "$ctx_used" ]; then
+  bar=$(make_bar "$ctx_pct")
+  if [ -n "$ctx_total" ]; then
+    parts+=("$(printf 'ctx %s / %s [%s] %.0f%%' \
+      "$(fmt_tokens "$ctx_used")" "$(fmt_tokens "$ctx_total")" "$bar" "$ctx_pct")")
+  else
+    parts+=("$(printf 'ctx %s [%s] %.0f%%' "$(fmt_tokens "$ctx_used")" "$bar" "$ctx_pct")")
+  fi
+fi
+
+if [ -n "$rl_5h" ]; then
+  parts+=("$(printf '5h %.0f%%' "$rl_5h")")
+fi
+if [ -n "$rl_7d" ]; then
+  parts+=("$(printf '7d %.0f%%' "$rl_7d")")
+fi
+
+cost_parts=()
+[ -n "$today_cost" ] && cost_parts+=("$(printf '$%.2f today' "$today_cost")")
+[ -n "$month_cost" ] && cost_parts+=("$(printf '$%.2f month' "$month_cost")")
+if [ ${#cost_parts[@]} -gt 0 ]; then
+  cost_str=""
+  for cp in "${cost_parts[@]}"; do
+    if [ -z "$cost_str" ]; then cost_str="$cp"; else cost_str="$cost_str / $cp"; fi
+  done
+  parts+=("$cost_str")
+fi
+
+[ -n "$model" ] && parts+=("$model")
+
+out=""
+for p in "${parts[@]}"; do
+  if [ -z "$out" ]; then out="$p"; else out="$out | $p"; fi
+done
+printf '%s' "$out"

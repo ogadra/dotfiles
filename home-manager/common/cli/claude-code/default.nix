@@ -15,6 +15,7 @@ let
         --set-default GIT_CONFIG_SYSTEM /dev/null
     '';
   };
+  ccusage = inputs.llm-agents.packages.${pkgs.system}.ccusage;
   hooksConfig = import ./hooks.nix;
 
   settingsJson = builtins.toJSON {
@@ -108,7 +109,11 @@ let
     # スピナー Tips のオーバーライド（excludeDefault と tips 配列）。
     # spinnerTipsOverride = null;
     # カスタムステータスライン定義（command 型）。
-    # statusLine = null;
+    statusLine = {
+      type = "command";
+      command = "$HOME/.claude/scripts/statusline.sh";
+      padding = 2;
+    };
     # サブエージェントごとのステータスライン定義。
     # subagentStatusLine = null;
     # 起動時に表示する企業アナウンス（複数なら 1 件ランダム選択）。
@@ -229,7 +234,10 @@ let
   };
 in
 {
-  home.packages = [ claude-code ];
+  home.packages = [
+    claude-code
+    ccusage
+  ];
 
   home.file = {
     ".claude/sounds/notification.mp3".source = ./sounds/notification.mp3;
