@@ -1,8 +1,8 @@
 { lib, ... }:
 let
-  version = "15.9.0";
+  version = "16.0.0";
   dmgUrl = "https://github.com/pqrs-org/Karabiner-Elements/releases/download/v${version}/Karabiner-Elements-${version}.dmg";
-  dmgSha256 = "c495f131165a4deefbe32e4a8ff5b3ffb000fcd5507140344899b8fee31574ee";
+  dmgSha256 = "b960f731890a74231c229e5453c4ee7109efb328c4fb63aed8974e347fd1f9c0";
   emacsLikeExcludedApps = [
     "^com\\.microsoft\\.VSCode$"
     "^com\\.github\\.wez\\.wezterm$"
