@@ -26,9 +26,9 @@ let
     # 既定モデル。"opus" / "sonnet" / "haiku" などのエイリアス、または完全な model ID。
     model = "opus";
     # 拡張思考の自動有効化。false で thinking 無効、true/未設定で対応モデルでは自動 ON。
-    alwaysThinkingEnabled = false;
+    alwaysThinkingEnabled = true;
     # 対応モデル向けの effort レベル（low/medium/high/xhigh）。
-    effortLevel = "medium";
+    effortLevel = "high";
     # Fast mode（Opus 4.6 の高速出力モード）の常時有効化。
     fastMode = false;
     # Fast mode をセッションをまたいで保持しない。各セッションは fast mode OFF で開始。
@@ -75,8 +75,8 @@ let
     viewMode = "default";
     # 既定の transcript view（chat = ユーザー発言のチェックポイントのみ / transcript = 全文）。
     defaultView = "chat";
-    # TUI レンダラ。fullscreen は alt-screen＋仮想スクロールバックでちらつきが出にくい。
-    tui = "fullscreen";
+    # TUI レンダラ。"fullscreen" は alt-screen＋仮想スクロールバックでちらつきが出にくい。"default" はクラシックなメインスクリーン描画。
+    tui = "default";
     # 入力欄の `!` で起動する既定シェル。
     defaultShell = "bash";
     # diff のシンタックスハイライトを無効化するか。
@@ -133,7 +133,7 @@ let
     ## セッション / コンテキスト
 
     # コンテキストが埋まった際に自動で会話を圧縮するか。
-    autoCompactEnabled = true;
+    autoCompactEnabled = false;
     # 自動圧縮のウィンドウサイズ（トークン数。100k〜1M）。
     autoCompactWindow = 200000;
     # 会話 view を底まで自動スクロールするか（fullscreen モード時のみ）。
