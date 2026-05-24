@@ -40,7 +40,6 @@
             C-h = "BackSpace";
             C-d = "Delete";
             C-m = "enter";
-            C-j = "enter";
             C-k = [ "Shift-end" "C-x" { set_mark = false; } ];
           };
         }

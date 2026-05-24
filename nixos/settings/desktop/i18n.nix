@@ -23,10 +23,11 @@
       type   = "fcitx5";
 
       fcitx5 = {
-        addons = with pkgs; [
+        addons = with pkgs; ([
           fcitx5-mozc
+          fcitx5-skk
           fcitx5-gtk
-        ];
+        ] ++ (with skkDictionaries; [ l jinmei geo propernoun station assoc ]));
         waylandFrontend  = true;
         # TODO: home-manager側に寄せて`ignoreUserConfig`を消す
         ignoreUserConfig = true;
@@ -34,10 +35,10 @@
         settings = {
           globalOptions = {
             Hotkey = {
-              EnumerateWithTriggerKeys = false;
+              EnumerateWithTriggerKeys = true;
             };
             "Hotkey/AltTriggerKeys" = { };
-            "Hotkey/EnumerateForwardKeys" = { };
+            "Hotkey/EnumerateForwardKeys"."0" = "Control+space";
             "Hotkey/EnumerateBackwardKeys" = { };
             "Hotkey/TriggerKeys"."0" = "Control+space";
           };
@@ -50,6 +51,7 @@
             };
             "Groups/0/Items/0".Name = "keyboard-us";
             "Groups/0/Items/1".Name = "mozc";
+            "Groups/0/Items/2".Name = "skk";
           };
         };
       };
