@@ -13,7 +13,7 @@
 
     [Battery][Display]
     TurnOffDisplayWhenIdle=true
-    TurnOffDisplayIdleTimeoutSec=5
+    TurnOffDisplayIdleTimeoutSec=300
     TurnOffDisplayIdleTimeoutWhenLockedSec=5
 
     [Battery][SuspendAndShutdown]
