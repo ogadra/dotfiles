@@ -14,14 +14,12 @@ lib.mkIf pkgs.stdenv.isDarwin {
     if [ ! -d "$_dest" ]; then
       /bin/mkdir -p "${installDir}"
       _dmg=$(/usr/bin/mktemp /tmp/macskk-XXXXXX.dmg)
-      echo "Downloading macSKK ${version}..."
       /usr/bin/curl -L -o "$_dmg" "${dmgUrl}"
-      echo "${dmgSha256}  $_dmg" | /usr/bin/shasum -a 256 -c - || { echo "SHA256 mismatch!"; rm -f "$_dmg"; exit 1; }
+      echo "${dmgSha256}  $_dmg" | /usr/bin/shasum -a 256 -c - || { rm -f "$_dmg"; exit 1; }
       # DMG内は .pkg インストーラなので、ボリューム名は固定指定せず動的に取得する
       _mnt=$(/usr/bin/hdiutil attach "$_dmg" -nobrowse -readonly | /usr/bin/awk -F'\t' '$NF ~ /^\/Volumes\// {print $NF}' | /usr/bin/tail -1)
       _pkg=$(/usr/bin/find "$_mnt" -maxdepth 2 -name '*.pkg' -type f | /usr/bin/head -1)
       if [ -z "$_pkg" ]; then
-        echo "Failed to locate .pkg in mounted DMG"
         /usr/bin/hdiutil detach "$_mnt" -quiet || true
         rm -f "$_dmg"
         exit 1
@@ -31,7 +29,6 @@ lib.mkIf pkgs.stdenv.isDarwin {
       /usr/sbin/pkgutil --expand-full "$_pkg" "$_extract/pkg"
       _app=$(/usr/bin/find "$_extract" -name "${appName}" -type d | /usr/bin/head -1)
       if [ -z "$_app" ]; then
-        echo "Failed to find ${appName} in pkg payload"
         /usr/bin/hdiutil detach "$_mnt" -quiet || true
         /bin/rm -rf "$_extract" "$_dmg"
         exit 1
@@ -40,8 +37,6 @@ lib.mkIf pkgs.stdenv.isDarwin {
       /usr/bin/hdiutil detach "$_mnt" -quiet
       /bin/rm -rf "$_extract"
       /bin/rm -f "$_dmg"
-      echo "macSKK installed to $_dest"
-      echo "System Settings > Keyboard > Input Sources で macSKK を追加してください"
     fi
   '';
 }

@@ -135,9 +135,8 @@ in
   home.activation.installKarabinerElements = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     if [ ! -d "/Applications/Karabiner-Elements.app" ]; then
       _dmg=$(mktemp /tmp/karabiner-XXXXXX.dmg)
-      echo "Downloading Karabiner-Elements ${version}..."
       /usr/bin/curl -L -o "$_dmg" "${dmgUrl}"
-      echo "${dmgSha256}  $_dmg" | /usr/bin/shasum -a 256 -c - || { echo "SHA256 mismatch!"; rm -f "$_dmg"; exit 1; }
+      echo "${dmgSha256}  $_dmg" | /usr/bin/shasum -a 256 -c - || { rm -f "$_dmg"; exit 1; }
       _mnt=$(/usr/bin/mktemp -d /tmp/karabiner-mnt-XXXXXX)
       /usr/bin/hdiutil attach "$_dmg" -mountpoint "$_mnt" -quiet
       /usr/bin/sudo /usr/sbin/installer -pkg "$_mnt/Karabiner-Elements.pkg" -target /

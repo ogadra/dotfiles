@@ -27,3 +27,4 @@ make update   # Update all flake inputs
 - New GUI apps go in `home-manager/common/apps/<category>/<appname>/`
 - Platform-specific configs go in `home-manager/nixos/` (Linux)
 - Some files in `home-manager/profiles/stakataka/` have skip-worktree set to protect local-only changes from being committed
+- Do not add informational/diagnostic `echo` to Nix scripts. Functional uses of `echo` (piping data to another command, appending a newline to a file) are fine.

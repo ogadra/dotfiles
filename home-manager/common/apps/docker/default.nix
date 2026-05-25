@@ -33,9 +33,8 @@ lib.mkIf pkgs.stdenv.isDarwin {
 
     if [ ! -d "/Applications/Docker.app" ]; then
       _dmg=$(mktemp /tmp/docker-XXXXXX.dmg)
-      echo "Downloading Docker Desktop ${version}..."
       /usr/bin/curl -L -o "$_dmg" "${dmgUrl}"
-      echo "${dmgSha256}  $_dmg" | /usr/bin/shasum -a 256 -c - || { echo "SHA256 mismatch!"; rm -f "$_dmg"; exit 1; }
+      echo "${dmgSha256}  $_dmg" | /usr/bin/shasum -a 256 -c - || { rm -f "$_dmg"; exit 1; }
       _mnt=$(/usr/bin/mktemp -d /tmp/docker-mnt-XXXXXX)
       /usr/bin/hdiutil attach "$_dmg" -mountpoint "$_mnt" -quiet
       /usr/bin/sudo /bin/cp -R "$_mnt/Docker.app" /Applications/
