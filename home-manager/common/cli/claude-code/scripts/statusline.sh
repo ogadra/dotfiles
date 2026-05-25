@@ -67,7 +67,7 @@ today_cost=$(get_cost "$cache_dir/today.json" 60 \
   daily --since "$today" --until "$today" --offline)
 
 month_cost=$(get_cost "$cache_dir/month.json" 900 \
-  ".monthly[] | select(.month == \"$month_prefix\") | .totalCost" \
+  ".monthly[] | select(.period == \"$month_prefix\") | .totalCost" \
   monthly --offline)
 
 # --- 表示順: ctx / limit / cost / model ---
