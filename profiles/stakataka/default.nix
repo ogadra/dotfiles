@@ -5,5 +5,9 @@
   ...
 }:
 {
+  imports = [
+    ./power.nix
+  ];
+
   networking.hostName = "stakataka";
 }
