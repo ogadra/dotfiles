@@ -7,6 +7,7 @@ let
     ../../common/apps/docker
     ../../common/apps/editor
     ../../common/apps/karabiner
+    ../../common/apps/macskk
     ../../common/apps/terminal
   ];
 
