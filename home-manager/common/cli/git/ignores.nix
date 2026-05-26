@@ -44,4 +44,7 @@
 
   # Nix Settings
   ".direnv/"
+
+  # takt Settings
+  ".takt/runs"
 ]
