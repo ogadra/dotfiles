@@ -70,5 +70,8 @@ in
     ".claude/scripts/git/check.sh" = mkScript ./scripts/git/check.sh;
     ".claude/scripts/git/block-default-push.sh" = mkScript ./scripts/git/block-default-push.sh;
     ".claude/scripts/git/block-no-verify.sh" = mkScript ./scripts/git/block-no-verify.sh;
+    ".claude/scripts/git/block-clone.sh" = mkScript ./scripts/git/block-clone.sh;
+    ".claude/scripts/gh/check.sh" = mkScript ./scripts/gh/check.sh;
+    ".claude/scripts/gh/block-repo-clone.sh" = mkScript ./scripts/gh/block-repo-clone.sh;
   };
 }

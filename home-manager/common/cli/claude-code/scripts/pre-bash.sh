@@ -5,7 +5,7 @@ set -u
 INPUT=$(cat)
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
-for check in git/check.sh; do
+for check in git/check.sh gh/check.sh; do
   printf '%s' "$INPUT" | "$SCRIPT_DIR/$check"
   rc=$?
   [ "$rc" -ne 0 ] && exit "$rc"
