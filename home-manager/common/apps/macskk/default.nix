@@ -7,6 +7,18 @@ let
   # Input Methodは~/Library/Input Methods/配下に置けばsudo不要
   installDir = "$HOME/Library/Input Methods";
   appName = "macSKK.app";
+
+  # SKK-JISYO.L (EUC-JP) をstoreに固定し、UTF-8変換版をderivationで生成。
+  # macSKKのサンドボックスは ~/Library/Containers/.../Dictionaries/ から辞書を読み込む。
+  skkJisyoEuc = pkgs.fetchurl {
+    url = "https://raw.githubusercontent.com/skk-dev/dict/master/SKK-JISYO.L";
+    sha256 = "c791f578d1b4040fce282db29bc22b2cc7ea46f83e269fab2e0fa779e2967e40";
+  };
+  skkJisyoUtf8 = pkgs.runCommand "skk-jisyo-utf8" { } ''
+    ${pkgs.libiconv}/bin/iconv -f EUC-JP -t UTF-8 ${skkJisyoEuc} > $out
+  '';
+
+  dictDir = "$HOME/Library/Containers/net.mtgto.inputmethod.macSKK/Data/Documents/Dictionaries";
 in
 lib.mkIf pkgs.stdenv.isDarwin {
   home.activation.installMacSKK = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
@@ -37,6 +49,15 @@ lib.mkIf pkgs.stdenv.isDarwin {
       /usr/bin/hdiutil detach "$_mnt" -quiet
       /bin/rm -rf "$_extract"
       /bin/rm -f "$_dmg"
+    fi
+  '';
+
+  # macSKKのサンドボックスContainersはmacSKK初回起動後にmacOSが作成するため、
+  # ディレクトリが無ければ何もしない（再ログイン後の2回目のactivationで配置される）。
+  home.activation.installMacSKKDict = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    if [ -d "${dictDir}" ] && [ ! -s "${dictDir}/skk-jisyo.utf8" ]; then
+      /bin/cp ${skkJisyoUtf8} "${dictDir}/skk-jisyo.utf8"
+      /bin/chmod 644 "${dictDir}/skk-jisyo.utf8"
     fi
   '';
 }
