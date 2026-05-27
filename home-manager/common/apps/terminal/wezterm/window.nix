@@ -16,6 +16,7 @@
       config.show_new_tab_button_in_tab_bar = false
       config.show_close_tab_button_in_tabs = false
       config.use_ime = true
+      config.macos_forward_to_ime_modifier_mask = 'SHIFT|CTRL'
     end
 
     return module
