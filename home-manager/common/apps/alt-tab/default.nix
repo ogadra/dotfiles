@@ -46,6 +46,9 @@
     # 設定ファイルのバージョン
     preferencesVersion = "10.11.0";
 
+    # 選択中のウィンドウを最前面にプレビュー表示
+    previewFocusedWindow = "true";
+
     # 表示するスクリーン: 0=すべてのスクリーン, 1=showOnScreenと同じスクリーンのみ
     screensToShow = 0;
 
