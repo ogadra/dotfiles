@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<array>
+  <dict>
+    <key>id</key>
+    <string>numpad-enter</string>
+    <key>version</key>
+    <integer>1</integer>
+    <key>keyBindings</key>
+    <array>
+      <dict>
+        <key>action</key>
+        <string>enter</string>
+        <key>inputs</key>
+        <array>
+          <dict>
+            <key>key</key>
+            <integer>36</integer>
+            <key>modifierFlags</key>
+            <integer>0</integer>
+            <key>optionalModifierFlags</key>
+            <integer>9044096</integer>
+          </dict>
+          <dict>
+            <key>key</key>
+            <integer>76</integer>
+            <key>modifierFlags</key>
+            <integer>0</integer>
+            <key>optionalModifierFlags</key>
+            <integer>9044096</integer>
+          </dict>
+        </array>
+      </dict>
+    </array>
+  </dict>
+</array>
+</plist>

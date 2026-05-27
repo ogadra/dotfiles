@@ -19,6 +19,10 @@ let
   '';
 
   dictDir = "$HOME/Library/Containers/net.mtgto.inputmethod.macSKK/Data/Documents/Dictionaries";
+
+  bundleId = "net.mtgto.inputmethod.macSKK";
+  prefsDir = "$HOME/Library/Containers/${bundleId}/Data/Library/Preferences";
+  keyBindingSetId = "numpad-enter";
 in
 lib.mkIf pkgs.stdenv.isDarwin {
   home.activation.installMacSKK = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
@@ -58,6 +62,13 @@ lib.mkIf pkgs.stdenv.isDarwin {
     if [ -d "${dictDir}" ] && [ ! -s "${dictDir}/skk-jisyo.utf8" ]; then
       /bin/cp ${skkJisyoUtf8} "${dictDir}/skk-jisyo.utf8"
       /bin/chmod 644 "${dictDir}/skk-jisyo.utf8"
+    fi
+  '';
+
+  home.activation.configureMacSKKKeyBindings = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    if [ -d "${prefsDir}" ] && [ "$(/usr/bin/defaults read ${bundleId} selectedKeyBindingSetId 2>/dev/null)" != "${keyBindingSetId}" ]; then
+      /usr/bin/defaults write ${bundleId} keyBindingSets "$(/bin/cat ${./keyBindingSets.plist})"
+      /usr/bin/defaults write ${bundleId} selectedKeyBindingSetId -string "${keyBindingSetId}"
     fi
   '';
 }
