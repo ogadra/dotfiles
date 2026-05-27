@@ -6,9 +6,20 @@ let
 in
 {
   hooks = {
-    Notification = [
+    PermissionRequest = [
       {
         matcher = "";
+        hooks = [
+          {
+            type = "command";
+            command = "(mpv --no-terminal ~/.claude/sounds/notification.mp3 </dev/null >/dev/null 2>&1 &)";
+          }
+        ];
+      }
+    ];
+    Notification = [
+      {
+        matcher = "idle_prompt";
         hooks = [
           {
             type = "command";
