@@ -10,6 +10,7 @@ let
   baseModules = [
     ./configuration.nix
     ./settings/activitymonitor.nix
+    ./settings/chrome.nix
     ./settings/clock.nix
     ./settings/controlcenter.nix
     ./settings/dock.nix
