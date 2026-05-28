@@ -35,13 +35,6 @@ let
           keyboard_type_v2 = "ansi";
         };
 
-        fn_function_keys = [
-          { from.key_code = "f3"; to = [{ key_code = "mission_control"; }]; }
-          { from.key_code = "f4"; to = [{ key_code = "launchpad"; }]; }
-          { from.key_code = "f5"; to = [{ key_code = "illumination_decrement"; }]; }
-          { from.key_code = "f6"; to = [{ key_code = "illumination_increment"; }]; }
-        ];
-
         devices = [
           # Apple Internal Keyboard
           {
