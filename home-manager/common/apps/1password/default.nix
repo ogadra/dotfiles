@@ -4,6 +4,8 @@
   ...
 }:
 {
+  home.packages = [ pkgs._1password-cli ];
+
   home.activation.copy1Password = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     app_dst="/Applications/1Password.app"
     if [ ! -d "$app_dst" ]; then
