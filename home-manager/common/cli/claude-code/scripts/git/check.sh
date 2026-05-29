@@ -18,7 +18,7 @@ done < <(printf '%s\n' "$CMD" | tr ';&|' '\n')
 
 [ -z "$GIT_SEGMENTS" ] && exit 0
 
-for child in block-default-push.sh block-no-verify.sh; do
+for child in block-default-push.sh block-no-verify.sh block-clone.sh; do
   printf '%s' "$GIT_SEGMENTS" | "$SCRIPT_DIR/$child"
   rc=$?
   [ "$rc" -ne 0 ] && exit "$rc"
