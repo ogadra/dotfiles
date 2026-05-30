@@ -24,7 +24,6 @@
 
       fcitx5 = {
         addons = with pkgs; ([
-          fcitx5-mozc
           fcitx5-skk
           fcitx5-gtk
         ] ++ (with skkDictionaries; [ l jinmei geo propernoun station assoc ]));
@@ -47,11 +46,9 @@
             "Groups/0" = {
               Name             = "Default";
               "Default Layout" = "us";
-              DefaultIM        = "mozc";
+              DefaultIM        = "skk";
             };
-            "Groups/0/Items/0".Name = "keyboard-us";
-            "Groups/0/Items/1".Name = "mozc";
-            "Groups/0/Items/2".Name = "skk";
+            "Groups/0/Items/0".Name = "skk";
           };
         };
       };
