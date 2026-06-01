@@ -21,6 +21,8 @@ in
         profiles.default = {
             extensions = with pkgs.vscode-extensions; [
               github.copilot
+              golang.go
+              mkhl.direnv
               streetsidesoftware.code-spell-checker
             ];
             userSettings = {

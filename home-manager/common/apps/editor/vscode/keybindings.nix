@@ -20,6 +20,10 @@
         command = "workbench.action.duplicateWorkspaceInNewWindow";
     }
     {
+        key     = "meta+z";
+        command = "editor.action.toggleWordWrap";
+    }
+    {
         key     = "alt+enter";
         command = "-testing.editFocusedTest";
         when    = "focusedView == 'workbench.view.testing'";
