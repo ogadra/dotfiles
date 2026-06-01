@@ -50,6 +50,8 @@
             };
             "Groups/0/Items/0".Name = "skk";
           };
+          # 変換確定のReturnを改行(=送信)としてアプリに渡さない
+          addons.skk.globalSection.EggLikeNewLine = "True";
         };
       };
     };
