@@ -243,6 +243,7 @@ in
     ".claude/sounds/notification.mp3".source = ./sounds/notification.mp3;
     ".claude/sounds/stop.mp3".source = ./sounds/stop.mp3;
     ".claude/settings.json".text = settingsJson;
+    ".claude/CLAUDE.md".source = ./CLAUDE.md;
     ".claude/config/.gitconfig".source = ./.gitconfig;
     ".claude/skills/cascade-merge/SKILL.md".source = ./skills/cascade-merge/SKILL.md;
   } // hooksConfig.scripts;
