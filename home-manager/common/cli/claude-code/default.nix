@@ -153,11 +153,11 @@ let
     ## メモリ / プラン
 
     # auto-memory 機能の有効化（~/.claude/projects/<cwd>/memory/ への読み書き）。
-    autoMemoryEnabled = true;
+    autoMemoryEnabled = false;
     # auto-memory の保存先ディレクトリのカスタムパス。
     # autoMemoryDirectory = null;
     # バックグラウンドでの memory 統合（auto-dream）の有効化。
-    autoDreamEnabled = true;
+    autoDreamEnabled = false;
     # plan ファイルのカスタムディレクトリ（プロジェクトルートからの相対）。
     # plansDirectory = null;
     # 読み込み除外する CLAUDE.md の glob/絶対パスリスト。
