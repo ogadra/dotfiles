@@ -178,9 +178,8 @@ let
     respectGitignore = true;
     # @ メンション時のカスタムファイルサジェスト（command 型）。
     # fileSuggestion = null;
-    # コミット／PR の attribution。空文字で非表示にする。
+    # PR の attribution。空文字で非表示にする。
     attribution = {
-      commit = "";
       pr = "";
     };
     # コミット／PR ワークフローの組み込み指示をシステムプロンプトに含めるか。
