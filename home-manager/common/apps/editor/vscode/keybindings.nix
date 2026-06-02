@@ -45,4 +45,9 @@
         key     = "alt+3";
         command = "workbench.action.focusThirdEditorGroup";
     }
+    {
+        key     = "ctrl+j";
+        command = "-editor.action.joinLines";
+        when    = "editorTextFocus && !editorReadonly";
+    }
 ]
