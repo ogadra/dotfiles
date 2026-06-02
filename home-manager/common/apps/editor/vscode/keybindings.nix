@@ -1,4 +1,8 @@
-[
+{ lib, pkgs }:
+let
+  isLinux = pkgs.stdenv.hostPlatform.isLinux;
+
+  common = [
     {
         key     = "ctrl+tab";
         command = "workbench.action.nextEditor";
@@ -18,10 +22,6 @@
     {
         key     = "alt+meta+n";
         command = "workbench.action.duplicateWorkspaceInNewWindow";
-    }
-    {
-        key     = "meta+z";
-        command = "editor.action.toggleWordWrap";
     }
     {
         key     = "alt+enter";
@@ -50,4 +50,13 @@
         command = "-editor.action.joinLines";
         when    = "editorTextFocus && !editorReadonly";
     }
-]
+  ];
+
+  linuxOnly = [
+    {
+        key     = "meta+z";
+        command = "editor.action.toggleWordWrap";
+    }
+  ];
+in
+common ++ lib.optionals isLinux linuxOnly

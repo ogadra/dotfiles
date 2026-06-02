@@ -43,7 +43,7 @@ in
 
                 "cSpell.userWords" = [ "ogadra" ];
             };
-            keybindings = import ./keybindings.nix;
+            keybindings = import ./keybindings.nix { inherit lib pkgs; };
         };
       };
     };
