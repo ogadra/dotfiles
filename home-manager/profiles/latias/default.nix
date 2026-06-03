@@ -6,6 +6,7 @@ let
     ../../common/apps/editor
     ../../common/apps/karabiner
     ../../common/apps/macskk
+    ../../common/apps/raycast
     ../../common/apps/terminal
   ];
 
