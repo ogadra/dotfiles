@@ -14,6 +14,7 @@ let
 
   # CLI tools (cross-platform)
   commonConfigs = [
+    ../../common/cli/bat
     ../../common/cli/direnv
     ../../common/cli/git
     ../../common/cli/gh
