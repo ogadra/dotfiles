@@ -9,6 +9,7 @@ let
     ../../common/apps/editor
     ../../common/apps/karabiner
     ../../common/apps/macskk
+    ../../common/apps/mos
     ../../common/apps/raycast
     ../../common/apps/shottr
     ../../common/apps/terminal
