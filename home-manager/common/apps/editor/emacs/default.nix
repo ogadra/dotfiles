@@ -46,6 +46,7 @@ in
 
       which-key
       rainbow-delimiters
+      super-save
     ];
   };
 

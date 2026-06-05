@@ -34,6 +34,12 @@
 (use-package which-key
   :config (which-key-mode 1))
 
+(use-package super-save
+  :custom
+  (super-save-auto-save-when-idle t)
+  (super-save-idle-duration 1)
+  :config (super-save-mode 1))
+
 (use-package vertico
   :init (vertico-mode 1))
 
@@ -86,6 +92,7 @@
 
 (use-package dirvish
   :init (dirvish-override-dired-mode)
+  :bind ("<f8>" . dirvish-side)
   :custom
   (dirvish-quick-access-entries
    '(("h" "~/"           "Home")
