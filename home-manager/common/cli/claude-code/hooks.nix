@@ -12,7 +12,7 @@ in
         hooks = [
           {
             type = "command";
-            command = "(mpv --no-terminal ~/.claude/sounds/notification.mp3 </dev/null >/dev/null 2>&1 &)";
+            command = "(mpv --no-terminal --volume=30 ~/.claude/sounds/notification.mp3 </dev/null >/dev/null 2>&1 &)";
           }
         ];
       }
@@ -23,7 +23,7 @@ in
         hooks = [
           {
             type = "command";
-            command = "(mpv --no-terminal ~/.claude/sounds/notification.mp3 </dev/null >/dev/null 2>&1 &)";
+            command = "(mpv --no-terminal --volume=30 ~/.claude/sounds/notification.mp3 </dev/null >/dev/null 2>&1 &)";
           }
         ];
       }
@@ -34,7 +34,7 @@ in
         hooks = [
           {
             type = "command";
-            command = "(mpv --no-terminal ~/.claude/sounds/stop.mp3 </dev/null >/dev/null 2>&1 &)";
+            command = "(mpv --no-terminal --volume=30 ~/.claude/sounds/stop.mp3 </dev/null >/dev/null 2>&1 &)";
           }
         ];
       }
