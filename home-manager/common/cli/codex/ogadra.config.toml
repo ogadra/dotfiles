@@ -32,28 +32,3 @@ notifications = true
 notification_method = "auto"
 notification_condition = "unfocused"
 vim_mode_default = false
-
-[[hooks.PermissionRequest]]
-matcher = ""
-
-[[hooks.PermissionRequest.hooks]]
-type = "command"
-command = '(mpv --no-terminal --volume=30 "$HOME/.codex/sounds/notification.mp3" </dev/null >/dev/null 2>&1 &)'
-timeout = 5
-
-[[hooks.PreToolUse]]
-matcher = "^Bash$"
-
-[[hooks.PreToolUse.hooks]]
-type = "command"
-command = "$HOME/.codex/scripts/pre-bash.sh"
-timeout = 30
-statusMessage = "Checking Bash command"
-
-[[hooks.Stop]]
-matcher = ""
-
-[[hooks.Stop.hooks]]
-type = "command"
-command = '(mpv --no-terminal --volume=30 "$HOME/.codex/sounds/stop.mp3" </dev/null >/dev/null 2>&1 &)'
-timeout = 5

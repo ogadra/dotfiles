@@ -4,6 +4,7 @@
   ...
 }:
 let
+  shared = ../../modules/llm-agent;
   claude-code-unwrapped = inputs.llm-agents.packages.${pkgs.system}.claude-code;
   claude-code = pkgs.symlinkJoin {
     name = "claude-code-wrapped";
@@ -239,11 +240,11 @@ in
   ];
 
   home.file = {
-    ".claude/sounds/notification.mp3".source = ./sounds/notification.mp3;
-    ".claude/sounds/stop.mp3".source = ./sounds/stop.mp3;
+    ".claude/sounds/notification.mp3".source = shared + "/sounds/notification.mp3";
+    ".claude/sounds/stop.mp3".source = shared + "/sounds/stop.mp3";
     ".claude/settings.json".text = settingsJson;
     ".claude/CLAUDE.md".source = ./CLAUDE.md;
-    ".claude/config/.gitconfig".source = ./.gitconfig;
+    ".claude/config/.gitconfig".source = shared + "/.gitconfig";
     ".claude/skills/cascade-merge/SKILL.md".source = ./skills/cascade-merge/SKILL.md;
   } // hooksConfig.scripts;
 }

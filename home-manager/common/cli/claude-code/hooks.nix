@@ -3,6 +3,7 @@ let
     source = src;
     executable = true;
   };
+  shared = ../../modules/llm-agent;
 in
 {
   hooks = {
@@ -65,13 +66,13 @@ in
   };
 
   scripts = {
-    ".claude/scripts/pre-bash.sh" = mkScript ./scripts/pre-bash.sh;
+    ".claude/scripts/pre-bash.sh" = mkScript (shared + "/scripts/pre-bash.sh");
     ".claude/scripts/statusline.sh" = mkScript ./scripts/statusline.sh;
-    ".claude/scripts/git/check.sh" = mkScript ./scripts/git/check.sh;
-    ".claude/scripts/git/block-default-push.sh" = mkScript ./scripts/git/block-default-push.sh;
-    ".claude/scripts/git/block-no-verify.sh" = mkScript ./scripts/git/block-no-verify.sh;
-    ".claude/scripts/git/block-clone.sh" = mkScript ./scripts/git/block-clone.sh;
-    ".claude/scripts/gh/check.sh" = mkScript ./scripts/gh/check.sh;
-    ".claude/scripts/gh/block-repo-clone.sh" = mkScript ./scripts/gh/block-repo-clone.sh;
+    ".claude/scripts/git/check.sh" = mkScript (shared + "/scripts/git/check.sh");
+    ".claude/scripts/git/block-default-push.sh" = mkScript (shared + "/scripts/git/block-default-push.sh");
+    ".claude/scripts/git/block-no-verify.sh" = mkScript (shared + "/scripts/git/block-no-verify.sh");
+    ".claude/scripts/git/block-clone.sh" = mkScript (shared + "/scripts/git/block-clone.sh");
+    ".claude/scripts/gh/check.sh" = mkScript (shared + "/scripts/gh/check.sh");
+    ".claude/scripts/gh/block-repo-clone.sh" = mkScript (shared + "/scripts/gh/block-repo-clone.sh");
   };
 }

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# PreToolUse(Bash) hook entry for Codex.
+# PreToolUse(Bash) hook entry for LLM coding agents.
 set -u
 
 INPUT=$(cat)

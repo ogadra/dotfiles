@@ -1,0 +1,32 @@
+allow_managed_hooks_only = true
+
+[features]
+hooks = true
+
+[hooks]
+managed_dir = "/etc/codex/hooks"
+
+[[hooks.PermissionRequest]]
+matcher = ""
+
+[[hooks.PermissionRequest.hooks]]
+type = "command"
+command = "/etc/codex/hooks/play-sound.sh /etc/codex/sounds/notification.mp3"
+timeout = 5
+
+[[hooks.PreToolUse]]
+matcher = "^Bash$"
+
+[[hooks.PreToolUse.hooks]]
+type = "command"
+command = "/etc/codex/hooks/pre-bash.sh"
+timeout = 30
+statusMessage = "Checking managed Bash command"
+
+[[hooks.Stop]]
+matcher = ""
+
+[[hooks.Stop.hooks]]
+type = "command"
+command = "/etc/codex/hooks/play-sound.sh /etc/codex/sounds/stop.mp3"
+timeout = 5

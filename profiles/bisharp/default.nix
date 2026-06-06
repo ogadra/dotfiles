@@ -29,6 +29,7 @@ let
   # Programs
   programsSettings = [
     ../../nixos/settings/programs/1password.nix
+    ../../nixos/settings/programs/codex.nix
     ../../nixos/settings/programs/steam.nix
   ];
 
