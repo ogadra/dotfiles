@@ -1,0 +1,59 @@
+#:schema https://developers.openai.com/codex/config-schema.json
+
+# Claude-compatible defaults that map cleanly to Codex.
+approval_policy = "on-request"
+sandbox_mode = "workspace-write"
+model_reasoning_effort = "high"
+model_reasoning_summary = "none"
+plan_mode_reasoning_effort = "high"
+web_search = "live"
+hide_agent_reasoning = true
+check_for_update_on_startup = false
+project_doc_fallback_filenames = ["CLAUDE.md"]
+developer_instructions = "Use Japanese for user-facing replies unless the user asks for another language."
+
+[features]
+hooks = true
+fast_mode = false
+memories = false
+codex_git_commit = false
+
+[sandbox_workspace_write]
+network_access = false
+
+[memories]
+generate_memories = false
+use_memories = false
+
+[tui]
+alternate_screen = "never"
+animations = true
+notifications = true
+notification_method = "auto"
+notification_condition = "unfocused"
+vim_mode_default = false
+
+[[hooks.PermissionRequest]]
+matcher = ""
+
+[[hooks.PermissionRequest.hooks]]
+type = "command"
+command = '(mpv --no-terminal --volume=30 "$HOME/.codex/sounds/notification.mp3" </dev/null >/dev/null 2>&1 &)'
+timeout = 5
+
+[[hooks.PreToolUse]]
+matcher = "^Bash$"
+
+[[hooks.PreToolUse.hooks]]
+type = "command"
+command = "$HOME/.codex/scripts/pre-bash.sh"
+timeout = 30
+statusMessage = "Checking Bash command"
+
+[[hooks.Stop]]
+matcher = ""
+
+[[hooks.Stop.hooks]]
+type = "command"
+command = '(mpv --no-terminal --volume=30 "$HOME/.codex/sounds/stop.mp3" </dev/null >/dev/null 2>&1 &)'
+timeout = 5
