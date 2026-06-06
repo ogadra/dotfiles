@@ -86,6 +86,7 @@
 
 (add-to-list 'auto-mode-alist '("\\.tf\\'" . hcl-ts-mode))
 (add-to-list 'auto-mode-alist '("\\.tsx\\'" . tsx-ts-mode))
+(add-to-list 'auto-mode-alist '("\\.lua\\'" . lua-ts-mode))
 
 (use-package magit
   :bind ("C-x g" . magit-status))

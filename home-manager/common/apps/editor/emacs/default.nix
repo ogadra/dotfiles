@@ -31,6 +31,7 @@ in
         tree-sitter-typescript
         tree-sitter-javascript
         tree-sitter-hcl
+        tree-sitter-lua
       ]))
 
       org
