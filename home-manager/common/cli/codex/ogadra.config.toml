@@ -16,10 +16,9 @@ developer_instructions = "Use Japanese for user-facing replies unless the user a
 hooks = true
 fast_mode = false
 memories = false
-codex_git_commit = false
 
 [sandbox_workspace_write]
-network_access = false
+network_access = true
 
 [memories]
 generate_memories = false
