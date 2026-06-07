@@ -51,6 +51,10 @@ in
   home.file = {
     ".codex/ogadra.config.toml".source = ./ogadra.config.toml;
     ".codex/AGENTS.md".source = ./AGENTS.md;
+    ".codex/rules/default.rules" = {
+      source = ./default.rules;
+      force = true;
+    };
     ".codex/config/.gitconfig".source = shared + "/.gitconfig";
   };
 }
