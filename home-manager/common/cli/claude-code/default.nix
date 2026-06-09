@@ -240,8 +240,8 @@ in
   ];
 
   home.file = {
-    ".claude/sounds/notification.mp3".source = shared + "/sounds/notification.mp3";
-    ".claude/sounds/stop.mp3".source = shared + "/sounds/stop.mp3";
+    ".claude/sounds/notification.mp3".source = ../../sounds/notification.mp3;
+    ".claude/sounds/stop.mp3".source = ../../sounds/stop.mp3;
     ".claude/settings.json".text = settingsJson;
     ".claude/CLAUDE.md".source = ./CLAUDE.md;
     ".claude/config/.gitconfig".source = shared + "/.gitconfig";
