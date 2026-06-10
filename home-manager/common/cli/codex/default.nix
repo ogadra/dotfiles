@@ -51,10 +51,15 @@ in
   home.file = {
     ".codex/ogadra.config.toml".source = ./ogadra.config.toml;
     ".codex/AGENTS.md".source = ./AGENTS.md;
+    ".codex/packages/standalone/current/codex".source = codex + "/bin/codex";
     ".codex/rules/default.rules" = {
       source = ./default.rules;
       force = true;
     };
     ".codex/config/.gitconfig".source = shared + "/.gitconfig";
   };
+
+  home.activation.enableCodexRemoteControl = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
+    ${codex}/bin/codex app-server daemon enable-remote-control >/dev/null
+  '';
 }
