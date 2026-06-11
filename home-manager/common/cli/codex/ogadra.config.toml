@@ -30,4 +30,12 @@ animations = true
 notifications = true
 notification_method = "auto"
 notification_condition = "unfocused"
+status_line = [
+  "model-with-reasoning",
+  "pull-request-number",
+  "approval-mode",
+  "context-used",
+  "five-hour-limit",
+  "weekly-limit",
+]
 vim_mode_default = false
