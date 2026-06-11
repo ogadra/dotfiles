@@ -1,4 +1,4 @@
-{ inputs, pkgs, ... }:
+{ pkgs, ... }:
 {
   imports = [
     ./color.nix
@@ -10,7 +10,7 @@
 
   programs.wezterm = {
     enable = true;
-    package = inputs.wezterm.packages.${pkgs.system}.default;
+    package = pkgs.wezterm;
     extraConfig = ''
       local wezterm = require 'wezterm'
       local color = require 'color'
