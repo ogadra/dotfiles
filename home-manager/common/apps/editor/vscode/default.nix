@@ -10,6 +10,7 @@ let
         --append-flags "--enable-wayland-ime"
     '';
     inherit (pkgs.vscode) version;
+    meta.mainProgram = "code";
   };
   vscodePackage = if pkgs.stdenv.hostPlatform.isDarwin then pkgs.vscode else vscode-with-ime;
 in
