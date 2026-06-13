@@ -19,6 +19,7 @@ let
       pkgs.git
       pkgs.jq
       pkgs.mpv
+      inputs.llm-agents.packages.${pkgs.system}.ccusage
     ]}:$PATH"
     export GIT_CONFIG_GLOBAL="''${GIT_CONFIG_GLOBAL:-$HOME/.codex/config/.gitconfig}"
     export GIT_CONFIG_SYSTEM="''${GIT_CONFIG_SYSTEM:-/dev/null}"

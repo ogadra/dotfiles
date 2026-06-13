@@ -34,6 +34,7 @@ status_line = [
   "context-used",
   "five-hour-used",
   "weekly-used",
+  "cost",
   "model-with-reasoning",
 ]
 vim_mode_default = false
