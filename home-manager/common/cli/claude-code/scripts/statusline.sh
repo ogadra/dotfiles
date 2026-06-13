@@ -4,32 +4,20 @@ set -euo pipefail
 input=$(cat)
 
 model=$(jq -r '.model.display_name // .model.id // ""' <<<"$input")
+effort=$(jq -r '.model.effort_level // .model.reasoning_effort // .effort_level // .reasoning_effort // "high"' <<<"$input")
 ctx_pct=$(jq -r '.context_window.used_percentage // empty' <<<"$input")
-ctx_used=$(jq -r '.context_window.total_input_tokens // empty' <<<"$input")
-ctx_total=$(jq -r '.context_window.context_window_size // empty' <<<"$input")
 rl_5h=$(jq -r '.rate_limits.five_hour.used_percentage // empty' <<<"$input")
 rl_7d=$(jq -r '.rate_limits.seven_day.used_percentage // empty' <<<"$input")
 
-fmt_tokens() {
-  awk -v n="$1" 'BEGIN {
-    if (n >= 1000000) printf "%.1fM", n/1000000
-    else if (n >= 1000) printf "%.1fk", n/1000
-    else printf "%d", n
-  }'
-}
+RESET=$'\033[0m'
+MODEL_COLOR=$'\033[38;2;246;226;183m'
+USAGE_COLOR=$'\033[38;2;242;181;144m'
+LIMIT_COLOR=$'\033[38;2;233;144;169m'
+META_COLOR=$'\033[38;2;148;153;174m'
+SEPARATOR_COLOR=$'\033[2m'
 
-# 10セルのバー (10%ごとに1セル)
-make_bar() {
-  awk -v p="$1" 'BEGIN {
-    width = 10
-    if (p > 100) p = 100
-    if (p < 0) p = 0
-    filled = int(p / 10 + 0.5)
-    s = ""
-    for (i = 0; i < filled; i++) s = s "█"
-    for (i = filled; i < width; i++) s = s "░"
-    print s
-  }'
+colorize() {
+  printf '%s%s%s' "$1" "$2" "$RESET"
 }
 
 # ccusage呼び出し結果のキャッシュ。
@@ -70,24 +58,17 @@ month_cost=$(get_cost "$cache_dir/month.json" 900 \
   ".monthly[] | select(.period == \"$month_prefix\") | .totalCost" \
   monthly --offline)
 
-# --- 表示順: ctx / limit / cost / model ---
 parts=()
 
-if [ -n "$ctx_pct" ] && [ -n "$ctx_used" ]; then
-  bar=$(make_bar "$ctx_pct")
-  if [ -n "$ctx_total" ]; then
-    parts+=("$(printf 'ctx %s / %s [%s] %.0f%%' \
-      "$(fmt_tokens "$ctx_used")" "$(fmt_tokens "$ctx_total")" "$bar" "$ctx_pct")")
-  else
-    parts+=("$(printf 'ctx %s [%s] %.0f%%' "$(fmt_tokens "$ctx_used")" "$bar" "$ctx_pct")")
-  fi
+if [ -n "$ctx_pct" ]; then
+  parts+=("$(colorize "$USAGE_COLOR" "$(printf 'Context %.0f%% used' "$ctx_pct")")")
 fi
 
 if [ -n "$rl_5h" ]; then
-  parts+=("$(printf '5h %.0f%%' "$rl_5h")")
+  parts+=("$(colorize "$LIMIT_COLOR" "$(printf '5h %.0f%% used' "$rl_5h")")")
 fi
 if [ -n "$rl_7d" ]; then
-  parts+=("$(printf '7d %.0f%%' "$rl_7d")")
+  parts+=("$(colorize "$LIMIT_COLOR" "$(printf 'weekly %.0f%% used' "$rl_7d")")")
 fi
 
 cost_parts=()
@@ -98,13 +79,19 @@ if [ ${#cost_parts[@]} -gt 0 ]; then
   for cp in "${cost_parts[@]}"; do
     if [ -z "$cost_str" ]; then cost_str="$cp"; else cost_str="$cost_str / $cp"; fi
   done
-  parts+=("$cost_str")
+  parts+=("$(colorize "$META_COLOR" "$cost_str")")
 fi
 
-[ -n "$model" ] && parts+=("$model")
+if [ -n "$model" ]; then
+  if [ -n "$effort" ] && [[ " $model " != *" $effort "* ]]; then
+    parts+=("$(colorize "$MODEL_COLOR" "$model $effort")")
+  else
+    parts+=("$(colorize "$MODEL_COLOR" "$model")")
+  fi
+fi
 
 out=""
 for p in "${parts[@]}"; do
-  if [ -z "$out" ]; then out="$p"; else out="$out | $p"; fi
+  if [ -z "$out" ]; then out="$p"; else out="$out${SEPARATOR_COLOR} · ${RESET}$p"; fi
 done
 printf '%s' "$out"
