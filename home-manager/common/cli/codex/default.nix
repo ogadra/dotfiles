@@ -6,7 +6,11 @@
 }:
 let
   shared = ../../modules/llm-agent;
-  codex-unwrapped = inputs.llm-agents.packages.${pkgs.system}.codex;
+  codex-unwrapped = inputs.llm-agents.packages.${pkgs.system}.codex.overrideAttrs (old: {
+    patches = (old.patches or [ ]) ++ [
+      ./patches/codex-status-line-used-limits.patch
+    ];
+  });
   codex-wrapper = pkgs.writeShellScriptBin "codex" ''
     set -euo pipefail
 

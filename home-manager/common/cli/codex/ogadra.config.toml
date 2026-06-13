@@ -31,11 +31,9 @@ notifications = false
 notification_method = "auto"
 notification_condition = "unfocused"
 status_line = [
-  "model-with-reasoning",
-  "pull-request-number",
-  "approval-mode",
   "context-used",
-  "five-hour-limit",
-  "weekly-limit",
+  "five-hour-used",
+  "weekly-used",
+  "model-with-reasoning",
 ]
 vim_mode_default = false
