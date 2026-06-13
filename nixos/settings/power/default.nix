@@ -1,7 +1,9 @@
 { ... }:
 {
   services.logind = {
-    powerKey = "suspend";
-    powerKeyLongPress = "poweroff";
+    settings.Login = {
+      HandlePowerKey = "suspend";
+      HandlePowerKeyLongPress = "poweroff";
+    };
   };
 }
