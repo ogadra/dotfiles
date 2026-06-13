@@ -624,11 +624,11 @@
         "nixpkgs": "nixpkgs_2"
       },
       "locked": {
-        "lastModified": 1780060701,
-        "narHash": "sha256-u6HgCy4hNruACZIWtHDpCzAmlD1uznUZkoWrqeK4szk=",
+        "lastModified": 1781061514,
+        "narHash": "sha256-JB8M9KlrOC8jGGue/faObI/aBo4xS2Jp6TfQ/XsfPo8=",
         "owner": "ogadra",
         "repo": "nix-takt",
-        "rev": "a5a6fa1baa94c9d2baf668905e8406d943860ed4",
+        "rev": "70ad26ef552ad29bcf62c575c604059e0c266236",
         "type": "github"
       },
       "original": {
