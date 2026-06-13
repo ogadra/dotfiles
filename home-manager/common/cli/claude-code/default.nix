@@ -5,7 +5,8 @@
 }:
 let
   shared = ../../modules/llm-agent;
-  claude-code-unwrapped = inputs.llm-agents.packages.${pkgs.system}.claude-code;
+  system = pkgs.stdenv.hostPlatform.system;
+  claude-code-unwrapped = inputs.llm-agents.packages.${system}.claude-code;
   claude-code = pkgs.symlinkJoin {
     name = "claude-code-wrapped";
     paths = [ claude-code-unwrapped ];
@@ -16,7 +17,7 @@ let
         --set-default GIT_CONFIG_SYSTEM /dev/null
     '';
   };
-  ccusage = inputs.llm-agents.packages.${pkgs.system}.ccusage;
+  ccusage = inputs.llm-agents.packages.${system}.ccusage;
   hooksConfig = import ./hooks.nix;
 
   settingsJson = builtins.toJSON {
