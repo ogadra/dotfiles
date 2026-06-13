@@ -12,6 +12,7 @@ let
 
   commonConfigs = [
     ../../common/cli/bat
+    ../../common/cli/ccusage
     ../../common/cli/claude-code
     ../../common/cli/codex
     ../../common/cli/direnv

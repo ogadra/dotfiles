@@ -17,7 +17,6 @@ let
         --set-default GIT_CONFIG_SYSTEM /dev/null
     '';
   };
-  ccusage = inputs.llm-agents.packages.${system}.ccusage;
   hooksConfig = import ./hooks.nix;
 
   settingsJson = builtins.toJSON {
@@ -235,10 +234,7 @@ let
   };
 in
 {
-  home.packages = [
-    claude-code
-    ccusage
-  ];
+  home.packages = [ claude-code ];
 
   home.file = {
     ".claude/sounds/notification.mp3".source = ../../sounds/notification.mp3;
