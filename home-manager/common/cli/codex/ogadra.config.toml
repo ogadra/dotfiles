@@ -27,7 +27,7 @@ use_memories = false
 [tui]
 alternate_screen = "never"
 animations = true
-notifications = true
+notifications = false
 notification_method = "auto"
 notification_condition = "unfocused"
 status_line = [
