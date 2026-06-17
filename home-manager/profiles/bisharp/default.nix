@@ -27,6 +27,7 @@ let
     ../../common/cli/mpv
     ../../common/cli/starship
     ../../common/cli/takt
+    ../../common/cli/tmux
     ../../common/cli/tree
     ../../common/cli/unzip
     ../../common/cli/zsh

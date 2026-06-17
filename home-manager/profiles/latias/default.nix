@@ -25,6 +25,7 @@ let
     ../../common/cli/mpv
     ../../common/cli/nano
     ../../common/cli/starship
+    ../../common/cli/tmux
     ../../common/cli/tree
     ../../common/cli/zsh
   ];
