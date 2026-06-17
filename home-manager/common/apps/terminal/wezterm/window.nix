@@ -13,6 +13,7 @@
         font = wezterm.font('JetBrainsMono Nerd Font Mono'),
         font_size   = 12.0,
       }
+      config.enable_tab_bar = false
       config.show_new_tab_button_in_tab_bar = false
       config.show_close_tab_button_in_tabs = false
       config.use_ime = true
