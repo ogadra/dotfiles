@@ -13,6 +13,10 @@ in
     function module.apply_to_config(config, wezterm)
       local act = wezterm.action
 
+      -- Send the tmux prefix (C-q = \x11) followed by a command key
+      local function tmux(cmd)
+        return act.SendString('\x11' .. cmd)
+      end
 
     config.disable_default_key_bindings = true
     ${altCompose}
@@ -24,12 +28,12 @@ in
       { key = '=', mods = '${mod}', action = act.IncreaseFontSize },
       { key = '-', mods = '${mod}', action = act.DecreaseFontSize },
 
-      -- Tab Control
-      { key = 't', mods = '${mod}', action = act.SpawnTab("CurrentPaneDomain") },
-      { key = 'w', mods = '${mod}', action = act.CloseCurrentTab({ confirm = false }) },
+      -- Tab Control (delegated to tmux)
+      { key = 't', mods = '${mod}', action = tmux('c') },
+      { key = 'w', mods = '${mod}', action = tmux('w') },
 
-      { key = 'Tab', mods = 'CTRL', action = act.ActivateTabRelative(1) },
-      { key = 'Tab', mods = 'SHIFT|CTRL', action = act.ActivateTabRelative(-1) },
+      { key = 'Tab', mods = 'CTRL', action = tmux('n') },
+      { key = 'Tab', mods = 'SHIFT|CTRL', action = tmux('p') },
 
       -- Copy & Paste
       { key = 'c', mods = '${mod}', action = act.CopyTo("Clipboard") },
@@ -38,20 +42,11 @@ in
       -- Line Edit
       { key = 'k', mods = 'CTRL', action = act.SendKey { key = 'k', mods = 'CTRL' } },
 
-      -- Pane Split
-      { key = 'd', mods = '${mod}', action = act.SplitHorizontal { domain = 'CurrentPaneDomain' } },
+      -- Pane Split (delegated to tmux)
+      { key = 'd', mods = '${mod}', action = tmux('%') },
 
-      -- CopyMode
-      {
-        key = "X",
-        mods = "CTRL",
-        action = act.Multiple({
-          act.ActivateCopyMode,
-          act.CopyMode("ClearPattern"),
-          act.CopyMode("ClearSelectionMode"),
-          act.CopyMode("MoveToViewportMiddle"),
-        }),
-      },
+      -- CopyMode (delegated to tmux)
+      { key = "X", mods = "CTRL", action = tmux('[') },
     }
 
     config.key_tables = {
