@@ -25,6 +25,10 @@
       url = "github:wez/wezterm?dir=nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    stop-ai-slop-jp = {
+      url = "github:iKora128/stop-ai-slop-jp";
+      flake = false;
+    };
   };
 
   outputs =

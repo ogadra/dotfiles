@@ -779,6 +779,7 @@
         "nix-darwin": "nix-darwin",
         "nix-takt": "nix-takt",
         "nixpkgs": "nixpkgs_3",
+        "stop-ai-slop-jp": "stop-ai-slop-jp",
         "wezterm": "wezterm",
         "xremap": "xremap"
       }
@@ -801,6 +802,22 @@
       "original": {
         "owner": "oxalica",
         "repo": "rust-overlay",
+        "type": "github"
+      }
+    },
+    "stop-ai-slop-jp": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1781179477,
+        "narHash": "sha256-LsCBtbaQwQkiYtObhTmyZOZlL2MmCRd4EM5PZuH8Is0=",
+        "owner": "iKora128",
+        "repo": "stop-ai-slop-jp",
+        "rev": "e09d32796f253a62693885757cea484c275d06f2",
+        "type": "github"
+      },
+      "original": {
+        "owner": "iKora128",
+        "repo": "stop-ai-slop-jp",
         "type": "github"
       }
     },
