@@ -780,6 +780,7 @@
         "nix-takt": "nix-takt",
         "nixpkgs": "nixpkgs_3",
         "stop-ai-slop-jp": "stop-ai-slop-jp",
+        "stop-slop": "stop-slop",
         "wezterm": "wezterm",
         "xremap": "xremap"
       }
@@ -818,6 +819,22 @@
       "original": {
         "owner": "iKora128",
         "repo": "stop-ai-slop-jp",
+        "type": "github"
+      }
+    },
+    "stop-slop": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1773773436,
+        "narHash": "sha256-JMqlCRVEAfwG1TLMDpnamznkBfkmX6e2XyETTTH/TSE=",
+        "owner": "hardikpandya",
+        "repo": "stop-slop",
+        "rev": "8da1f030185bdfe8471220585162991eaeb970e9",
+        "type": "github"
+      },
+      "original": {
+        "owner": "hardikpandya",
+        "repo": "stop-slop",
         "type": "github"
       }
     },

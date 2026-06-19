@@ -32,5 +32,6 @@ in
     ".claude/config/.gitconfig".source = shared + "/.gitconfig";
     ".claude/skills/cascade-merge/SKILL.md".source = ./skills/cascade-merge/SKILL.md;
     ".claude/skills/stop-ai-slop-jp".source = inputs.stop-ai-slop-jp;
+    ".claude/skills/stop-slop".source = inputs.stop-slop;
   } // hooksConfig.scripts;
 }
