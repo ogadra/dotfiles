@@ -18,6 +18,7 @@
       inherit
         username
         inputs
+        profile
       ;
     };
   };
