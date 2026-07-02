@@ -21,6 +21,7 @@ let
     ../../common/cli/gh
     ../../common/cli/ghq
     ../../common/cli/git
+    ../../common/cli/gitleaks
     ../../common/cli/gnumake
     ../../common/cli/gomi
     ../../common/cli/jq

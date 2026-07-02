@@ -1,3 +1,4 @@
 data/*.yaml
+data/*.toml
 result
 .gitleaks.toml

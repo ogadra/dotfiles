@@ -22,6 +22,7 @@ let
     ../../common/cli/git
     ../../common/cli/gh
     ../../common/cli/ghq
+    ../../common/cli/gitleaks
     ../../common/cli/gnumake
     ../../common/cli/gomi
     ../../common/cli/ccusage

@@ -1,0 +1,11 @@
+# Global gitleaks configuration.
+# Reference: https://github.com/gitleaks/gitleaks#configuration
+
+[extend]
+useDefault = true
+
+# [[rules]]
+# id = "custom-rule"
+# description = "Example custom rule"
+# regex = '''(?i)example_secret\s*=\s*['"]?[a-z0-9]{32}['"]?'''
+# tags = ["custom"]
