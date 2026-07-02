@@ -1,12 +1,15 @@
-diff --git a/tui/src/bottom_pane/status_line_setup.rs b/tui/src/bottom_pane/status_line_setup.rs
-index 4dd62a7..dc5a9dd 100644
 --- a/tui/src/bottom_pane/status_line_setup.rs
 +++ b/tui/src/bottom_pane/status_line_setup.rs
-@@ -108,0 +109,3 @@ pub(crate) enum StatusLineItem {
+@@ -106,9 +106,19 @@
+     /// Remaining usage on the primary rate limit.
+     FiveHourLimit,
+
 +    /// Used usage on the primary rate limit.
 +    FiveHourUsed,
 +
-@@ -111,0 +115,7 @@ pub(crate) enum StatusLineItem {
+     /// Remaining usage on the secondary rate limit.
+     WeeklyLimit,
+
 +    /// Used usage on the secondary rate limit.
 +    WeeklyUsed,
 +
@@ -14,21 +17,39 @@ index 4dd62a7..dc5a9dd 100644
 +    #[strum(to_string = "cost", serialize = "codex-cost")]
 +    Cost,
 +
-@@ -171,0 +182,3 @@ impl StatusLineItem {
+     /// Codex application version.
+     CodexVersion,
+
+@@ -172,9 +182,16 @@
+             StatusLineItem::FiveHourLimit => {
+                 "Remaining usage on the primary usage limit (omitted when unavailable)"
+             }
 +            StatusLineItem::FiveHourUsed => {
 +                "Used usage on the primary usage limit (omitted when unavailable)"
 +            }
-@@ -174,0 +188,4 @@ impl StatusLineItem {
+             StatusLineItem::WeeklyLimit => {
+                 "Remaining usage on the secondary usage limit (omitted when unavailable)"
+             }
 +            StatusLineItem::WeeklyUsed => {
 +                "Used usage on the secondary usage limit (omitted when unavailable)"
 +            }
 +            StatusLineItem::Cost => "Codex cost from ccusage (omitted when unavailable)",
-@@ -209,0 +227 @@ impl StatusLineItem {
+             StatusLineItem::CodexVersion => "Codex application version",
+             StatusLineItem::ContextWindowSize => {
+                 "Total context window size in tokens (omitted when unknown)"
+@@ -213,7 +230,10 @@
+             StatusLineItem::ContextRemaining => StatusSurfacePreviewItem::ContextRemaining,
+             StatusLineItem::ContextUsed => StatusSurfacePreviewItem::ContextUsed,
+             StatusLineItem::FiveHourLimit => StatusSurfacePreviewItem::FiveHourLimit,
 +            StatusLineItem::FiveHourUsed => StatusSurfacePreviewItem::FiveHourUsed,
-@@ -210,0 +229,2 @@ impl StatusLineItem {
+             StatusLineItem::WeeklyLimit => StatusSurfacePreviewItem::WeeklyLimit,
 +            StatusLineItem::WeeklyUsed => StatusSurfacePreviewItem::WeeklyUsed,
 +            StatusLineItem::Cost => StatusSurfacePreviewItem::Cost,
-@@ -346,4 +366,7 @@ impl StatusLineSetupView {
+             StatusLineItem::CodexVersion => StatusSurfacePreviewItem::CodexVersion,
+             StatusLineItem::ContextWindowSize => StatusSurfacePreviewItem::ContextWindowSize,
+             StatusLineItem::UsedTokens => StatusSurfacePreviewItem::UsedTokens,
+@@ -352,7 +372,10 @@
+         let default_name = item.to_string();
          let default_description = item.description();
          let (name, description) = match item {
 -            StatusLineItem::FiveHourLimit | StatusLineItem::WeeklyLimit => (
@@ -37,11 +58,12 @@ index 4dd62a7..dc5a9dd 100644
 +            | StatusLineItem::WeeklyLimit
 +            | StatusLineItem::WeeklyUsed => (
                  preview_data.rate_limit_item_name(item.preview_item(), &default_name),
-diff --git a/tui/src/bottom_pane/status_line_style.rs b/tui/src/bottom_pane/status_line_style.rs
-index 170c464..7039aa5 100644
+                 preview_data.rate_limit_item_description(item.preview_item(), default_description),
+             ),
 --- a/tui/src/bottom_pane/status_line_style.rs
 +++ b/tui/src/bottom_pane/status_line_style.rs
-@@ -45,5 +45,10 @@ impl StatusLineAccent {
+@@ -44,8 +44,13 @@
+             | StatusLineItem::UsedTokens
              | StatusLineItem::TotalInputTokens
              | StatusLineItem::TotalOutputTokens => Self::Usage,
 -            StatusLineItem::FiveHourLimit | StatusLineItem::WeeklyLimit => Self::Limit,
@@ -54,30 +76,49 @@ index 170c464..7039aa5 100644
 +                Self::Metadata
 +            }
              StatusLineItem::FastMode | StatusLineItem::RawOutput => Self::Mode,
-diff --git a/tui/src/bottom_pane/status_surface_preview.rs b/tui/src/bottom_pane/status_surface_preview.rs
-index bd0a94a..c32ed27 100644
+             StatusLineItem::Permissions => Self::Mode,
+             StatusLineItem::ApprovalMode => Self::Mode,
 --- a/tui/src/bottom_pane/status_surface_preview.rs
 +++ b/tui/src/bottom_pane/status_surface_preview.rs
-@@ -23,0 +24 @@ pub(crate) enum StatusSurfacePreviewItem {
+@@ -21,7 +21,10 @@
+     ContextRemaining,
+     ContextUsed,
+     FiveHourLimit,
 +    FiveHourUsed,
-@@ -24,0 +26,2 @@ pub(crate) enum StatusSurfacePreviewItem {
+     WeeklyLimit,
 +    WeeklyUsed,
 +    Cost,
-@@ -55,0 +59 @@ impl StatusSurfacePreviewItem {
+     CodexVersion,
+     ContextWindowSize,
+     UsedTokens,
+@@ -54,7 +57,10 @@
+             StatusSurfacePreviewItem::ContextRemaining => "Context 0% left",
+             StatusSurfacePreviewItem::ContextUsed => "Context 0% used",
+             StatusSurfacePreviewItem::FiveHourLimit => "primary 0%",
 +            StatusSurfacePreviewItem::FiveHourUsed => "primary 0% used",
-@@ -56,0 +61,2 @@ impl StatusSurfacePreviewItem {
+             StatusSurfacePreviewItem::WeeklyLimit => "secondary 0%",
 +            StatusSurfacePreviewItem::WeeklyUsed => "secondary 0% used",
 +            StatusSurfacePreviewItem::Cost => "$0.00 today / $0.00 month",
-@@ -87,0 +94 @@ impl StatusSurfacePreviewItem {
+             StatusSurfacePreviewItem::CodexVersion => "0.0.0",
+             StatusSurfacePreviewItem::ContextWindowSize => "0 window",
+             StatusSurfacePreviewItem::UsedTokens => "0 used",
+@@ -87,7 +93,10 @@
+             Self::ContextRemaining,
+             Self::ContextUsed,
+             Self::FiveHourLimit,
 +            Self::FiveHourUsed,
-@@ -88,0 +96,2 @@ impl StatusSurfacePreviewItem {
+             Self::WeeklyLimit,
 +            Self::WeeklyUsed,
 +            Self::Cost,
-diff --git a/tui/src/chatwidget/status_controls.rs b/tui/src/chatwidget/status_controls.rs
-index d4de738..3ea1212 100644
+             Self::CodexVersion,
+             Self::ContextWindowSize,
+             Self::UsedTokens,
 --- a/tui/src/chatwidget/status_controls.rs
 +++ b/tui/src/chatwidget/status_controls.rs
-@@ -7,0 +8,17 @@ use super::*;
+@@ -6,6 +6,24 @@
+
+ use super::*;
+
 +use std::process::Command;
 +use std::sync::Mutex;
 +use std::sync::OnceLock;
@@ -95,7 +136,14 @@ index d4de738..3ea1212 100644
 +    updated_at: Instant,
 +    value: Option<String>,
 +}
-@@ -383,0 +401,27 @@ impl ChatWidget {
++
+ impl ChatWidget {
+     /// Update the status indicator header and details.
+     ///
+@@ -393,6 +411,33 @@
+         Some(format!("{label} {remaining:.0}% left"))
+     }
+
 +    pub(super) fn status_line_limit_used_display(
 +        &self,
 +        window: Option<&RateLimitWindowDisplay>,
@@ -123,7 +171,13 @@ index d4de738..3ea1212 100644
 +        value
 +    }
 +
-@@ -392,0 +437,48 @@ impl ChatWidget {
+     pub(super) fn status_line_reasoning_effort_label(
+         effort: Option<&ReasoningEffortConfig>,
+     ) -> String {
+@@ -402,3 +447,51 @@
+         }
+     }
+ }
 +
 +fn load_codex_cost_display() -> Option<String> {
 +    let today = Local::now().format("%Y%m%d").to_string();
@@ -172,11 +226,12 @@ index d4de738..3ea1212 100644
 +    }
 +    serde_json::from_slice(&output.stdout).ok()
 +}
-diff --git a/tui/src/chatwidget/status_surfaces.rs b/tui/src/chatwidget/status_surfaces.rs
-index 592dd04..04a405e 100644
 --- a/tui/src/chatwidget/status_surfaces.rs
 +++ b/tui/src/chatwidget/status_surfaces.rs
-@@ -615,0 +616,8 @@ impl ChatWidget {
+@@ -706,6 +706,14 @@
+                 let label = limit_label_for_window(window.window_minutes, is_secondary);
+                 self.status_line_limit_display(Some(window), &label)
+             }
 +            StatusLineItem::FiveHourUsed => {
 +                let (window, is_secondary) = self
 +                    .rate_limit_snapshots_by_limit_id
@@ -185,7 +240,13 @@ index 592dd04..04a405e 100644
 +                let label = limit_label_for_window(window.window_minutes, is_secondary);
 +                self.status_line_limit_used_display(Some(window), &label)
 +            }
-@@ -623,0 +632,9 @@ impl ChatWidget {
+             StatusLineItem::WeeklyLimit => {
+                 let (window, is_secondary) = self
+                     .rate_limit_snapshots_by_limit_id
+@@ -714,6 +722,15 @@
+                 let label = limit_label_for_window(window.window_minutes, is_secondary);
+                 self.status_line_limit_display(Some(window), &label)
+             }
 +            StatusLineItem::WeeklyUsed => {
 +                let (window, is_secondary) = self
 +                    .rate_limit_snapshots_by_limit_id
@@ -195,8 +256,17 @@ index 592dd04..04a405e 100644
 +                self.status_line_limit_used_display(Some(window), &label)
 +            }
 +            StatusLineItem::Cost => self.status_line_codex_cost_display(),
-@@ -686,0 +704 @@ impl ChatWidget {
+             StatusLineItem::CodexVersion => Some(CODEX_CLI_VERSION.to_string()),
+             StatusLineItem::ContextWindowSize => self
+                 .status_line_context_window_size()
+@@ -778,7 +795,10 @@
+             StatusSurfacePreviewItem::ContextRemaining => StatusLineItem::ContextRemaining,
+             StatusSurfacePreviewItem::ContextUsed => StatusLineItem::ContextUsed,
+             StatusSurfacePreviewItem::FiveHourLimit => StatusLineItem::FiveHourLimit,
 +            StatusSurfacePreviewItem::FiveHourUsed => StatusLineItem::FiveHourUsed,
-@@ -687,0 +706,2 @@ impl ChatWidget {
+             StatusSurfacePreviewItem::WeeklyLimit => StatusLineItem::WeeklyLimit,
 +            StatusSurfacePreviewItem::WeeklyUsed => StatusLineItem::WeeklyUsed,
 +            StatusSurfacePreviewItem::Cost => StatusLineItem::Cost,
+             StatusSurfacePreviewItem::CodexVersion => StatusLineItem::CodexVersion,
+             StatusSurfacePreviewItem::ContextWindowSize => StatusLineItem::ContextWindowSize,
+             StatusSurfacePreviewItem::UsedTokens => StatusLineItem::UsedTokens,
