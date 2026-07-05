@@ -5,7 +5,7 @@
   ## モデル / 推論
 
   # 既定モデル。"opus" / "sonnet" / "haiku" などのエイリアス、または完全な model ID。
-  model = "opus";
+  # model = null;
   # 拡張思考の自動有効化。false で thinking 無効、true/未設定で対応モデルでは自動 ON。
   alwaysThinkingEnabled = true;
   # 対応モデル向けの effort レベル（low/medium/high/xhigh）。
@@ -80,6 +80,8 @@
   promptSuggestionEnabled = true;
   # 5分以上離席後の復帰時に表示されるセッション要約を有効化するか。
   awaySummaryEnabled = true;
+  # 未応答の AskUserQuestion ダイアログが選択済みオプションで自動継続するまでの idle 時間。"60s"/"5m"/"10m"/"never"。v2.1.200+。
+  askUserQuestionTimeout = "never";
 
   ## スピナー / ステータスライン
 
