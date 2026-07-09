@@ -14,8 +14,10 @@ deny() {
 while IFS= read -r SEG; do
   SEG="${SEG#"${SEG%%[![:space:]]*}"}"
   [ -n "$SEG" ] || continue
+  NORM=$(printf '%s' "$SEG" | tr -s '[:space:]' ' ')
+  NORM="${NORM% }"
 
-  case "$SEG" in
+  case "$NORM" in
     sudo|"sudo "*)
       deny "sudo is not allowed in Codex sessions."
       ;;
@@ -28,10 +30,13 @@ while IFS= read -r SEG; do
     "git commit -a"|"git commit -a "*)
       deny "git commit -a is not allowed; stage files intentionally."
       ;;
-    "git add ."|"git add -u"|"git add -A")
-      deny "bulk git add is not allowed; inspect and stage explicit files."
-      ;;
   esac
+
+  if [[ "$NORM" =~ (^|[^[:alnum:]_])git[[:space:]]+add([^[:alnum:]_]|$) ]] \
+    && { [[ "$NORM" =~ (^|[^[:alnum:]_-])(-A|--all|-u|--update)([^[:alnum:]_-]|$) ]] \
+      || [[ "$NORM" =~ (^|[[:space:]])\.([[:space:]]|$) ]]; }; then
+    deny "bulk git add is not allowed; inspect and stage explicit files."
+  fi
 done < <(printf '%s\n' "$CMD" | tr ';&|' '\n')
 
 for check in git/check.sh gh/check.sh; do
