@@ -32,9 +32,26 @@ while IFS= read -r SEG; do
       ;;
   esac
 
-  if [[ "$NORM" =~ (^|[^[:alnum:]_])git[[:space:]]+add([^[:alnum:]_]|$) ]] \
-    && { [[ "$NORM" =~ (^|[^[:alnum:]_-])(-A|--all|-u|--update)([^[:alnum:]_-]|$) ]] \
-      || [[ "$NORM" =~ (^|[[:space:]])\.([[:space:]]|$) ]]; }; then
+  HEAD="$NORM"
+  for _ in 1 2 3 4 5; do
+    if [[ "$HEAD" =~ ^[\(\{][[:space:]]*(.*)$ ]]; then
+      HEAD="${BASH_REMATCH[1]}"
+    elif [[ "$HEAD" =~ ^[A-Za-z_][A-Za-z0-9_]*=[^[:space:]]*[[:space:]]+(.*)$ ]]; then
+      HEAD="${BASH_REMATCH[1]}"
+    elif [[ "$HEAD" =~ ^(xargs|command|exec|nohup|nice|env|time|sudo)[[:space:]]+(.*)$ ]]; then
+      HEAD="${BASH_REMATCH[2]}"
+    elif [[ "$HEAD" =~ ^\\(.*)$ ]]; then
+      HEAD="${BASH_REMATCH[1]}"
+    else
+      break
+    fi
+  done
+
+  ADD_RE='^git[[:space:]]+add([[:space:]]|$)'
+  FLAG_RE='(^|[[:space:]])(-A|--all|-u|--update)([[:space:])}]|$)'
+  DOT_RE='(^|[[:space:]])\.([[:space:])}]|$)'
+  if [[ "$HEAD" =~ $ADD_RE ]] \
+    && { [[ "$HEAD" =~ $FLAG_RE ]] || [[ "$HEAD" =~ $DOT_RE ]]; }; then
     deny "bulk git add is not allowed; inspect and stage explicit files."
   fi
 done < <(printf '%s\n' "$CMD" | tr ';&|' '\n')
