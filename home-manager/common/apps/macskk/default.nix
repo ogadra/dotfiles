@@ -76,8 +76,12 @@ lib.mkIf pkgs.stdenv.isDarwin {
     fi
   '';
 
+  # macSKKが起動中/cfprefsdがキャッシュを保持していると `defaults write` した設定が
+  # 反映されない/直後に上書きされることがあるので、書き込み前に停止しキャッシュを飛ばす
   home.activation.configureMacSKKKeyBindings = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     if [ -d "${prefsDir}" ] && [ "$(/usr/bin/defaults read ${bundleId} selectedKeyBindingSetId 2>/dev/null)" != "${keyBindingSetId}" ]; then
+      /usr/bin/pkill -x macSKK 2>/dev/null || true
+      /usr/bin/killall cfprefsd 2>/dev/null || true
       /usr/bin/defaults write ${bundleId} keyBindingSets "$(/bin/cat ${./keyBindingSets.plist})"
       /usr/bin/defaults write ${bundleId} selectedKeyBindingSetId -string "${keyBindingSetId}"
     fi
