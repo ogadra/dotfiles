@@ -18,13 +18,15 @@ in
         ];
       }
     ];
+    # タスク完了(Stop)後はフラグファイルを立て、次のプロンプト送信
+    # (UserPromptSubmit)までアイドル通知(idle_prompt)を鳴らさない。
     Notification = [
       {
         matcher = "idle_prompt";
         hooks = [
           {
             type = "command";
-            command = "(mpv --no-terminal --volume=30 ~/.claude/sounds/notification.mp3 </dev/null >/dev/null 2>&1 &)";
+            command = "[ -f /tmp/claude_task_stopped_$PPID ] || (mpv --no-terminal --volume=30 ~/.claude/sounds/notification.mp3 </dev/null >/dev/null 2>&1 &)";
           }
         ];
       }
@@ -35,7 +37,18 @@ in
         hooks = [
           {
             type = "command";
-            command = "(mpv --no-terminal --volume=30 ~/.claude/sounds/stop.mp3 </dev/null >/dev/null 2>&1 &)";
+            command = "touch /tmp/claude_task_stopped_$PPID; (mpv --no-terminal --volume=30 ~/.claude/sounds/stop.mp3 </dev/null >/dev/null 2>&1 &)";
+          }
+        ];
+      }
+    ];
+    UserPromptSubmit = [
+      {
+        matcher = "";
+        hooks = [
+          {
+            type = "command";
+            command = "rm -f /tmp/claude_task_stopped_$PPID";
           }
         ];
       }
