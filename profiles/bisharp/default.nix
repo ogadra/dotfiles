@@ -13,6 +13,7 @@ let
 
   # Hardware
   hardwareSettings = [
+    ../../nixos/settings/hardware/audio.nix
     ../../nixos/settings/hardware/thunderbolt.nix
   ];
 
