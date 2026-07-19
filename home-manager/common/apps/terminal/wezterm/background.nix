@@ -2,9 +2,12 @@
 let
   isLinux = pkgs.stdenv.isLinux;
   isDarwin = pkgs.stdenv.isDarwin;
+  # KWin 6.7 dropped the org_kde_kwin_blur protocol and wezterm does not yet
+  # speak its replacement (ext-background-effect, wezterm PR #7615), so blur
+  # is unavailable on Linux; keep the window fully opaque there.
   platformConfig =
     if isLinux then
-      "    config.kde_window_background_blur = true\n"
+      "    config.window_background_opacity = 1.0\n"
     else if isDarwin then
       "    config.macos_window_background_blur = 12\n    config.window_background_opacity = 0.9\n"
     else "";
