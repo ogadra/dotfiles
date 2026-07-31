@@ -32,6 +32,13 @@ in
       set -g pane-base-index 1
       set -ga terminal-overrides ",*256col*:Tc"
 
+      # Scroll 3 lines per wheel notch instead of the default 5
+      bind -T copy-mode WheelUpPane send-keys -X -N 3 scroll-up
+      bind -T copy-mode WheelDownPane send-keys -X -N 3 scroll-down
+
+      # Keep the selection visible after releasing the mouse instead of copying-and-cancelling
+      bind -T copy-mode MouseDragEnd1Pane send-keys -X copy-selection-no-clear
+
       # Claude Code clamps its color depth to 256 when $TMUX is set; opt out to keep truecolor
       set-environment -g CLAUDE_CODE_TMUX_TRUECOLOR 1
 
