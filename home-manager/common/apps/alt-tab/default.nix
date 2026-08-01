@@ -1,11 +1,13 @@
+{ lib, ... }:
+let
+  # nixpkgs 版はソースからビルドして ad-hoc 署名するため、リビルドのたびに cdhash が変わる。
+  # 画面収録などの TCC 権限は ad-hoc 署名アプリを cdhash で識別するので、その都度許可が失効する。
+  # 公式配布版は Developer ID 署名 + notarize 済みで、TeamIdentifier で識別されるため権限が保持される。
+  version = "11.4.3";
+  zipUrl = "https://github.com/lwouis/alt-tab-macos/releases/download/v${version}/AltTab-${version}.zip";
+  zipSha256 = "f6471d3cfc3ca70986ab55fe2dd334da5ad629d517eaf8eb3449fc0e7123eddd";
+in
 {
-  pkgs,
-  lib,
-  ...
-}:
-{
-  home.packages = [ pkgs.alt-tab-macos ];
-
   targets.darwin.defaults."com.lwouis.alt-tab-macos" = {
     # サムネイルの揃え方: 0=左揃え, 1=中央揃え
     alignThumbnails = 1;
@@ -100,6 +102,19 @@
     # 最大ウィンドウ幅 (行の割合 %)
     windowMaxWidthInRow = 30;
   };
+
+  home.activation.installAltTab = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    if [ ! -d "/Applications/AltTab.app" ]; then
+      _zip=$(mktemp /tmp/alttab-XXXXXX.zip)
+      /usr/bin/curl -L -o "$_zip" "${zipUrl}"
+      echo "${zipSha256}  $_zip" | /usr/bin/shasum -a 256 -c - || { rm -f "$_zip"; exit 1; }
+      _dir=$(/usr/bin/mktemp -d /tmp/alttab-dir-XXXXXX)
+      /usr/bin/unzip -q "$_zip" -d "$_dir"
+      /bin/cp -R "$_dir/AltTab.app" /Applications/
+      /usr/bin/xattr -dr com.apple.quarantine /Applications/AltTab.app
+      rm -rf "$_zip" "$_dir"
+    fi
+  '';
 
   # ショートカット設定はNSKeyedArchiverバイナリ形式のため targets.darwin.defaults では扱えない。
   # defaults import でplistから適用する。targets.darwin.defaults より後に実行されることを保証するため
