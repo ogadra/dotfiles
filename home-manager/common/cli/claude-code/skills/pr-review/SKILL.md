@@ -131,40 +131,43 @@ REJECTが1件でもあれば末尾に `判定: REJECT` を追記する。すべ�
 - 1問あたり `options` は最大4件、1回の呼び出しで `questions` は最大4問。つまり最大16件まで1画面に並べられる。
 - findings をseverity順に4件ずつのグループに分割し、各グループを1問として並べる (`question`: 「グループ1: 対応する指摘を選択してください」など)。`header` は「対応対象」で統一。
 - 各 option の `label` は `F<番号>: <file>:<line>`、`description` に `[severity][所見: 対応すべき/不要/保留] <problem の要約>` を入れる。
-- 所見が「対応すべき」の指摘を推奨としてグループ内の先頭に置く。
+- 所見を番号順に列挙する。
 - findings が16件を超える場合は、まず severity=REJECT のみを対象に AskUserQuestion し、REJECT対応後にWarning用の AskUserQuestion をもう一度出す。
 
 ユーザーが1件も選ばなければ「対応対象なし」と1行だけ返して終了する。
 
 ### 6. PRブランチの準備
 
-修正に入る前に、必ずここで **作業ディレクトリ** を確定させる。確定前にファイルを編集してはならない。
+修正に入る前に、作業ディレクトリを確定させる。
 
-- まず `git worktree list` で、対象PRのブランチ (headRefName) がチェックアウトされたローカルworktreeを探す。
-- **worktreeがある場合**: そのworktreeの絶対パスを作業ディレクトリとする。cd はせず、以降のファイル操作はworktree配下の絶対パスで、git操作は `git -C <worktree絶対パス>` で行う。
-- **worktreeがない場合**: 作業前に `gh pr checkout <PR番号>` でPRのブランチに切り替え、カレントリポジトリを作業ディレクトリとする。切り替え前に `git status` で未コミットの変更がないことを確認する。あれば、その旨をユーザーに伝えて停止する。
+1. `git worktree list` で、対象PRのブランチがチェックアウトされたローカルworktreeを探す。
+  - worktreeがある場合
+    - そのworktreeの絶対パスを作業ディレクトリとする。
+  - worktreeがない場合
+    - remoteブランチと同名のworktreeを作る。
+2. 以降のファイル操作はworktree配下の絶対パスで行う。
 
 ### 7. 選択された指摘の修正
 
-選ばれた各 finding について次を行う。findings は独立とは限らないため、同一ファイルへの変更は順番に、依存があれば依存順に処理する。
+選ばれた各findingについて次を行う。findingsは独立とは限らないため、同一ファイルへの変更は順番に、依存があれば依存順に処理する。
 
 - 修正はすべてステップ6で確定した作業ディレクトリ内のファイルに対して行う。worktreeで作業する場合、Read/Edit にはworktree配下の絶対パスを使う。
 - finding の内容と対象ファイル/行を確認する。必要ならファイルを Read で開き、diff との整合を取る。
 - **潜在的なバグ (severity: REJECT の security / code-quality / testing カテゴリなど) の場合**: まず落ちるテストを書いてテストが失敗することを確認してから修正する (t-wada TDD Style)。
 - **それ以外の場合**: 直接コードを修正する。
-- テストがあるプロジェクトではテストを実行する (Go の場合は `docker build --target test runner/`)。テスト実行手段がない場合はその旨を明示する。
+- テストを実行する。
 
 ### 8. コミットとプッシュ
 
-- git操作はすべてステップ6の作業ディレクトリに対して行う (worktreeの場合は `git -C <worktree絶対パス>` を付ける)。
+- git操作はすべてステップ6の作業ディレクトリに対して行う。worktreeなので `git -C <worktree絶対パス>` を付ける。
 - `git status` と `git diff` で意図した変更のみが含まれているか確認する。
 - `git add` で対象ファイルを指定して stage する (`-A` や `.` は使わない)。
 - `nix develop -c git commit` でコミットする。メッセージは conventional commit (英語) で、対応した finding 番号を本文に列挙する。
-- 追加のプッシュは **ユーザーに確認してから** 行う。無確認では push しない。
+- 追加のプッシュはユーザーに確認してから行う。
 
 ### 9. まとめの出力
 
-対応済みと未対応の finding を番号順に列挙する。
+対応済みと未対応のfindingを番号順に列挙する。
 
 ```markdown
 ## 対応済み
