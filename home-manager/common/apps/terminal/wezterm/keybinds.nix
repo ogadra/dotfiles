@@ -49,6 +49,23 @@ in
       { key = "X", mods = "CTRL", action = tmux('[') },
     }
 
+    -- Open the link under the cursor with Ctrl+click. tmux's mouse mode makes
+    -- wezterm forward plain clicks to tmux, so the mouse_reporting=true variant
+    -- is required for the binding to fire inside tmux panes.
+    config.mouse_bindings = {
+      {
+        event = { Up = { streak = 1, button = 'Left' } },
+        mods = 'CTRL',
+        action = act.OpenLinkAtMouseCursor,
+      },
+      {
+        event = { Up = { streak = 1, button = 'Left' } },
+        mods = 'CTRL',
+        mouse_reporting = true,
+        action = act.OpenLinkAtMouseCursor,
+      },
+    }
+
     config.key_tables = {
       copy_mode = {
         -- Exit
