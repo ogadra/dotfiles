@@ -83,6 +83,16 @@
   # 未応答の AskUserQuestion ダイアログが選択済みオプションで自動継続するまでの idle 時間。"60s"/"5m"/"10m"/"never"。v2.1.200+。
   askUserQuestionTimeout = "never";
 
+  ## 音声入力
+
+  # 音声入力（ディクテーション）を有効化するか。/voice の設定先。
+  voiceEnabled = true;
+  # 音声入力の詳細。mode は hold（キー押下中のみ録音）/ tap（タップで開始・再タップで送信）。
+  voice = {
+    enabled = true;
+    mode = "hold";
+  };
+
   ## スピナー / ステータスライン
 
   # スピナー中の Tips 表示を有効化するか。
