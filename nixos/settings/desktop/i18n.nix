@@ -52,6 +52,8 @@
           };
           # 変換確定のReturnを改行(=送信)としてアプリに渡さない
           addons.skk.globalSection.EggLikeNewLine = "True";
+          # 有効化した直後はASCII入力から始める
+          addons.skk.globalSection.InitialInputMode = "Latin";
         };
       };
     };
