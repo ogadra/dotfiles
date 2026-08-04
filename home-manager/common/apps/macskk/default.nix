@@ -23,6 +23,19 @@ let
   bundleId = "net.mtgto.inputmethod.macSKK";
   prefsDir = "$HOME/Library/Containers/${bundleId}/Data/Library/Preferences";
   keyBindingSetId = "numpad-enter";
+
+  asciiInputSourceId = "${bundleId}.ascii";
+
+  # macSKKの読み込みが終わるまで切り替えは効かず、macismは失敗しても0を返す
+  selectAsciiScript = pkgs.writeShellScript "macskk-select-ascii" ''
+    for _ in $(/usr/bin/seq 1 15); do
+      ${pkgs.macism}/bin/macism ${asciiInputSourceId}
+      if [ "$(${pkgs.macism}/bin/macism)" = "${asciiInputSourceId}" ]; then
+        exit 0
+      fi
+      /bin/sleep 1
+    done
+  '';
 in
 lib.mkIf pkgs.stdenv.isDarwin {
   home.activation.installMacSKK = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
@@ -75,6 +88,15 @@ lib.mkIf pkgs.stdenv.isDarwin {
       /usr/bin/defaults write ${bundleId} dictionaries "$(/bin/cat ${./dictionaries.plist})"
     fi
   '';
+
+  # macOSは最後の入力モードを復元するので、ログインごとに直接入力へ戻す
+  launchd.agents.macskk-select-ascii = {
+    enable = true;
+    config = {
+      ProgramArguments = [ "${selectAsciiScript}" ];
+      RunAtLoad = true;
+    };
+  };
 
   # macSKKが起動中/cfprefsdがキャッシュを保持していると `defaults write` した設定が
   # 反映されない/直後に上書きされることがあるので、書き込み前に停止しキャッシュを飛ばす
