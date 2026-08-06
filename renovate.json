@@ -11,6 +11,5 @@
       "automerge": false,
       "groupName": "nix flake inputs"
     }
-  ],
-  "schedule": ["before 9am every day"]
+  ]
 }
