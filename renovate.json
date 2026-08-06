@@ -12,5 +12,5 @@
       "groupName": "nix flake inputs"
     }
   ],
-  "schedule": ["before 9am on monday"]
+  "schedule": ["before 9am every day"]
 }
