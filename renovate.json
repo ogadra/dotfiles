@@ -5,6 +5,16 @@
   "nix": {
     "enabled": true
   },
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Track the Renovate version pinned in the Renovate workflow",
+      "managerFilePatterns": [".github/workflows/renovate.yml"],
+      "matchStrings": ["renovate-version: (?<currentValue>\\S+)"],
+      "datasourceTemplate": "docker",
+      "depNameTemplate": "ghcr.io/renovatebot/renovate"
+    }
+  ],
   "packageRules": [
     {
       "matchManagers": ["nix"],
