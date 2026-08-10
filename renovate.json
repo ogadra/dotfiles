@@ -4,6 +4,10 @@
   "minimumReleaseAge": "3 days",
   "minimumReleaseAgeBehaviour": "timestamp-optional",
   "internalChecksFilter": "none",
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": ["at any time"]
+  },
   "nix": {
     "enabled": true
   },
