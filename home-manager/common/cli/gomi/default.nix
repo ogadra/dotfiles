@@ -72,7 +72,7 @@ in
       preview:
         syntax_highlight: true
         colorscheme: nord
-        directory_command: ls -GF -1 -A --color=always
+        directory_command: ${directoryCommand}
       paginator_type: dots
     history:
       include:
