@@ -1,7 +1,10 @@
 {
   description = "ogadra's Nix Configuration";
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    # Mesa 26.2.0 makes the iris driver hang the GPU on Meteor Lake (i915)
+    # whenever wezterm renders through it; hold nixpkgs at the last revision
+    # shipping Mesa 26.1.6 until a fixed Mesa lands in nixpkgs-unstable.
+    nixpkgs.url = "github:NixOS/nixpkgs/104240a772428cc2e20d8fd86c9ddbb886bbaff2";
     nix-darwin = {
       url = "github:LnL7/nix-darwin";
       inputs.nixpkgs.follows = "nixpkgs";
