@@ -10,6 +10,11 @@ let
   solidLeft = ""; # U+E0BA
   solidRight = ""; # U+E0BC
 
+  # status-left looks. Attributes are split into one directive each because a
+  # comma inside #[...] would be read as a #{?...} argument separator.
+  idleLook = "#[fg=${black}]#[bg=${orange}]#[bold]";
+  prefixLook = "#[fg=${orange}]#[bg=${black}]#[bold]";
+
   # Emit a right-status git segment only when the path is inside a repo
   gitSegment = pkgs.writeShellScript "tmux-git-segment" ''
     cd "$1" 2>/dev/null || exit 0
@@ -58,8 +63,9 @@ in
       setw -g automatic-rename off
       set -g window-status-separator ""
 
+      # Invert the block while the prefix key is pending so C-q is visible
       set -g status-left-length 20
-      set -g status-left "#[fg=${black},bg=${orange},bold] TERMINAL "
+      set -g status-left "#{?client_prefix,${prefixLook},${idleLook}} TERMINAL "
 
       # Window tabs: black inset with slanted edges; name is the display path set by fish
       setw -g window-status-current-format "#[fg=${black},bg=${orange}] ${solidLeft}#[fg=${orange},bg=${black}] #W #[fg=${black},bg=${orange}]${solidRight}"
