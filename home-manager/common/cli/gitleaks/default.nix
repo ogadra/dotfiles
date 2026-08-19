@@ -3,6 +3,9 @@ let
   gitleaksConfig = "${config.xdg.configHome}/gitleaks/gitleaks.toml";
   gitleaksRelPath = "github.com/ogadra/dotfiles/data/gitleaks.toml";
 
+  hooksDir = "${config.xdg.configHome}/git/hooks";
+  lefthookHook = "${hooksDir}/pre-commit.lefthook";
+
   preCommit = pkgs.writeShellScript "pre-commit" ''
     set -e
 
@@ -15,6 +18,19 @@ let
     if [ -x "$repo_hook" ]; then
       exec "$repo_hook" "$@"
     fi
+
+    top="$(git rev-parse --show-toplevel)"
+    for base in lefthook .lefthook .config/lefthook; do
+      for ext in yml yaml toml json; do
+        if [ -f "$top/$base.$ext" ]; then
+          if [ -x "${lefthookHook}" ]; then
+            exec "${lefthookHook}" "$@"
+          elif command -v lefthook >/dev/null 2>&1; then
+            exec lefthook run pre-commit "$@"
+          fi
+        fi
+      done
+    done
   '';
 in
 {
@@ -27,7 +43,14 @@ in
     executable = true;
   };
 
-  programs.git.settings.core.hooksPath = "${config.xdg.configHome}/git/hooks";
+  programs.git.settings.core.hooksPath = hooksDir;
+
+  home.activation.captureLefthookHook = lib.hm.dag.entryBefore [ "checkLinkTargets" ] ''
+    hook="${hooksDir}/pre-commit"
+    if [ -f "$hook" ] && [ ! -L "$hook" ] && grep -q lefthook "$hook"; then
+      run mv "$hook" "${lefthookHook}"
+    fi
+  '';
 
   home.activation.gitleaksConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     ghq_root="$(${pkgs.ghq}/bin/ghq root 2>/dev/null || true)"

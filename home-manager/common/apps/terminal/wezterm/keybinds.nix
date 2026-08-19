@@ -13,6 +13,10 @@ in
     function module.apply_to_config(config, wezterm)
       local act = wezterm.action
 
+      -- Send the tmux prefix (C-q = \x11) followed by a command key
+      local function tmux(cmd)
+        return act.SendString('\x11' .. cmd)
+      end
 
     config.disable_default_key_bindings = true
     ${altCompose}
@@ -24,12 +28,12 @@ in
       { key = '=', mods = '${mod}', action = act.IncreaseFontSize },
       { key = '-', mods = '${mod}', action = act.DecreaseFontSize },
 
-      -- Tab Control
-      { key = 't', mods = '${mod}', action = act.SpawnTab("CurrentPaneDomain") },
-      { key = 'w', mods = '${mod}', action = act.CloseCurrentTab({ confirm = false }) },
+      -- Tab Control (delegated to tmux)
+      { key = 't', mods = '${mod}', action = tmux('c') },
+      { key = 'w', mods = '${mod}', action = tmux('w') },
 
-      { key = 'Tab', mods = 'CTRL', action = act.ActivateTabRelative(1) },
-      { key = 'Tab', mods = 'SHIFT|CTRL', action = act.ActivateTabRelative(-1) },
+      { key = 'Tab', mods = 'CTRL', action = tmux('n') },
+      { key = 'Tab', mods = 'SHIFT|CTRL', action = tmux('p') },
 
       -- Copy & Paste
       { key = 'c', mods = '${mod}', action = act.CopyTo("Clipboard") },
@@ -38,64 +42,30 @@ in
       -- Line Edit
       { key = 'k', mods = 'CTRL', action = act.SendKey { key = 'k', mods = 'CTRL' } },
 
-      -- Pane Split
-      { key = 'd', mods = '${mod}', action = act.SplitHorizontal { domain = 'CurrentPaneDomain' } },
+      -- Pane Split (delegated to tmux)
+      { key = 'd', mods = '${mod}', action = tmux('%') },
 
-      -- CopyMode
+      -- CopyMode (delegated to tmux)
+      { key = "X", mods = "CTRL", action = tmux('[') },
+    }
+
+    -- Open the link under the cursor with Ctrl+click. tmux's mouse mode makes
+    -- wezterm forward plain clicks to tmux, so the mouse_reporting=true variant
+    -- is required for the binding to fire inside tmux panes.
+    config.mouse_bindings = {
       {
-        key = "X",
-        mods = "CTRL",
-        action = act.Multiple({
-          act.ActivateCopyMode,
-          act.CopyMode("ClearPattern"),
-          act.CopyMode("ClearSelectionMode"),
-          act.CopyMode("MoveToViewportMiddle"),
-        }),
+        event = { Up = { streak = 1, button = 'Left' } },
+        mods = 'CTRL',
+        action = act.OpenLinkAtMouseCursor,
+      },
+      {
+        event = { Up = { streak = 1, button = 'Left' } },
+        mods = 'CTRL',
+        mouse_reporting = true,
+        action = act.OpenLinkAtMouseCursor,
       },
     }
 
-    config.key_tables = {
-      copy_mode = {
-        -- Exit
-        { key = "Escape", mods = "NONE", action = act.Multiple({ "ScrollToBottom", { CopyMode = "Close" } }) },
-        { key = "g", mods = "CTRL", action = act.Multiple({ "ScrollToBottom", { CopyMode = "Close" } }) },
-        { key = "q", mods = "NONE", action = act.Multiple({ "ScrollToBottom", { CopyMode = "Close" } }) },
-
-        -- Cursor movement
-        { key = "f", mods = "CTRL", action = act.CopyMode("MoveRight") },
-        { key = "b", mods = "CTRL", action = act.CopyMode("MoveLeft") },
-        { key = "p", mods = "CTRL", action = act.CopyMode("MoveUp") },
-        { key = "n", mods = "CTRL", action = act.CopyMode("MoveDown") },
-        { key = "a", mods = "CTRL", action = act.CopyMode("MoveToStartOfLineContent") },
-        { key = "e", mods = "CTRL", action = act.CopyMode("MoveToEndOfLineContent") },
-        { key = "LeftArrow", mods = "NONE", action = act.CopyMode("MoveLeft") },
-        { key = "RightArrow", mods = "NONE", action = act.CopyMode("MoveRight") },
-        { key = "UpArrow", mods = "NONE", action = act.CopyMode("MoveUp") },
-        { key = "DownArrow", mods = "NONE", action = act.CopyMode("MoveDown") },
-
-        -- Word movement
-        { key = "f", mods = "ALT", action = act.CopyMode("MoveForwardWord") },
-        { key = "b", mods = "ALT", action = act.CopyMode("MoveBackwardWord") },
-
-        -- Page/scroll movement
-        { key = "v", mods = "CTRL", action = act.CopyMode("PageDown") },
-        { key = "v", mods = "ALT", action = act.CopyMode("PageUp") },
-        { key = "<", mods = "ALT", action = act.CopyMode("MoveToScrollbackTop") },
-        { key = ">", mods = "ALT", action = act.CopyMode("MoveToScrollbackBottom") },
-
-        -- Selection (C-Space to set mark)
-        { key = "v", mods = "NONE", action = act.CopyMode({ SetSelectionMode = "Cell" }) },
-        { key = "v", mods = "SHIFT", action = act.CopyMode({ SetSelectionMode = "Line" }) },
-        { key = "v", mods = "CTRL|SHIFT", action = act.CopyMode({ SetSelectionMode = "Block" }) },
-
-        -- Copy (M-w) and cancel selection (C-g)
-        { key = "w", mods = "ALT", action = act.Multiple({ { CopyTo = "ClipboardAndPrimarySelection" }, { CopyMode = "Close" } }) },
-
-        -- Search
-        { key = "s", mods = "CTRL", action = act.Search("CurrentSelectionOrEmptyString") },
-        { key = "r", mods = "CTRL", action = act.Search("CurrentSelectionOrEmptyString") },
-      },
-    }
     end
 
     return module
