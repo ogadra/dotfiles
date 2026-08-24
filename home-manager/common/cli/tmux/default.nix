@@ -10,10 +10,14 @@ let
   solidLeft = ""; # U+E0BA
   solidRight = ""; # U+E0BC
 
-  # status-left looks. Attributes are split into one directive each because a
-  # comma inside #[...] would be read as a #{?...} argument separator.
   idleLook = "#[fg=${black}]#[bg=${orange}]#[bold]";
-  prefixLook = "#[fg=${orange}]#[bg=${black}]#[bold]";
+  hintOpen = "#[fg=${black}]#[bg=${orange}]#[nobold]${solidLeft}";
+  hintLabel = "#[fg=${orange}]#[bg=${black}]#[bold]";
+  hintBody = "#[fg=${orange}]#[bg=${black}]#[nobold]";
+  hintClose = "#[fg=${black}]#[bg=${orange}]#[nobold]${solidRight}";
+
+  hintKeysFull = "c:window w:閉じる n/p:前後 %:左右 \":上下 o:pane z:zoom [:copy ]:貼付 =:履歴 s:session d:detach";
+  hintKeysShort = "c:window w:閉じる n/p:前後 %:左右 \":上下 [:copy";
 
   # Emit a right-status git segment only when the path is inside a repo
   gitSegment = pkgs.writeShellScript "tmux-git-segment" ''
@@ -63,16 +67,23 @@ in
       setw -g automatic-rename off
       set -g window-status-separator ""
 
-      # Invert the block while the prefix key is pending so C-q is visible
-      set -g status-left-length 20
-      set -g status-left "#{?client_prefix,${prefixLook},${idleLook}} TERMINAL "
+      # While the prefix is pending the whole bar becomes the key hint
+      set -g @bar-hint-full '${hintOpen}${hintLabel} C-q ${hintBody} ${hintKeysFull} ${hintClose}'
+      set -g @bar-hint-short '${hintOpen}${hintLabel} C-q ${hintBody} ${hintKeysShort} ${hintClose}'
+      set -g @bar-brand '${idleLook} TERMINAL '
+      set -g @bar-tab-current "#[fg=${black},bg=${orange}] ${solidLeft}#[fg=${orange},bg=${black}] #W #[fg=${black},bg=${orange}]${solidRight}"
+      set -g @bar-tab "#[fg=${deepBlack},bg=${orange}] ${solidLeft}#[fg=${dimOrange},bg=${deepBlack}] #W #[fg=${deepBlack},bg=${orange}]${solidRight}"
+      set -g @bar-right "#(${gitSegment} '#{pane_current_path}')#[fg=${black},bg=${orange}]${solidLeft}#[fg=${orange},bg=${black}] ${profile} ${solidLeft}#[fg=${black},bg=${orange}]${solidLeft}#[fg=${orange},bg=${black}] %H:%M:%S ${solidLeft}#[fg=${black},bg=${orange}] "
+
+      set -g status-left-length 200
+      set -g status-left '#{?client_prefix,#{?#{e|>=:#{client_width},105},#{@bar-hint-full},#{@bar-hint-short}},#{@bar-brand}}'
 
       # Window tabs: black inset with slanted edges; name is the display path set by fish
-      setw -g window-status-current-format "#[fg=${black},bg=${orange}] ${solidLeft}#[fg=${orange},bg=${black}] #W #[fg=${black},bg=${orange}]${solidRight}"
-      setw -g window-status-format "#[fg=${deepBlack},bg=${orange}] ${solidLeft}#[fg=${dimOrange},bg=${deepBlack}] #W #[fg=${deepBlack},bg=${orange}]${solidRight}"
+      setw -g window-status-current-format '#{?client_prefix,,#{T:@bar-tab-current}}'
+      setw -g window-status-format '#{?client_prefix,,#{T:@bar-tab}}'
 
       set -g status-right-length 100
-      set -g status-right "#(${gitSegment} '#{pane_current_path}')#[fg=${black},bg=${orange}]${solidLeft}#[fg=${orange},bg=${black}] ${profile} ${solidLeft}#[fg=${black},bg=${orange}]${solidLeft}#[fg=${orange},bg=${black}] %H:%M:%S ${solidLeft}#[fg=${black},bg=${orange}] "
+      set -g status-right '#{?client_prefix,,#{T:@bar-right}}'
     '';
   };
 

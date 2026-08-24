@@ -47,6 +47,9 @@ in
 
       -- CopyMode (delegated to tmux)
       { key = "X", mods = "CTRL", action = tmux('[') },
+
+      -- tmux prefix
+      { key = 'q', mods = 'CTRL', action = act.SendString('\x11') },
     }
 
     -- Open the link under the cursor with Ctrl+click. tmux's mouse mode makes
