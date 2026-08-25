@@ -40,7 +40,6 @@ in
     ".claude/skills/pr-review/policies/code-quality.md".source = ./skills/pr-review/policies/code-quality.md;
     ".claude/skills/pr-review/policies/testing.md".source = ./skills/pr-review/policies/testing.md;
     ".claude/skills/pr-review/policies/ai-antipattern.md".source = ./skills/pr-review/policies/ai-antipattern.md;
-    ".claude/skills/stop-ai-slop-jp".source = inputs.stop-ai-slop-jp;
-    ".claude/skills/stop-slop".source = inputs.stop-slop;
+    ".claude/skills/readable-writing".source = ./skills/readable-writing;
   } // hooksConfig.scripts;
 }
