@@ -1,6 +1,6 @@
 # Agency
 
-Patterns and fixes live in `common/agency.md`. This file holds the English phrasings.
+English phrasings for who did what.
 
 ## What to find
 

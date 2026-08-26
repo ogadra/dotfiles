@@ -2,8 +2,6 @@
 
 見出しと節の立て方、そこに何を残すかを見る。
 
-言語ごとの言い回しは `ja/document.md` と `en/document.md` にある。
-
 ## 検出対象
 
 ### 見出しの代用
@@ -61,7 +59,7 @@ What's wrong:
 
 ### 命題型の見出し
 
-見出しに主張を置く形。見出しはテーマの名前、つまり名詞句で立てる。英語の `How X solves Y` 構造の輸入。
+見出しに主張を置く形。見出しはテーマの名前、つまり名詞句で立てる。
 
 命題型の見出しを立てると、書き手は本文にその主張の裏付けを並べる。読み手が探している情報ではなく、書き手の結論の補強が節ごとに並ぶ。
 
@@ -125,11 +123,11 @@ Add `actions/cache` to `.github/workflows/ci.yml`, keyed on `node_modules` and `
 ```
 ## 目的
 
-初回ビルドの9分を短くする。1日6回回していて、待ち時間が30分ある。
+初回ビルドの9分を短くする。1日6回回していて、待ち時間が54分ある。
 
 ## Purpose
 
-Cut the nine-minute first build. We run it six times a day, so that's half an hour of waiting.
+Cut the nine-minute first build. We run it six times a day, so that's fifty-four minutes of waiting.
 ```
 
 #### 修正の型
@@ -174,7 +172,7 @@ Cut the nine-minute first build. We run it six times a day, so that's half an ho
 
 #### 修正の型
 
-対象を書けば、書かれていないものは対象外だと読み手が判断できる。文のレベルの「AではなくBだ」は `common/rhetoric.md` の二項対比を参照。
+対象を書けば、書かれていないものは対象外だと読み手が判断できる。
 
 ### 経緯の記録
 

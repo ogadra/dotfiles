@@ -1,6 +1,6 @@
 # Document structure
 
-Patterns and fixes live in `common/document.md`. This file holds the English forms and examples.
+English forms and examples for headings and sections.
 
 ## What to find
 
@@ -87,4 +87,3 @@ Stop losing compound words in search. A query for "machine learning" splits into
 
 Turn the bold labels into headings, delete the out-of-scope section, write what hurts under "Goal", and move the means into its own section.
 
-Line breaks mid-sentence are also in `common/symbols.md`.

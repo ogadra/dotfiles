@@ -2,8 +2,6 @@
 
 書き手が何を引き受けているかを見る。
 
-言語ごとの言い回しは `ja/stance.md` と `en/stance.md` にある。
-
 ## 検出対象
 
 ### 反証できない主張
@@ -69,9 +67,9 @@ Prisma is type-safe with a good developer experience. Drizzle is lightweight and
 #### 修正版
 
 ```
-Drizzleにした。Prismaも試したが、生成物のサイズがLambdaのデプロイ上限に当たった。TypeORMは検討していない。
+Drizzleにした。Prismaも試したが、生成物のサイズがLambdaのデプロイ上限に当たった。
 
-We went with Drizzle. I tried Prisma too, but the generated client hit the Lambda deploy size limit. I didn't look at TypeORM.
+We went with Drizzle. I tried Prisma too, but the generated client hit the Lambda deploy size limit.
 ```
 
 #### 修正の型
@@ -93,9 +91,9 @@ Running migrations directly against production is generally not recommended.
 #### 修正版
 
 ```
-本番環境で直接マイグレーションを実行しない。戻す手段が無く、実行中の書き込みとぶつかるとテーブルがロックする。
+本番環境で直接マイグレーションを実行しない。
 
-Don't run migrations directly against production. There's no way back, and it locks the table if it collides with a live write.
+Don't run migrations directly against production.
 ```
 
 #### 修正の型
@@ -117,9 +115,9 @@ Caching led to a dramatic improvement in build times.
 #### 修正版
 
 ```
-キャッシュを挟んだら、初回ビルドが9分から3分になった。2回目以降は元から30秒で、そこは変わっていない。
+キャッシュを挟んだら、初回ビルドが9分から3分になった。2回目以降は元から30秒だった。
 
-Caching took the first build from nine minutes to three. Later builds were already thirty seconds and didn't change.
+Caching took the first build from nine minutes to three. Later builds were already thirty seconds.
 ```
 
 #### 修正の型
