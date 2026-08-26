@@ -2,33 +2,31 @@
 
 記号と字面を見る。多くは検索して全置換で潰せる。
 
-言語ごとの記号は `ja/symbols.md` と `en/symbols.md` にある。
-
 ## 検出対象
 
-### 強調の残骸
+### 本文中の強調
 
-Markdownの強調記号が閉じずに残る形。
+地の文の一部を `**` で太字にする形。
 
 #### AI版
 
 ```
-**SEO対策をするためには**以下のような施策が効果的だ。**
+SEO対策には**次の施策を使う。**
 
-**To rank higher** you need the following.**
+To rank higher **you need the following.**
 ```
 
 #### 修正版
 
 ```
-SEO対策をするためには以下のような施策が効果的だ。
+SEO対策には次の施策を使う。
 
 To rank higher you need the following.
 ```
 
 #### 修正の型
 
-閉じていない `**` を消す。行頭に単独で置く太字は `common/document.md` の見出しの代用を参照。
+太字を消す。
 
 ### 装飾絵文字
 
@@ -68,7 +66,7 @@ To rank higher you need the following.
 
 #### 修正の型
 
-消す。技術文書では絵文字を使わない。
+消す。
 
 ### 括弧による後置補足
 
@@ -101,9 +99,9 @@ To rank higher you need the following.
 語を同定するときにだけ括弧を使う。原語の併記と、略語の初出での展開がこれにあたる。
 
 - 原語の併記
-    - `否定的列挙(negative listing)`
+    - `否定的列挙 (negative listing)`
 - 略語の初出での展開
-    - `RAG(Retrieval-Augmented Generation)`
+    - `RAG (Retrieval-Augmented Generation)`
 
 それ以外の括弧は、中身が読み手に必要なら本文か1段下の階層に置き、必要でないなら消す。
 
@@ -131,11 +129,11 @@ Retries use exponential backoff, up to three times. Past three, the message goes
 
 #### 修正の型
 
-改行は文の終わりか段落の切れ目にだけ入れる。折り返しは読む側が決めるので、1行が長くなることは気にしない。
+改行は文の終わりか段落の切れ目にだけ入れる。1行が長くなることは気にしない。
 
 ## 検出手順
 
-1. `**` の数が偶数でない行を検索する。
+1. `**` を検索する。
 2. 絵文字を検索する。
 3. `(` `(` を検索し、中身が原語併記と略語の展開でないものを集める。
 4. 各行の末尾を見て、文の終わりで終わらず次の行に文が続くものを集める。

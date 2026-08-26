@@ -1,8 +1,6 @@
 # 修辞
 
-文と文の並べ方に出る型を見る。平坦な内容に構文で起伏をつけるクセと、リズムが均一になるクセを扱う。単語のリストで検出するものは `ja/vocabulary.md` と `en/vocabulary.md` にある。
-
-言語ごとの言い回しは `ja/rhetoric.md` と `en/rhetoric.md` にある。
+文と文の並べ方に出る型を見る。平坦な内容に構文で起伏をつけるクセと、リズムが均一になるクセを扱う。
 
 ## 検出対象
 
@@ -37,8 +35,8 @@ This skill keeps what the writer saw and got stuck on in the text.
 
 対比そのものを残したいなら、XとYの違いを具体的に書く。比較の軸を名指しする。
 
-- 「速いより正確なほうが効く場面だった」
-- "Accuracy mattered more than speed here."
+- 「この場面では速さより正確さを取った」
+- "Here we chose accuracy over speed."
 
 ### 否定的列挙
 
@@ -127,9 +125,9 @@ Most developers don't take build times seriously. In reality, it's the biggest b
 #### 修正版
 
 ```
-自分はビルドが9分かかることを3ヶ月放置していた。計測したら、待ち時間が1日30分あった。
+自分はビルドが9分かかることを3ヶ月放置していた。計測したら1日6回回していて、待ち時間が54分あった。
 
-I left a nine-minute build alone for three months. When I measured, I was waiting half an hour a day.
+I left a nine-minute build alone for three months. When I measured, I was running it six times a day and waiting fifty-four minutes.
 ```
 
 #### 修正の型
@@ -257,13 +255,13 @@ Bauer was born in New York in 1958. He was an early cognitive science researcher
 
 CIのコストも下がる。実行時間が短くなるためだ。月額も減る。
 
-開発者の待ち時間も減る。1日30分の削減になる。集中も途切れにくい。
+開発者の待ち時間も減る。1日36分の削減になる。集中も途切れにくい。
 
 Caching makes the build faster. Nine minutes became three. The effect is large.
 
 CI costs drop too. The runs are shorter. The monthly bill goes down.
 
-Developers wait less. That is thirty minutes a day. Focus breaks less often.
+Developers wait less. That is thirty-six minutes a day. Focus breaks less often.
 ```
 
 #### 修正版
@@ -273,13 +271,13 @@ Developers wait less. That is thirty minutes a day. Focus breaks less often.
 
 CIのコストも下がったはずだが、請求はまだ見ていない。
 
-効いたのは待ち時間のほうだ。9分あるとブランチを切り替えて別のことを始めてしまい、戻ってきたときに何をしていたか思い出すところからやり直していた。3分なら待てる。1日30分の削減、と書くと小さく見える。
+待ち時間のほうが問題だった。9分あるとブランチを切り替えて別のことを始めてしまい、戻ってきたときに何をしていたか思い出すところからやり直していた。3分なら待てる。1日36分の削減、と書くと小さく見える。
 
 Caching took the build from nine minutes to three.
 
 CI costs should be down too. I haven't looked at the bill.
 
-The waiting is what actually mattered. At nine minutes I would switch branches and start something else, then come back and spend the first stretch remembering what I had been doing. Three minutes I can sit through. Thirty minutes a day sounds small written down.
+The waiting was the problem. At nine minutes I would switch branches and start something else, then come back and spend the first stretch remembering what I had been doing. Three minutes I can sit through. Thirty-six minutes a day sounds small written down.
 ```
 
 #### 修正の型
@@ -329,13 +327,13 @@ Waiting time dropped too. This led to a better developer experience.
 
 CIのコストも下がった。請求書はまだ見ていない。
 
-待ち時間が減ったのが一番効いた。
+一番変わったのは待ち時間だ。
 
 Caching took the build from nine minutes to three.
 
 CI costs came down too. I haven't seen the bill yet.
 
-The waiting is what mattered most.
+The waiting changed the most.
 ```
 
 #### 修正の型

@@ -2,8 +2,6 @@
 
 誰が何をしたかを見る。人が書く文章では必ず誰かが何かをしている。AIが書く文章では、状況や概念が勝手に動く。
 
-言語ごとの言い回しは `ja/agency.md` と `en/agency.md` にある。
-
 ## 検出対象
 
 ### false agency
@@ -54,8 +52,6 @@ We capped retries at three. Nothing succeeded on the fourth attempt or later in 
 
 設計判断やトラブル対応に、すべて教訓を付けない。「こう直したら直った」で終わる記述を残す。一般化するのは、他のケースでも再現すると確かめたときだけ。
 
-壮大化に使われる語彙は `ja/vocabulary.md` の必殺技造語を参照。
-
 ### 受動態
 
 行為者を隠す形。
@@ -95,9 +91,9 @@ Developers today have grown numb to long build times. We keep paying the price w
 #### 修正版
 
 ```
-あなたのビルドが9分かかっていて1日6回回すなら、30分待っている。自分はそれを3ヶ月放置していた。
+あなたのビルドが9分かかっていて1日6回回すなら、54分待っている。自分はそれを3ヶ月放置していた。
 
-If your build takes nine minutes and you run it six times a day, you're waiting half an hour. I left mine alone for three months.
+If your build takes nine minutes and you run it six times a day, you're waiting fifty-four minutes. I left mine alone for three months.
 ```
 
 #### 修正の型

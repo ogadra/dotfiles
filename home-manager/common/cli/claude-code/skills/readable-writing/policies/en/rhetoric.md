@@ -1,6 +1,6 @@
 # Rhetoric
 
-Patterns and fixes live in `common/rhetoric.md`. This file holds the English forms and examples.
+English forms and examples for how sentences get arranged.
 
 ## What to find
 

@@ -1,6 +1,6 @@
 # Symbols
 
-Language-independent symbols live in `common/symbols.md`. This file holds the ones specific to English.
+Symbols specific to English.
 
 ## What to find
 

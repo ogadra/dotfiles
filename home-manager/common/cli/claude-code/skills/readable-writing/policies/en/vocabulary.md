@@ -1,6 +1,6 @@
 # Vocabulary
 
-English words and set phrases you can find by searching. Patterns that live in how sentences are arranged are in `common/rhetoric.md`.
+English words and set phrases you can find by searching.
 
 ## What to find
 
@@ -142,7 +142,7 @@ At its core, in today's engineering landscape, it's worth noting that build spee
 #### After
 
 ```
-A nine-minute build costs each engineer half an hour a day.
+A nine-minute build run six times a day costs each engineer fifty-four minutes.
 ```
 
 ### Lazy extremes

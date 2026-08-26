@@ -1,6 +1,6 @@
 # Stance
 
-Patterns and fixes live in `common/stance.md`. This file holds the English phrasings.
+English phrasings for what the writer is taking on.
 
 ## What to find
 

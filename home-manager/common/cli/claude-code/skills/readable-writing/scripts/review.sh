@@ -30,7 +30,13 @@ else
     lang=$(perl -CSD -ne '
         $j += () = /\p{Hiragana}|\p{Katakana}|\p{Han}/g;
         $t += length;
-        END { print( ($t && $j / $t >= 0.05) ? "ja" : "en" ) }
+        END {
+            unless ($t) {
+                print STDERR "review.sh: no characters to classify\n";
+                exit 1;
+            }
+            print( $j / $t >= 0.05 ? "ja" : "en" );
+        }
     ' "$target")
 fi
 
@@ -41,13 +47,14 @@ case "$lang" in
     *) echo "review.sh: unknown language: $lang" >&2; exit 1 ;;
 esac
 
-perspectives='立場|stance|書き手が何を引き受けているか
-主体|agency|誰が何をしたか
-箇条書き|lists|箇条書きの階層と粒度
-文書構成|document|見出し、節、情報の取捨
-修辞|rhetoric|構文の型とリズム
-語彙|vocabulary|語の選択
-記号|symbols|記号と字面'
+# 名前|ファイル名|使うディレクトリ (common / lang / both)|見るもの
+perspectives='立場|stance|both|書き手が何を引き受けているか
+主体|agency|both|誰が何をしたか
+箇条書き|lists|common|箇条書きの階層と粒度
+文書構成|document|both|見出し、節、情報の取捨
+修辞|rhetoric|both|構文の型とリズム
+語彙|vocabulary|lang|語の選択
+記号|symbols|both|記号と字面'
 
 tmp=$(mktemp -d)
 trap 'rm -rf "$tmp"' EXIT
@@ -55,12 +62,18 @@ trap 'rm -rf "$tmp"' EXIT
 awk '{ printf "%d\t%s\n", NR, $0 }' "$target" > "$tmp/numbered"
 
 policy_files() {
-    local key=$1 dir file
-    for dir in common $lang_dirs; do
+    local key=$1 scope=$2 dirs dir file
+    case "$scope" in
+        common) dirs="common" ;;
+        lang) dirs="$lang_dirs" ;;
+        both) dirs="common $lang_dirs" ;;
+        *) echo "review.sh: unknown scope for $key: $scope" >&2; exit 1 ;;
+    esac
+    for dir in $dirs; do
         file="$policies/$dir/$key.md"
-        [ -f "$file" ] && printf '%s\n' "$file"
+        [ -f "$file" ] || { echo "review.sh: missing policy file: $file" >&2; exit 1; }
+        printf '%s\n' "$file"
     done
-    return 0
 }
 
 build_prompt() {
@@ -120,10 +133,8 @@ RULES
 }
 
 running=""
-while IFS='|' read -r name key desc; do
-    files=$(policy_files "$key")
-    [ -n "$files" ] || { echo "review.sh: no policy file for $key" >&2; exit 1; }
-
+while IFS='|' read -r name key scope desc; do
+    files=$(policy_files "$key" "$scope")
     build_prompt "$desc" "$files" "$tmp/prompt.$key"
     claude -p "$(cat "$tmp/prompt.$key")" < /dev/null > "$tmp/out.$key" 2> "$tmp/err.$key" &
     running="$running $!:$key"
@@ -148,7 +159,7 @@ for entry in $running; do
 done
 [ "$failed" -eq 0 ] || exit 1
 
-while IFS='|' read -r name key desc; do
+while IFS='|' read -r name key scope desc; do
     body=$(perl -0777 -ne 'print $1 if /(\[.*\])/s' "$tmp/out.$key")
     [ -n "$body" ] || {
         echo "review.sh: $key returned no JSON array" >&2
