@@ -2,7 +2,9 @@
 
 Language-independent symbols live in `common/symbols.md`. This file holds the ones specific to English.
 
-## Em dashes
+## What to find
+
+### Em dashes
 
 | Avoid | Use instead |
 |---|---|
@@ -11,7 +13,7 @@ Language-independent symbols live in `common/symbols.md`. This file holds the on
 
 Search for `—` and `–`.
 
-## Scare quotes
+### Scare quotes
 
 Adjectives and judgments wrapped in quotes.
 

@@ -4,34 +4,77 @@
 
 言語ごとの記号は `ja/symbols.md` と `en/symbols.md` にある。
 
-## 検出する
+## 検出対象
 
-- [強調の残骸](#強調の残骸)
-- [装飾絵文字](#装飾絵文字)
-- [括弧による後置補足](#括弧による後置補足)
-- [文中での改行](#文中での改行)
-
-## 強調の残骸
+### 強調の残骸
 
 Markdownの強調記号が閉じずに残る形。
 
+#### AI版
+
 ```
-**SEO対策をするためには**以下のような施策が効果的です。**
+**SEO対策をするためには**以下のような施策が効果的だ。**
 
 **To rank higher** you need the following.**
 ```
 
-行頭に単独で置く太字は `common/document.md` の見出しの代用を参照。
+#### 修正版
 
-## 装飾絵文字
+```
+SEO対策をするためには以下のような施策が効果的だ。
 
-`🚀🎯✨💡🔥📈` のような装飾絵文字が、段落末や箇条書きに等間隔で出てくる形。技術文書では絵文字を使わないので消す。
+To rank higher you need the following.
+```
 
-## 括弧による後置補足
+#### 修正の型
+
+閉じていない `**` を消す。行頭に単独で置く太字は `common/document.md` の見出しの代用を参照。
+
+### 装飾絵文字
+
+`🚀🎯✨💡🔥📈` のような装飾絵文字が、段落末や箇条書きに等間隔で出てくる形。
+
+#### AI版
+
+```
+## セットアップ 🚀
+
+- 依存を入れる ✨
+- 環境変数を設定する 💡
+- DBを初期化する 🎯
+
+## Setup 🚀
+
+- Install dependencies ✨
+- Set the environment 💡
+- Initialize the database 🎯
+```
+
+#### 修正版
+
+```
+## セットアップ
+
+- 依存を入れる
+- 環境変数を設定する
+- DBを初期化する
+
+## Setup
+
+- Install dependencies
+- Set the environment
+- Initialize the database
+```
+
+#### 修正の型
+
+消す。技術文書では絵文字を使わない。
+
+### 括弧による後置補足
 
 補足や例示を括弧に押し込む形。括弧の中身が本題なのか脇道なのか判断できないまま読み進めることになる。
 
-### AI版
+#### AI版
 
 ```
 - 二項対比(「Aではなく、Bだ」)を多用していないか?
@@ -41,7 +84,7 @@ Markdownの強調記号が閉じずに残る形。
 - Does the heading make a claim? (propositional heading)
 ```
 
-### 修正版
+#### 修正版
 
 ```
 - 二項対比を多用していないか?
@@ -53,7 +96,7 @@ Markdownの強調記号が閉じずに残る形。
 - Does the heading make a claim?
 ```
 
-### 修正の型
+#### 修正の型
 
 語を同定するときにだけ括弧を使う。原語の併記と、略語の初出での展開がこれにあたる。
 
@@ -64,11 +107,11 @@ Markdownの強調記号が閉じずに残る形。
 
 それ以外の括弧は、中身が読み手に必要なら本文か1段下の階層に置き、必要でないなら消す。
 
-## 文中での改行
+### 文中での改行
 
 1行の文字数を意識して、文の途中で改行を入れる形。
 
-### AI版
+#### AI版
 
 ```
 リトライは指数バックオフで最大3回まで。3回を超えた場合はDLQに送り、
@@ -78,7 +121,7 @@ Retries use exponential backoff, up to three times. Past three, the message
 goes to the DLQ and the alert fires.
 ```
 
-### 修正版
+#### 修正版
 
 ```
 リトライは指数バックオフで最大3回まで。3回を超えた場合はDLQに送り、アラートを飛ばす。
@@ -86,7 +129,7 @@ goes to the DLQ and the alert fires.
 Retries use exponential backoff, up to three times. Past three, the message goes to the DLQ and the alert fires.
 ```
 
-### 修正の型
+#### 修正の型
 
 改行は文の終わりか段落の切れ目にだけ入れる。折り返しは読む側が決めるので、1行が長くなることは気にしない。
 

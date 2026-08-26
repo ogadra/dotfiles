@@ -2,7 +2,9 @@
 
 Patterns and fixes live in `common/rhetoric.md`. This file holds the English forms and examples.
 
-## Binary contrasts
+## What to find
+
+### Binary contrasts
 
 | Pattern | Problem |
 |---|---|
@@ -18,22 +20,26 @@ Patterns and fixes live in `common/rhetoric.md`. This file holds the English for
 | "is about X but not Y" | False distinction |
 | "not just X but also Y" | Additive hedge |
 
-### Before
+#### Before
 
-> "What if I told you that the best teams don't optimize for productivity? Here's what I mean: they optimize for learning. Think about it."
+```
+What if I told you that the best teams don't optimize for productivity? Here's what I mean: they optimize for learning. Think about it.
+```
 
-### After
+#### After
 
-> "The best teams optimize for learning."
+```
+The best teams optimize for learning.
+```
 
-## Negative listing
+### Negative listing
 
 | Pattern | Fix |
 |---|---|
 | "Not a X... Not a Y... A Z." | "It's Z." |
 | "It wasn't X. It wasn't Y. It was Z." | "It was Z." |
 
-## Dramatic fragmentation
+### Dramatic fragmentation
 
 | Pattern | Fix |
 |---|---|
@@ -41,15 +47,19 @@ Patterns and fixes live in `common/rhetoric.md`. This file holds the English for
 | "X. And Y. And Z." | Write the complete sentence |
 | "This unlocks something. [Word]." | Name what it unlocks |
 
-### Before
+#### Before
 
-> "Speed. Quality. Cost. You can only pick two. That's it. That's the tradeoff."
+```
+Speed. Quality. Cost. You can only pick two. That's it. That's the tradeoff.
+```
 
-### After
+#### After
 
-> "Speed, quality, cost: pick two."
+```
+Speed, quality, cost: pick two.
+```
 
-## Rhetorical setups
+### Rhetorical setups
 
 | Pattern | Problem |
 |---|---|
@@ -58,33 +68,55 @@ Patterns and fixes live in `common/rhetoric.md`. This file holds the English for
 | "Think about it:" | Condescending prompt |
 | "And that's okay." | Unnecessary permission |
 
-### Before
+#### Before
 
-> "It turns out that most teams struggle with alignment. The uncomfortable truth is that nobody wants to admit they're confused. And that's okay."
+```
+It turns out that most teams struggle with alignment. The uncomfortable truth is that nobody wants to admit they're confused. And that's okay.
+```
 
-### After
+#### After
 
-> "Teams struggle with alignment. Admitting confusion costs you status, so you stay quiet."
+```
+Teams struggle with alignment. Admitting confusion costs you status, so you stay quiet.
+```
 
-## Formulaic constructions
+### Formulaic constructions
 
 | Pattern | Fix |
 |---|---|
 | "By the time X, I was Y." | Write what happened in order |
 | "X that isn't Y" | Name what's broken. "X is broken" |
 
-## Three-item lists
+### Three-item lists
 
 Search for `three ways`, `three reasons`, `three principles`. Cut to two or one.
 
-## Uniform paragraph endings
+#### Before
+
+```
+## Three reasons to add a cache
+
+- Builds get faster
+- CI costs drop
+- Developer experience improves
+```
+
+#### After
+
+```
+## What changes
+
+- The first build goes from nine minutes to three
+```
+
+### Uniform paragraph endings
 
 | Pattern | Fix |
 |---|---|
 | Paragraphs end on a short punch line | Vary the length of the closing sentence |
 | "Not always. Not perfectly." | Delete |
 
-## Sentence starters
+### Sentence starters
 
 | Pattern | Fix |
 |---|---|
