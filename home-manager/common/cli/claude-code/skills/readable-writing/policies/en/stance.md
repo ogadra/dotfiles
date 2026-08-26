@@ -2,7 +2,9 @@
 
 Patterns and fixes live in `common/stance.md`. This file holds the English phrasings.
 
-## Claims you can't argue with
+## What to find
+
+### Claims you can't argue with
 
 - `The reasons are structural`
 - `The implications are significant`
@@ -13,9 +15,21 @@ Patterns and fixes live in `common/stance.md`. This file holds the English phras
 - `This is what [X] actually looks like`
 - `actually matters`
 
+#### Before
+
+```
+This refactor has a structural problem. The implications are significant and the stakes are high.
+```
+
+#### After
+
+```
+This refactor left seven places where `OrderService` calls `PaymentGateway` directly. Swapping the payment provider means editing all seven.
+```
+
 Name the specific thing. If you can't, cut the sentence.
 
-## Dodging the conclusion
+### Dodging the conclusion
 
 - `it depends`
 - `there are tradeoffs`
@@ -23,7 +37,19 @@ Name the specific thing. If you can't, cut the sentence.
 - `reasonable people disagree`
 - `both approaches have merit`
 
-## Praising everything
+#### Before
+
+```
+Whether to use a monorepo depends. There are tradeoffs, and reasonable people disagree.
+```
+
+#### After
+
+```
+We went with a monorepo. We only have three packages, and keeping their versions in step cost more than splitting them was worth.
+```
+
+### Praising everything
 
 | Avoid | Use instead |
 |---|---|
@@ -31,7 +57,7 @@ Name the specific thing. If you can't, cut the sentence.
 | It's a matter of preference | We picked X |
 | There's no single right answer | We picked X for this codebase |
 
-## Weak negatives
+### Weak negatives
 
 - `it's generally discouraged`
 - `you may want to avoid`
@@ -44,7 +70,7 @@ Say `Don't do X`. If you know the breaking point, name it.
 |---|---|
 | Maintenance cost may grow, so take care | This breaks once the team passes ten people |
 
-## Extremes with no middle
+### Extremes with no middle
 
 - `dramatically faster`
 - `a game-changer`
@@ -54,14 +80,38 @@ Say `Don't do X`. If you know the breaking point, name it.
 
 Real results read like "12 minutes down to 3", "within noise", or "it flipped under load".
 
-## Strong claims with no evidence
+#### Before
+
+```
+Adding the index made the query dramatically faster. It was a game-changer.
+```
+
+#### After
+
+```
+Adding the index took this query from 1.2s to 40ms. The other queries didn't move.
+```
+
+### Strong claims with no evidence
 
 - `a powerful approach`
 - `an elegant solution`
 - `incredibly useful`
 - `the right way to do this`
 
-## Stacked hedges
+#### Before
+
+```
+This is a powerful approach and an elegant solution. It's incredibly useful.
+```
+
+#### After
+
+```
+This took our median review wait from two days to half a day, measured over 120 PRs across three months.
+```
+
+### Stacked hedges
 
 - `might`
 - `could potentially`
@@ -75,9 +125,33 @@ One hedge per paragraph. Write the scope you're claiming instead of hedging the 
 |---|---|
 | This is only my experience and results may vary by org size | On my ten-person team |
 
-## Ritual disclaimers
+### Ritual disclaimers
 
 - `And that's okay.`
 - `Not always. Not perfectly.`
 - `Your situation may differ.`
 - `This is just my experience.`
+
+#### Before
+
+```
+## Caching
+
+The first build went from nine minutes to three. Your situation may differ.
+
+## Retries
+
+We retry up to three times. This is just my experience.
+```
+
+#### After
+
+```
+## Caching
+
+The first build went from nine minutes to three.
+
+## Retries
+
+We retry up to three times. I picked that from a workload of a hundred thousand jobs a day.
+```

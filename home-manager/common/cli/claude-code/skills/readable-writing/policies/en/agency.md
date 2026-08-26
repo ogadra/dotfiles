@@ -2,7 +2,9 @@
 
 Patterns and fixes live in `common/agency.md`. This file holds the English phrasings.
 
-## False agency
+## What to find
+
+### False agency
 
 Inanimate things taking human verbs. Complaints don't become fixes. Decisions don't emerge. Someone reads the complaint, files the ticket, and merges the patch.
 
@@ -17,7 +19,7 @@ Inanimate things taking human verbs. Complaints don't become fixes. Decisions do
 | the market rewards | Buyers pay for things |
 | the architecture guides | The designer decided that |
 
-## Passive voice
+### Passive voice
 
 | Avoid | Use instead |
 |---|---|
@@ -26,7 +28,7 @@ Inanimate things taking human verbs. Complaints don't become fixes. Decisions do
 | Mistakes were made | Name who made them |
 | The decision was reached | Name who decided |
 
-## Narrator from a distance
+### Narrator from a distance
 
 Floating above the scene instead of putting the reader in it.
 
@@ -38,7 +40,7 @@ Floating above the scene instead of putting the reader in it.
 | People tend to... | You do this too |
 | Teams often... | On my team, we... |
 
-## Missing first person
+### Missing first person
 
 | Avoid | Use instead |
 |---|---|

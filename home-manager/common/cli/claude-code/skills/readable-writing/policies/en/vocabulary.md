@@ -4,17 +4,7 @@ English words and set phrases you can find by searching. Patterns that live in h
 
 ## What to find
 
-- [Throat-clearing openers](#throat-clearing-openers)
-- [Emphasis crutches](#emphasis-crutches)
-- [Business jargon](#business-jargon)
-- [Adverbs](#adverbs)
-- [Filler phrases](#filler-phrases)
-- [Lazy extremes](#lazy-extremes)
-- [Performative emphasis](#performative-emphasis)
-- [Meta-commentary](#meta-commentary)
-- [Set phrases](#set-phrases)
-
-## Throat-clearing openers
+### Throat-clearing openers
 
 Announcement phrases that delay the point. Cut them and state the content.
 
@@ -36,15 +26,19 @@ Announcement phrases that delay the point. Cut them and state the content.
 
 Any `here's what`, `here's this`, or `here's that` construction is a run-up to the point. Cut it and write the point.
 
-### Before
+#### Before
 
-> "Here's the thing: building products is hard. Not because the technology is complex. Because people are complex. Let that sink in."
+```
+Here's the thing: building products is hard. Not because the technology is complex. Because people are complex. Let that sink in.
+```
 
-### After
+#### After
 
-> "Building products is hard. Technology is manageable. People are the constraint."
+```
+Building products is hard. Technology is manageable. People are the constraint.
+```
 
-## Emphasis crutches
+### Emphasis crutches
 
 These add no meaning. Delete them.
 
@@ -55,7 +49,19 @@ These add no meaning. Delete them.
 - `Make no mistake`
 - `Here's why that matters`
 
-## Business jargon
+#### Before
+
+```
+The build takes nine minutes. Full stop. This matters because your team runs it six times a day. Let that sink in.
+```
+
+#### After
+
+```
+The build takes nine minutes and the team runs it six times a day.
+```
+
+### Business jargon
 
 Replace with plain language.
 
@@ -73,15 +79,19 @@ Replace with plain language.
 | Circle back | Return to, revisit |
 | On the same page | Aligned, agreed |
 
-### Before
+#### Before
 
-> "In today's fast-paced landscape, we need to lean into discomfort and navigate uncertainty with clarity. This matters because your competition isn't waiting."
+```
+In today's fast-paced landscape, we need to lean into discomfort and navigate uncertainty with clarity. This matters because your competition isn't waiting.
+```
 
-### After
+#### After
 
-> "Move faster. Your competition already has."
+```
+Move faster. Your competition already has.
+```
 
-## Adverbs
+### Adverbs
 
 Kill all adverbs. No -ly words, no softeners, no intensifiers, no hedges.
 
@@ -101,7 +111,19 @@ Kill all adverbs. No -ly words, no softeners, no intensifiers, no hedges.
 - `importantly`
 - `crucially`
 
-## Filler phrases
+#### Before
+
+```
+This is really just a simple change that genuinely improves things quite significantly.
+```
+
+#### After
+
+```
+This change takes the build from nine minutes to three.
+```
+
+### Filler phrases
 
 - `At its core`
 - `In today's [X]`
@@ -111,7 +133,19 @@ Kill all adverbs. No -ly words, no softeners, no intensifiers, no hedges.
 - `In a world where`
 - `The reality is`
 
-## Lazy extremes
+#### Before
+
+```
+At its core, in today's engineering landscape, it's worth noting that build speed matters. At the end of the day, the reality is that slow feedback hurts.
+```
+
+#### After
+
+```
+A nine-minute build costs each engineer half an hour a day.
+```
+
+### Lazy extremes
 
 Sweeping words standing in for authority. Replace with the specific range.
 
@@ -122,14 +156,38 @@ Sweeping words standing in for authority. Replace with the specific range.
 - `everybody`
 - `nobody`
 
-## Performative emphasis
+#### Before
+
+```
+Everyone hits this problem. It always happens, and nobody catches it in review.
+```
+
+#### After
+
+```
+Three of the five services in this repo hit it. It shows up once the payload passes 1MB, and no reviewer has caught it so far.
+```
+
+### Performative emphasis
 
 Manufactured intimacy and sincerity.
 
 - `I promise`
 - `They exist, I promise`
 
-## Meta-commentary
+#### Before
+
+```
+There are teams that ship on Fridays. They exist, I promise.
+```
+
+#### After
+
+```
+Two teams here ship on Fridays: Payments and Search.
+```
+
+### Meta-commentary
 
 Asides about the writing itself.
 
@@ -139,13 +197,37 @@ Asides about the writing itself.
 - `You already know this, but`
 - `But that's another post`
 
-## Set phrases
+#### Before
+
+```
+Plot twist: the cache key was wrong. You already know this, but keys need the lockfile hash. But that's another post.
+```
+
+#### After
+
+```
+The cache key was wrong. It needs the lockfile hash in it.
+```
+
+### Set phrases
 
 Stock constructions that show up regardless of the subject.
 
 - `creeps in`
 - `X is a feature, not a bug`
 - `Dressed up as`
+
+#### Before
+
+```
+Latency creeps in once the queue backs up. The retry storm is a feature, not a bug, dressed up as resilience.
+```
+
+#### After
+
+```
+Latency rises once the queue passes about 5,000 messages. The retries make it worse: each failure adds three more requests.
+```
 
 ## How to find them
 

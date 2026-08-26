@@ -2,7 +2,9 @@
 
 Patterns and fixes live in `common/document.md`. This file holds the English forms and examples.
 
-## Headings that make a claim
+## What to find
+
+### Headings that make a claim
 
 | Avoid | Use instead |
 |---|---|
@@ -12,7 +14,7 @@ Patterns and fixes live in `common/document.md`. This file holds the English for
 | Three Principles From the Trenches | What we changed after running it |
 | How X Solves Y | X and Y |
 
-## Announcing the structure
+### Announcing the structure
 
 | Avoid | Fix |
 |---|---|
@@ -22,15 +24,39 @@ Patterns and fixes live in `common/document.md`. This file holds the English for
 | As we'll see... | Delete |
 | I want to explore... | Delete |
 
-## Listing what's out of scope
+### Listing what's out of scope
 
 Search for `Out of scope`, `Non-goals`, `This document does not cover`.
 
-## Bold headings and out-of-scope together
+#### Before
+
+```
+## In scope
+
+- Technical docs
+- READMEs
+
+## Non-goals
+
+- Trip reports
+- Opinion pieces
+- Anything the marketing team owns
+```
+
+#### After
+
+```
+## In scope
+
+- Technical docs
+- READMEs
+```
+
+### Bold headings and out-of-scope together
 
 The head of a design document.
 
-### Before
+#### Before
 
 ```
 # Search platform rework
@@ -44,7 +70,7 @@ tokenizer from Kuromoji to Sudachi.
 - Moving infrastructure to IaC
 ```
 
-### After
+#### After
 
 ```
 # Search platform rework
