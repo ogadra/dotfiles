@@ -67,7 +67,7 @@ bash ~/.claude/skills/readable-writing/scripts/review.sh <ファイルパス>
   {
     "perspective": "立場",
     "file": "<ファイルパス>",
-    "line": 12,
+    "line": "12",
     "quote": "<該当箇所の原文>",
     "category": "<ポリシー内の該当節名>",
     "problem": "<何が読みにくいか1文>",
