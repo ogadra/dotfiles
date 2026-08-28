@@ -153,7 +153,23 @@ done
 [ "$failed" -eq 0 ] || exit 1
 
 while IFS='|' read -r name key scope desc; do
-    body=$(perl -0777 -ne 'print $1 if /(\[.*\])/s' "$tmp/out.$key")
+    body=$(perl -0777 -ne '
+        my $last;
+        while (/\[/g) {
+            my $s = pos() - 1;
+            my ($d, $end) = (0, undef);
+            for my $i ($s .. length($_) - 1) {
+                my $c = substr($_, $i, 1);
+                $d++ if $c eq "[";
+                $d-- if $c eq "]";
+                if (!$d) { $end = $i; last }
+            }
+            last unless defined $end;
+            $last = substr($_, $s, $end - $s + 1);
+            pos($_) = $end + 1;
+        }
+        print $last if defined $last;
+    ' "$tmp/out.$key")
     [ -n "$body" ] || {
         echo "review.sh: $key returned no JSON array" >&2
         cat "$tmp/out.$key" "$tmp/err.$key" >&2
