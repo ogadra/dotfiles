@@ -136,32 +136,6 @@ I left a nine-minute build alone for three months. When I measured, I was runnin
 
 冒頭の決めつけを「自分は○○だった」に書き換える。
 
-### 記号によるbad-then-good比較
-
-絵文字のチェックとバツで対比する構造。スライドやSEO記事の型。
-
-#### AI版
-
-```
-❌ 古いやり方
-✅ 新しいやり方
-
-❌ The old way
-✅ The new way
-```
-
-#### 修正版
-
-```
-古いやり方だと1箇所の変更で3ファイル触っていた。新しいやり方は1ファイルで済む。
-
-The old way made us edit three files for one change. The new way touches one.
-```
-
-#### 修正の型
-
-対比は地の文に展開する。
-
 ### 定型の語り出し
 
 物語のテンプレートをそのまま当てはめる形。
@@ -420,5 +394,4 @@ This skill reviews from seven perspectives. It works in Japanese and English, an
     - 前後の文脈なしで成立する一文を集める
 9. 各文の文頭を集める
     - 同じ語が繰り返されていないか確かめる
-10. 行頭に並ぶチェックとバツの記号を集める
-11. 生年、地名、肩書き、評価が1文に並んでいる箇所を集める
+10. 生年、地名、肩書き、評価が1文に並んでいる箇所を集める

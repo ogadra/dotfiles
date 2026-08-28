@@ -36,14 +36,14 @@ lang_dirs=$(nix run nixpkgs#perl -- -CSD -ne '
     }
 ' "$target")
 
-# 名前|ファイル名|使うディレクトリ (common / lang / both)|見るもの
-perspectives='立場|stance|both|書き手が何を引き受けているか
-主体|agency|both|誰が何をしたか
-箇条書き|lists|common|箇条書きの階層と粒度
-文書構成|document|both|見出し、節、情報の取捨
-修辞|rhetoric|both|構文の型とリズム
-語彙|vocabulary|lang|語の選択
-記号|symbols|both|記号と字面'
+# 名前|ファイル名|見るもの
+perspectives='立場|stance|書き手が何を引き受けているか
+主体|agency|誰が何をしたか
+箇条書き|lists|箇条書きの階層と粒度
+文書構成|document|見出し、節、情報の取捨
+修辞|rhetoric|構文の型とリズム
+語彙|vocabulary|語の選択
+記号|symbols|記号と字面'
 
 tmp=$(mktemp -d)
 trap 'rm -rf "$tmp"' EXIT
@@ -51,21 +51,15 @@ trap 'rm -rf "$tmp"' EXIT
 awk '{ printf "%d\t%s\n", NR, $0 }' "$target" > "$tmp/numbered"
 
 nix run nixpkgs#perl -- "$skill_dir/scripts/mechanical.pl" "$lang_dirs" "$target" \
-    | jq --arg f "$target" 'map({file: $f, perspective: "記号"} + .)' > "$tmp/json.mechanical"
+    | jq --arg f "$target" 'map({file: $f} + .)' > "$tmp/json.mechanical"
 
 policy_files() {
-    local key=$1 scope=$2 dirs dir file
-    case "$scope" in
-        common) dirs="common" ;;
-        lang) dirs="$lang_dirs" ;;
-        both) dirs="common $lang_dirs" ;;
-        *) echo "review.sh: unknown scope for $key: $scope" >&2; exit 1 ;;
-    esac
-    for dir in $dirs; do
+    local key=$1 dir file
+    for dir in common $lang_dirs; do
         file="$policies/$dir/$key.md"
-        [ -f "$file" ] || { echo "review.sh: missing policy file: $file" >&2; exit 1; }
-        printf '%s\n' "$file"
+        [ -f "$file" ] && printf '%s\n' "$file"
     done
+    return 0
 }
 
 build_prompt() {
@@ -125,24 +119,20 @@ RULES
 }
 
 running=""
-while IFS='|' read -r name key scope desc; do
-    files=$(policy_files "$key" "$scope")
+while IFS='|' read -r name key desc; do
+    files=$(policy_files "$key")
+    [ -n "$files" ] || continue
     build_prompt "$desc" "$files" "$tmp/prompt.$key"
     claude -p "$(cat "$tmp/prompt.$key")" < /dev/null > "$tmp/out.$key" 2> "$tmp/err.$key" &
-    running="$running $!:$key"
+    running="$running $!:$key:$name"
 done <<< "$perspectives"
 
-expected=$(printf '%s\n' "$perspectives" | wc -l | tr -d ' ')
-started=$(printf '%s' "$running" | wc -w | tr -d ' ')
-[ "$started" -eq "$expected" ] || {
-    echo "review.sh: started $started of $expected reviewers" >&2
-    exit 1
-}
+[ -n "$running" ] || { echo "review.sh: no reviewer started" >&2; exit 1; }
 
 failed=0
 for entry in $running; do
     pid=${entry%%:*}
-    key=${entry##*:}
+    key=${entry#*:}; key=${key%%:*}
     if ! wait "$pid"; then
         echo "review.sh: claude failed for $key" >&2
         cat "$tmp/err.$key" >&2
@@ -151,7 +141,9 @@ for entry in $running; do
 done
 [ "$failed" -eq 0 ] || exit 1
 
-while IFS='|' read -r name key scope desc; do
+for entry in $running; do
+    key=${entry#*:}; key=${key%%:*}
+    name=${entry##*:}
     body=$(nix run nixpkgs#perl -- -0777 -ne '
         my $last;
         while (/\[/g) {
@@ -180,6 +172,6 @@ while IFS='|' read -r name key scope desc; do
             cat "$tmp/out.$key" >&2
             exit 1
         }
-done <<< "$perspectives"
+done
 
 jq -s 'add | sort_by(.line)' "$tmp"/json.*
