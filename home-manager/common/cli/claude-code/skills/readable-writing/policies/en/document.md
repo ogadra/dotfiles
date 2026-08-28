@@ -9,7 +9,7 @@ English forms and examples for headings and sections.
 | Avoid | Use instead |
 |---|---|
 | Why We Chose X | Reasons for picking X |
-| What X Taught Us About Y | What the X outage showed |
+| What X Taught Us About Y | What we found in the X outage |
 | X Dies the Moment You Lose Y | Impact of removing Y |
 | Three Principles From the Trenches | What we changed after running it |
 | How X Solves Y | X and Y |

@@ -6,7 +6,7 @@ English phrasings for who did what.
 
 ### False agency
 
-Inanimate things taking human verbs. Complaints don't become fixes. Decisions don't emerge. Someone reads the complaint, files the ticket, and merges the patch.
+Inanimate things taking human verbs. Someone reads the complaint, files the ticket, and merges the patch.
 
 | Avoid | Use instead |
 |---|---|
@@ -49,7 +49,23 @@ Floating above the scene instead of putting the reader in it.
 
 ## How to find them
 
-1. Read every sentence subject. Collect the ones where an inanimate noun takes an active verb.
-2. Search for `was`, `were`, `is being` followed by a past participle. Check whether the actor appears in the text.
-3. Search for `people`, `everyone`, `nobody`, `teams`, `we`. Check whether each can name someone specific.
-4. Search for `many engineers`, `developers`, `matters in`, `is important`. Check whether the sentence can be replaced with something the writer did on a named day.
+1. Read every sentence subject
+    - Collect the ones where an inanimate noun takes an active verb
+2. Search for these, followed by a past participle
+    - `was`
+    - `were`
+    - `is being`
+    - Check whether the actor appears in the text
+3. Search for these
+    - `people`
+    - `everyone`
+    - `nobody`
+    - `teams`
+    - `we`
+    - Check whether each can name someone specific
+4. Search for these
+    - `many engineers`
+    - `developers`
+    - `matters in`
+    - `is important`
+    - Check whether the sentence can be replaced with something the writer did on a named day

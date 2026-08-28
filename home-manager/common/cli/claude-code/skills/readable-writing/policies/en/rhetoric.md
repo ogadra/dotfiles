@@ -1,6 +1,6 @@
 # Rhetoric
 
-English forms and examples for how sentences get arranged.
+English forms and examples for how you arrange sentences.
 
 ## What to find
 
