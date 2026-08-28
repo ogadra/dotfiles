@@ -24,8 +24,6 @@ Announcement phrases that delay the point. Cut them and state the content.
 - `Here's what I find interesting`
 - `Here's the problem though`
 
-Any `here's what`, `here's this`, or `here's that` construction is a run-up to the point. Cut it and write the point.
-
 #### Before
 
 ```
@@ -47,7 +45,6 @@ These add no meaning. Delete them.
 - `Let that sink in.`
 - `This matters because`
 - `Make no mistake`
-- `Here's why that matters`
 
 #### Before
 
@@ -93,7 +90,7 @@ Move faster. Your competition already has.
 
 ### Adverbs
 
-Kill all adverbs. No -ly words, no softeners, no intensifiers, no hedges.
+Kill all adverbs, including -ly words, softeners, intensifiers, and hedges.
 
 - `really`
 - `just`
@@ -173,7 +170,7 @@ Three of the five services in this repo hit it. It shows up once the payload pas
 Manufactured intimacy and sincerity.
 
 - `I promise`
-- `They exist, I promise`
+    - `They exist, I promise`
 
 #### Before
 
@@ -231,6 +228,6 @@ Latency rises once the queue passes about 5,000 messages. The retries make it wo
 
 ## How to find them
 
-1. Search for every phrase above
+1. Search for each phrase above
     - One hit is enough to report
 2. Search for words ending in -ly

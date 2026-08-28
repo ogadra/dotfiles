@@ -119,7 +119,7 @@ This took our median review wait from two days to half a day, measured over 120 
 - `it seems that`
 - `arguably`
 
-One hedge per paragraph. Write the scope you're claiming instead of hedging the claim.
+Write the scope you're claiming instead of hedging the claim.
 
 | Avoid | Use instead |
 |---|---|
