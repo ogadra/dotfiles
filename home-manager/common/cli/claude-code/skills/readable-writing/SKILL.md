@@ -71,7 +71,7 @@ bash ~/.claude/skills/readable-writing/scripts/review.sh <ファイルパス>
     "quote": "<該当箇所の原文>",
     "category": "<ポリシー内の該当節名>",
     "problem": "<何が読みにくいか1文>",
-    "fix": "<書き換えた後の文そのもの>"
+    "fix": "<書き換えた後の文そのもの、または null>"
   }
 ]
 ```
@@ -113,6 +113,8 @@ bash ~/.claude/skills/readable-writing/scripts/review.sh <ファイルパス>
     - `quote` の前後を読む
 - `fix` をそのまま貼らない
     - 前後の文と繋がるように書き換える
+- `fix` が `null` の場合
+    - `problem` を読み、前後の文に合う形に書き換える
 - 同一段落への修正が複数ある場合
     - 段落ごとにまとめて書き換える
 - 立場と主体の指摘から先に直す

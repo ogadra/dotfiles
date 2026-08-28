@@ -22,7 +22,8 @@ AIが書いた文章特有の読みにくさを解消するClaude Skill。
 ```
 SKILL.md                 対象、レビューの起動、統合、修正
 scripts/
-└── review.sh            観点ごとに claude -p を並列起動し、findingsのJSONを返す
+├── review.sh            観点ごとに claude -p を並列起動し、findingsのJSONを返す
+└── mechanical.pl        正規表現で確定判定できる記号を集める
 policies/
 ├── common/              言語非依存のパターンと直し方
 │   ├── stance.md
@@ -57,6 +58,26 @@ policies/
 
 1つの観点が1つの `claude -p` プロセスに対応し、各プロセスには自分の観点のファイルだけを渡す。
 
+- `mechanical.pl` で拾うもの
+    - `common/`
+        - 文中での改行
+        - 本文中の強調
+        - 装飾絵文字
+    - `ja/`
+        - 全角ダッシュ
+        - 中黒並列
+        - 地の文のコロン
+        - 不要な半角スペース
+    - `en/`
+        - Em dashes
+- `claude -p` に渡すもの
+    - 括弧による後置補足
+        - 中身が原語の併記かを読む
+    - 評価を囲む鉤括弧
+        - 固有名詞かを読む
+    - Scare quotes
+        - 直接引用かを読む
+
 ## ルールの追加と修正
 
 | 直したいもの | 触るファイル |
@@ -71,6 +92,7 @@ policies/
 | 主張の強さ、引き受け方 | `policies/common/stance.md` |
 | 対象文書、統合、修正 | `SKILL.md` |
 | プロンプト、言語判定、並列の起動 | `scripts/review.sh` |
+| 正規表現で決まる記号の検出 | `scripts/mechanical.pl` |
 
 観点を足すときは下記の3箇所を修正する。
 
