@@ -23,7 +23,8 @@ AIが書いた文章特有の読みにくさを解消するClaude Skill。
 SKILL.md                 対象、レビューの起動、統合、修正
 scripts/
 ├── review.sh            観点ごとに claude -p を並列起動し、findingsのJSONを返す
-└── mechanical.pl        正規表現で確定判定できるものを集める
+├── mechanical.pl        正規表現で確定判定できるものを集める
+└── rules.pl             mechanical.pl が使う語リスト
 policies/
 ├── common/              言語非依存のパターンと直し方
 │   ├── stance.md
@@ -92,8 +93,8 @@ policies/
 
 | 直したいもの | 触るファイル |
 |---|---|
-| 特定の語を禁止したい | `scripts/mechanical.pl` の `@LITERAL` |
-| 系統ごとの出現回数で見る語 | `scripts/mechanical.pl` の `@FAMILY` |
+| 特定の語を禁止したい | `scripts/rules.pl` の `@LITERAL` |
+| 系統ごとの出現回数で見る語 | `scripts/rules.pl` の `@FAMILY` |
 | 文と文の並べ方 | `policies/common/rhetoric.md` |
 | その言語だけの言い回し | `policies/<lang>/<観点>.md` |
 | 箇条書きの書き方 | `policies/common/lists.md` |
