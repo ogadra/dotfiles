@@ -4,15 +4,6 @@ Symbols specific to English.
 
 ## What to find
 
-### Em dashes
-
-| Avoid | Use instead |
-|---|---|
-| The API is small — deliberately so. | The API is small, deliberately so. |
-| We shipped it — and it broke. | We shipped it. It broke. |
-
-Search for `—` and `–`.
-
 ### Scare quotes
 
 Adjectives and judgments wrapped in quotes.

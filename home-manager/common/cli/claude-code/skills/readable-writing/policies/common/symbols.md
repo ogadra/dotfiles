@@ -4,70 +4,6 @@
 
 ## 検出対象
 
-### 本文中の強調
-
-地の文の一部を `**` で太字にする形。
-
-#### AI版
-
-```
-SEO対策には**次の施策を使う。**
-
-To rank higher **you need the following.**
-```
-
-#### 修正版
-
-```
-SEO対策には次の施策を使う。
-
-To rank higher you need the following.
-```
-
-#### 修正の型
-
-太字を消す。
-
-### 装飾絵文字
-
-`🚀🎯✨💡🔥📈` のような装飾絵文字が、段落末や箇条書きに等間隔で出てくる形。
-
-#### AI版
-
-```
-## セットアップ 🚀
-
-- 依存を入れる ✨
-- 環境変数を設定する 💡
-- DBを初期化する 🎯
-
-## Setup 🚀
-
-- Install dependencies ✨
-- Set the environment 💡
-- Initialize the database 🎯
-```
-
-#### 修正版
-
-```
-## セットアップ
-
-- 依存を入れる
-- 環境変数を設定する
-- DBを初期化する
-
-## Setup
-
-- Install dependencies
-- Set the environment
-- Initialize the database
-```
-
-#### 修正の型
-
-消す。
-
 ### 括弧による後置補足
 
 補足や例示を括弧に押し込む形。括弧の中身が本題なのか脇道なのか判断できないまま読み進めることになる。
@@ -110,37 +46,7 @@ To rank higher you need the following.
 - 必要でない場合
     - 消す
 
-### 文中での改行
-
-1行の文字数を意識して、文の途中で改行を入れる形。
-
-#### AI版
-
-```
-リトライは指数バックオフで最大3回まで。3回を超えた場合はDLQに送り、
-アラートを飛ばす。
-
-Retries use exponential backoff, up to three times. Past three, the message
-goes to the DLQ and the alert fires.
-```
-
-#### 修正版
-
-```
-リトライは指数バックオフで最大3回まで。3回を超えた場合はDLQに送り、アラートを飛ばす。
-
-Retries use exponential backoff, up to three times. Past three, the message goes to the DLQ and the alert fires.
-```
-
-#### 修正の型
-
-改行は文の終わりか段落の切れ目にだけ入れる。1行が長くなることは気にしない。
-
 ## 検出手順
 
-1. `**` を検索する
-2. 絵文字を検索する
-3. `(` と `（` を検索する
+1. `(` と `（` を検索する
     - 中身が原語併記でも略語の展開でもない箇所を集める
-4. 各行の末尾を見る
-    - 文の終わりで終わらず次の行に文が続く行を集める

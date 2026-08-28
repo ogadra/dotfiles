@@ -16,15 +16,11 @@ EOF
 target=$1
 [ -f "$target" ] || { echo "review.sh: no such file: $target" >&2; exit 1; }
 
-for cmd in claude jq perl awk; do
-    command -v "$cmd" >/dev/null || { echo "review.sh: $cmd not found on PATH" >&2; exit 1; }
-done
-
 skill_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 policies="$skill_dir/policies"
 
 # 日英が混ざる文書には両方のポリシーを渡す。
-lang_dirs=$(perl -CSD -ne '
+lang_dirs=$(nix run nixpkgs#perl -- -CSD -ne '
     if (/\p{Hiragana}|\p{Katakana}|\p{Han}/) {
         $ja++;
     } elsif (/[A-Za-z]+(?:\s+[A-Za-z]+){3,}/) {
@@ -53,6 +49,9 @@ tmp=$(mktemp -d)
 trap 'rm -rf "$tmp"' EXIT
 
 awk '{ printf "%d\t%s\n", NR, $0 }' "$target" > "$tmp/numbered"
+
+nix run nixpkgs#perl -- "$skill_dir/scripts/mechanical.pl" "$lang_dirs" "$target" \
+    | jq --arg f "$target" 'map({file: $f, perspective: "記号"} + .)' > "$tmp/json.mechanical"
 
 policy_files() {
     local key=$1 scope=$2 dirs dir file
@@ -153,7 +152,7 @@ done
 [ "$failed" -eq 0 ] || exit 1
 
 while IFS='|' read -r name key scope desc; do
-    body=$(perl -0777 -ne '
+    body=$(nix run nixpkgs#perl -- -0777 -ne '
         my $last;
         while (/\[/g) {
             my $s = pos() - 1;
