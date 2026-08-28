@@ -98,32 +98,54 @@ build_prompt() {
     - 代表1件にまとめる
     - 他の該当行を `line` に列挙する
 
-# 出力ルール
+# 各フィールドの入れ方
 
-JSON配列だけを出力する。前置き、要約、良い点、コードフェンス、説明を書かない。指摘がなければ `[]` だけを出力する。
-
-[
-  {
-    "line": <行番号、または範囲を表す文字列 "12-18">,
-    "quote": "<該当箇所の原文をそのまま>",
-    "category": "<ポリシー内の該当節名>",
-    "problem": "<何が読みにくいか1文>",
-    "fix": "<書き換えた後の文そのもの>"
-  }
-]
-
-`quote` は本文に実在する文字列をそのまま入れる。要約しない。
-`fix` は書き換え案の文そのものを入れる。直し方の説明を入れない。
+- `line`
+    - 行番号、または範囲を表す `12-18`
+- `quote`
+    - 本文に実在する文字列をそのまま入れる
+    - 要約しない
+- `category`
+    - ポリシー内の該当節名
+- `problem`
+    - 何が読みにくいかを1文で
+- `fix`
+    - 書き換え案の文そのもの
+    - 直し方の説明を入れない
 RULES
     } > "$out"
 }
+
+findings_schema='{
+  "type": "object",
+  "properties": {
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "line": { "type": "string" },
+          "quote": { "type": "string" },
+          "category": { "type": "string" },
+          "problem": { "type": "string" },
+          "fix": { "type": ["string", "null"] }
+        },
+        "required": ["line", "quote", "category", "problem", "fix"],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": ["findings"],
+  "additionalProperties": false
+}'
 
 running=""
 while IFS='|' read -r name key desc; do
     files=$(policy_files "$key")
     [ -n "$files" ] || continue
     build_prompt "$desc" "$files" "$tmp/prompt.$key"
-    claude -p "$(cat "$tmp/prompt.$key")" < /dev/null > "$tmp/out.$key" 2> "$tmp/err.$key" &
+    claude -p "$(cat "$tmp/prompt.$key")" --json-schema "$findings_schema" \
+        < /dev/null > "$tmp/out.$key" 2> "$tmp/err.$key" &
     running="$running $!:$key:$name"
 done <<< "$perspectives"
 
@@ -144,34 +166,12 @@ done
 for entry in $running; do
     key=${entry#*:}; key=${key%%:*}
     name=${entry##*:}
-    body=$(nix run nixpkgs#perl -- -0777 -ne '
-        my $last;
-        while (/\[/g) {
-            my $s = pos() - 1;
-            my ($d, $end) = (0, undef);
-            for my $i ($s .. length($_) - 1) {
-                my $c = substr($_, $i, 1);
-                $d++ if $c eq "[";
-                $d-- if $c eq "]";
-                if (!$d) { $end = $i; last }
-            }
-            last unless defined $end;
-            $last = substr($_, $s, $end - $s + 1);
-            pos($_) = $end + 1;
-        }
-        print $last if defined $last;
-    ' "$tmp/out.$key")
-    [ -n "$body" ] || {
-        echo "review.sh: $key returned no JSON array" >&2
-        cat "$tmp/out.$key" "$tmp/err.$key" >&2
-        exit 1
-    }
-    printf '%s' "$body" \
-        | jq --arg p "$name" --arg f "$target" 'map({file: $f, perspective: $p} + del(.file))' > "$tmp/json.$key" || {
-            echo "review.sh: $key returned output that is not a JSON array" >&2
-            cat "$tmp/out.$key" >&2
+    jq --arg p "$name" --arg f "$target" \
+        '.findings | map({file: $f, perspective: $p} + .)' "$tmp/out.$key" > "$tmp/json.$key" || {
+            echo "review.sh: $key returned output that does not match the schema" >&2
+            cat "$tmp/out.$key" "$tmp/err.$key" >&2
             exit 1
         }
 done
 
-jq -s 'add | sort_by(.line)' "$tmp"/json.*
+jq -s 'add | sort_by(.line | tostring | capture("(?<n>[0-9]+)").n | tonumber)' "$tmp"/json.*
