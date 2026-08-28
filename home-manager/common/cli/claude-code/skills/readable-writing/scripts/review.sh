@@ -6,8 +6,7 @@ usage() {
     cat >&2 <<'EOF'
 usage: review.sh <target-file>
 
-言語は対象の文章の文字種から判定する。
-標準出力に findings のJSON配列を出す。
+対象の文章から言語を判定し、標準出力に findings のJSON配列を出す。
 EOF
     exit 2
 }
@@ -24,15 +23,20 @@ done
 skill_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 policies="$skill_dir/policies"
 
-lang=$(perl -CSD -ne '
-    $j += () = /\p{Hiragana}|\p{Katakana}|\p{Han}/g;
-    $t += length;
+# 日英が混ざる文書には両方のポリシーを渡す。
+lang_dirs=$(perl -CSD -ne '
+    if (/\p{Hiragana}|\p{Katakana}|\p{Han}/) {
+        $ja++;
+    } elsif (/[A-Za-z]+(?:\s+[A-Za-z]+){3,}/) {
+        $en++;
+    }
     END {
-        unless ($t) {
-            print STDERR "review.sh: no characters to classify\n";
+        unless ($ja + $en) {
+            print STDERR "review.sh: no Japanese or English prose to classify\n";
             exit 1;
         }
-        print( $j / $t >= 0.05 ? "ja" : "en" );
+        my $min = $ja < $en ? $ja : $en;
+        print( $min / ($ja + $en) >= 0.05 ? "ja en" : $ja >= $en ? "ja" : "en" );
     }
 ' "$target")
 
@@ -54,8 +58,8 @@ policy_files() {
     local key=$1 scope=$2 dirs dir file
     case "$scope" in
         common) dirs="common" ;;
-        lang) dirs="$lang" ;;
-        both) dirs="common $lang" ;;
+        lang) dirs="$lang_dirs" ;;
+        both) dirs="common $lang_dirs" ;;
         *) echo "review.sh: unknown scope for $key: $scope" >&2; exit 1 ;;
     esac
     for dir in $dirs; do
