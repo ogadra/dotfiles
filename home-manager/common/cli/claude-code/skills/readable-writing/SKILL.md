@@ -1,9 +1,9 @@
 ---
 name: readable-writing
-description: AIが書いた文章特有の読みにくさを、7観点の `claude -p` を並列で走らせてレビューし、出た指摘をすべて修正する。日本語と英語に対応。Reviews Japanese and English prose for AI writing patterns and rewrites it.
+description: AIが書いた文章特有の読みにくさを、7観点の `claude -p` を並列で走らせてレビューし、出た指摘をすべて修正する。Reviews prose for AI writing patterns and rewrites it.
 allowed-tools: Bash(bash ~/.claude/skills/readable-writing/scripts/review.sh:*), Bash(mktemp:*), Read, Edit, Write, Glob, Grep
 metadata:
-  trigger: 技術文書、README、コミットメッセージ、PR説明、コード内コメント、実装計画書、設計書のレビューと修正
+  trigger: 技術文書、README、コミットメッセージ、PR説明、コード内コメント、実装計画書、設計書等のレビューと修正
   language: ja, en
   derived-from: iKora128/stop-ai-slop-jp, hardikpandya/stop-slop
 ---
@@ -35,7 +35,7 @@ AIに書かせた文章が読みにくいのは、書き手が文面から消え
 - `$1` はレビュー対象。次のどれかを取る
     - ファイルパス
     - ディレクトリ
-    - 直前に自分が書いた下書き
+    - 直前にClaude Code自身が書いた下書き
 - ユーザーが `$1` を渡さなければ、対象を確認する
 
 ## 手順
@@ -92,7 +92,7 @@ bash ~/.claude/skills/readable-writing/scripts/review.sh <ファイルパス>
 
 ### 3. 結果の統合
 
-スクリプトが返したfindingsを、出力せずに手元で統合する。
+スクリプトが返したfindingsを手元で統合する。
 
 - 同一の `quote` を指す重複は1件に統合する。
 - 並び順
@@ -101,13 +101,12 @@ bash ~/.claude/skills/readable-writing/scripts/review.sh <ファイルパス>
 - `quote` が本文に実在しない指摘は捨てる。
 - 原文を読み、ポリシーに照らして妥当でない指摘は捨てる。
 
-残った指摘はすべて直す。優先順位や重みは付けない。
+残った指摘はすべて直す。
 
 ### 4. 修正
 
-- 対象ファイルをReadで開き、`quote` の前後を読む。
-- `fix` をそのまま貼らない
-    - 前後の文と繋がるように書き換える
+- 対象ファイルをReadで開き、`quote` の前後を読む
+- `fix` をそのまま貼らず、前後の文と繋がるように書き換える
 - 同一段落への修正が複数ある場合
     - 段落ごとにまとめて書き換える
 - 立場と主体の指摘から先に直す
@@ -116,7 +115,7 @@ bash ~/.claude/skills/readable-writing/scripts/review.sh <ファイルパス>
     - 二項対比を消して括弧に逃がす、といった置き換えをしない
 - 直し方に迷った場合
     - 該当ポリシーのAI版と修正版の対比を読む
-- 指摘の無い箇所を書き換えない。
+- 指摘の無い箇所を書き換えない
 
 ### 5. 成果物の提示
 

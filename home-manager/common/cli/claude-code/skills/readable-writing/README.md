@@ -1,21 +1,12 @@
 # readable-writing
 
-AIが書いた文章特有の読みにくさを解消するClaude Skill。日本語と英語の両方を扱う。
+AIが書いた文章特有の読みにくさを解消するClaude Skill。
 
-対象は次の文書。
-
-- 技術文書
-- README
-- コミットメッセージ
-- PR説明
-- コード内コメント
-- 実装計画書
-
-`scripts/review.sh` が観点ごとに `claude -p` を並列で起動する。集まった指摘は同じセッションで直す。成果物は修正後の文章だけ。観点ごとにポリシーを分ける構成は `pr-review` スキルと揃えてある。
+`scripts/review.sh` が観点ごとに `claude -p` を並列で起動し、集まった指摘を修正する。
 
 ## 由来
 
-日本語のパターンは[iKora128/stop-ai-slop-jp](https://github.com/iKora128/stop-ai-slop-jp)、英語のパターンは[hardikpandya/stop-slop](https://github.com/hardikpandya/stop-slop)から取った。どちらもMIT。
+日本語のパターンは[iKora128/stop-ai-slop-jp](https://github.com/iKora128/stop-ai-slop-jp)、英語のパターンは[hardikpandya/stop-slop](https://github.com/hardikpandya/stop-slop)をベースに改変。どちらもMIT。
 
 ## 構成
 
@@ -47,11 +38,11 @@ policies/
     └── symbols.md
 ```
 
-日本語のレビューでは `common/` と `ja/` を全部使う。英語なら `common/` と `en/`。`review.sh` が文字種から言語を判定し、該当ファイルの中身をプロンプトに埋め込む。
+日本語のレビューでは `common/` と `ja/` を使う。英語なら `common/` と `en/`。`review.sh` が文字種から言語を判定し、該当ファイルの中身をプロンプトに埋め込む。
 
 1つの観点が1つの `claude -p` プロセスに対応する。各プロセスには自分の観点のファイルだけを渡す。
 
-`common/` が持つのはパターンと直し方だけだ。禁止する語や具体的な言い回しは `ja/` と `en/` に置く。
+`common/` が持つのはパターンと直し方だけ。禁止する語や具体的な言い回しは `ja/` と `en/` に置く。
 
 箇条書きは形の問題だけなので `common/` にしかない。語彙は完全に言語固有なので `ja/` と `en/` にしかない。
 
@@ -70,7 +61,7 @@ policies/
 | 対象文書、統合、修正 | `SKILL.md` |
 | プロンプト、言語判定、並列の起動 | `scripts/review.sh` |
 
-観点を足すときは3箇所を触る。
+観点を足すときは下記の3箇所を修正する。
 
 - `policies/` にファイルを置く
 - `scripts/review.sh` の `perspectives` に行を足す
@@ -80,4 +71,4 @@ policies/
 
 ## ライセンス
 
-MIT。由来ごとの著作権表示は `LICENSE` を参照。
+MIT
