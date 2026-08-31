@@ -58,12 +58,6 @@ AIに書かせた文章が読みにくいのは、書き手が文面から消え
 bash ~/.claude/skills/readable-writing/scripts/review.sh <ファイルパス>
 ```
 
-言語は文字種から判定する。判定を上書きするときだけ第2引数に `ja` `en` `both` のどれかを渡す。
-
-```bash
-bash ~/.claude/skills/readable-writing/scripts/review.sh <ファイルパス> both
-```
-
 出力は次の形。
 
 ```json
