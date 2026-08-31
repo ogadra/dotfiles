@@ -4,15 +4,15 @@ set -euo pipefail
 
 usage() {
     cat >&2 <<'EOF'
-usage: review.sh <target-file> [ja|en|both]
+usage: review.sh <target-file>
 
-第2引数を省いた場合、対象の文章の文字種から言語を判定する。
+言語は対象の文章の文字種から判定する。
 標準出力に findings のJSON配列を出す。
 EOF
     exit 2
 }
 
-[ $# -ge 1 ] && [ $# -le 2 ] || usage
+[ $# -eq 1 ] || usage
 
 target=$1
 [ -f "$target" ] || { echo "review.sh: no such file: $target" >&2; exit 1; }
@@ -24,28 +24,17 @@ done
 skill_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 policies="$skill_dir/policies"
 
-if [ $# -eq 2 ]; then
-    lang=$2
-else
-    lang=$(perl -CSD -ne '
-        $j += () = /\p{Hiragana}|\p{Katakana}|\p{Han}/g;
-        $t += length;
-        END {
-            unless ($t) {
-                print STDERR "review.sh: no characters to classify\n";
-                exit 1;
-            }
-            print( $j / $t >= 0.05 ? "ja" : "en" );
+lang=$(perl -CSD -ne '
+    $j += () = /\p{Hiragana}|\p{Katakana}|\p{Han}/g;
+    $t += length;
+    END {
+        unless ($t) {
+            print STDERR "review.sh: no characters to classify\n";
+            exit 1;
         }
-    ' "$target")
-fi
-
-case "$lang" in
-    ja) lang_dirs="ja" ;;
-    en) lang_dirs="en" ;;
-    both) lang_dirs="ja en" ;;
-    *) echo "review.sh: unknown language: $lang" >&2; exit 1 ;;
-esac
+        print( $j / $t >= 0.05 ? "ja" : "en" );
+    }
+' "$target")
 
 # 名前|ファイル名|使うディレクトリ (common / lang / both)|見るもの
 perspectives='立場|stance|both|書き手が何を引き受けているか
@@ -65,8 +54,8 @@ policy_files() {
     local key=$1 scope=$2 dirs dir file
     case "$scope" in
         common) dirs="common" ;;
-        lang) dirs="$lang_dirs" ;;
-        both) dirs="common $lang_dirs" ;;
+        lang) dirs="$lang" ;;
+        both) dirs="common $lang" ;;
         *) echo "review.sh: unknown scope for $key: $scope" >&2; exit 1 ;;
     esac
     for dir in $dirs; do
