@@ -4,6 +4,8 @@
   "minimumReleaseAge": "3 days",
   "minimumReleaseAgeBehaviour": "timestamp-optional",
   "internalChecksFilter": "none",
+  "branchTopic": "{{{depNameSanitized}}}-{{{newVersion}}}",
+  "pruneStaleBranches": false,
   "lockFileMaintenance": {
     "enabled": true,
     "schedule": ["at any time"]
