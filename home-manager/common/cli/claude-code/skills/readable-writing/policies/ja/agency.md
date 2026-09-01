@@ -74,7 +74,7 @@ Pythonのコア開発者は、何年もType Hintsの扱いを議論している�
 
 ### 翻訳調動詞
 
-主体を抽象化した分析動詞。英語の `point to` `suggest` `emerge` をそのまま訳すとこうなる。false agencyを動詞ひとつの単位でやった形だ。
+主体を抽象化した分析動詞。英語の `point to` `suggest` `emerge` をそのまま訳すとこうなる。false agencyを動詞ひとつの単位でやった形。
 
 - 指している
 - 示している
