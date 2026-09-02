@@ -37,8 +37,8 @@ lang_dirs=$(nix run nixpkgs#perl -- -CSD -ne '
 ' "$target")
 
 # 名前|ファイル名|見るもの
-perspectives='立場|stance|書き手が何を引き受けているか
-主体|agency|誰が何をしたか
+perspectives='立場|stance|書き手が引き受ける範囲
+主体|agency|行為の主体
 箇条書き|lists|箇条書きの階層と粒度
 文書構成|document|見出し、節、情報の取捨
 修辞|rhetoric|構文の型とリズム
