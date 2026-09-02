@@ -1,7 +1,7 @@
 ---
 name: readable-writing
 description: AIが書いた文章特有の読みにくさを、7観点の `claude -p` を並列で走らせてレビューし、出た指摘をすべて修正する。Reviews prose for AI writing patterns and rewrites it.
-allowed-tools: Bash(bash ~/.claude/skills/readable-writing/scripts/review.sh:*), Bash(mktemp:*), Read, Edit, Write, Glob, Grep
+allowed-tools: Bash(bash ~/.claude/skills/readable-writing/scripts/review.sh:*), Bash(mktemp:*), Read, Edit, Write, Glob, Grep, AskUserQuestion
 metadata:
   trigger: 技術文書、README、コミットメッセージ、PR説明、コード内コメント、実装計画書、設計書等のレビューと修正
   language: ja, en
@@ -103,7 +103,13 @@ bash ~/.claude/skills/readable-writing/scripts/review.sh <ファイルパス>
     - 行番号昇順
 - 捨てる指摘
     - `quote` が本文に実在しないもの
-    - 原文を読み、ポリシーに照らして妥当でないもの
+- 捨てない指摘
+    - 言語ごとの作法と食い違うもの
+    - 対象の種類ごとの通例と食い違うもの
+        - gitの72桁折り返し
+- ポリシーだけで決まらない場合
+    - AskUserQuestionで聞く
+    - 回答のとおりに直す
 
 残った指摘はすべて直す。
 
