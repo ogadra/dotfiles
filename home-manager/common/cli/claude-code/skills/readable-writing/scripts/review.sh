@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# 観点ごとに claude -p を並列で起動し、findings を1つのJSON配列にまとめて標準出力に出す。
+# 観点ごとに `claude -p` を並列で起動し、`findings` を1つのJSON配列にまとめて標準出力に出す。
 set -euo pipefail
 
 usage() {
@@ -19,7 +19,7 @@ target=$1
 skill_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 policies="$skill_dir/policies"
 
-# 日英が混ざる文書には両方のポリシーを渡す。
+# 文書の言語を判定して渡すポリシーを決める。日英が混ざる文書には両方を渡す。
 lang_dirs=$(nix run nixpkgs#perl -- -CSD -ne '
     if (/\p{Hiragana}|\p{Katakana}|\p{Han}/) {
         $ja++;
@@ -139,13 +139,31 @@ findings_schema='{
   "additionalProperties": false
 }'
 
+attempts=3
+
+# claudeが落ちたときと壊れたJSONを返したときに、`attempts` 回まで引き直す。
+run_reviewer() {
+    local key=$1 attempt=1 delay
+    while :; do
+        if claude -p "$(cat "$tmp/prompt.$key")" --json-schema "$findings_schema" \
+            < /dev/null > "$tmp/out.$key" 2> "$tmp/err.$key" \
+            && jq -e . "$tmp/out.$key" > /dev/null 2>&1; then
+            return 0
+        fi
+        [ "$attempt" -lt "$attempts" ] || return 1
+        delay=$((5 * attempt ** 2))
+        echo "review.sh: $key failed ($attempt/$attempts), retrying in ${delay}s" >&2
+        sleep "$delay"
+        attempt=$((attempt + 1))
+    done
+}
+
 running=""
 while IFS='|' read -r name key desc; do
     files=$(policy_files "$key")
     [ -n "$files" ] || continue
     build_prompt "$desc" "$files" "$tmp/prompt.$key"
-    claude -p "$(cat "$tmp/prompt.$key")" --json-schema "$findings_schema" \
-        < /dev/null > "$tmp/out.$key" 2> "$tmp/err.$key" &
+    run_reviewer "$key" &
     running="$running $!:$key:$name"
 done <<< "$perspectives"
 
@@ -156,7 +174,7 @@ for entry in $running; do
     pid=${entry%%:*}
     key=${entry#*:}; key=${key%%:*}
     if ! wait "$pid"; then
-        echo "review.sh: claude failed for $key" >&2
+        echo "review.sh: claude failed for $key after $attempts attempts" >&2
         cat "$tmp/err.$key" >&2
         failed=1
     fi
