@@ -24,7 +24,12 @@ SKILL.md                 対象、レビューの起動、統合、修正
 scripts/
 ├── review.sh            観点ごとに claude -p を並列起動し、findingsのJSONを返す
 ├── mechanical.pl        正規表現で確定判定できるものを集める
-└── rules.pl             mechanical.pl が使う語リスト
+└── rules/               mechanical.pl が使う語リスト
+    ├── ja.pl
+    └── en.pl
+prompts/                 レビュアーへの指示
+├── judgement.md         何を指摘し何を見送るか
+└── fields.md            findingsの各フィールドに入れるもの
 policies/
 ├── common/              言語非依存のパターンと直し方
 │   ├── stance.md
@@ -67,8 +72,10 @@ policies/
 
 | 直したいもの | 触るファイル |
 |---|---|
-| 特定の語を禁止したい | `scripts/rules.pl` の `@LITERAL` |
-| 系統ごとの出現回数で見る語 | `scripts/rules.pl` の `@FAMILY` |
+| 特定の語を禁止したい | `scripts/rules/<lang>.pl` の `@LITERAL` |
+| 系統ごとの出現回数で見る語 | `scripts/rules/ja.pl` の `@FAMILY` |
+| 何を指摘し何を見送るか | `prompts/judgement.md` |
+| findingsの各フィールドの中身 | `prompts/fields.md` |
 | 文と文の並べ方 | `policies/common/rhetoric.md` |
 | その言語だけの言い回し | `policies/<lang>/<観点>.md` |
 | 箇条書きの書き方 | `policies/common/lists.md` |
@@ -77,7 +84,7 @@ policies/
 | 主語の立て方 | `policies/common/agency.md` |
 | 主張の強さ、引き受け方 | `policies/common/stance.md` |
 | 対象文書、統合、修正 | `SKILL.md` |
-| プロンプト、言語判定、並列の起動 | `scripts/review.sh` |
+| プロンプトの組み立て、言語判定、並列の起動 | `scripts/review.sh` |
 | 正規表現で決まる規則の検出 | `scripts/mechanical.pl` |
 
 観点を足すときに触る場所。
