@@ -14,7 +14,6 @@ metadata:
       - 実装計画書
       - 設計書
   language: ja, en
-  derived-from: iKora128/stop-ai-slop-jp, hardikpandya/stop-slop
 ---
 
 # Readable Writing
