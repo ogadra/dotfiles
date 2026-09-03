@@ -1,10 +1,8 @@
 # Document structure
 
-English forms and examples for headings and sections.
+## Forms to find
 
-## What to find
-
-### Headings that make a claim
+### Headings where you make a claim
 
 | Avoid | Use instead |
 |---|---|
@@ -24,9 +22,15 @@ English forms and examples for headings and sections.
 | As we'll see... | Delete |
 | I want to explore... | Delete |
 
-### Listing what's out of scope
+### Writing what you won't do
 
-Search for `Out of scope`, `Non-goals`, `This document does not cover`.
+| Avoid | Fix |
+|---|---|
+| Non-goals: anything the marketing team owns | Delete |
+| We chose not to use a NAT gateway | Delete |
+| We don't send the token in the query string | The client sends the token in the `Authorization` header |
+| CloudTrail has no record of `DisassociateAddress` | Keep |
+| The API can't tell you whether an ENI is live | Keep |
 
 #### Before
 
@@ -85,5 +89,8 @@ Stop losing compound words in search. A query for "machine learning" splits into
 - Swap the Japanese tokenizer from Kuromoji to Sudachi
 ```
 
-Turn the bold labels into headings, delete the out-of-scope section, write what hurts under "Goal", and move the means into its own section.
+- Turn the bold labels into headings
+- Delete the out-of-scope section
+- Write what hurts under "Goal"
+- Move the means into its own section
 
