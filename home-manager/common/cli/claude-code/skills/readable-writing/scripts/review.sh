@@ -18,6 +18,7 @@ target=$1
 
 skill_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 policies="$skill_dir/policies"
+prompts="$skill_dir/prompts"
 
 # 文書の言語を判定して渡すポリシーを決める。日英が混ざる文書には両方を渡す。
 lang_dirs=$(nix run nixpkgs#perl -- -CSD -ne '
@@ -80,39 +81,9 @@ build_prompt() {
         cat "$tmp/numbered"
         printf '\n'
 
-        cat <<'RULES'
-# 判定ルール
-
-- `common/` はパターンと直し方を持つ
-- `ja/` と `en/` はその言語の言い回しと例を持つ
-- 両方を突き合わせて判定する
-- 1つの文書に日本語と英語が混ざる場合
-    - 箇所ごとに言語を判定する
-- コードブロックの中身
-    - 対象にしない
-- `AI版` `Before` の見出しの下
-    - 意図的な例として扱う
-    - 指摘しない
-- 渡されたポリシーで説明できるものだけを指摘する
-- 同じ形が3箇所以上に出る場合
-    - 代表1件にまとめる
-    - 他の該当行を `line` に列挙する
-
-# 各フィールドの入れ方
-
-- `line`
-    - 行番号、または範囲を表す `12-18`
-- `quote`
-    - 本文に実在する文字列をそのまま入れる
-    - 要約しない
-- `category`
-    - ポリシー内の該当節名
-- `problem`
-    - 何が読みにくいかを1文で
-- `fix`
-    - 書き換え案の文そのもの
-    - 直し方の説明を入れない
-RULES
+        cat "$prompts/judgement.md"
+        printf '\n'
+        cat "$prompts/fields.md"
     } > "$out"
 }
 

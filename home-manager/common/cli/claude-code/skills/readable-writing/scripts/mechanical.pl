@@ -83,13 +83,18 @@ sub term_re {
     return qr/$pat/;
 }
 
-my $rules_path = File::Spec->rel2abs('rules.pl', dirname(__FILE__));
-my $rules = do($rules_path)
-    or die "mechanical.pl: cannot load $rules_path: $@$!\n";
-my @LITERAL    = @{ $rules->{literal} };
-my @FAMILY     = @{ $rules->{family} };
-my @JA_ADVERBS = @{ $rules->{ja_adverbs} };
-my %LY_STOP    = %{ $rules->{ly_stop} };
+# 語リストは言語ごとのファイルに分かれている。読んだ言語を各ルールに焼き込む。
+my $rules_dir = File::Spec->catdir(dirname(__FILE__), 'rules');
+my (@LITERAL, @FAMILY, @JA_ADVERBS, %LY_STOP);
+for my $l (sort keys %lang) {
+    my $path = File::Spec->catfile($rules_dir, "$l.pl");
+    my $rules = do($path)
+        or die "mechanical.pl: cannot load $path: $@$!\n";
+    push @LITERAL, map { { %$_, l => $l } } @{ $rules->{literal} // [] };
+    push @FAMILY,  map { { %$_, l => $l } } @{ $rules->{family}  // [] };
+    push @JA_ADVERBS, @{ $rules->{adverbs} // [] };
+    $LY_STOP{$_} = 1 for keys %{ $rules->{ly_stop} // {} };
+}
 
 for my $rule (@LITERAL) {
     next unless $rule->{c} eq 'Adverbs';
@@ -165,7 +170,6 @@ for my $i (0 .. $#lines) {
         if $lang{en} && $body =~ /[—–]/;
 
     for my $rule (@LITERAL) {
-        next unless $lang{ $rule->{l} };
         for my $term (@{ $rule->{terms} }) {
             my $re = term_re($term, $rule->{l});
             next unless $body =~ $re;
