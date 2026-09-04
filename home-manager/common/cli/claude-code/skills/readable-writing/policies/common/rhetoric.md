@@ -1,12 +1,12 @@
 # 修辞
 
-文と文の並べ方に出る型を見る。平坦な内容に構文で起伏をつけるクセと、リズムが均一になるクセを扱う。
+文と文の並べ方に出る型を見る。
 
 ## 検出対象
 
 ### 二項対比
 
-「XではなくYだ」を使う形。直接Yを書けば済む。
+`XではなくYだ` と書いてしまう。直接Yを書けば済む。
 
 #### AI版
 
@@ -35,14 +35,14 @@ This skill keeps what the writer saw and got stuck on in the text.
     - 「採点は該当する2本で行う」
     - "Grade the two that apply."
 
-対比そのものを残したいなら、XとYの違いを具体的に書く。比較の軸を名指しする。
+比較を書くときは軸を名指しし、XとYの違いを具体的に書く。
 
 - 「この場面では速さより正確さを取った」
 - "Here we chose accuracy over speed."
 
 ### 否定的列挙
 
-何かを示す前に「何でないか」を並べる形。
+何かを示す前に、何でないかを並べている。
 
 #### AI版
 
@@ -66,7 +66,7 @@ It finds the places where the writer has vanished from the text.
 
 ### 劇的な断片化
 
-短文を連発して深さを演出する形。句点で間を作ろうとする。
+短文を連発して深さを演出する。句点で間を作ろうとしている。
 
 #### AI版
 
@@ -90,7 +90,7 @@ The cause was the cache. Adding one took the build from nine minutes to three.
 
 ### 修辞疑問
 
-洞察を届けずに、洞察があると予告する形。
+洞察を届けずに、あると予告だけしている。
 
 #### AI版
 
@@ -114,7 +114,7 @@ The build was slow because there was no cache in front of it.
 
 ### 決めつけ序文
 
-冒頭で強い断定を投げ、すぐ反転させる形。英語ブログのhook構造の直訳。
+冒頭で強い断定を投げ、すぐ反転させる。
 
 #### AI版
 
@@ -138,7 +138,7 @@ I left a nine-minute build alone for three months. When I measured, I was runnin
 
 ### 定型の語り出し
 
-物語のテンプレートをそのまま当てはめる形。
+物語のテンプレートをそのまま当てはめている。
 
 #### AI版
 
@@ -162,7 +162,7 @@ Someone filed a "builds are slow" issue in July. It sat for two months. I measur
 
 ### 一文圧縮
 
-年代、人名、定義、評価を並列で1文か2文に詰める形。
+年代、人名、定義、評価が1文か2文に詰まっている。
 
 #### AI版
 
@@ -186,13 +186,12 @@ Bauer was born in New York in 1958. He was an early cognitive science researcher
 
 - 調べただけの事実
     - 出所が伝わる書き方を選ぶ
-    - 辞書のような断定型を避ける
 - 自分で検証した事実
     - 断定で書く
 
 ### 3項目並列
 
-3つ並べたがるクセ。「3つのポイント」のような見出しに出る。
+3つ並べたがる。`3つのポイント` のような見出しに出る。
 
 #### AI版
 
@@ -224,11 +223,11 @@ Bauer was born in New York in 1958. He was an early cognitive science researcher
 
 #### 修正の型
 
-3項目が並んでいたら、それぞれが別のことを言っているか確かめる。言っていないものを削る。
+3項目が並んでいたら、3つとも別の内容か確かめる。重なっているものを削る。
 
 ### ムラの欠如
 
-段落の長さもトーンも揃う形。どこに時間をかけてどこを流したかが長さと密度に出ないので、読み手は書き手が何に引っかかったのかを追えない。
+書き手が段落の長さもトーンも揃えてしまう。どこに時間をかけてどこを流したかが長さと密度に出ないので、読み手は書き手が何に引っかかったのかを追えない。
 
 #### AI版
 
@@ -264,7 +263,7 @@ The waiting was the problem. At nine minutes I would switch branches and start s
 
 #### 修正の型
 
-5種類のムラを意識して残す。
+ムラを残す。
 
 - 長さのムラ
     - 段落と文の長さをバラバラにする
@@ -284,7 +283,7 @@ The waiting was the problem. At nine minutes I would switch branches and start s
 
 ### 段落の均一な閉じ方
 
-全段落を律儀に着地させる形。
+全段落を律儀に着地させている。
 
 #### AI版
 
@@ -324,7 +323,7 @@ The waiting changed the most.
 
 ### pull-quote調
 
-そのまま切り出して引用できる一文を狙って書く形。書き手が見栄えを取ると、その一文は書きたかった内容から離れる。
+そのまま切り出して引用できる一文を、書き手が狙って書いている。引用しやすい形にまとめると、9分が3分になったのような具体がその一文から落ちる。
 
 - 段落の最後に、内容を要約した短い一文を置く
 - 前後の文脈なしで成立する箴言を書く
@@ -351,7 +350,7 @@ At nine minutes I start something else while I wait. At three I can just watch t
 
 ### 文頭のクセ
 
-同じ語で文を始めるクセ。
+同じ語で文が始まり続ける。
 
 #### AI版
 
@@ -384,9 +383,10 @@ This skill reviews from seven perspectives. It works in Japanese and English, an
     - 断定から反転に入っていないか確かめる
     - 物語の型で書き出していないか確かめる
 6. 3項目並列を探す
-    - 「3つの」
-    - 「three」
-    - 箇条書きの項目数が3の箇所
+    - 探す語
+        - `3つの`
+        - `three`
+    - 項目数が3の箇条書きを集める
 7. 段落ごとに文字数を数える
     - 分散が小さい箇所を集める
 8. 各段落の最終文を集める
@@ -394,4 +394,9 @@ This skill reviews from seven perspectives. It works in Japanese and English, an
     - 前後の文脈なしで成立する一文を集める
 9. 各文の文頭を集める
     - 同じ語が繰り返されていないか確かめる
-10. 生年、地名、肩書き、評価が1文に並んでいる箇所を集める
+10. 1文に並んでいる箇所を集める
+    - 探すもの
+        - 生年
+        - 地名
+        - 肩書き
+        - 評価

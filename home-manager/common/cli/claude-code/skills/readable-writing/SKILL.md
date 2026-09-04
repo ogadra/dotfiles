@@ -4,7 +4,9 @@ description: 文章を書くときに使う。既にある文章を渡された�
 allowed-tools: Bash(bash ~/.claude/skills/readable-writing/scripts/review.sh:*), Bash(mktemp:*), Read, Edit, Write, Glob, Grep, AskUserQuestion
 metadata:
   trigger:
-    action: 作成と修正
+    action:
+      - 作成
+      - 修正
     target:
       - 技術文書
       - README
@@ -13,7 +15,9 @@ metadata:
       - コード内コメント
       - 実装計画書
       - 設計書
-  language: ja, en
+  language:
+    - ja
+    - en
 ---
 
 # Readable Writing
@@ -44,7 +48,7 @@ metadata:
 
 ### 1. 対象の確定
 
-レビュー対象を次で決める。`$1` が起点
+`$1` を起点にする
 
 - ファイルパスの場合
     - そのパスを使う
@@ -62,7 +66,7 @@ metadata:
 - ユーザーが渡さなかった場合
     - 対象を聞く
 
-### 2. 並列レビューの実行
+### 2. レビューの実行
 
 ```bash
 bash ~/.claude/skills/readable-writing/scripts/review.sh <ファイルパス>
@@ -72,7 +76,8 @@ bash ~/.claude/skills/readable-writing/scripts/review.sh <ファイルパス>
 
 - 重複の統合
     - 同じ `quote` についての指摘は1件にする
-- 同一ファイルへの修正は行番号昇順にまとめる
+- 修正の並び順
+    - 同一ファイル内は行番号の昇順
 - 指摘の採否
     - 捨てる
         - `quote` が本文に実在しないもの
@@ -96,14 +101,14 @@ bash ~/.claude/skills/readable-writing/scripts/review.sh <ファイルパス>
 - 同一段落への修正が複数ある場合
     - 段落ごとにまとめて書き換える
 - 修正の順序
-    1. 下記の指摘を直す
+    1. 先に直す
         - 立場
         - 主体
-    2. 下記の指摘で段落を組み直す
+    2. 段落を組み直す
         - 箇条書き
         - 文書構成
         - 修辞
-    3. 下記の指摘が本文に残っているか確かめる
+    3. 本文に残っていないか確かめる
         - 語彙
         - 記号
 - 書き換えるとき

@@ -1,7 +1,5 @@
 # Stance
 
-English phrasings for what the writer is taking on.
-
 ## What to find
 
 ### Claims you can't argue with
@@ -78,7 +76,11 @@ Say `Don't do X`. If you know the breaking point, name it.
 - `never do this`
 - `by far the best`
 
-Real results read like "12 minutes down to 3", "within noise", or "it flipped under load".
+Write what you measured:
+
+- `12 minutes down to 3`
+- `within noise`
+- `it flipped under load`
 
 #### Before
 
@@ -119,7 +121,7 @@ This took our median review wait from two days to half a day, measured over 120 
 - `it seems that`
 - `arguably`
 
-Write the scope you're claiming instead of hedging the claim.
+Write the scope you're claiming.
 
 | Avoid | Use instead |
 |---|---|

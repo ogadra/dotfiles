@@ -11,11 +11,17 @@ AIが書いた文章特有の読みにくさを解消するClaude Skill。
 - コード内コメント
 - 実装計画書
 
-`scripts/review.sh` が観点ごとに `claude -p` を並列で起動する。集まった指摘は同じセッションで直し、修正後の文章だけを返す。
+`scripts/review.sh` が観点ごとに `claude -p` を並列で起動する。集まった指摘は、スキルを呼んだClaudeが同じセッションで直し、修正後の文章だけを返す。
 
 ## 由来
 
-日本語のパターンは[iKora128/stop-ai-slop-jp](https://github.com/iKora128/stop-ai-slop-jp)、英語のパターンは[hardikpandya/stop-slop](https://github.com/hardikpandya/stop-slop)をベースに改変。どちらもMIT。
+ベースにしたもの。
+
+- 日本語のパターン
+    - [iKora128/stop-ai-slop-jp](https://github.com/iKora128/stop-ai-slop-jp)
+- 英語のパターン
+    - [hardikpandya/stop-slop](https://github.com/hardikpandya/stop-slop)
+- どちらもMIT
 
 ## 構成
 
@@ -53,7 +59,7 @@ policies/
     └── symbols.md
 ```
 
-## 動作
+## ポリシーの選択
 
 `review.sh` が言語を判定し、該当ファイルの中身をプロンプトに埋め込む。
 
@@ -72,7 +78,7 @@ policies/
 
 | 直したいもの | 触るファイル |
 |---|---|
-| 特定の語を禁止したい | `scripts/rules/<lang>.pl` の `@LITERAL` |
+| 禁止する語 | `scripts/rules/<lang>.pl` の `@LITERAL` |
 | 系統ごとの出現回数で見る語 | `scripts/rules/ja.pl` の `@FAMILY` |
 | 何を指摘し何を見送るか | `prompts/judgement.md` |
 | findingsの各フィールドの中身 | `prompts/fields.md` |

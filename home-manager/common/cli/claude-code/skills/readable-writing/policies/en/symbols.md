@@ -1,17 +1,14 @@
 # Symbols
 
-Symbols specific to English.
-
 ## What to find
 
 ### Scare quotes
 
-Adjectives and judgments wrapped in quotes.
+You wrap an adjective or a judgment in quotes.
 
 | Avoid | Use instead |
 |---|---|
-| an "ascetic" API | a stripped-down API |
-| the "truth" we found | what we found |
 | a "simple" fix | a two-line fix |
+| the "truth" we found | what we found |
 
-Quotes are for proper nouns and direct quotation.
+Use quotes only for proper nouns and direct quotation.

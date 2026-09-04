@@ -6,7 +6,7 @@ English phrasings for who did what.
 
 ### False agency
 
-Inanimate things taking human verbs. Someone reads the complaint, files the ticket, and merges the patch.
+Inanimate things taking human verbs.
 
 | Avoid | Use instead |
 |---|---|
@@ -30,42 +30,45 @@ Inanimate things taking human verbs. Someone reads the complaint, files the tick
 
 ### Narrator from a distance
 
-Floating above the scene instead of putting the reader in it.
+The writer describes the scene from above, so the reader never stands in it.
 
 | Avoid | Use instead |
 |---|---|
-| Nobody designed this. | You don't sit down one day and decide to... |
+| Nobody designed this. | Someone took the shortcut under a deadline, and it stayed |
 | This happens because... | Name the mechanism you saw |
 | This is why... | Name the mechanism you saw |
-| People tend to... | You do this too |
-| Teams often... | On my team, we... |
 
 ### Missing first person
 
 | Avoid | Use instead |
 |---|---|
+| People tend to... | You do this too |
+| Teams often... | On my team, we... |
 | Many engineers struggle with X | I've been stuck on X for months |
 | Feedback prioritization matters in product work | Three people complained about the same button last year |
 
 ## How to find them
 
-1. Read every sentence subject
+1. Read each sentence subject
     - Collect the ones where an inanimate noun takes an active verb
 2. Search for these, followed by a past participle
-    - `was`
-    - `were`
-    - `is being`
+    - Search terms
+        - `was`
+        - `were`
+        - `is being`
     - Check whether the actor appears in the text
 3. Search for these
-    - `people`
-    - `everyone`
-    - `nobody`
-    - `teams`
-    - `we`
-    - Check whether each can name someone specific
+    - Search terms
+        - `people`
+        - `everyone`
+        - `nobody`
+        - `teams`
+        - `we`
+    - Check whether you can name someone specific for each
 4. Search for these
-    - `many engineers`
-    - `developers`
-    - `matters in`
-    - `is important`
-    - Check whether the sentence can be replaced with something the writer did on a named day
+    - Search terms
+        - `many engineers`
+        - `developers`
+        - `matters in`
+        - `is important`
+    - Check whether you can replace the sentence with something the writer did on a named day

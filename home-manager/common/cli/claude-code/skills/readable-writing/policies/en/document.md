@@ -9,7 +9,7 @@
 | Why We Chose X | Reasons for picking X |
 | What X Taught Us About Y | What we found in the X outage |
 | X Dies the Moment You Lose Y | Impact of removing Y |
-| Three Principles From the Trenches | What we changed after running it |
+| Three Principles From the Trenches | Rules we follow now |
 | How X Solves Y | X and Y |
 
 ### Announcing the structure
@@ -30,7 +30,7 @@
 | We chose not to use a NAT gateway | Delete |
 | We don't send the token in the query string | The client sends the token in the `Authorization` header |
 | CloudTrail has no record of `DisassociateAddress` | Keep |
-| The API can't tell you whether an ENI is live | Keep |
+| You can't find out from the API whether an ENI is live | Keep |
 
 #### Before
 
@@ -56,9 +56,7 @@
 - READMEs
 ```
 
-### Bold headings and out-of-scope together
-
-The head of a design document.
+### Bold headings and out-of-scope at the head of a design document
 
 #### Before
 
