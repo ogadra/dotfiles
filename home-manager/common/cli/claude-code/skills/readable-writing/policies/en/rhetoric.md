@@ -1,24 +1,22 @@
 # Rhetoric
 
-English forms and examples for how you arrange sentences.
-
-## What to find
+## Forms to find
 
 ### Binary contrasts
 
-| Pattern | Problem |
+| Pattern | Fix |
 |---|---|
-| "Not because X. Because Y." | Telegraphed reversal |
-| "[X] isn't the problem. [Y] is." | Formulaic reframe |
-| "The answer isn't X. It's Y." | Predictable pivot |
-| "It feels like X. It's actually Y." | Setup/reveal cliche |
-| "The question isn't X. It's Y." | Rhetorical misdirection |
-| "Not X. But Y." | Mechanical contrast |
-| "It's not this. It's that." | Same formula, different words |
-| "stops being X and starts being Y" | False transformation arc |
-| "doesn't mean X, but actually Y" | Negation-then-assertion crutch |
-| "is about X but not Y" | False distinction |
-| "not just X but also Y" | Additive hedge |
+| "Not because X. Because Y." | "Because Y." |
+| "[X] isn't the problem. [Y] is." | "[Y] is the problem." |
+| "The answer isn't X. It's Y." | "The answer is Y." |
+| "It feels like X. It's actually Y." | "It's Y." |
+| "The question isn't X. It's Y." | "The question is Y." |
+| "Not X. But Y." | "Y." |
+| "It's not this. It's that." | "It's that." |
+| "stops being X and starts being Y" | "becomes Y" |
+| "doesn't mean X, but actually Y" | "means Y" |
+| "is about X but not Y" | "is about X" |
+| "not just X but also Y" | "X and Y" |
 
 #### Before
 
@@ -45,7 +43,7 @@ The best teams optimize for learning.
 |---|---|
 | "[Noun]. That's it. That's the [thing]." | Write the complete sentence |
 | "X. And Y. And Z." | Write the complete sentence |
-| "This unlocks something. [Word]." | Name what it unlocks |
+| "This unlocks something. [Word]." | Name what you can do next |
 
 #### Before
 
@@ -61,12 +59,12 @@ Speed, quality, cost: pick two.
 
 ### Rhetorical setups
 
-| Pattern | Problem |
+| Pattern | Fix |
 |---|---|
-| "What if [reframe]?" | Socratic posturing |
-| "Here's what I mean:" | Redundant preview |
-| "Think about it:" | Condescending prompt |
-| "And that's okay." | Unnecessary permission |
+| "What if [reframe]?" | Delete |
+| "Here's what I mean:" | Delete |
+| "Think about it:" | Delete |
+| "And that's okay." | Delete |
 
 #### Before
 
@@ -85,11 +83,11 @@ Teams struggle with alignment. Admitting confusion costs you status, so you stay
 | Pattern | Fix |
 |---|---|
 | "By the time X, I was Y." | Write what happened in order |
-| "X that isn't Y" | Name what's broken. "X is broken" |
+| "X that isn't Y" | Name what breaks it. "The retry loop drops the last error." |
 
 ### Three-item lists
 
-Search for `three ways`, `three reasons`, `three principles`. Cut to two or one.
+Search for `three` followed by a noun. Cut to two or one.
 
 #### Before
 
@@ -116,12 +114,22 @@ Search for `three ways`, `three reasons`, `three principles`. Cut to two or one.
 | Paragraphs end on a short punch line | Vary the length of the closing sentence |
 | "Not always. Not perfectly." | Delete |
 
-### Sentence starters
+### Sentence and paragraph starters
 
 | Pattern | Fix |
 |---|---|
-| Sentences starting with What, When, Where, Which, Who, Why, How | Lead with the subject or the verb |
+| Sentences starting with a question word | Lead with the subject or the verb |
 | Paragraphs starting with "So" | Start with content |
 | Sentences starting with "Look," | Remove |
+
+Question words to search for:
+
+- What
+- When
+- Where
+- Which
+- Who
+- Why
+- How
 
 Rewrite "What makes this hard is..." as "The constraint is...", then name the constraint.

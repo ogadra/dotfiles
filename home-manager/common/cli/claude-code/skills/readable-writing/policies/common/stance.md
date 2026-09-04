@@ -26,11 +26,13 @@ Putting a queue in front means jobs survive a worker restart.
 
 #### 修正の型
 
-何がどうしてそうなのかを書く。書けないなら、その文を削る。
+- 何がどうしてそうなのかを書く
+- 書けない場合
+    - その文を削る
 
 ### 結論の回避
 
-すべての立場を紹介してどれも選ばない形。
+すべての立場を紹介して、書き手はどれも選ばない。比較や技術選定でどれも肯定して終わる形も含む。
 
 #### AI版
 
@@ -39,24 +41,6 @@ REST、GraphQL、gRPCにはそれぞれ適した場面がある。要件とチ�
 
 REST, GraphQL, and gRPC each suit different situations. The right choice depends on your requirements and your team's familiarity.
 ```
-
-#### 修正版
-
-```
-RESTにした。クライアントが社内の2つだけで、スキーマの共有はOpenAPIで足りたからだ。
-
-We went with REST. There are only two internal clients, and sharing an OpenAPI schema was enough.
-```
-
-#### 修正の型
-
-選んだものを書く。選べないなら、その節ごと削る。
-
-### 全方位肯定
-
-比較や技術選定で、どれも肯定して終わる形。判断材料を出しているように読めるが、書き手は判断を放棄している。
-
-#### AI版
 
 ```
 Prismaは型安全で開発体験が良い。Drizzleは軽量でSQLに近い。TypeORMは実績が豊富だ。
@@ -67,6 +51,12 @@ Prisma is type-safe with a good developer experience. Drizzle is lightweight and
 #### 修正版
 
 ```
+RESTにした。クライアントが社内の2つだけで、スキーマの共有はOpenAPIで足りたからだ。
+
+We went with REST. There are only two internal clients, and sharing an OpenAPI schema was enough.
+```
+
+```
 Drizzleにした。Prismaも試したが、生成物のサイズがLambdaのデプロイ上限に当たった。
 
 We went with Drizzle. I tried Prisma too, but the generated client hit the Lambda deploy size limit.
@@ -74,11 +64,15 @@ We went with Drizzle. I tried Prisma too, but the generated client hit the Lambd
 
 #### 修正の型
 
-「これを選んだ」「これは試して駄目だった」を引き受ける。引き受けないなら、その節は要らない。
+- 選んだものを書く
+- 試して駄目だったもの
+    - 駄目だったと書く
+- どちらも書けない場合
+    - その節ごと削る
 
 ### 弱い否定
 
-やるなと言うべき場面で弱める形。
+やるなと言うべき場面で、書き手が言葉を弱めている。
 
 #### AI版
 
@@ -98,11 +92,17 @@ Don't run migrations directly against production.
 
 #### 修正の型
 
-やるな、禁止されている、と言い切る。破綻する条件が分かっているなら、その条件を書く。
+- やるな、と言い切る
+- 破綻する条件が分かっている場合
+    - その条件を書く
 
 ### 強度の振り切り
 
-書き手が評価を両極端に振り、中間の温度を書かない形。実際の検証結果は「12分が3分になった」「誤差の範囲だった」「条件によって逆転した」になる。
+書き手が評価を両極端に振り、中間の温度を書かない。実際の検証結果はこうなる。
+
+- `12分が3分になった`
+- `誤差の範囲だった`
+- `条件によって逆転した`
 
 #### AI版
 
@@ -126,12 +126,10 @@ Caching took the first build from nine minutes to three. Later builds were alrea
     - 数字で書く
 - 数字を出せない場合
     - 控えめに書く
-- 本当に差が大きい場合
-    - 強い言葉を使う
 
 ### 根拠のない強い評価
 
-評価だけを置いて、その根拠を添えない形。
+評価だけを置いて、根拠を添えていない。
 
 #### AI版
 
@@ -151,11 +149,13 @@ This implementation doesn't drop unprocessed jobs when a worker dies. It's been 
 
 #### 修正の型
 
-評価の直後に、そう言える根拠を1つ置く。置けないなら評価を削る。
+- 評価の直後に、そう言える根拠を1つ置く
+- 置けない場合
+    - 評価を削る
 
 ### ヘッジの重ね掛け
 
-1つの段落に保険を複数重ねる形。
+1つの段落に、書き手が保険を2つも3つも重ねている。
 
 #### AI版
 
@@ -179,7 +179,7 @@ I've confirmed this works up to a hundred thousand jobs a day. I haven't tried m
 
 ### 儀式化した免責
 
-各節の最後に保険文を置く形。
+節の終わりごとに保険文を足している。
 
 #### AI版
 
@@ -223,7 +223,7 @@ We retry up to three times. I picked that from a workload of a hundred thousand 
 
 #### 修正の型
 
-必要な保留は1つの文書に1回か2回まで。各節末に置かない。
+必要な保留は1つの文書に1回か2回まで。
 
 ## 検出手順
 
@@ -239,6 +239,6 @@ We retry up to three times. I picked that from a workload of a hundred thousand 
 5. 比較を含む節を集める
     - 書き手が何を選んだかが書かれているか確かめる
 6. 禁止を伝える文を集める
-    - 否定が弱められていないか確かめる
+    - 書き手が否定を弱めていないか確かめる
 7. 極端な評価語を集める
     - 数字に置き換えられるか確かめる
