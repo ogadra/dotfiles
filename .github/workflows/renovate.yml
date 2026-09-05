@@ -19,3 +19,4 @@ jobs:
           renovate-version: 44.61.6
         env:
           RENOVATE_REPOSITORIES: ${{ github.repository }}
+          RENOVATE_ALLOWED_COMMANDS: '["^bash \\.github/renovate/update-orca-hashes\\.sh$"]'

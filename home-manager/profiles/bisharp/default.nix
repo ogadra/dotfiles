@@ -6,6 +6,7 @@ let
     ../../common/apps/discord
     ../../common/apps/editor
     ../../common/apps/obs
+    ../../common/apps/orca
     ../../common/apps/spotify
     ../../common/apps/terminal
   ];

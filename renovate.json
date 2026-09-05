@@ -21,6 +21,15 @@
       "matchStrings": ["renovate-version: (?<currentValue>\\S+)"],
       "datasourceTemplate": "docker",
       "depNameTemplate": "ghcr.io/renovatebot/renovate"
+    },
+    {
+      "customType": "regex",
+      "description": "Track the Orca release pinned in the Orca app module",
+      "managerFilePatterns": ["home-manager/common/apps/orca/default.nix"],
+      "matchStrings": ["version = \"(?<currentValue>[^\"]+)\";"],
+      "datasourceTemplate": "github-releases",
+      "depNameTemplate": "stablyai/orca",
+      "extractVersionTemplate": "^v(?<version>.+)$"
     }
   ],
   "packageRules": [
@@ -28,6 +37,14 @@
       "matchManagers": ["nix"],
       "automerge": false,
       "groupName": "nix flake inputs"
+    },
+    {
+      "matchDepNames": ["stablyai/orca"],
+      "postUpgradeTasks": {
+        "commands": ["bash .github/renovate/update-orca-hashes.sh"],
+        "fileFilters": ["home-manager/common/apps/orca/default.nix"],
+        "executionMode": "update"
+      }
     }
   ]
 }
