@@ -20,6 +20,11 @@ skill_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 policies="$skill_dir/policies"
 prompts="$skill_dir/prompts"
 
+run_id="$(date -u +%Y%m%d-%H%M%S)-$$"
+now="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+log_dir="${XDG_STATE_HOME:-${HOME:-/tmp}/.local/state}/readable-writing"
+log="$log_dir/findings.tsv"
+
 # 文書の言語を判定して渡すポリシーを決める。日英が混ざる文書には両方を渡す。
 lang_dirs=$(nix run nixpkgs#perl -- -CSD -ne '
     if (/\p{Hiragana}|\p{Katakana}|\p{Han}/) {
@@ -52,7 +57,7 @@ trap 'rm -rf "$tmp"' EXIT
 awk '{ printf "%d\t%s\n", NR, $0 }' "$target" > "$tmp/numbered"
 
 nix run nixpkgs#perl -- "$skill_dir/scripts/mechanical.pl" "$lang_dirs" "$target" \
-    | jq --arg f "$target" 'map({file: $f} + .)' > "$tmp/json.mechanical"
+    | jq --arg f "$target" 'map({file: $f, source: "mechanical"} + .)' > "$tmp/json.mechanical"
 
 policy_files() {
     local key=$1 dir file
@@ -156,11 +161,28 @@ for entry in $running; do
     key=${entry#*:}; key=${key%%:*}
     name=${entry##*:}
     jq --arg p "$name" --arg f "$target" \
-        '.findings | map({file: $f, perspective: $p} + .)' "$tmp/out.$key" > "$tmp/json.$key" || {
+        '.findings | map({file: $f, source: "llm", perspective: $p} + .)' "$tmp/out.$key" > "$tmp/json.$key" || {
             echo "review.sh: $key returned output that does not match the schema" >&2
             cat "$tmp/out.$key" "$tmp/err.$key" >&2
             exit 1
         }
 done
 
-jq -s 'add | sort_by(.line | tostring | capture("(?<n>[0-9]+)").n | tonumber)' "$tmp"/json.*
+# 列を増やすときは末尾に足す。
+log_findings() {
+    mkdir -p "$log_dir" || return 1
+    jq -r --arg time "$now" --arg run "$run_id" --arg target "$target" --arg lang "$lang_dirs" '
+        .[] | [$time, $run, $target, $lang,
+               .source, .perspective, .category,
+               (.line | tostring), .quote, .problem] | @tsv' \
+        "$tmp/merged.json" > "$tmp/records.tsv" || return 1
+    # jqから直接追記すると4KiBごとに書き込みが割れて、並行する実行と混ざる。
+    cat "$tmp/records.tsv" >> "$log"
+}
+
+jq -s 'add | sort_by(.line | tostring | capture("(?<n>[0-9]+)").n | tonumber)' \
+    "$tmp"/json.* > "$tmp/merged.json"
+
+cat "$tmp/merged.json"
+
+log_findings || echo "review.sh: failed to write $log" >&2

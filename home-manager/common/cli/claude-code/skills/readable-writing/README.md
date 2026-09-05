@@ -74,6 +74,15 @@ policies/
     - `ja/`
     - `en/`
 
+## 指摘のログ
+
+`review.sh` は出した指摘を `${XDG_STATE_HOME:-~/.local/state}/readable-writing/findings.tsv` に追記する。実行をまたいで積むので、どのルールを何回使ったかを自分で数えられる。
+
+1指摘1行のTSV。ヘッダ行はない。列は `review.sh` の `log_findings` にある。
+
+- 残るのは `review.sh` が出した指摘だけ
+- 肥大したら自分で切る
+
 ## ルールの追加と修正
 
 | 直したいもの | 触るファイル |
