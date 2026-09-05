@@ -41,7 +41,7 @@
     {
       "matchDepNames": ["stablyai/orca"],
       "postUpgradeTasks": {
-        "commands": ["bash .github/renovate/update-orca-hashes.sh"],
+        "commands": ["bash .github/scripts/update-orca-hashes.sh"],
         "fileFilters": ["home-manager/common/apps/orca/default.nix"],
         "executionMode": "update"
       }
