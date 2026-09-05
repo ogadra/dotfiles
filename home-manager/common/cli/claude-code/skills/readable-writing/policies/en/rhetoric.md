@@ -1,22 +1,31 @@
 # Rhetoric
 
-## Forms to find
+## What to find
 
 ### Binary contrasts
 
-| Pattern | Fix |
-|---|---|
-| "Not because X. Because Y." | "Because Y." |
-| "[X] isn't the problem. [Y] is." | "[Y] is the problem." |
-| "The answer isn't X. It's Y." | "The answer is Y." |
-| "It feels like X. It's actually Y." | "It's Y." |
-| "The question isn't X. It's Y." | "The question is Y." |
-| "Not X. But Y." | "Y." |
-| "It's not this. It's that." | "It's that." |
-| "stops being X and starts being Y" | "becomes Y" |
-| "doesn't mean X, but actually Y" | "means Y" |
-| "is about X but not Y" | "is about X" |
-| "not just X but also Y" | "X and Y" |
+- "Not because X. Because Y."
+    - "Because Y."
+- "[X] isn't the problem. [Y] is."
+    - "[Y] is the problem."
+- "The answer isn't X. It's Y."
+    - "The answer is Y."
+- "It feels like X. It's actually Y."
+    - "It's Y."
+- "The question isn't X. It's Y."
+    - "The question is Y."
+- "Not X. But Y."
+    - "Y."
+- "It's not this. It's that."
+    - "It's that."
+- "stops being X and starts being Y"
+    - "becomes Y"
+- "doesn't mean X, but actually Y"
+    - "means Y"
+- "is about X but not Y"
+    - "is about X"
+- "not just X but also Y"
+    - "X and Y"
 
 #### Before
 
@@ -32,18 +41,19 @@ The best teams optimize for learning.
 
 ### Negative listing
 
-| Pattern | Fix |
-|---|---|
-| "Not a X... Not a Y... A Z." | "It's Z." |
-| "It wasn't X. It wasn't Y. It was Z." | "It was Z." |
+- "Not a X... Not a Y... A Z."
+    - "It's Z."
+- "It wasn't X. It wasn't Y. It was Z."
+    - "It was Z."
 
 ### Dramatic fragmentation
 
-| Pattern | Fix |
-|---|---|
-| "[Noun]. That's it. That's the [thing]." | Write the complete sentence |
-| "X. And Y. And Z." | Write the complete sentence |
-| "This unlocks something. [Word]." | Name what you can do next |
+- "[Noun]. That's it. That's the [thing]."
+    - Write the complete sentence
+- "X. And Y. And Z."
+    - Write the complete sentence
+- "This unlocks something. [Word]."
+    - Name what you can do next
 
 #### Before
 
@@ -59,12 +69,14 @@ Speed, quality, cost: pick two.
 
 ### Rhetorical setups
 
-| Pattern | Fix |
-|---|---|
-| "What if [reframe]?" | Delete |
-| "Here's what I mean:" | Delete |
-| "Think about it:" | Delete |
-| "And that's okay." | Delete |
+- "What if [reframe]?"
+    - Delete
+- "Here's what I mean:"
+    - Delete
+- "Think about it:"
+    - Delete
+- "And that's okay."
+    - Delete
 
 #### Before
 
@@ -80,19 +92,21 @@ Teams struggle with alignment. Admitting confusion costs you status, so you stay
 
 ### Formulaic constructions
 
-| Pattern | Fix |
-|---|---|
-| "By the time X, I was Y." | Write what happened in order |
-| "X that isn't Y" | Name what breaks it. "The retry loop drops the last error." |
+- "By the time X, I was Y."
+    - Write what happened in order
+- "X that isn't Y"
+    - Name what breaks it
+        - "The retry loop drops the last error."
 
 ### Three-item lists
 
 Search for `three` followed by a noun.
 
-| Pattern | Fix |
-|---|---|
-| A heading announcing the count | Drop the count from the heading |
-| Three items listed | Check that all three say something different, cut the ones that overlap |
+- A heading announcing the count
+    - Drop the count from the heading
+- Three items listed
+    - Check that all three say something different
+    - Cut the ones that overlap
 
 #### Before
 
@@ -114,18 +128,19 @@ Search for `three` followed by a noun.
 
 ### Uniform paragraph endings
 
-| Pattern | Fix |
-|---|---|
-| Paragraphs end on a short punch line | Vary the length of the closing sentence |
-| "Not always. Not perfectly." | Delete |
+- Paragraphs end on a short punch line
+    - Vary the length of the closing sentence
+- "Not always. Not perfectly."
+    - Delete
 
 ### Sentence and paragraph starters
 
-| Pattern | Fix |
-|---|---|
-| Body sentences starting with a question word | Lead with the subject or the verb |
-| Paragraphs starting with "So" | Start with content |
-| Sentences starting with "Look," | Remove |
+- Body sentences starting with a question word
+    - Lead with the subject or the verb
+- Paragraphs starting with "So"
+    - Start with content
+- Sentences starting with "Look,"
+    - Remove
 
 Question words to search for:
 

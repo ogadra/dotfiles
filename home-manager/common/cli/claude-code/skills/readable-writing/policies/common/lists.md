@@ -300,7 +300,7 @@ First, make ownership explicit. Second, review on a schedule. Third, build a way
     - 1項目に条件と処置の両方を書いていないか確かめる
 3. 第1階層の項目を集める
     - 理由や補足が第1階層に紛れていないか確かめる
-4. 順序を示す接続語を検索する
+4. 順序を示す接続語を探す
     - 探す語
         - `第一に`
         - `第二に`
