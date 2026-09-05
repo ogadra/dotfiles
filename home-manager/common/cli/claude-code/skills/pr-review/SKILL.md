@@ -151,13 +151,12 @@ REJECTが1件でもあれば末尾に `判定: REJECT` を追記する。すべ�
 - 1問あたり `options` は最大4件
 - 1回の呼び出しで `questions` は最大4問
     - 1画面に最大16件並べられる
-- findingsをseverity順に4件ずつのグループに分割し、各グループを1問として並べる
+- findingsを番号順に4件ずつのグループに分割し、各グループを1問として並べる
     - `question` の例
         - グループ1: 対応する指摘を選択してください
     - `header` は「対応対象」で統一する
     - 16件に収まらない分
-        - severity=REJECTを先に出す
-        - REJECTの対応後にWarning用のAskUserQuestionをもう一度出す
+        - 続きを番号順にAskUserQuestionでもう一度出す
 - 各optionに入れる値
     - `label`: `F<番号>: <file>:<line>`
     - `description`: `[severity][所見: 対応すべき/不要/保留] <problemの要約>`
@@ -201,7 +200,7 @@ REJECTが1件でもあれば末尾に `判定: REJECT` を追記する。すべ�
     - 対応した内容を本文に列挙する
 - コミットメッセージには何を直したかを書く
     - `F1` のようなfinding番号は書かない
-- 追加のプッシュはユーザーに確認してから行う
+- 追加のプッシュは `AskUserQuestion` でユーザーに確認してから行う
 
 ### 9. まとめの出力
 
