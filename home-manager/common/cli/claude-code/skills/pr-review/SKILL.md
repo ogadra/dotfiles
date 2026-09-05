@@ -6,11 +6,14 @@ allowed-tools: Bash(gh pr view:*), Bash(gh pr diff:*), Bash(gh pr list:*), Bash(
 
 # PR Review
 
-引数として渡されたPR番号のコードレビューを、複数観点のサブエージェントに並列実行させ、結果を統合して**指摘のみ**を出力する。良い点や要約は出力しない。出力後、どの指摘に対応するかをユーザーにチェックボックスで選ばせ、選ばれたものを同じセッションで修正する。
+引数として渡されたPR番号のコードレビューを、複数観点のサブエージェントに並列実行させ、結果を統合して指摘だけを出力する。出力後、どの指摘に対応するかをユーザーにチェックボックスで選ばせ、選ばれたものを同じセッションで修正する。
 
 ## 引数
 
-- `$1`: PR番号 (必須)。渡されない場合はユーザーに確認する。
+- `$1`: PR番号
+    - 必須
+    - 渡されない場合
+        - ユーザーに確認する
 
 ## 手順
 
@@ -23,15 +26,17 @@ gh pr view <PR番号> --json number,title,body,headRefName,baseRefName,author,fi
 gh pr diff <PR番号>
 ```
 
-diffが大きい場合でも切り詰めない。全diffをレビュー対象にする。
+diffは大きくても全部をレビュー対象にする。
 
 ### 2. 並列レビューの実行
 
-Agentツールを **同一メッセージ内で7個並列に** 呼び出す。各サブエージェントに以下を渡す。
+Agentツールを同一メッセージ内で7個並列に呼び出す。各サブエージェントに以下を渡す。
 
-- PRタイトルと本文
+- PRタイトル
+- PR本文
 - 完全なdiff
-- 担当観点とポリシーファイルの絶対パス
+- 担当観点
+- ポリシーファイルの絶対パス
 - 出力フォーマット指定
 
 サブエージェントの `subagent_type` は `general-purpose` を使う。
@@ -42,13 +47,13 @@ Agentツールを **同一メッセージ内で7個並列に** 呼び出す。�
 
 | 観点 | ポリシーファイル |
 |------|-----------------|
-| absolute-rules | `~/.claude/skills/pr-review/policies/absolute-rules.md` |
-| stop-slop | `~/.claude/skills/pr-review/policies/stop-slop.md` |
-| security | `~/.claude/skills/pr-review/policies/security.md` |
-| architecture | `~/.claude/skills/pr-review/policies/architecture.md` |
-| code-quality | `~/.claude/skills/pr-review/policies/code-quality.md` |
-| testing | `~/.claude/skills/pr-review/policies/testing.md` |
-| ai-antipattern | `~/.claude/skills/pr-review/policies/ai-antipattern.md` |
+| absolute-rules | `absolute-rules.md` |
+| stop-slop | `stop-slop.md` |
+| security | `security.md` |
+| architecture | `architecture.md` |
+| code-quality | `code-quality.md` |
+| testing | `testing.md` |
+| ai-antipattern | `ai-antipattern.md` |
 
 #### サブエージェントへのプロンプトテンプレート
 
@@ -86,7 +91,7 @@ Agentツールを **同一メッセージ内で7個並列に** 呼び出す。�
 ]
 ```
 
-- ファイル・行番号はdiffから実在する箇所を必ず示す。曖昧な指摘は禁止。
+- ファイルと行番号はdiffから実在する箇所を必ず示す。
 - 推測ではなく、diffの実コードで確認できた事実だけを指摘する。
 - 担当観点の外の問題は指摘しない。
 - 3件以上の同種指摘は代表1件にまとめて他該当行を列挙する。
@@ -96,15 +101,30 @@ Agentツールを **同一メッセージ内で7個並列に** 呼び出す。�
 
 7つのサブエージェントから返ったfindingsをマージする。
 
-- 同一 (file, line, problem) の重複は1件に統合する。統合時は `perspectives` に元の観点名を列挙する。
-- 重複していない場合も、どの観点から出た指摘かをタグ付けする。
-- 並び順はseverity (REJECT → Warning) → ファイルパス昇順 → 行番号昇順。
-- 各指摘に **通し番号** (`F1`, `F2`, ...) を付ける。以降の選択と修正フェーズでこの番号を使う。
-- 各指摘に対して **対応要否の所見** を付ける。「対応すべき」「対応不要」「判断保留」のいずれかと、その理由と対応方針を1-2文で書く。必要なら該当ファイルをReadで開いて現状を確認してから判断する。所見はレビュアーの指摘を鵜呑みにせず、自分で妥当性を検証した結果を書く。
+- 同一の file, line, problem をもつ重複
+    - 1件に統合する
+    - `perspectives` に元の観点名を列挙する
+- 重複していない指摘
+    - どの観点から出たかをタグ付けする
+- 並び順
+    - severity
+        - REJECT
+        - Warning
+    - ファイルパス昇順
+    - 行番号昇順
+- 各指摘に `F1`, `F2` のような通し番号を付ける
+    - 以降の選択と修正フェーズでこの番号を使う
+- 各指摘に対応要否の所見を付ける
+    - 「対応すべき」
+    - 「対応不要」
+    - 「判断保留」
+    - 理由と対応方針を1-2文で書く
+    - 必要なら該当ファイルをReadで開いて現状を確認してから判断する
+    - 自分で妥当性を検証した結果を書く
 
 ### 4. 出力フォーマット
 
-Markdownで以下の形式で出力する。指摘が0件なら「指摘なし」とだけ書き、そのまま終了する (以降のフェーズには進まない)。前置きは書かない。
+Markdownで以下の形式で出力する。指摘が0件なら「指摘なし」とだけ書いて終了する。前置きは書かない。
 
 ```markdown
 ## REJECT
@@ -126,21 +146,27 @@ REJECTが1件でもあれば末尾に `判定: REJECT` を追記する。すべ�
 
 ### 5. 対応する指摘の選択
 
-ステップ4の出力 (所見付き) を提示したあと、`AskUserQuestion` を **multiSelect: true** で呼び出し、対応する指摘をユーザーに選ばせる。
+所見を付けたステップ4の出力を提示したあと、`AskUserQuestion` をmultiSelect: trueで呼び出し、対応する指摘をユーザーに選ばせる。
 
-- 1問あたり `options` は最大4件、1回の呼び出しで `questions` は最大4問。つまり最大16件まで1画面に並べられる。
-- findings をseverity順に4件ずつのグループに分割し、各グループを1問として並べる (`question`: 「グループ1: 対応する指摘を選択してください」など)。`header` は「対応対象」で統一。
-- 各 option の `label` は `F<番号>: <file>:<line>`、`description` に `[severity][所見: 対応すべき/不要/保留] <problem の要約>` を入れる。
-- 所見を番号順に列挙する。
-- findings が16件を超える場合は、まず severity=REJECT のみを対象に AskUserQuestion し、REJECT対応後にWarning用の AskUserQuestion をもう一度出す。
+- 1問あたり `options` は最大4件
+- 1回の呼び出しで `questions` は最大4問
+    - 1画面に最大16件並べられる
+- findingsを番号順に4件ずつのグループに分割し、各グループを1問として並べる
+    - `question` の例
+        - グループ1: 対応する指摘を選択してください
+    - `header` は「対応対象」で統一する
+    - 16件に収まらない分
+        - 続きを番号順にAskUserQuestionでもう一度出す
+- 各optionに入れる値
+    - `label`: `F<番号>: <file>:<line>`
+    - `description`: `[severity][所見: 対応すべき/不要/保留] <problemの要約>`
+- 所見を番号順に列挙する
 
 ユーザーが1件も選ばなければ「対応対象なし」と1行だけ返して終了する。
 
 ### 6. PRブランチの準備
 
-修正に入る前に、作業ディレクトリを確定させる。
-
-1. `git worktree list` で、対象PRのブランチがチェックアウトされたローカルworktreeを探す。
+1. `git worktree list` で、対象PRのブランチをチェックアウトしてあるローカルworktreeを探す。
   - worktreeがある場合
     - そのworktreeの絶対パスを作業ディレクトリとする。
   - worktreeがない場合
@@ -149,21 +175,32 @@ REJECTが1件でもあれば末尾に `判定: REJECT` を追記する。すべ�
 
 ### 7. 選択された指摘の修正
 
-選ばれた各findingについて次を行う。findingsは独立とは限らないため、同一ファイルへの変更は順番に、依存があれば依存順に処理する。
+同一ファイルへの変更は順番に、依存があれば依存順に処理する。
 
-- 修正はすべてステップ6で確定した作業ディレクトリ内のファイルに対して行う。worktreeで作業する場合、Read/Edit にはworktree配下の絶対パスを使う。
-- finding の内容と対象ファイル/行を確認する。必要ならファイルを Read で開き、diff との整合を取る。
-- **潜在的なバグ (severity: REJECT の security / code-quality / testing カテゴリなど) の場合**: まず落ちるテストを書いてテストが失敗することを確認してから修正する (t-wada TDD Style)。
-- **それ以外の場合**: 直接コードを修正する。
-- テストを実行する。
+- 修正はすべてステップ6で確定したworktree配下の絶対パスで行う
+    - Read/Editにも同じパスを使う
+- findingの内容と対象ファイル、行を確認する
+    - 必要ならファイルをReadで開き、diffとの整合を取る
+- 潜在的なバグの場合
+    - 対象はseverity: REJECTのsecurity / code-quality / testingカテゴリなど
+    - まず落ちるテストを書き、失敗することを確認してから修正する
+        - t-wada TDD Style
+- それ以外の場合
+    - 直接コードを修正する
+- テストを実行する
 
 ### 8. コミットとプッシュ
 
-- git操作はすべてステップ6の作業ディレクトリに対して行う。worktreeなので `git -C <worktree絶対パス>` を付ける。
-- `git status` と `git diff` で意図した変更のみが含まれているか確認する。
-- `git add` で対象ファイルを指定して stage する (`-A` や `.` は使わない)。
-- `nix develop -c git commit` でコミットする。メッセージは conventional commit (英語) で、対応した finding 番号を本文に列挙する。
-- 追加のプッシュはユーザーに確認してから行う。
+- git操作はすべてステップ6の作業ディレクトリに対して行う
+    - `git -C <worktree絶対パス>` を付ける
+- `git status` と `git diff` で意図した変更のみが含まれているか確認する
+- `git add` で対象ファイルを指定してstageする
+- `nix develop -c git commit` でコミットする
+    - メッセージは英語のconventional commitで書く
+    - 対応した内容を本文に列挙する
+- コミットメッセージには何を直したかを書く
+    - `F1` のようなfinding番号は書かない
+- 追加のプッシュは `AskUserQuestion` でユーザーに確認してから行う
 
 ### 9. まとめの出力
 
@@ -180,9 +217,11 @@ REJECTが1件でもあれば末尾に `判定: REJECT` を追記する。すべ�
 
 ## 注意
 
-- `severity` の判定はポリシーファイルの表に従わせる。統合時にサブエージェントの判断を上書きしない。
-- ポリシー本文が日本語なので、指摘も日本語で書く。
-- 変更ファイル外の既存問題はWarning扱いにする。
-- diffに登場しない行の推測指摘は禁止する。ファクトチェックが必要な場合は該当ファイルをReadで開いてから指摘する。
-- 修正フェーズでは、指摘に書かれた `fix` を **そのまま実装しない**。ファイルの現状を Read してから、現状に合う最小の変更を実装する。
-- 「対応不要」と判断した finding があれば、まとめの「未対応」欄にその理由を1行で書く。
+- `severity` の判定はポリシーファイルの表に従わせる
+- ポリシー本文が日本語なので、指摘も日本語で書く
+- 変更ファイル外の既存問題はWarning扱いにする
+- diffに登場しない行の推測指摘は禁止する
+    - ファクトチェックが必要な場合は該当ファイルをReadで開いてから指摘する
+- 修正フェーズでは、ファイルの現状をReadしてから、現状に合う最小の変更を実装する
+- 「対応不要」と判断したfinding
+    - まとめの「未対応」欄にその理由を1行で書く
