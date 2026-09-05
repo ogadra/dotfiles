@@ -31,7 +31,11 @@ Since we moved to this architecture, adding a feature touches one file instead o
 - 具体的な誰かが分かる場合
     - その人を主語にする
 - 特定の個人が当てはまらない場合
-    - 読み手を主語にする
+    - `あなた` を主語にする
+- 文書やコードに何が書いてあるかを述べる文
+    - 主語はそのままにして、状態を表す動詞にする
+        - `` `common/lists.md` にこの形の規則がある ``
+        - `` The rule for this shape is in `common/lists.md` ``
 - 誰も思いつかない場合
     - その文を削る
 
@@ -83,7 +87,10 @@ Load testing put this endpoint over 500ms, so I put a cache in front of it.
 
 #### 修正の型
 
-行為者を見つけて文頭に置く。
+- 行為者が分かる場合
+    - 文頭に置く
+- 行為者がいない場合
+    - 状態を表す文に書き換える
 
 ### 遠くから語る話者
 

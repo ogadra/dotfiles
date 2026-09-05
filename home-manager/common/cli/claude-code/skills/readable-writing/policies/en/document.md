@@ -1,36 +1,45 @@
 # Document structure
 
-## Forms to find
+## What to find
 
 ### Headings where you make a claim
 
-| Avoid | Use instead |
-|---|---|
-| Why We Chose X | Reasons for picking X |
-| What X Taught Us About Y | What we found in the X outage |
-| X Dies the Moment You Lose Y | Impact of removing Y |
-| Three Principles From the Trenches | Rules we follow now |
-| How X Solves Y | X and Y |
+- Why We Chose X
+    - Reasons for picking X
+- What X Taught Us About Y
+    - What we found in the X outage
+- X Dies the Moment You Lose Y
+    - Impact of removing Y
+- Three Principles From the Trenches
+    - Rules we follow now
+- How X Solves Y
+    - X and Y
 
 ### Announcing the structure
 
-| Avoid | Fix |
-|---|---|
-| The rest of this essay explains... | Delete |
-| Let me walk you through... | Delete |
-| In this section, we'll... | Delete |
-| As we'll see... | Delete |
-| I want to explore... | Delete |
+- The rest of this essay explains...
+    - Delete
+- Let me walk you through...
+    - Delete
+- In this section, we'll...
+    - Delete
+- As we'll see...
+    - Delete
+- I want to explore...
+    - Delete
 
 ### Writing what you won't do
 
-| Avoid | Fix |
-|---|---|
-| Non-goals: anything the marketing team owns | Delete |
-| We chose not to use a NAT gateway | Delete |
-| We don't send the token in the query string | The client sends the token in the `Authorization` header |
-| CloudTrail has no record of `DisassociateAddress` | Keep |
-| You can't find out from the API whether an ENI is live | Keep |
+- Non-goals: anything the marketing team owns
+    - Delete
+- We chose not to use a NAT gateway
+    - Delete
+- We don't send the token in the query string
+    - The client sends the token in the `Authorization` header
+- CloudTrail has no record of `DisassociateAddress`
+    - Keep
+- You can't find out from the API whether an ENI is live
+    - Keep
 
 #### Before
 
@@ -91,4 +100,3 @@ Stop losing compound words in search. A query for "machine learning" splits into
 - Delete the out-of-scope section
 - Write what hurts under "Goal"
 - Move the means into its own section
-
