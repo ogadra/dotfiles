@@ -13,9 +13,21 @@ jobs:
           client-id: ${{ secrets.RENOVATE_APP_CLIENT_ID }}
           private-key: ${{ secrets.RENOVATE_APP_PRIVATE_KEY }}
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # Dating the branch makes each run open its own lock file maintenance PR
+      # instead of force-pushing the previous day's branch. `branchTopic` is not
+      # usable here because grouping overwrites it with the group slug.
+      - name: Build the dated Renovate config
+        run: |
+          jq -n --arg date "$(date -u +%Y-%m-%d)" '{
+            lockFileMaintenance: {
+              additionalBranchPrefix: "\($date)-",
+              commitMessageAction: "Lock file maintenance (\($date))"
+            }
+          }' > renovate-dated-config.json
       - uses: renovatebot/github-action@39b914146caeff8cd512e61c8992f1d5913af85c # v46.2.5
         with:
           token: ${{ steps.app-token.outputs.token }}
           renovate-version: 44.61.6
+          configurationFile: renovate-dated-config.json
         env:
           RENOVATE_REPOSITORIES: ${{ github.repository }}
