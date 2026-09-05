@@ -1,0 +1,51 @@
+name: Merge freeze
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+  schedule:
+    - cron: "5 * * * *"
+  workflow_dispatch:
+permissions:
+  contents: read
+  pull-requests: read
+  statuses: write
+concurrency:
+  group: merge-freeze
+jobs:
+  merge-freeze:
+    runs-on: ubuntu-latest
+    steps:
+      # Holds the `merge-freeze` status at `pending` on lock file maintenance
+      # PRs until they are FREEZE_DAYS old, and reports success on every other
+      # open PR so the required check never blocks them.
+      - name: Report the freeze status on every open PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          FROZEN_BRANCH_GLOB: "renovate/*lock-file-maintenance*"
+          FREEZE_DAYS: 3
+        run: |
+          now=$(date -u +%s)
+          gh pr list --repo "$REPO" --state open --limit 100 \
+            --json headRefName,headRefOid,createdAt \
+            --jq '.[] | [.headRefName, .headRefOid, .createdAt] | @tsv' \
+          | while IFS=$'\t' read -r branch sha created; do
+              state=success
+              description="Not under a merge freeze"
+              # shellcheck disable=SC2254
+              case "$branch" in
+                $FROZEN_BRANCH_GLOB)
+                  thaws_at=$(( $(date -u -d "$created" +%s) + FREEZE_DAYS * 86400 ))
+                  if [ "$now" -lt "$thaws_at" ]; then
+                    state=pending
+                    description="Frozen until $(date -u -d "@$thaws_at" +'%Y-%m-%d %H:%M UTC')"
+                  else
+                    description="Freeze period is over"
+                  fi
+                  ;;
+              esac
+              gh api -X POST "repos/$REPO/statuses/$sha" \
+                -f state="$state" \
+                -f context=merge-freeze \
+                -f description="$description" > /dev/null
+            done
