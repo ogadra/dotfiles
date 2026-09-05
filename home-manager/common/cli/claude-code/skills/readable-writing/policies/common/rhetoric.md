@@ -1,0 +1,400 @@
+# 修辞
+
+文と文の並べ方に出る型を見る。
+
+## 検出対象
+
+### 二項対比
+
+`XではなくYだ` と書いてしまう。直接Yを書けば済む。
+
+#### AI版
+
+```
+このスキルは文章を綺麗にするものではなく、書き手を文面に戻すものだ。
+
+This skill isn't about polishing prose, it's about putting the writer back into it.
+```
+
+#### 修正版
+
+```
+このスキルは、書き手が何を見て何に引っかかったかを文面に残す。
+
+This skill keeps what the writer saw and got stuck on in the text.
+```
+
+#### 修正の型
+
+否定は範囲を狭めて伝える書き方なので、消すと書き手が絞った範囲が読み手に伝わらない。落ちた分は肯定文の側を広げて埋める。
+
+- 元の文
+    - 「3本まとめて採点するのではなく、2本で採点する」
+    - "We don't grade all three, we grade two."
+- 書き換え
+    - 「採点は該当する2本で行う」
+    - "Grade the two that apply."
+
+比較を書くときは軸を名指しし、XとYの違いを具体的に書く。
+
+- 「この場面では速さより正確さを取った」
+- "Here we chose accuracy over speed."
+
+### 否定的列挙
+
+何かを示す前に、何でないかを並べている。
+
+#### AI版
+
+```
+これはリンターではない。フォーマッタでもない。文体チェッカーでもない。文章から書き手が消えている箇所を見つけるツールだ。
+
+This isn't a linter. It isn't a formatter. It isn't a style checker. It finds the places where the writer has vanished from the text.
+```
+
+#### 修正版
+
+```
+文章から書き手が消えている箇所を見つけるツールだ。
+
+It finds the places where the writer has vanished from the text.
+```
+
+#### 修正の型
+
+言いたいものを最初に書く。
+
+### 劇的な断片化
+
+短文を連発して深さを演出する。句点で間を作ろうとしている。
+
+#### AI版
+
+```
+原因はキャッシュだった。それだけ。9分が3分に。たったそれだけの話。
+
+The cause was the cache. That's it. Nine minutes to three. That simple.
+```
+
+#### 修正版
+
+```
+原因はキャッシュだった。挟んだら9分のビルドが3分になった。
+
+The cause was the cache. Adding one took the build from nine minutes to three.
+```
+
+#### 修正の型
+
+完全な文に戻す。
+
+### 修辞疑問
+
+洞察を届けずに、あると予告だけしている。
+
+#### AI版
+
+```
+では、なぜビルドはこれほど遅かったのか? 答えは意外なところにあった。
+
+So why was the build so slow? The answer was somewhere I didn't expect.
+```
+
+#### 修正版
+
+```
+ビルドが遅かったのは、キャッシュを挟んでいなかったからだった。
+
+The build was slow because there was no cache in front of it.
+```
+
+#### 修正の型
+
+問いを立てずに答えを書く。実際に何をしたかから入る。
+
+### 決めつけ序文
+
+冒頭で強い断定を投げ、すぐ反転させる。
+
+#### AI版
+
+```
+多くの開発者はビルド時間を軽視している。だが、実際にはそれが最も大きなボトルネックだ。
+
+Most developers don't take build times seriously. In reality, it's the biggest bottleneck they have.
+```
+
+#### 修正版
+
+```
+自分はビルドが9分かかることを3ヶ月放置していた。計測したら1日6回回していて、待ち時間が54分あった。
+
+I left a nine-minute build alone for three months. When I measured, I was running it six times a day and waiting fifty-four minutes.
+```
+
+#### 修正の型
+
+冒頭の決めつけを「自分は○○だった」に書き換える。
+
+### 定型の語り出し
+
+物語のテンプレートをそのまま当てはめている。
+
+#### AI版
+
+```
+すべては1本のissueから始まった。最初は誰も気に留めなかった。しかし、そこから物語は動き出す。
+
+It all started with a single issue. Nobody paid attention at first. But that's where the story begins.
+```
+
+#### 修正版
+
+```
+7月に「ビルドが遅い」というissueが立った。2ヶ月動きがなく、9月に自分が計測した。
+
+Someone filed a "builds are slow" issue in July. It sat for two months. I measured it in September.
+```
+
+#### 修正の型
+
+何が起きたかを時系列で書く。
+
+### 一文圧縮
+
+年代、人名、定義、評価が1文か2文に詰まっている。
+
+#### AI版
+
+```
+1958年にニューヨークで生まれたBauerは、認知科学の草分けとして知られ、その理論は現在も高く評価されている。
+
+Born in New York in 1958, Bauer was a pioneer of cognitive science whose theories remain highly regarded today.
+```
+
+#### 修正版
+
+```
+Bauerは1958年にニューヨークで生まれた。認知科学の初期の研究者で、読んだ伝記にはこの分野を作った一人だとある。
+
+Bauer was born in New York in 1958. He was an early cognitive science researcher; the biography I read calls him one of the field's founders.
+```
+
+#### 修正の型
+
+文を分ける。断定するかどうかは事実の出どころで決める。
+
+- 調べただけの事実
+    - 出所が伝わる書き方を選ぶ
+- 自分で検証した事実
+    - 断定で書く
+
+### 3項目並列
+
+3つ並べたがる。`3つのポイント` のような見出しに出る。
+
+#### AI版
+
+```
+## 導入で得られる3つのメリット
+
+- ビルドが速くなる
+- CIのコストが下がる
+- 開発者体験が向上する
+
+## Three benefits you get
+
+- Faster builds
+- Lower CI costs
+- Better developer experience
+```
+
+#### 修正版
+
+```
+## 導入で変わること
+
+- 初回ビルドが9分から3分になる
+
+## What changes
+
+- The first build goes from nine minutes to three
+```
+
+#### 修正の型
+
+3項目が並んでいたら、3つとも別の内容か確かめる。重なっているものを削る。
+
+### ムラの欠如
+
+書き手が段落の長さもトーンも揃えてしまう。どこに時間をかけてどこを流したかが長さと密度に出ないので、読み手は書き手が何に引っかかったのかを追えない。
+
+#### AI版
+
+```
+キャッシュを挟むとビルドが速くなる。9分が3分になった。効果は大きい。
+
+CIのコストも下がる。実行時間が短くなるためだ。月額も減る。
+
+開発者の待ち時間も減る。1日36分の削減になる。集中も途切れにくい。
+
+Caching makes the build faster. Nine minutes became three. The effect is large.
+
+CI costs drop too. The runs are shorter. The monthly bill goes down.
+
+Developers wait less. That is thirty-six minutes a day. Focus breaks less often.
+```
+
+#### 修正版
+
+```
+キャッシュを挟んだら9分のビルドが3分になった。
+
+CIのコストも下がったはずだが、請求はまだ見ていない。
+
+待ち時間のほうが問題だった。9分あるとブランチを切り替えて別のことを始めてしまい、戻ってきたときに何をしていたか思い出すところからやり直していた。3分なら待てる。1日36分の削減、と書くと小さく見える。
+
+Caching took the build from nine minutes to three.
+
+CI costs should be down too. I haven't looked at the bill.
+
+The waiting was the problem. At nine minutes I would switch branches and start something else, then come back and spend the first stretch remembering what I had been doing. Three minutes I can sit through. Thirty-six minutes a day sounds small written down.
+```
+
+#### 修正の型
+
+ムラを残す。
+
+- 長さのムラ
+    - 段落と文の長さをバラバラにする
+    - 1行で終わる段落と10行続く段落を混ぜる
+- 密度のムラ
+    - 興味のある話題には固有名詞や数値を詰める
+    - 興味のないところは短く書く
+- トーンのムラ
+    - 急に冷めた書き方になる
+    - 面倒くさそうになる
+- 詳細度のムラ
+    - ここだけ詳しく書く
+    - ここは雑に書く
+
+### 段落の均一な閉じ方
+
+全段落を律儀に着地させている。
+
+#### AI版
+
+```
+キャッシュを挟んだら9分のビルドが3分になった。効果は大きかった。
+
+CIのコストも下がった。これも見逃せない改善だ。
+
+待ち時間も減った。開発体験の向上につながった。
+
+Caching took the build from nine minutes to three. The effect was significant.
+
+CI costs came down as well. That is another improvement worth noting.
+
+Waiting time dropped too. This led to a better developer experience.
+```
+
+#### 修正版
+
+```
+キャッシュを挟んだら9分のビルドが3分になった。
+
+CIのコストも下がった。
+
+一番変わったのは待ち時間だ。
+
+Caching took the build from nine minutes to three.
+
+CI costs came down too.
+
+The waiting changed the most.
+```
+
+#### 修正の型
+
+段落の終わり方をバラけさせる。途中で文を切ったり、結論を出さずに次へ行ったりを混ぜる。
+
+### pull-quote調
+
+そのまま切り出して引用できる一文を、書き手が狙って書いている。引用しやすい形にまとめると、9分が3分になったのような具体がその一文から落ちる。
+
+- 段落の最後に、内容を要約した短い一文を置く
+- 前後の文脈なしで成立する箴言を書く
+
+#### AI版
+
+```
+結局のところ、速いビルドとは待たないビルドではなく、待っていることを忘れられるビルドなのだ。
+
+In the end, a fast build isn't one you don't wait for. It's one you forget you're waiting for.
+```
+
+#### 修正版
+
+```
+9分だと待っている間に別のことを始めてしまうが、3分なら画面を見たまま待てる。
+
+At nine minutes I start something else while I wait. At three I can just watch the screen.
+```
+
+#### 修正の型
+
+引用されそうな形の一文を見つけたら、内容を前後の文に戻して書き直す。
+
+### 文頭のクセ
+
+同じ語で文が始まり続ける。
+
+#### AI版
+
+```
+このスキルは7観点でレビューする。このスキルは日本語と英語に対応する。このスキルはポリシーを3つに分けている。
+
+This skill reviews from seven perspectives. This skill handles Japanese and English. This skill splits its policies into three directories.
+```
+
+#### 修正版
+
+```
+このスキルは7観点でレビューする。日本語と英語のどちらでも動き、ポリシーは3つに分かれている。
+
+This skill reviews from seven perspectives. It works in Japanese and English, and its policies live in three directories.
+```
+
+#### 修正の型
+
+繰り返している語を含む文を、別の語から始まる形に書き直す。
+
+## 検出手順
+
+1. 否定のあとに肯定が続く形を集める
+2. 否定が3回以上続く箇所を探す
+3. 名詞で終わる短文が3つ以上連続する箇所を探す
+4. 疑問文を集める
+    - 直後に答えが続くものを指摘する
+5. 冒頭の段落を読む
+    - 断定から反転に入っていないか確かめる
+    - 物語の型で書き出していないか確かめる
+6. 3項目並列を探す
+    - 探す語
+        - `3つの`
+        - `three`
+    - 見出しで項目数を宣言している箇条書きを集める
+    - 項目数が3で、中身の重なる項目がある箇条書きを集める
+7. 段落ごとに文字数を数える
+    - 分散が小さい箇所を集める
+8. 各段落の最終文を集める
+    - 同じ形で終わっていないか確かめる
+    - 前後の文脈なしで成立する一文を集める
+9. 各文の文頭を集める
+    - 同じ語が繰り返されていないか確かめる
+10. 1文に並んでいる箇所を集める
+    - 探すもの
+        - 生年
+        - 地名
+        - 肩書き
+        - 評価
