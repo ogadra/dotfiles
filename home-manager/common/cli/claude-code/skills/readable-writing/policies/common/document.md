@@ -56,6 +56,24 @@ The first build went from nine minutes to three.
 Add `actions/cache` to `.github/workflows/ci.yml`, keyed on `node_modules` and `.next/cache`.
 ```
 
+```
+## 目的
+
+CIにキャッシュを入れる。
+
+## 構成
+
+`actions/cache` を `.github/workflows/ci.yml` に追加する。
+
+## Purpose
+
+Add caching to CI.
+
+## Layout
+
+Add `actions/cache` to `.github/workflows/ci.yml`.
+```
+
 #### 修正版
 
 ```
@@ -68,11 +86,30 @@ Add `actions/cache` to `.github/workflows/ci.yml`, keyed on `node_modules` and `
 Cut the nine-minute first build. We run it six times a day, so that's fifty-four minutes of waiting.
 ```
 
+```
+## 構成
+
+`actions/cache` を `.github/workflows/ci.yml` に追加する。
+
+## Layout
+
+Add `actions/cache` to `.github/workflows/ci.yml`.
+```
+
 #### 修正の型
 
-- 見出しに書いたことを本文に置く
-- 書けない場合
+書き手がその見出しに置く中身を持っているか確かめる。
+
+- 持っている
+    - 見出しに書いたことを本文に置く
+- 持っていない
+    - 節ごと消す
+- 見出しの語とずれた中身を持っている
     - 見出しのほうを中身に合わせて変える
+
+`目的` `背景` `課題` の下にやることの言い換えがある場合、書き手は理由を持っていない。見出しを付け替えず、節ごと消す。
+
+書き手が知らないことは書かない。埋めた理由を、読み手は書き手の判断として読む。
 
 ### しないことの記述
 
