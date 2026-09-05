@@ -159,10 +159,8 @@ Lambda reaches the internet through an EIP on its ENI.
         - `元は`
         - `〜に変更した`
 - 過程
-    - 本文に書くもの
-        - 試したこと
-        - 駄目だったこと
-        - 確かめ方
+    - 作業の順序を書いた節
+    - 試した順に並べた本文
     - 節にするもの
         - 途中で気づいたこと
         - 直した理由
@@ -203,13 +201,21 @@ The English review didn't catch it at first. I think the Japanese-only examples 
 
 #### 修正の型
 
-- 今その文書が何であるかだけを書く
-    - 最初からその形だったものとして書き直す
-- 消す
-    - 編集跡の節
-    - 過程の節
-- 過程から出た結論は状態として書き直す
+今その文書が何であるかだけを書く。最初からその形だったものとして書き直す。
+
+書いた過程を集めて、次で分ける。
+
+| 記述 | 扱い |
+|---|---|
+| 編集跡の節 | 消す |
+| 過程の節 | 消す |
+| 過程から出た結論 | 今の状態として書き直す |
+| 今の選択を選んだ理由になる失敗 | 選んだものを書いた文の次に1文で残す |
+
+- 過程から出た結論
     - 上の例では日英併記が今の状態にあたる
+- 今の選択を選んだ理由になる失敗
+    - 「Prismaも試したが、生成物のサイズがLambdaのデプロイ上限に当たった」
 
 段落を箇条書きや表に組み替えても過程は残る。書いてある中身のほうを消す。
 
@@ -286,7 +292,7 @@ Embed the query and take the top k nearest chunks.
 
 ### 目的の言えない情報
 
-知っている事実を、置ける場所に置いてしまう。書き手が、読み手に何をさせたい一文なのかを決めていない。
+手順書と設定の説明で、知っている事実を置ける場所に置いてしまう。書き手が、読み手に何をさせたい一文なのかを決めていない。
 
 #### AI版
 
@@ -300,6 +306,12 @@ Embed the query and take the top k nearest chunks.
     - The first run takes about three minutes
 ```
 
+```
+`gh run list` と `gh run view` でポーリングしない。完了まで数分かかり、その間ユーザーが指示を出せなくなる。CIの結果はユーザーがGitHub上で見る。
+
+Don't poll with `gh run list` or `gh run view`. It takes minutes, and the user can't give you anything else to do while you wait. They read CI results on GitHub anyway.
+```
+
 #### 修正版
 
 ```
@@ -310,30 +322,6 @@ Embed the query and take the top k nearest chunks.
     - `pnpm install`
 ```
 
-#### 修正の型
-
-「初回は3分ほどかかる」で読み手に何をさせたいのかを言えるか確かめる。言えたら、その目的に合う文書に置く。
-
-- 待つ間に別の作業をしてほしい
-    - 手順の中にそう書く
-        - 「この間に `.env` を用意しておく」
-- 遅いので今後短くしたい
-    - 計画の文書かissueに書く
-- どれでもない
-    - 消す
-
-### 読み手を見ていない補足
-
-#### AI版
-
-```
-`gh run list` と `gh run view` でポーリングしない。完了まで数分かかり、その間ユーザーが指示を出せなくなる。CIの結果はユーザーがGitHub上で見る。
-
-Don't poll with `gh run list` or `gh run view`. It takes minutes, and the user can't give you anything else to do while you wait. They read CI results on GitHub anyway.
-```
-
-#### 修正版
-
 ```
 `gh run list` と `gh run view` でポーリングしない。プッシュの成否を報告して作業を終える。
 
@@ -342,7 +330,18 @@ Don't poll with `gh run list` or `gh run view`. Report whether the push succeede
 
 #### 修正の型
 
-補足を書くかどうかは、それを読んで読み手が動作を変えるかで決める。
+その一文を読んで読み手が何をするかを言えるか確かめる。
+
+- 言える
+    - その目的に合う文書に置く
+        - 待つ間に別の作業をしてほしい
+            - 手順の中に「この間に `.env` を用意しておく」と書く
+        - 遅いので今後短くしたい
+            - 計画の文書かissueに書く
+- 言えない
+    - 消す
+
+手順に添える理由は読み手で決める。
 
 - 読み手が人の場合
     - 理由を書く
@@ -386,6 +385,7 @@ Don't poll with `gh run list` or `gh run view`. Report whether the push succeede
         - `〜を試した`
         - `〜で確かめた`
         - `〜と比べた`
+    - 選んだものを書いた文の次にあるものは残す
     - 動詞で終わる見出しを集める
     - 作業の順序を書いた節を集める
 5. 例外条項を検索する
@@ -395,11 +395,8 @@ Don't poll with `gh run list` or `gh run view`. Report whether the push succeede
     - 直前がルールの記述か確かめる
 6. 各節の冒頭段落を集める
     - 構造の予告になっていないか確かめる
-7. 次を集める
-    - 集める文書
-        - 手順書
-        - 設定の説明
+7. 手順書と設定の説明を集める
     - 書き手が実行に関係しない一文を挟んでいないか確かめる
-8. 手順の前後にある、その手順を取る理由の説明を集める
-    - できない方法の記述もこれにあたる
-    - 失敗する手順の記述もこれにあたる
+    - 手順の前後にある、その手順を取る理由の説明を集める
+        - できない方法の記述もこれにあたる
+        - 失敗する手順の記述もこれにあたる

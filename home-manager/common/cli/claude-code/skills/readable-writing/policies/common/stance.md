@@ -155,7 +155,7 @@ This implementation doesn't drop unprocessed jobs when a worker dies. It's been 
 
 ### ヘッジの重ね掛け
 
-1つの段落に、書き手が保険を2つも3つも重ねている。
+1つの段落に、書き手が保険を2つも3つも重ねている。保険は、書き手が引き受ける範囲を狭める語を指す。`らしい` `ようだ` `と聞いた` は事実の出所を示す語にあたる。
 
 #### AI版
 
@@ -232,7 +232,7 @@ We retry up to three times. I picked that from a workload of a hundred thousand 
     - 反論する対象が無いものが反証できない主張
 2. 評価語を含む文を集める
     - 直後か直前に根拠があるか確かめる
-3. 段落ごとにヘッジの数を数える
+3. 段落ごとに、引き受ける範囲を狭める語の数を数える
     - 2つ以上ある段落を指摘する
 4. 各節の最終段落を集める
     - 保険文になっていないか確かめる

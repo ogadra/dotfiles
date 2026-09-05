@@ -118,8 +118,12 @@ This took our median review wait from two days to half a day, measured over 120 
 - `might`
 - `could potentially`
 - `in some cases`
-- `it seems that`
 - `arguably`
+
+A hedge is a word that narrows what you take on. Count those. Attribution words mark where a fact came from.
+
+- `I read that`
+- `the biography says`
 
 Write the scope you're claiming.
 

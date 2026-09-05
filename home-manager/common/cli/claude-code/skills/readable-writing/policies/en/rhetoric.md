@@ -87,7 +87,12 @@ Teams struggle with alignment. Admitting confusion costs you status, so you stay
 
 ### Three-item lists
 
-Search for `three` followed by a noun. Cut to two or one.
+Search for `three` followed by a noun.
+
+| Pattern | Fix |
+|---|---|
+| A heading announcing the count | Drop the count from the heading |
+| Three items listed | Check that all three say something different, cut the ones that overlap |
 
 #### Before
 
@@ -118,7 +123,7 @@ Search for `three` followed by a noun. Cut to two or one.
 
 | Pattern | Fix |
 |---|---|
-| Sentences starting with a question word | Lead with the subject or the verb |
+| Body sentences starting with a question word | Lead with the subject or the verb |
 | Paragraphs starting with "So" | Start with content |
 | Sentences starting with "Look," | Remove |
 
