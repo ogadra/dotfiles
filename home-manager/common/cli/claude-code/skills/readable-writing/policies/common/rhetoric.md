@@ -175,9 +175,9 @@ Born in New York in 1958, Bauer was a pioneer of cognitive science whose theorie
 #### 修正版
 
 ```
-Bauerは1958年にニューヨークで生まれた。認知科学の初期の研究者で、読んだ伝記にはこの分野を作った一人だとある。理論が今どう扱われているかは調べていない。
+Bauerは1958年にニューヨークで生まれた。認知科学の初期の研究者で、読んだ伝記にはこの分野を作った一人だとある。
 
-Bauer was born in New York in 1958. He was an early cognitive science researcher; the biography I read calls him one of the field's founders. I didn't look into how his theories are treated now.
+Bauer was born in New York in 1958. He was an early cognitive science researcher; the biography I read calls him one of the field's founders.
 ```
 
 #### 修正の型
@@ -306,13 +306,13 @@ Waiting time dropped too. This led to a better developer experience.
 ```
 キャッシュを挟んだら9分のビルドが3分になった。
 
-CIのコストも下がった。請求書はまだ見ていない。
+CIのコストも下がった。
 
 一番変わったのは待ち時間だ。
 
 Caching took the build from nine minutes to three.
 
-CI costs came down too. I haven't seen the bill yet.
+CI costs came down too.
 
 The waiting changed the most.
 ```
