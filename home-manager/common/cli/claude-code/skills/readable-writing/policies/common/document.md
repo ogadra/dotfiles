@@ -274,7 +274,7 @@ That said, passive is fine when the actor is unknown or irrelevant.
 #### 修正版
 
 ```
-常体で書く。「です」「ます」は使わない。
+常体で書く。体言止めもこれに入る。
 
 Name the actor in every sentence.
 ```
