@@ -15,9 +15,7 @@ jobs:
   merge-freeze:
     runs-on: ubuntu-latest
     steps:
-      # Holds the `merge-freeze` status at `pending` on lock file maintenance
-      # PRs until they are FREEZE_DAYS old, and reports success on every other
-      # open PR so the required check never blocks them.
+      # Holds the `merge-freeze` status at `pending` on lock file maintenance PRs until they are FREEZE_DAYS old, and reports success on the other open PRs so the required check passes there.
       - name: Report the freeze status on every open PR
         env:
           GH_TOKEN: ${{ github.token }}
