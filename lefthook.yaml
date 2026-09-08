@@ -4,3 +4,10 @@ pre-commit:
   commands:
     01_secrets:
       run: gitleaks protect --staged -v
+    02_platform:
+      glob: "*.nix"
+      run: |
+        if grep -nHF 'hostPlatform.isDarwin' {staged_files}; then
+          echo 'platform conditionals must use pkgs.stdenv.hostPlatform.isLinux (negate it for the non-Linux case)' >&2
+          exit 1
+        fi
