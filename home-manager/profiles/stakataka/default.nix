@@ -25,6 +25,7 @@ let
     ../../common/cli/gitleaks
     ../../common/cli/gnumake
     ../../common/cli/gomi
+    ../../common/cli/hunk
     ../../common/cli/ccusage
     ../../common/cli/claude-code
     ../../common/cli/fish
