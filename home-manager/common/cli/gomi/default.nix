@@ -6,7 +6,7 @@
 let
   # `-G` は BSD/macOS では色付け、GNU/Linux ではグループ列省略を意味する
   directoryCommand =
-    if pkgs.stdenv.isLinux then
+    if pkgs.stdenv.hostPlatform.isLinux then
       "ls -F -1 -A --color=always"
     else
       "ls -GF -1 -A --color=always";
