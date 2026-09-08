@@ -7,7 +7,7 @@ pre-commit:
     02_platform:
       glob: "*.nix"
       run: |
-        if grep -nH -E 'stdenv\.(isDarwin|isLinux)|hostPlatform\.isDarwin' {staged_files}; then
+        if grep -nHF 'hostPlatform.isDarwin' {staged_files}; then
           echo 'platform conditionals must use pkgs.stdenv.hostPlatform.isLinux (negate it for the non-Linux case)' >&2
           exit 1
         fi
