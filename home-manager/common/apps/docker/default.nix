@@ -26,7 +26,7 @@ let
   };
 
 in
-lib.mkIf pkgs.stdenv.isDarwin {
+lib.mkIf (!pkgs.stdenv.hostPlatform.isLinux) {
   home.activation.installDockerDesktop = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     ${nixLib.mergeJson "$HOME/.docker/daemon.json" daemonConfig}
     ${nixLib.mergeJson "$HOME/Library/Group Containers/group.com.docker/settings-store.json" desktopSettings}

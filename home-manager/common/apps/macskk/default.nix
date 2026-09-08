@@ -37,7 +37,7 @@ let
     done
   '';
 in
-lib.mkIf pkgs.stdenv.isDarwin {
+lib.mkIf (!pkgs.stdenv.hostPlatform.isLinux) {
   home.activation.installMacSKK = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     _dest="${installDir}/${appName}"
     if [ ! -d "$_dest" ]; then

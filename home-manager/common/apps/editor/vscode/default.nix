@@ -12,7 +12,7 @@ let
     inherit (pkgs.vscode) version;
     meta.mainProgram = "code";
   };
-  vscodePackage = if pkgs.stdenv.hostPlatform.isDarwin then pkgs.vscode else vscode-with-ime;
+  vscodePackage = if pkgs.stdenv.hostPlatform.isLinux then vscode-with-ime else pkgs.vscode;
 in
 {
     programs = {
