@@ -1,6 +1,6 @@
 { pkgs, ... }:
 let
-  isLinux = pkgs.stdenv.isLinux;
+  isLinux = pkgs.stdenv.hostPlatform.isLinux;
   # Mesa's iris OpenGL driver hangs this Intel Arrow Lake iGPU while wezterm
   # paints (i915 logs "GPU HANG: ... in wezterm-gui") and aborts the process
   # when the batch flush cannot recover, so the window dies before showing
