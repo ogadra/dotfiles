@@ -71,6 +71,12 @@
           '#40f0f0',  -- bright cyan
           '#ffffff',  -- bright white
         },
+        indexed = {
+          [16] = p.orange,
+          [17] = p.black,
+          [18] = p.deep_black,
+          [19] = p.dim_orange,
+        },
       }
     end
 
