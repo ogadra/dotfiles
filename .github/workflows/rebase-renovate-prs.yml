@@ -1,0 +1,132 @@
+name: Rebase Renovate PRs
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+  pull-requests: read
+concurrency:
+  group: rebase-renovate-prs
+jobs:
+  rebase:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        id: app-token
+        with:
+          client-id: ${{ secrets.RENOVATE_APP_CLIENT_ID }}
+          private-key: ${{ secrets.RENOVATE_APP_PRIVATE_KEY }}
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          token: ${{ steps.app-token.outputs.token }}
+      # Renovate rebases only the branches it would generate on the current run. Dated lock file
+      # branches and superseded version branches drop out of that list and stay conflicted, so
+      # every open Renovate PR is put back on top of main here.
+      - name: Rebase every open Renovate PR onto main
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          set -uo pipefail
+
+          git config user.name "renovate-ogadra[bot]"
+          git config user.email "313657277+renovate-ogadra[bot]@users.noreply.github.com"
+
+          # Keeps the newer side of every conflict hunk, compared on the last dotted version
+          # number each side carries. Refuses the file when a side has no version to compare.
+          cat > /tmp/resolve-version.py <<'PY'
+          import re, sys
+
+          path = sys.argv[1]
+          hunk = re.compile(r"<<<<<<< [^\n]*\n(.*?)\n=======\n(.*?)>>>>>>> [^\n]*\n", re.S)
+
+
+          def version(side):
+              found = re.findall(r"\d+(?:\.\d+)+", side)
+              return tuple(int(part) for part in found[-1].split(".")) if found else None
+
+
+          def keep_newer(match):
+              ours, theirs = match.group(1), match.group(2)
+              ours_version, theirs_version = version(ours), version(theirs)
+              if ours_version is None or theirs_version is None:
+                  sys.exit(path + ": conflict hunk carries no version to compare")
+              return theirs if theirs_version >= ours_version else ours + "\n"
+
+
+          resolved = hunk.sub(keep_newer, open(path).read())
+          open(path, "w").write(resolved)
+          PY
+
+          # A lock file maintenance branch regenerates flake.lock as a whole, so the PR side is
+          # taken as a unit. Rejects it when an input would move back from what main already locks.
+          cat > /tmp/verify-lock.py <<'PY'
+          import json, sys
+
+
+          def stamps(path):
+              nodes = json.load(open(path))["nodes"]
+              return {
+                  name: node["locked"]["lastModified"]
+                  for name, node in nodes.items()
+                  if "lastModified" in node.get("locked", {})
+              }
+
+
+          main, pr = stamps(sys.argv[1]), stamps("flake.lock")
+          older = sorted(name for name, stamp in main.items() if pr.get(name, 0) < stamp)
+          if older:
+              sys.exit("flake.lock would move these inputs backwards: " + ", ".join(older))
+          PY
+
+          resolve() {
+            case "$1" in
+              flake.lock)
+                git checkout --theirs -- flake.lock || return 1
+                git show origin/main:flake.lock > /tmp/main-flake.lock || return 1
+                python3 /tmp/verify-lock.py /tmp/main-flake.lock || return 1
+                ;;
+              *)
+                python3 /tmp/resolve-version.py "$1" || return 1
+                ;;
+            esac
+          }
+
+          # A branch can carry more than one commit, so the rebase may stop repeatedly.
+          rebase_onto_main() {
+            git rebase origin/main && return 0
+            while true; do
+              conflicts=$(git diff --name-only --diff-filter=U)
+              [ -n "$conflicts" ] || return 1
+              for file in $conflicts; do
+                resolve "$file" || return 1
+                git add "$file"
+              done
+              GIT_EDITOR=true git rebase --continue && return 0
+              [ -n "$(git diff --name-only --diff-filter=U)" ] || return 1
+            done
+          }
+
+          rebased=""
+          skipped=""
+
+          while IFS=$'\t' read -r number branch; do
+            git fetch --quiet origin "$branch"
+            if git merge-base --is-ancestor origin/main "origin/$branch"; then
+              continue
+            fi
+            git checkout --quiet -B "$branch" "origin/$branch"
+            if rebase_onto_main && git push --quiet --force-with-lease origin "$branch"; then
+              rebased="$rebased #$number"
+            else
+              git rebase --abort 2> /dev/null
+              skipped="$skipped #$number"
+            fi
+          done < <(gh pr list --state open --limit 100 --json number,headRefName \
+            --jq '.[] | select(.headRefName | startswith("renovate/")) | [.number, .headRefName] | @tsv')
+
+          {
+            echo "Rebased:${rebased:- none}"
+            echo "Left alone:${skipped:- none}"
+          } >> "$GITHUB_STEP_SUMMARY"
