@@ -2,7 +2,11 @@ name: Renovate
 on:
   schedule:
     - cron: "0 0 * * *"
+  push:
+    branches: [main]
   workflow_dispatch:
+concurrency:
+  group: renovate
 jobs:
   renovate:
     runs-on: ubuntu-latest
