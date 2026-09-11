@@ -1,0 +1,23 @@
+{
+  "name": "NERV",
+  "base": "dark-ansi",
+  "overrides": {
+    "text": "ansi:yellow",
+    "claude": "ansi256(24)",
+    "claudeShimmer": "ansi256(25)",
+    "briefLabelClaude": "ansi256(24)",
+    "clawd_body": "ansi256(24)",
+    "pink_FOR_SUBAGENTS_ONLY": "ansi256(29)",
+    "orange_FOR_SUBAGENTS_ONLY": "ansi256(26)",
+    "rainbow_orange": "ansi256(27)",
+    "rainbow_orange_shimmer": "ansi256(26)",
+    "fastMode": "ansi256(28)",
+    "fastModeShimmer": "ansi256(28)",
+    "diffAdded": "ansi256(20)",
+    "diffAddedDimmed": "ansi256(20)",
+    "diffRemoved": "ansi256(21)",
+    "diffRemovedDimmed": "ansi256(21)",
+    "diffAddedWord": "ansi256(22)",
+    "diffRemovedWord": "ansi256(23)"
+  }
+}

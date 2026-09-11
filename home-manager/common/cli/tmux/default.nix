@@ -1,10 +1,10 @@
 { pkgs, profile, ... }:
 let
   # NERV palette (kept in sync with wezterm color.nix)
-  orange = "#f07820";
-  black = "#1a1a1a";
-  deepBlack = "#0a0a0a";
-  dimOrange = "#805030";
+  orange = "colour16";
+  black = "colour17";
+  deepBlack = "colour18";
+  dimOrange = "colour19";
 
   # Powerline triangles matching wezterm's tab-bar (ple_lower_right / ple_upper_left)
   solidLeft = ""; # U+E0BA

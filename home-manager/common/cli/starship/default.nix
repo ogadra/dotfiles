@@ -6,13 +6,13 @@
     settings = {
       add_newline = true;
 
-      format = "$username[](fg:#f07820 bg:#1a1a1a)$directory[ ](fg:#1a1a1a)";
+      format = "$username[](fg:yellow bg:black)$directory[ ](fg:black)";
 
       # === who/where ===
       username = {
         show_always = true;
         format = "[ $user]($style)";
-        style_user = "#1a1a1a bg:#f07820";
+        style_user = "black bg:yellow";
       };
 
       # === path ===
@@ -20,7 +20,7 @@
         home_symbol = "~";
         truncation_length = 0;
         truncate_to_repo = false;
-        style = "#f07820 bg:#1a1a1a";
+        style = "yellow bg:black";
         format = "[ $path ]($style)[$read_only]($read_only_style)";
       };
     };
