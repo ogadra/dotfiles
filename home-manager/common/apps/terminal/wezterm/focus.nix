@@ -1,7 +1,5 @@
 { pkgs, ... }:
 let
-  # Blur is unavailable on Linux (see background.nix), so a see-through
-  # unfocused window would just look broken there; keep it opaque.
   unfocusedOpacity = if pkgs.stdenv.hostPlatform.isLinux then "1.0" else "0.5";
 in
 {
@@ -56,8 +54,6 @@ in
         [28] = '#d1de21',
         [29] = '#ab5969',
       },
-      -- set_config_overrides replaces colors wholesale, so the tab bar has to
-      -- be restated here or it falls back to the wezterm defaults.
       tab_bar = {
         background = '#caa153',
         active_tab = {

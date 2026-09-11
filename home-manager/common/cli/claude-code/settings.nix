@@ -47,8 +47,6 @@
   # Claude の応答および音声入力で優先する言語。
   language = "Japanese";
   # 配色テーマ（auto/dark/light/各daltonized/各ansi または custom:xxx）。
-  # nerv は dark-ansi ベースで、色を端末の ANSI パレット経由で引く。
-  # WezTerm 側のフォーカス切り替えがそのまま Claude Code の配色に効く。
   theme = "custom:nerv";
   # プロンプト入力欄のキーバインド（normal/vim）。
   editorMode = "normal";

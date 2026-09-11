@@ -9,7 +9,6 @@ ctx_pct=$(jq -r '.context_window.used_percentage // empty' <<<"$input")
 rl_5h=$(jq -r '.rate_limits.five_hour.used_percentage // empty' <<<"$input")
 rl_7d=$(jq -r '.rate_limits.seven_day.used_percentage // empty' <<<"$input")
 
-# 端末の ANSI パレット経由で色を引く。WezTerm 側のフォーカス切り替えに追従する。
 RESET=$'\033[0m'
 MODEL_COLOR=$'\033[93m'
 USAGE_COLOR=$'\033[33m'
