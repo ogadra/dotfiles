@@ -1,4 +1,9 @@
-{ ... }:
+{ pkgs, ... }:
+let
+  # Blur is unavailable on Linux (see background.nix), so a see-through
+  # unfocused window would just look broken there; keep it opaque.
+  unfocusedOpacity = if pkgs.stdenv.hostPlatform.isLinux then "1.0" else "0.5";
+in
 {
   xdg.configFile."wezterm/focus.lua".text = ''
     local module = {}
@@ -6,46 +11,59 @@
     local focused_border_width = '6px'
     local unfocused_border_width = '4px'
     local unfocused_border = '#3a3a3a'
-    local unfocused_dim = 0.8
-    local unfocused_layer_hsb = {
-      saturation = 1.0,
-      brightness = unfocused_dim ^ 2.4,
+    local unfocused_opacity = ${unfocusedOpacity}
+
+    local unfocused_colors = {
+      foreground = '#caa153',
+      background = '#000000',
+      cursor_bg = '#caa153',
+      cursor_fg = '#0a0a0a',
+      selection_bg = '#caa153',
+      selection_fg = '#0a0a0a',
+      ansi = {
+        '#1a1a1a',
+        '#b85443',
+        '#43b153',
+        '#caa153',
+        '#6655ca',
+        '#b243c1',
+        '#4397a6',
+        '#a6a6a6',
+      },
+      brights = {
+        '#3a3a3a',
+        '#dd6a55',
+        '#55d469',
+        '#e6b65c',
+        '#826eef',
+        '#d65ce6',
+        '#55b9ca',
+        '#cacaca',
+      },
+      indexed = {
+        [16] = '#caa153',
+        [17] = '#1a1a1a',
+        [18] = '#0a0a0a',
+        [19] = '#8c6b2e',
+      },
+      -- set_config_overrides replaces colors wholesale, so the tab bar has to
+      -- be restated here or it falls back to the wezterm defaults.
+      tab_bar = {
+        background = '#caa153',
+        active_tab = {
+          bg_color = '#1a1a1a',
+          fg_color = '#caa153',
+        },
+        inactive_tab = {
+          bg_color = '#0a0a0a',
+          fg_color = '#8c6b2e',
+        },
+        inactive_tab_hover = {
+          bg_color = '#8c6b2e',
+          fg_color = '#d0d0d0',
+        },
+      },
     }
-
-    local function dim(hex)
-      if type(hex) ~= 'string' or not hex:match('^#%x%x%x%x%x%x$') then
-        return hex
-      end
-      local channels = {}
-      for i = 0, 2 do
-        channels[i + 1] = math.floor(tonumber(hex:sub(2 + i * 2, 3 + i * 2), 16) * unfocused_dim + 0.5)
-      end
-      return string.format('#%02x%02x%02x', channels[1], channels[2], channels[3])
-    end
-
-    local function dim_table(value)
-      if type(value) == 'table' then
-        local result = {}
-        for k, v in pairs(value) do
-          result[k] = dim_table(v)
-        end
-        return result
-      end
-      return dim(value)
-    end
-
-    local function dimmed_layers(layers)
-      local result = {}
-      for i, layer in ipairs(layers) do
-        local copy = {}
-        for k, v in pairs(layer) do
-          copy[k] = v
-        end
-        copy.hsb = unfocused_layer_hsb
-        result[i] = copy
-      end
-      return result
-    end
 
     function module.apply_to_config(config, wezterm)
       local color = require 'color'
@@ -74,12 +92,12 @@
         local overrides = window:get_config_overrides() or {}
         if window:is_focused() then
           overrides.window_frame = nil
-          overrides.background = nil
           overrides.colors = nil
+          overrides.window_background_opacity = nil
         else
           overrides.window_frame = frame(unfocused_border, unfocused_border_width)
-          overrides.background = dimmed_layers(config.background)
-          overrides.colors = dim_table(config.colors)
+          overrides.colors = unfocused_colors
+          overrides.window_background_opacity = unfocused_opacity
         end
         window:set_config_overrides(overrides)
       end)

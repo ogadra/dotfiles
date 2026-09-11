@@ -6,16 +6,16 @@
     -- NERV HUD inspired colors (shared across modules)
     module.palette = {
       -- Base colors
-      orange = '#f07820',
+      orange = '#ff8a25',
       black = '#1a1a1a',
       deep_black = '#0a0a0a',
-      dim_orange = '#805030',
+      dim_orange = '#935c37',
       white = '#ffffff',
       -- Status colors
-      green = '#20d020',
-      red = '#d02020',
-      purple = '#a030e0',
-      teal = '#30c0c0',
+      green = '#25ef25',
+      red = '#ef2525',
+      purple = '#b837ff',
+      teal = '#37dddd',
     }
 
     function module.apply_to_config(config, wezterm)
@@ -56,19 +56,19 @@
           p.red,      -- red (warning)
           p.green,    -- green (active)
           p.orange,   -- yellow -> NERV orange
-          '#6868f0',  -- blue -> Eva purple-blue
+          '#7878ff',  -- blue -> Eva purple-blue
           p.purple,   -- magenta -> Eva Unit 01 purple
           p.teal,     -- cyan -> teal accent
-          '#b0b0b0',  -- white
+          '#cacaca',  -- white
         },
         brights = {
           '#404040',  -- bright black
-          '#ff3030',  -- bright red (alert)
-          '#30ff30',  -- bright green
-          '#ff9020',  -- bright yellow -> bright orange
-          '#8080ff',  -- bright blue
-          '#c060e8',  -- bright magenta
-          '#40f0f0',  -- bright cyan
+          '#ff3737',  -- bright red (alert)
+          '#37ff37',  -- bright green
+          '#ffa625',  -- bright yellow -> bright orange
+          '#9393ff',  -- bright blue
+          '#dd6eff',  -- bright magenta
+          '#4affff',  -- bright cyan
           '#ffffff',  -- bright white
         },
         indexed = {
