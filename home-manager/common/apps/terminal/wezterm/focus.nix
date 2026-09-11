@@ -45,6 +45,16 @@ in
         [17] = '#1a1a1a',
         [18] = '#0a0a0a',
         [19] = '#8c6b2e',
+        [20] = '#0c3a13',
+        [21] = '#4a1910',
+        [22] = '#1a6a26',
+        [23] = '#8a2b1a',
+        [24] = '#bb784c',
+        [25] = '#d59266',
+        [26] = '#de762c',
+        [27] = '#d06620',
+        [28] = '#d1de21',
+        [29] = '#ab5969',
       },
       -- set_config_overrides replaces colors wholesale, so the tab bar has to
       -- be restated here or it falls back to the wezterm defaults.
