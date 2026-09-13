@@ -29,6 +29,7 @@ in
     ".claude/sounds/stop.mp3".source = ../../sounds/stop.mp3;
     ".claude/settings.json".text = settingsJson;
     ".claude/CLAUDE.md".source = ./CLAUDE.md;
+    ".claude/themes/nerv.json".source = ./themes/nerv.json;
     ".claude/config/.gitconfig".source = shared + "/.gitconfig";
     ".claude/skills/absolute-rules/SKILL.md".source = ./skills/absolute-rules/SKILL.md;
     ".claude/skills/cascade-merge/SKILL.md".source = ./skills/cascade-merge/SKILL.md;
