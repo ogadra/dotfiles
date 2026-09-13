@@ -1,7 +1,4 @@
-{ pkgs, ... }:
-let
-  unfocusedOpacity = if pkgs.stdenv.hostPlatform.isLinux then "1.0" else "0.5";
-in
+{ ... }:
 {
   xdg.configFile."wezterm/focus.lua".text = ''
     local module = {}
@@ -9,7 +6,7 @@ in
     local focused_border_width = '6px'
     local unfocused_border_width = '4px'
     local unfocused_border = '#3a3a3a'
-    local unfocused_opacity = ${unfocusedOpacity}
+    local unfocused_opacity = 0.5
 
     local unfocused_colors = {
       foreground = '#caa153',
