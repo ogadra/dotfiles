@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ ... }:
 {
   imports = [
     ./color.nix
@@ -8,11 +8,11 @@
     ./background.nix
     ./render.nix
     ./focus.nix
+    ./signing.nix
   ];
 
   programs.wezterm = {
     enable = true;
-    package = pkgs.wezterm;
     extraConfig = ''
       local wezterm = require 'wezterm'
       local color = require 'color'
