@@ -16,6 +16,9 @@
     TopLeft=None
     TopRight=None
 
+    [Effect-blur]
+    BlurStrength=1
+
     [Effect-overview]
     BorderActivate=9
 
