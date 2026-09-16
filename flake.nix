@@ -108,6 +108,9 @@
             packages = with pkgs; [
               gitleaks
               lefthook
+              mypy
+              ruff
+              uv
             ];
           };
         }
