@@ -25,6 +25,14 @@
       "matchStrings": ["renovate-version: (?<currentValue>\\S+)"],
       "datasourceTemplate": "docker",
       "depNameTemplate": "ghcr.io/renovatebot/renovate"
+    },
+    {
+      "customType": "regex",
+      "description": "Track the Python version pinned in the workflows",
+      "managerFilePatterns": [".github/workflows/*.yml"],
+      "matchStrings": ["python-version: \"?(?<currentValue>[^\"\\s]+)\"?"],
+      "datasourceTemplate": "python-version",
+      "depNameTemplate": "python"
     }
   ],
   "packageRules": [
