@@ -11,3 +11,12 @@ pre-commit:
           echo 'platform conditionals must use pkgs.stdenv.hostPlatform.isLinux (negate it for the non-Linux case)' >&2
           exit 1
         fi
+    03_format:
+      glob: "*.py"
+      run: uv run ruff format --check {staged_files}
+    04_lint:
+      glob: "*.py"
+      run: uv run ruff check {staged_files}
+    05_types:
+      glob: "*.py"
+      run: uv run mypy
