@@ -2,3 +2,7 @@ data/*.yaml
 data/*.toml
 result
 .gitleaks.toml
+__pycache__/
+.mypy_cache/
+.ruff_cache/
+.venv/
