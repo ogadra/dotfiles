@@ -94,6 +94,28 @@ Adding the index made the query dramatically faster. It was a game-changer.
 Adding the index took this query from 1.2s to 40ms. The other queries didn't move.
 ```
 
+### Hearsay you could have checked
+
+- `apparently`
+- `seems to have`
+- `reportedly`
+- `as I understand it`
+- `from what I can tell`
+- `presumably`
+- `I believe`
+
+#### Before
+
+```
+KDE apparently dropped `org_kde_kwin_blur` in KWin 6.7. wezterm reportedly does not speak its replacement yet.
+```
+
+#### After
+
+```
+KDE dropped `org_kde_kwin_blur` in KWin 6.7 and added `ext_background_effect_manager_v1`. wezterm picked up the new protocol in PR #7615.
+```
+
 ### Strong claims with no evidence
 
 - `a powerful approach`
