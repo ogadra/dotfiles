@@ -23,3 +23,24 @@ def gh_send(method: str, path: str, body: dict[str, Any]) -> Any:
     if result.returncode:
         raise CommandError(("gh", "api", "-X", method, path))
     return json.loads(result.stdout)
+
+
+def gh_graphql(query: str, variables: dict[str, Any]) -> Any:
+    result = subprocess.run(
+        ["gh", "api", "graphql", "--input", "-"],
+        input=json.dumps({"query": query, "variables": variables}).encode(),
+        stdout=subprocess.PIPE,
+        check=False,
+    )
+    if result.returncode:
+        raise CommandError(("gh", "api", "graphql"))
+    return json.loads(result.stdout)
+
+
+def gh_drop(path: str) -> None:
+    subprocess.run(
+        ["gh", "api", "-X", "DELETE", f"repos/{REPO}/{path}"],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+        check=False,
+    )
