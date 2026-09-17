@@ -1,6 +1,7 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:recommended"],
+  "dependencyDashboard": false,
   "minimumReleaseAge": "3 days",
   "minimumReleaseAgeBehaviour": "timestamp-optional",
   "internalChecksFilter": "none",
@@ -19,11 +20,19 @@
   "customManagers": [
     {
       "customType": "regex",
-      "description": "Track the Renovate version pinned in the Renovate workflow",
-      "managerFilePatterns": [".github/workflows/renovate.yml"],
-      "matchStrings": ["renovate-version: (?<currentValue>\\S+)"],
+      "description": "Track the Renovate version pinned in the workflows",
+      "managerFilePatterns": [".github/workflows/*.yml"],
+      "matchStrings": ["renovate-version: \"?(?<currentValue>[^\"\\s]+)\"?"],
       "datasourceTemplate": "docker",
       "depNameTemplate": "ghcr.io/renovatebot/renovate"
+    },
+    {
+      "customType": "regex",
+      "description": "Track the Python version pinned in the workflows",
+      "managerFilePatterns": [".github/workflows/*.yml"],
+      "matchStrings": ["python-version: \"?(?<currentValue>[^\"\\s]+)\"?"],
+      "datasourceTemplate": "python-version",
+      "depNameTemplate": "python"
     }
   ],
   "packageRules": [

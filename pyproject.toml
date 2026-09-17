@@ -1,0 +1,23 @@
+[project]
+name = "dotfiles-scripts"
+version = "0"
+requires-python = "==3.14.*"
+
+[dependency-groups]
+dev = ["mypy==2.3.1", "ruff==0.16.7"]
+
+[tool.uv]
+package = false
+
+[tool.ruff]
+line-length = 100
+target-version = "py314"
+src = [".github/scripts"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM", "PTH", "RET", "RUF"]
+
+[tool.mypy]
+python_version = "3.14"
+files = [".github/scripts"]
+strict = true
