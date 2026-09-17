@@ -127,6 +127,40 @@ Caching took the first build from nine minutes to three. Later builds were alrea
 - 数字を出せない場合
     - 控えめに書く
 
+### 裏を取らない伝聞
+
+確かめられる事実を、確かめないまま伝聞で書く。上流の変更、リリース日、対応状況、仕様がこの形になりやすい。
+
+#### AI版
+
+```
+KDEはKWin 6.7で `org_kde_kwin_blur` を外したらしい。weztermは後継のプロトコルにまだ対応していないようだ。
+
+KDE seems to have dropped `org_kde_kwin_blur` in KWin 6.7. wezterm reportedly does not speak its replacement yet.
+```
+
+#### 修正版
+
+```
+KDEの開発者はKWin 6.7で `org_kde_kwin_blur` を外し、`ext_background_effect_manager_v1` を入れた。weztermの開発者はPR #7615でこの新プロトコルに対応した。
+
+KDE dropped `org_kde_kwin_blur` in KWin 6.7 and added `ext_background_effect_manager_v1`. wezterm picked up the new protocol in PR #7615.
+```
+
+#### 修正の型
+
+伝聞の語を見つけたら、まず出典を当たる。
+
+- 当たれる
+    - 調べて断定で書く
+    - コミット、PR番号、リリース、仕様書のどれかを添える
+- 当たれない
+    - 誰から聞いたかを書く
+- 当たったが決まらない
+    - 確かめた範囲と、決まらなかった点を書く
+
+伝聞の語を消して断定にするだけの直し方は取らない。裏が取れていない断定になる。
+
 ### 根拠のない強い評価
 
 評価だけを置いて、根拠を添えていない。
@@ -242,3 +276,6 @@ We retry up to three times. I picked that from a workload of a hundred thousand 
     - 書き手が否定を弱めていないか確かめる
 7. 極端な評価語を集める
     - 数字に置き換えられるか確かめる
+8. 伝聞の語を含む文を集める
+    - 述べている事実に出典があるか確かめる
+    - 出典に当たれるものを指摘する
