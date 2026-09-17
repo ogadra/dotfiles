@@ -36,6 +36,10 @@ for my $i (0 .. $#lines) {
         $skip[$i] = 1;
         next;
     }
+    if ($line =~ /^Co-Authored-By:/i) {
+        $skip[$i] = 1;
+        next;
+    }
     $skip[$i] = $in_code || $line =~ /^\s{4,}\S/ && $line !~ /^\s*(?:[-*+]|\d+\.)\s/;
 }
 
