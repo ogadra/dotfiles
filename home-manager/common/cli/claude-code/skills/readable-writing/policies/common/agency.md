@@ -6,7 +6,7 @@
 
 ### false agency
 
-書き手がモノに人間の動作をさせている。無生物が能動的な動詞を取る。
+モノに人間の動作をさせている。無生物が能動的な動詞を取る。
 
 #### AI版
 
@@ -30,8 +30,11 @@ Since we moved to this architecture, adding a feature touches one file instead o
 
 - 具体的な誰かが分かる場合
     - その人を主語にする
-- 特定の個人が当てはまらない場合
-    - `あなた` を主語にする
+- 個人まで絞れない場合
+    - 役割か組織を主語にする
+        - `設計者`
+        - `コア開発者`
+        - `運用チーム`
 - 文書やコードに何が書いてあるかを述べる文
     - 主語はそのままにする
     - 状態を表す動詞にする
@@ -90,7 +93,9 @@ Load testing put this endpoint over 500ms, so I put a cache in front of it.
 #### 修正の型
 
 - 行為者が分かる場合
-    - 文頭に置く
+    - 能動態にする
+    - 文脈で行為者が一つに決まる場合
+        - 主語を省いてよい
 - 行為者がいない場合
     - 状態を表す文に書き換える
 
@@ -123,7 +128,7 @@ If your build takes nine minutes and you run it six times a day, you're waiting 
 
 ### 一般論だけの段落
 
-具体の話を、書き手が世間全体の話にすり替えている。
+具体の話を、世間全体の話にすり替えている。
 
 #### AI版
 
@@ -155,7 +160,7 @@ In this repository, adding `actions/cache` took the first build from nine minute
 ## 検出手順
 
 1. 無生物が能動的な動詞を取っている箇所
-    - 各文の主語を抜き出す
+    - 主語を書いている文から主語を抜き出す
     - 主語が無生物の文を集める
 2. 受動態の文
     - 行為者が本文に出てくるか確かめる
