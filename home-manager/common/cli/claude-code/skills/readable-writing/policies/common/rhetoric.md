@@ -88,78 +88,6 @@ The cause was the cache. Adding one took the build from nine minutes to three.
 
 完全な文に戻す。
 
-### 修辞疑問
-
-洞察があると予告して、中身を書かない。
-
-#### AI版
-
-```
-では、なぜビルドはこれほど遅かったのか? 答えは意外なところにあった。
-
-So why was the build so slow? The answer was somewhere I didn't expect.
-```
-
-#### 修正版
-
-```
-ビルドが遅かったのは、キャッシュを挟んでいなかったからだった。
-
-The build was slow because there was no cache in front of it.
-```
-
-#### 修正の型
-
-疑問文を消して、答えを書く。実際に何をしたかから入る。
-
-### 決めつけ序文
-
-冒頭で強い断定を投げ、すぐ反転させる。
-
-#### AI版
-
-```
-多くの開発者はビルド時間を軽視している。だが、実際にはそれが最も大きなボトルネックだ。
-
-Most developers don't take build times seriously. In reality, it's the biggest bottleneck they have.
-```
-
-#### 修正版
-
-```
-自分はビルドが9分かかることを3ヶ月放置していた。計測したら1日6回回していて、待ち時間が54分あった。
-
-I left a nine-minute build alone for three months. When I measured, I was running it six times a day and waiting fifty-four minutes.
-```
-
-#### 修正の型
-
-冒頭の決めつけを「自分は○○だった」に書き換える。
-
-### 定型の語り出し
-
-物語のテンプレートをそのまま当てはめる。
-
-#### AI版
-
-```
-すべては1本のissueから始まった。最初は誰も気に留めなかった。しかし、そこから物語は動き出す。
-
-It all started with a single issue. Nobody paid attention at first. But that's where the story begins.
-```
-
-#### 修正版
-
-```
-7月に「ビルドが遅い」というissueが立った。2ヶ月動きがなく、9月に自分が計測した。
-
-Someone filed a "builds are slow" issue in July. It sat for two months. I measured it in September.
-```
-
-#### 修正の型
-
-何が起きたかを時系列で書く。
-
 ### 一文圧縮
 
 年代、人名、定義、評価が1文か2文に詰まる。
@@ -376,25 +304,20 @@ This skill reviews from seven perspectives. It works in Japanese and English, an
 1. 否定のあとに肯定が続く形を集める
 2. 否定が3回以上続く箇所を探す
 3. 名詞で終わる短文が3つ以上連続する箇所を探す
-4. 疑問文を集める
-    - 直後に答えが続くものを指摘する
-5. 冒頭の段落を読む
-    - 断定から反転に入っていないか確かめる
-    - 物語の型で書き出していないか確かめる
-6. 3項目並列を探す
+4. 3項目並列を探す
     - 探す語
         - `3つの`
         - `three`
     - 見出しで項目数を宣言している箇条書きを集める
     - 項目数が3で、中身の重なる項目がある箇条書きを集める
-7. 段落ごとに文字数を数える
+5. 段落ごとに文字数を数える
     - 分散が小さい箇所を集める
-8. 各段落の最終文を集める
+6. 各段落の最終文を集める
     - 同じ形で終わっていないか確かめる
     - 前後の文脈なしで成立する一文を集める
-9. 各文の文頭を集める
+7. 各文の文頭を集める
     - 同じ語が繰り返されていないか確かめる
-10. 1文に並んでいる箇所を集める
+8. 1文に並んでいる箇所を集める
     - 探すもの
         - 生年
         - 地名

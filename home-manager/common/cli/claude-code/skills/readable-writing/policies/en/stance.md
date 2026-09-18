@@ -115,25 +115,6 @@ KDE apparently dropped `org_kde_kwin_blur` in KWin 6.7. wezterm reportedly does 
 KDE dropped `org_kde_kwin_blur` in KWin 6.7 and added `ext_background_effect_manager_v1`. wezterm picked up the new protocol in PR #7615.
 ```
 
-### Strong claims with no evidence
-
-- `a powerful approach`
-- `an elegant solution`
-- `incredibly useful`
-- `the right way to do this`
-
-#### Before
-
-```
-This is a powerful approach and an elegant solution. It's incredibly useful.
-```
-
-#### After
-
-```
-This took our median review wait from two days to half a day, measured over 120 PRs across three months.
-```
-
 ### Stacked hedges
 
 - `might`

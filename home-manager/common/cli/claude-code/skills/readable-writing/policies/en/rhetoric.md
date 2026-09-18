@@ -60,32 +60,6 @@ Speed. Quality. Cost. You can only pick two. That's it. That's the tradeoff.
 Speed, quality, cost: pick two.
 ```
 
-### Rhetorical setups
-
-- "What if [reframe]?"
-    - Delete
-- "Here's what I mean:"
-    - Delete
-- "Think about it:"
-    - Delete
-
-#### Before
-
-```
-It turns out that most teams struggle with alignment. The uncomfortable truth is that nobody wants to admit they're confused. And that's okay.
-```
-
-#### After
-
-```
-Teams struggle with alignment. Admitting confusion costs you status, so you stay quiet.
-```
-
-### Time-jump openers
-
-- "By the time X, I was Y."
-    - Write what happened in order
-
 ### Three-item lists
 
 Search for `three` followed by a noun.
