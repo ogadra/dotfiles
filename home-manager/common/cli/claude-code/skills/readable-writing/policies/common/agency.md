@@ -1,6 +1,6 @@
 # 主体
 
-誰が何をしたかを見る。AIが書く文章では、状況や概念が主語になって勝手に動く。
+誰が何をしたかを見る。
 
 ## 検出対象
 
@@ -33,7 +33,8 @@ Since we moved to this architecture, adding a feature touches one file instead o
 - 特定の個人が当てはまらない場合
     - `あなた` を主語にする
 - 文書やコードに何が書いてあるかを述べる文
-    - 主語はそのままにして、状態を表す動詞にする
+    - 主語はそのままにする
+    - 状態を表す動詞にする
         - `` `common/lists.md` にこの形の規則がある ``
         - `` The rule for this shape is in `common/lists.md` ``
 - 誰も思いつかない場合
@@ -41,7 +42,7 @@ Since we moved to this architecture, adding a feature touches one file instead o
 
 ### 実装判断の壮大化
 
-書き手が一つの実装判断を抽象命題に膨らませる。判断そのものを主語にして `思想` や `設計` を当てる。
+実装判断を一つ、抽象命題に膨らませている。判断そのものを主語にして `思想` や `設計` を当てる。
 
 #### AI版
 
@@ -61,13 +62,14 @@ We capped retries at three. Nothing succeeded on the fourth attempt or later in 
 
 #### 修正の型
 
-- 一般化を書くのは、他のケースでも再現すると確かめたときだけ
+- 他のケースでも再現すると確かめた場合
+    - 一般化を書く
 - 確かめていない場合
     - `こう直したら直った` で終える
 
 ### 受動態
 
-書き手が行為者を伏せている。
+行為者を伏せている。
 
 #### AI版
 
@@ -94,7 +96,7 @@ Load testing put this endpoint over 500ms, so I put a cache in front of it.
 
 ### 遠くから語る話者
 
-書き手が高所から社会を論じ、読者を場に置かない。
+高所から社会を論じ、読者を場に置かない。
 
 #### AI版
 
@@ -116,13 +118,12 @@ If your build takes nine minutes and you run it six times a day, you're waiting 
 
 - 読み手を場に置く
 - 集団を指す語を `自分` か `あなた` に書き換える
-    - `人々`
-    - `誰も`
+    - `現代の開発者`
     - `我々`
 
-### 一人称の消失
+### 一般論だけの段落
 
-自分の話を、書き手が世間全体の話にすり替えている。
+具体の話を、書き手が世間全体の話にすり替えている。
 
 #### AI版
 

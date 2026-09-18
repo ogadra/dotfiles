@@ -6,7 +6,7 @@
 
 ### 二項対比
 
-`XではなくYだ` と書いてしまう。直接Yを書けば済む。
+`XではなくYだ` と書いてしまう。Yを書き、否定が絞っていた範囲も肯定文に含める。
 
 #### AI版
 
@@ -42,7 +42,7 @@ This skill keeps what the writer saw and got stuck on in the text.
 
 ### 否定的列挙
 
-何かを示す前に、何でないかを並べている。
+示したいものの前に、何でないかが並ぶ。
 
 #### AI版
 
@@ -90,7 +90,7 @@ The cause was the cache. Adding one took the build from nine minutes to three.
 
 ### 修辞疑問
 
-洞察を届けずに、あると予告だけしている。
+洞察があると予告して、中身を書かない。
 
 #### AI版
 
@@ -110,7 +110,7 @@ The build was slow because there was no cache in front of it.
 
 #### 修正の型
 
-問いを立てずに答えを書く。実際に何をしたかから入る。
+疑問文を消して、答えを書く。実際に何をしたかから入る。
 
 ### 決めつけ序文
 
@@ -138,7 +138,7 @@ I left a nine-minute build alone for three months. When I measured, I was runnin
 
 ### 定型の語り出し
 
-物語のテンプレートをそのまま当てはめている。
+物語のテンプレートをそのまま当てはめる。
 
 #### AI版
 
@@ -162,7 +162,7 @@ Someone filed a "builds are slow" issue in July. It sat for two months. I measur
 
 ### 一文圧縮
 
-年代、人名、定義、評価が1文か2文に詰まっている。
+年代、人名、定義、評価が1文か2文に詰まる。
 
 #### AI版
 
@@ -191,7 +191,7 @@ Bauer was born in New York in 1958. He was an early cognitive science researcher
 
 ### 3項目並列
 
-3つ並べたがる。`3つのポイント` のような見出しに出る。
+`3つのポイント` のような見出しに出る。
 
 #### AI版
 
@@ -320,10 +320,12 @@ The waiting changed the most.
 
 ### pull-quote調
 
-そのまま切り出して引用できる一文を、書き手が狙って書いている。引用しやすい形にまとめると、9分が3分になったのような具体がその一文から落ちる。
+そのまま切り出して引用できる一文を、書き手が狙って書いている。引用しやすい形にまとめるとき、書き手は9分が3分になったのような具体をその一文から落としている。
 
-- 段落の最後に、内容を要約した短い一文を置く
-- 前後の文脈なしで成立する箴言を書く
+- 内容を要約した短い一文
+    - 段落の最後に置く
+- 箴言
+    - 前後の文脈なしで成立する
 
 #### AI版
 
@@ -343,7 +345,7 @@ At nine minutes I start something else while I wait. At three I can just watch t
 
 #### 修正の型
 
-引用されそうな形の一文を見つけたら、内容を前後の文に戻して書き直す。
+そのまま引用できる形の一文を見つけたら、内容を前後の文に戻して書き直す。
 
 ### 文頭のクセ
 
