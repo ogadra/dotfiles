@@ -157,7 +157,7 @@ KDE dropped `org_kde_kwin_blur` in KWin 6.7 and added `ext_background_effect_man
 - 当たれない
     - 誰から聞いたかを書く
 - 当たったが決まらない
-    - 確かめた範囲と、決まらなかった点を書く
+    - その記述ごと削る
 
 伝聞の語を消して断定にするだけの直し方は取らない。裏が取れていない断定になる。
 
