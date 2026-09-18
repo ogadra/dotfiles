@@ -8,16 +8,10 @@
     - "Because Y."
 - "[X] isn't the problem. [Y] is."
     - "[Y] is the problem."
-- "The answer isn't X. It's Y."
-    - "The answer is Y."
-- "It feels like X. It's actually Y."
-    - "It's Y."
-- "The question isn't X. It's Y."
-    - "The question is Y."
+- "[Subject] isn't X. It's Y."
+    - "[Subject] is Y."
 - "Not X. But Y."
     - "Y."
-- "It's not this. It's that."
-    - "It's that."
 - "stops being X and starts being Y"
     - "becomes Y"
 - "doesn't mean X, but actually Y"
@@ -26,6 +20,9 @@
     - "is about X"
 - "not just X but also Y"
     - "X and Y"
+- "X that isn't Y"
+    - Name what breaks it
+        - "The retry loop drops the last error."
 
 #### Before
 
@@ -41,16 +38,12 @@ The best teams optimize for learning.
 
 ### Negative listing
 
-- "Not a X... Not a Y... A Z."
-    - "It's Z."
-- "It wasn't X. It wasn't Y. It was Z."
+- "Not a X... Not a Y... A Z." / "It wasn't X. It wasn't Y. It was Z."
     - "It was Z."
 
 ### Dramatic fragmentation
 
-- "[Noun]. That's it. That's the [thing]."
-    - Write the complete sentence
-- "X. And Y. And Z."
+- "[Noun]. That's it. That's the [thing]." / "X. And Y. And Z."
     - Write the complete sentence
 - "This unlocks something. [Word]."
     - Name what you can do next
@@ -75,8 +68,6 @@ Speed, quality, cost: pick two.
     - Delete
 - "Think about it:"
     - Delete
-- "And that's okay."
-    - Delete
 
 #### Before
 
@@ -90,23 +81,19 @@ It turns out that most teams struggle with alignment. The uncomfortable truth is
 Teams struggle with alignment. Admitting confusion costs you status, so you stay quiet.
 ```
 
-### Formulaic constructions
+### Time-jump openers
 
 - "By the time X, I was Y."
     - Write what happened in order
-- "X that isn't Y"
-    - Name what breaks it
-        - "The retry loop drops the last error."
 
 ### Three-item lists
 
 Search for `three` followed by a noun.
 
-- A heading announcing the count
+- A heading with the count in it
     - Drop the count from the heading
-- Three items listed
-    - Check that all three say something different
-    - Cut the ones that overlap
+- Items padding the list to three
+    - Cut the ones that say the same thing as another item
 
 #### Before
 
@@ -128,28 +115,28 @@ Search for `three` followed by a noun.
 
 ### Uniform paragraph endings
 
-- Paragraphs end on a short punch line
+- You end every paragraph on a short punch line
     - Vary the length of the closing sentence
 - "Not always. Not perfectly."
+    - Delete
+- "And that's okay."
     - Delete
 
 ### Sentence and paragraph starters
 
 - Body sentences starting with a question word
+    - Search for
+        - What
+        - When
+        - Where
+        - Which
+        - Who
+        - Why
+        - How
     - Lead with the subject or the verb
+    - Rewrite "What makes this hard is..." as "The constraint is..."
+        - Name the constraint
 - Paragraphs starting with "So"
     - Start with content
 - Sentences starting with "Look,"
     - Remove
-
-Question words to search for:
-
-- What
-- When
-- Where
-- Which
-- Who
-- Why
-- How
-
-Rewrite "What makes this hard is..." as "The constraint is...", then name the constraint.

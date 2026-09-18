@@ -25,7 +25,7 @@ This refactor has a structural problem. The implications are significant and the
 This refactor left seven places where `OrderService` calls `PaymentGateway` directly. Swapping the payment provider means editing all seven.
 ```
 
-Name the specific thing. If you can't, cut the sentence.
+Name the specific thing — the seven call sites, the missing index, whatever it is. If you can't name it, cut the sentence.
 
 ### Dodging the conclusion
 
@@ -50,10 +50,9 @@ We went with a monorepo. We only have three packages, and keeping their versions
 ### Praising everything
 
 - Each has its own strengths
-    - We use X. We dropped Y
+    - We use X
+    - We dropped Y
 - It's a matter of preference
-    - We picked X
-- There's no single right answer
     - We picked X for this codebase
 
 ### Weak negatives
@@ -63,9 +62,9 @@ We went with a monorepo. We only have three packages, and keeping their versions
 - `this is not ideal`
 - `consider avoiding`
 
-Say `Don't do X`. If you know the breaking point, name it.
+Say `Don't do X`, and name the breaking point when you know it.
 
-- Maintenance cost may grow, so take care
+- Maintenance cost may grow
     - This breaks once the team passes ten people
 
 ### Extremes with no middle
@@ -76,7 +75,7 @@ Say `Don't do X`. If you know the breaking point, name it.
 - `never do this`
 - `by far the best`
 
-Write what you measured:
+Write what you measured.
 
 - `12 minutes down to 3`
 - `within noise`
@@ -142,14 +141,11 @@ This took our median review wait from two days to half a day, measured over 120 
 - `in some cases`
 - `arguably`
 
-A hedge is a word that narrows what you take on. Count those. Attribution words mark where a fact came from.
-
-- `I read that`
-- `the biography says`
+A hedge is a word that narrows what you take on. Two or more in one sentence is the finding.
 
 Write the scope you're claiming.
 
-- This is only my experience and results may vary by org size
+- This is only my experience
     - On my ten-person team
 
 ### Ritual disclaimers
