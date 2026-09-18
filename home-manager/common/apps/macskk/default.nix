@@ -80,7 +80,7 @@ lib.mkIf (!pkgs.stdenv.hostPlatform.isLinux) {
 
   # macSKKは辞書ファイルを再検出するたびに既定のEUC-JPで登録し直すため、UTF-8辞書だと
   # 変換候補が出なくなる。登録エンコーディングをUTF-8(String.Encoding.utf8.rawValue=4)に固定する。
-  home.activation.configureMacSKKDictionary = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+  home.activation.configureMacSKKDictionary = lib.hm.dag.entryAfter [ "signWezTerm" ] ''
     if [ -s "${dictDir}/skk-jisyo.utf8" ] && \
        ! /usr/bin/defaults read ${bundleId} dictionaries 2>/dev/null | /usr/bin/grep -q 'encoding = 4;'; then
       /usr/bin/pkill -x macSKK 2>/dev/null || true
@@ -100,7 +100,7 @@ lib.mkIf (!pkgs.stdenv.hostPlatform.isLinux) {
 
   # macSKKが起動中/cfprefsdがキャッシュを保持していると `defaults write` した設定が
   # 反映されない/直後に上書きされることがあるので、書き込み前に停止しキャッシュを飛ばす
-  home.activation.configureMacSKKKeyBindings = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+  home.activation.configureMacSKKKeyBindings = lib.hm.dag.entryAfter [ "signWezTerm" ] ''
     if [ -d "${prefsDir}" ] && [ "$(/usr/bin/defaults read ${bundleId} selectedKeyBindingSetId 2>/dev/null)" != "${keyBindingSetId}" ]; then
       /usr/bin/pkill -x macSKK 2>/dev/null || true
       /usr/bin/killall cfprefsd 2>/dev/null || true
