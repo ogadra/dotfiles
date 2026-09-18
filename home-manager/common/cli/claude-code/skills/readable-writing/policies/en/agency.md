@@ -15,7 +15,7 @@ Inanimate things taking human verbs.
 - the decision emerges
     - Someone decides
 - the culture shifts
-    - People change behavior
+    - Your teammates change what they do
 - the conversation moves toward
     - Someone steers it
 - the data tells us
@@ -38,10 +38,9 @@ Inanimate things taking human verbs.
 
 ### Narrator from a distance
 
-The writer describes the scene from above, so the reader never stands in it.
-
 - Nobody designed this.
-    - Someone took the shortcut under a deadline, and it stayed
+    - Someone took the shortcut under a deadline
+    - It stayed
 - This happens because...
     - Name the mechanism you saw
 - This is why...
@@ -62,24 +61,26 @@ The writer describes the scene from above, so the reader never stands in it.
 
 1. Read each sentence subject
     - Collect the ones where an inanimate noun takes an active verb
-2. Search for these, followed by a past participle
+2. Search for these
     - Search terms
         - `was`
         - `were`
         - `is being`
+    - Each followed by a past participle
     - Check whether the actor appears in the text
-3. Search for these
+3. Collect generalized subjects
     - Search terms
         - `people`
         - `everyone`
-        - `nobody`
         - `teams`
-        - `we`
-    - Check whether you can name someone specific for each
-4. Search for these
-    - Search terms
         - `many engineers`
         - `developers`
         - `matters in`
         - `is important`
-    - Check whether you can replace the sentence with something the writer did on a named day
+    - Replace the sentence with something the writer did on a named day
+4. Collect the sentences that explain why something happened
+    - Search terms
+        - `nobody`
+        - `this happens because`
+        - `this is why`
+    - Check whether the writer names the mechanism they saw

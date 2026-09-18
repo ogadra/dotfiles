@@ -7,7 +7,7 @@
 - Why We Chose X
     - Reasons for picking X
 - What X Taught Us About Y
-    - What we found in the X outage
+    - Findings from the X outage
 - X Dies the Moment You Lose Y
     - Impact of removing Y
 - Three Principles From the Trenches
@@ -17,29 +17,24 @@
 
 ### Announcing the structure
 
-- The rest of this essay explains...
-    - Delete
-- Let me walk you through...
-    - Delete
-- In this section, we'll...
-    - Delete
-- As we'll see...
-    - Delete
-- I want to explore...
-    - Delete
+- Delete
+    - The rest of this essay explains...
+    - Let me walk you through...
+    - In this section, we'll...
+    - As we'll see...
+    - I want to explore...
 
 ### Writing what you won't do
 
-- Non-goals: anything the marketing team owns
-    - Delete
-- We chose not to use a NAT gateway
-    - Delete
-- We don't send the token in the query string
-    - The client sends the token in the `Authorization` header
-- CloudTrail has no record of `DisassociateAddress`
-    - Keep
-- You can't find out from the API whether an ENI is live
-    - Keep
+- Delete
+    - Non-goals: anything the marketing team owns
+    - We chose not to use a NAT gateway
+- Rewrite as what you do
+    - We don't send the token in the query string
+        - The client sends the token in the `Authorization` header
+- Keep
+    - CloudTrail has no record of `DisassociateAddress`
+    - You can't find out from the API whether an ENI is live
 
 #### Before
 
@@ -65,7 +60,7 @@
 - READMEs
 ```
 
-### Bold headings and out-of-scope at the head of a design document
+### The head of a design document
 
 #### Before
 

@@ -6,7 +6,7 @@
 
 ### 二項対比
 
-`XではなくYだ` と書いてしまう。直接Yを書けば済む。
+`XではなくYだ` と書いてしまう。Yを書き、否定が絞っていた範囲も肯定文に含める。
 
 #### AI版
 
@@ -42,7 +42,7 @@ This skill keeps what the writer saw and got stuck on in the text.
 
 ### 否定的列挙
 
-何かを示す前に、何でないかを並べている。
+示したいものの前に、何でないかが並ぶ。
 
 #### AI版
 
@@ -88,81 +88,9 @@ The cause was the cache. Adding one took the build from nine minutes to three.
 
 完全な文に戻す。
 
-### 修辞疑問
-
-洞察を届けずに、あると予告だけしている。
-
-#### AI版
-
-```
-では、なぜビルドはこれほど遅かったのか? 答えは意外なところにあった。
-
-So why was the build so slow? The answer was somewhere I didn't expect.
-```
-
-#### 修正版
-
-```
-ビルドが遅かったのは、キャッシュを挟んでいなかったからだった。
-
-The build was slow because there was no cache in front of it.
-```
-
-#### 修正の型
-
-問いを立てずに答えを書く。実際に何をしたかから入る。
-
-### 決めつけ序文
-
-冒頭で強い断定を投げ、すぐ反転させる。
-
-#### AI版
-
-```
-多くの開発者はビルド時間を軽視している。だが、実際にはそれが最も大きなボトルネックだ。
-
-Most developers don't take build times seriously. In reality, it's the biggest bottleneck they have.
-```
-
-#### 修正版
-
-```
-自分はビルドが9分かかることを3ヶ月放置していた。計測したら1日6回回していて、待ち時間が54分あった。
-
-I left a nine-minute build alone for three months. When I measured, I was running it six times a day and waiting fifty-four minutes.
-```
-
-#### 修正の型
-
-冒頭の決めつけを「自分は○○だった」に書き換える。
-
-### 定型の語り出し
-
-物語のテンプレートをそのまま当てはめている。
-
-#### AI版
-
-```
-すべては1本のissueから始まった。最初は誰も気に留めなかった。しかし、そこから物語は動き出す。
-
-It all started with a single issue. Nobody paid attention at first. But that's where the story begins.
-```
-
-#### 修正版
-
-```
-7月に「ビルドが遅い」というissueが立った。2ヶ月動きがなく、9月に自分が計測した。
-
-Someone filed a "builds are slow" issue in July. It sat for two months. I measured it in September.
-```
-
-#### 修正の型
-
-何が起きたかを時系列で書く。
-
 ### 一文圧縮
 
-年代、人名、定義、評価が1文か2文に詰まっている。
+年代、人名、定義、評価が1文か2文に詰まる。
 
 #### AI版
 
@@ -191,7 +119,7 @@ Bauer was born in New York in 1958. He was an early cognitive science researcher
 
 ### 3項目並列
 
-3つ並べたがる。`3つのポイント` のような見出しに出る。
+`3つのポイント` のような見出しに出る。
 
 #### AI版
 
@@ -227,7 +155,7 @@ Bauer was born in New York in 1958. He was an early cognitive science researcher
 
 ### ムラの欠如
 
-書き手が段落の長さもトーンも揃えてしまう。どこに時間をかけてどこを流したかが長さと密度に出ないので、読み手は書き手が何に引っかかったのかを追えない。
+段落の長さもトーンも揃えてしまう。どこに時間をかけてどこを流したかが長さと密度に出ないので、読み手は書き手が何に引っかかったのかを追えない。
 
 #### AI版
 
@@ -320,10 +248,12 @@ The waiting changed the most.
 
 ### pull-quote調
 
-そのまま切り出して引用できる一文を、書き手が狙って書いている。引用しやすい形にまとめると、9分が3分になったのような具体がその一文から落ちる。
+そのまま切り出して引用できる一文を狙って書いている。引用しやすい形にまとめるとき、9分が3分になったのような具体をその一文から落としている。
 
-- 段落の最後に、内容を要約した短い一文を置く
-- 前後の文脈なしで成立する箴言を書く
+- 内容を要約した短い一文
+    - 段落の最後に置く
+- 箴言
+    - 前後の文脈なしで成立する
 
 #### AI版
 
@@ -343,7 +273,7 @@ At nine minutes I start something else while I wait. At three I can just watch t
 
 #### 修正の型
 
-引用されそうな形の一文を見つけたら、内容を前後の文に戻して書き直す。
+そのまま引用できる形の一文を見つけたら、内容を前後の文に戻して書き直す。
 
 ### 文頭のクセ
 
@@ -374,25 +304,20 @@ This skill reviews from seven perspectives. It works in Japanese and English, an
 1. 否定のあとに肯定が続く形を集める
 2. 否定が3回以上続く箇所を探す
 3. 名詞で終わる短文が3つ以上連続する箇所を探す
-4. 疑問文を集める
-    - 直後に答えが続くものを指摘する
-5. 冒頭の段落を読む
-    - 断定から反転に入っていないか確かめる
-    - 物語の型で書き出していないか確かめる
-6. 3項目並列を探す
+4. 3項目並列を探す
     - 探す語
         - `3つの`
         - `three`
     - 見出しで項目数を宣言している箇条書きを集める
     - 項目数が3で、中身の重なる項目がある箇条書きを集める
-7. 段落ごとに文字数を数える
+5. 段落ごとに文字数を数える
     - 分散が小さい箇所を集める
-8. 各段落の最終文を集める
+6. 各段落の最終文を集める
     - 同じ形で終わっていないか確かめる
     - 前後の文脈なしで成立する一文を集める
-9. 各文の文頭を集める
+7. 各文の文頭を集める
     - 同じ語が繰り返されていないか確かめる
-10. 1文に並んでいる箇所を集める
+8. 1文に並んでいる箇所を集める
     - 探すもの
         - 生年
         - 地名

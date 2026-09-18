@@ -6,7 +6,7 @@
 
 ### 反証できない主張
 
-重要だ、深い、構造的だと言うが、何がどうしてそうなのかを書かない文。読み手が反論しようとしても、反論する対象がない。
+重要だ、深い、構造的だと言うが、何がどうしてそうなのかを書かない文。
 
 #### AI版
 
@@ -32,7 +32,7 @@ Putting a queue in front means jobs survive a worker restart.
 
 ### 結論の回避
 
-すべての立場を紹介して、書き手はどれも選ばない。比較や技術選定でどれも肯定して終わる形も含む。
+すべての立場を紹介して、どれも選ばない。比較や技術選定でどれも肯定して終わる形も含む。
 
 #### AI版
 
@@ -72,8 +72,6 @@ We went with Drizzle. I tried Prisma too, but the generated client hit the Lambd
 
 ### 弱い否定
 
-やるなと言うべき場面で、書き手が言葉を弱めている。
-
 #### AI版
 
 ```
@@ -98,7 +96,7 @@ Don't run migrations directly against production.
 
 ### 強度の振り切り
 
-書き手が評価を両極端に振り、中間の温度を書かない。実際の検証結果はこうなる。
+評価を両極端に振り、中間の温度を書かない。実際の検証結果はこうなる。
 
 - `12分が3分になった`
 - `誤差の範囲だった`
@@ -125,37 +123,47 @@ Caching took the first build from nine minutes to three. Later builds were alrea
 - 数字を出せる場合
     - 数字で書く
 - 数字を出せない場合
-    - 控えめに書く
+    - 確かめた結果をそのまま書く
 
-### 根拠のない強い評価
+### 裏を取らない伝聞
 
-評価だけを置いて、根拠を添えていない。
+上流の変更、リリース日、対応状況、仕様がこの形になりやすい。
 
 #### AI版
 
 ```
-この実装は非常に堅牢で、運用面でも優れている。
+KDEはKWin 6.7で `org_kde_kwin_blur` を外したらしい。weztermは後継のプロトコルにまだ対応していないようだ。
 
-This implementation is highly robust and operationally excellent.
+KDE seems to have dropped `org_kde_kwin_blur` in KWin 6.7. wezterm reportedly does not speak its replacement yet.
 ```
 
 #### 修正版
 
 ```
-この実装は、ワーカーが落ちても未処理のジョブを取りこぼさない。3ヶ月動かして、再起動を12回挟んでも欠落は出ていない。
+KDEの開発者はKWin 6.7で `org_kde_kwin_blur` を外し、`ext_background_effect_manager_v1` を入れた。weztermの開発者はPR #7615でこの新プロトコルに対応した。
 
-This implementation doesn't drop unprocessed jobs when a worker dies. It's been running three months across twelve restarts with no losses.
+KDE dropped `org_kde_kwin_blur` in KWin 6.7 and added `ext_background_effect_manager_v1`. wezterm picked up the new protocol in PR #7615.
 ```
 
 #### 修正の型
 
-- 評価の直後に、そう言える根拠を1つ置く
-- 置けない場合
-    - 評価を削る
+伝聞の語を見つけたら、まず出典を当たる。
+
+- 当たれる
+    - 調べて断定で書く
+    - 出典をどれか1つ添える
+        - コミット
+        - PR番号
+        - リリース
+        - 仕様書
+- 当たれない
+    - 誰から聞いたかを書く
+- 当たったが決まらない
+    - その記述ごと削る
 
 ### ヘッジの重ね掛け
 
-1つの段落に、書き手が保険を2つも3つも重ねている。保険は、書き手が引き受ける範囲を狭める語を指す。`らしい` `ようだ` `と聞いた` は事実の出所を示す語にあたる。
+1つの段落に、保険を2つも3つも重ねている。保険とは、事実の出所を示さずに引き受ける範囲を狭める語だ。
 
 #### AI版
 
@@ -178,8 +186,6 @@ I've confirmed this works up to a hundred thousand jobs a day. I haven't tried m
 保留したい範囲を、具体的な適用範囲として1回だけ書く。
 
 ### 儀式化した免責
-
-節の終わりごとに保険文を足している。
 
 #### AI版
 
@@ -230,15 +236,16 @@ We retry up to three times. I picked that from a workload of a hundred thousand 
 1. 断定を含む文を集める
     - 誰かが反論できるか確かめる
     - 反論する対象が無いものが反証できない主張
-2. 評価語を含む文を集める
-    - 直後か直前に根拠があるか確かめる
-3. 段落ごとに、引き受ける範囲を狭める語の数を数える
+2. 段落ごとに、引き受ける範囲を狭める語の数を数える
     - 2つ以上ある段落を指摘する
-4. 各節の最終段落を集める
+3. 各節の最終段落を集める
     - 保険文になっていないか確かめる
-5. 比較を含む節を集める
-    - 書き手が何を選んだかが書かれているか確かめる
-6. 禁止を伝える文を集める
-    - 書き手が否定を弱めていないか確かめる
-7. 極端な評価語を集める
+4. 比較を含む節を集める
+    - 何を選んだかを書いているか確かめる
+5. 禁止を伝える文を集める
+    - 否定を弱めていないか確かめる
+6. 極端な評価語を集める
     - 数字に置き換えられるか確かめる
+7. 伝聞の語を含む文を集める
+    - 述べている事実に出典があるか確かめる
+    - 出典に当たれるものを指摘する

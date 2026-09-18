@@ -36,6 +36,10 @@ for my $i (0 .. $#lines) {
         $skip[$i] = 1;
         next;
     }
+    if ($line =~ /^Co-Authored-By:/i) {
+        $skip[$i] = 1;
+        next;
+    }
     $skip[$i] = $in_code || $line =~ /^\s{4,}\S/ && $line !~ /^\s*(?:[-*+]|\d+\.)\s/;
 }
 
@@ -259,7 +263,8 @@ if ($lang{ja}) {
     }
     if (@polite && $plain) {
         add('語彙', $polite[0], $lines[ $polite[0] - 1 ], '文末の敬体',
-            '敬体と常体が混ざっている。', undef);
+            '敬体と常体が混ざっている。',
+            '文書全体を常体に書き換える。体言止めもこれに入る。敬体に揃える形は取らない。');
     }
 }
 

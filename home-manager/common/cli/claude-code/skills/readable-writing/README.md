@@ -11,11 +11,9 @@ AIが書いた文章特有の読みにくさを解消するClaude Skill。
 - コード内コメント
 - 実装計画書
 
-`scripts/review.sh` が観点ごとに `claude -p` を並列で起動する。集まった指摘は、スキルを呼んだClaudeが同じセッションで直し、修正後の文章だけを返す。
+観点ごとに、`scripts/review.sh` が `claude -p` を並列で起動する。集まった指摘は、スキルを呼んだClaudeが同じセッションで直し、修正後の文章だけを返す。
 
 ## 由来
-
-ベースにしたもの。
 
 - 日本語のパターン
     - [iKora128/stop-ai-slop-jp](https://github.com/iKora128/stop-ai-slop-jp)
@@ -61,7 +59,7 @@ policies/
 
 ## ポリシーの選択
 
-`review.sh` が言語を判定し、該当ファイルの中身をプロンプトに埋め込む。
+言語を見て、`review.sh` が該当ファイルの中身をプロンプトに埋め込む。
 
 - 日本語
     - `common/`
@@ -76,12 +74,11 @@ policies/
 
 ## 指摘のログ
 
-`review.sh` は出した指摘を `${XDG_STATE_HOME:-~/.local/state}/readable-writing/findings.tsv` に追記する。実行をまたいで積むので、どのルールを何回使ったかを自分で数えられる。
+出した指摘を、`review.sh` が `${XDG_STATE_HOME:-~/.local/state}/readable-writing/findings.tsv` に追記する。実行をまたいで積むので、過去の実行で出た指摘も同じファイルに残る。
 
 1指摘1行のTSV。ヘッダ行はない。列は `review.sh` の `log_findings` にある。
 
-- 残るのは `review.sh` が出した指摘だけ
-- 肥大したら自分で切る
+肥大したら自分で切る。
 
 ## ルールの追加と修正
 
