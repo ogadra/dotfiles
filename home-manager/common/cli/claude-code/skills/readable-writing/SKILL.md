@@ -1,6 +1,6 @@
 ---
 name: readable-writing
-description: 文章を書くときに使う。既にある文章を渡されたら、AI特有の読みにくさをレビューし、指摘をすべて修正する。Writes and reviews prose for AI writing patterns and rewrites it.
+description: 文章を書くときに使う。ユーザーが既にある文章を渡した場合、AI特有の読みにくさをレビューし、指摘をすべて修正する。Writes and reviews prose for AI writing patterns and rewrites it.
 allowed-tools: Bash(bash ~/.claude/skills/readable-writing/scripts/review.sh:*), Bash(mktemp:*), Read, Edit, Write, Glob, Grep, AskUserQuestion
 metadata:
   trigger:
@@ -50,19 +50,15 @@ metadata:
 
 `$1` を起点にする
 
-- ファイルパスの場合
-    - そのパスを使う
 - ディレクトリの場合
     - Globでファイルを集める
     - 対象をユーザーに確認する
     - ファイルごとにステップ2から繰り返す
 - 会話中の下書きの場合
     - 一時ファイルに書き出す
-    - そのファイルのパスを使う
 - これから書く場合
     - 先に下書きを最後まで書く
     - 一時ファイルに書き出す
-    - そのファイルのパスを使う
 - ユーザーが渡さなかった場合
     - 対象を聞く
 
@@ -80,10 +76,6 @@ bash ~/.claude/skills/readable-writing/scripts/review.sh <ファイルパス>
     - 同一ファイル内は行番号の昇順
 - 指摘の採否
     - `quote` が本文に実在するかだけで決める
-        - 実在しない
-            - 捨てる
-        - 実在する
-            - 直す
     - 書き先の慣例と食い違う指摘も直す
         - コミットメッセージの72桁折り返しより `文中での改行` の指摘を優先する
 
@@ -112,7 +104,7 @@ bash ~/.claude/skills/readable-writing/scripts/review.sh <ファイルパス>
 - 書き換えるとき
     - 別の観点のポリシーに違反しないか確認する
         - 二項対比を括弧に逃がす
-            - 括弧による後置補足のポリシーに違反
+            - 括弧による後置補足のポリシーに違反する
 - 直し方に迷った場合
     - `category` の節を該当ポリシーで開く
     - AI版と修正版の対比を読む
