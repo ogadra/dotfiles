@@ -6,7 +6,7 @@
 
 ### 反証できない主張
 
-重要だ、深い、構造的だと言うが、何がどうしてそうなのかを書かない文。
+重要だ、深い、構造的だとだけあって、何がどうしてそうなのかが無い文。
 
 #### AI版
 
@@ -127,7 +127,12 @@ Caching took the first build from nine minutes to three. Later builds were alrea
 
 ### 裏を取らない伝聞
 
-上流の変更、リリース日、対応状況、仕様がこの形になりやすい。
+次のものがこの形になりやすい。
+
+- 上流の変更
+- リリース日
+- 対応状況
+- 仕様
 
 #### AI版
 
@@ -163,7 +168,7 @@ KDE dropped `org_kde_kwin_blur` in KWin 6.7 and added `ext_background_effect_man
 
 ### ヘッジの重ね掛け
 
-1つの段落に、保険を2つも3つも重ねている。保険とは、事実の出所を示さずに引き受ける範囲を狭める語だ。
+保険とは、書き手が事実の出所を示さずに引き受ける範囲を狭めるときに使う語。
 
 #### AI版
 
@@ -176,14 +181,16 @@ This approach may perhaps be effective, at least for now, under certain conditio
 #### 修正版
 
 ```
-この方法は、1日あたり10万件までのジョブで動くことを確認している。それを超える量は試していない。
+この方法は、1日あたり10万件までのジョブで動くことを確認している。
 
-I've confirmed this works up to a hundred thousand jobs a day. I haven't tried more than that.
+I've confirmed this works up to a hundred thousand jobs a day.
 ```
 
 #### 修正の型
 
-保留したい範囲を、具体的な適用範囲として1回だけ書く。
+- 確かめた範囲を、具体的な適用範囲として1回だけ書く
+- 適用範囲が読み手の判断を変えない場合
+    - その節ごと消す
 
 ### 儀式化した免責
 
@@ -229,7 +236,10 @@ We retry up to three times. I picked that from a workload of a hundred thousand 
 
 #### 修正の型
 
-必要な保留は1つの文書に1回か2回まで。
+- 免責の文を削る
+- 数字を決めた根拠がある場合
+    - 「この回数は1日10万件のジョブで決めた」のように根拠に置き換える
+- 必要な保留は1つの文書に1回か2回まで
 
 ## 検出手順
 
@@ -240,12 +250,9 @@ We retry up to three times. I picked that from a workload of a hundred thousand 
     - 2つ以上ある段落を指摘する
 3. 各節の最終段落を集める
     - 保険文になっていないか確かめる
-4. 比較を含む節を集める
-    - 何を選んだかを書いているか確かめる
-5. 禁止を伝える文を集める
-    - 否定を弱めていないか確かめる
-6. 極端な評価語を集める
-    - 数字に置き換えられるか確かめる
+4. 比較を含む節で、何を選んだかを書いているか確かめる
+5. 禁止を伝える文の否定が弱まっていないか確かめる
+6. 極端な評価語を数字に置き換えられるか試す
 7. 伝聞の語を含む文を集める
     - 述べている事実に出典があるか確かめる
     - 出典に当たれるものを指摘する
