@@ -16,10 +16,11 @@ allowed-tools: Bash(git status:*), Bash(git diff:*), Bash(git log:*), Bash(git r
 
 - 理由
 - 見出し
-- 箇条書き
 - 動作確認
 - 変更ファイルの列挙
 - `Generated with` のような定型句
+
+箇条書きは使ってよい。1項目が1行として数えられる。
 
 ## 手順
 

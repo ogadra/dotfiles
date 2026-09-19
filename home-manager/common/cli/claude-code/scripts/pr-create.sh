@@ -37,7 +37,7 @@ fi
 if [ "$lines" -gt "$MAX_LINES" ]; then
   cat >&2 <<EOF
 pr-create.sh: bodyが${lines}行ある。${MAX_LINES}行以内に収める。
-やったことだけを書く。理由、見出し、箇条書き、動作確認、変更ファイルの列挙は書かない。
+やったことだけを書く。理由、見出し、動作確認、変更ファイルの列挙は書かない。
 EOF
   exit 1
 fi

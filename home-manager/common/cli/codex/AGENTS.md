@@ -13,7 +13,7 @@
 ## Pull Requests
 
 - Write at most three lines in the PR body, stating what was done.
-- Do not write the rationale, headings, bullet lists, test plans, or a list of changed files.
+- Do not write the rationale, headings, test plans, or a list of changed files.
 
 ## Comments
 
