@@ -26,6 +26,7 @@ let
     ../../common/cli/hunk
     ../../common/cli/jq
     ../../common/cli/mpv
+    ../../common/cli/rtk
     ../../common/cli/starship
     ../../common/cli/takt
     ../../common/cli/tmux
