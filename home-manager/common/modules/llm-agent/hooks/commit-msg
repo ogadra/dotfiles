@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+# Reject a commit message that carries a body.
+# A change that needs prose is a change that should be several commits.
+# Blank lines and trailers ("Key: value") after the subject are fine.
+set -u
+
+GIT_DIR=$(git rev-parse --git-dir)
+for STATE in MERGE_HEAD REVERT_HEAD CHERRY_PICK_HEAD; do
+  # git writes a body of its own for these, so leave them alone.
+  [ -e "$GIT_DIR/$STATE" ] && exit 0
+done
+
+TRAILER_RE='^[A-Za-z][A-Za-z0-9-]*: .'
+SUBJECT_SEEN=0
+
+while IFS= read -r LINE; do
+  case "$LINE" in '#'*) continue ;; esac
+  [ -n "$LINE" ] || continue
+  if [ "$SUBJECT_SEEN" -eq 0 ]; then
+    SUBJECT_SEEN=1
+    continue
+  fi
+  [[ "$LINE" =~ $TRAILER_RE ]] && continue
+  printf 'Rejected: the commit message has a body line: "%s".\n' "$LINE" >&2
+  printf 'Keep the message to one subject line. When a change needs more, split it into several commits.\n' >&2
+  exit 1
+done < "$1"
+exit 0

@@ -6,3 +6,6 @@
 
 [push]
 	default = nothing
+
+[core]
+	hooksPath = ~/.config/git/hooks-llm-agent
