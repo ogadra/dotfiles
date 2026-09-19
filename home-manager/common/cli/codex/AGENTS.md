@@ -10,6 +10,11 @@
 - Use `git rm` instead of `rm` for files tracked by git.
 - Write commit messages in English using conventional commit format (`feat:`, `fix:`, `docs:`, `style:`, `refactor:`, `test:`, `chore:`).
 
+## Pull Requests
+
+- Write at most three lines in the PR body, stating what was done.
+- Do not write the rationale, headings, test plans, or a list of changed files.
+
 ## Comments
 
 - When modifying comments, change the entire comment so that it does not feel like revision history. Do not append parenthesized notes to old comments.
