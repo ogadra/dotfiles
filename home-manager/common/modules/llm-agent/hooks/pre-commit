@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# Agent sessions point core.hooksPath at their own directory, so hand the
+# regular pre-commit checks back to the one shared with human sessions.
+set -u
+
+HOOK="$HOME/.config/git/hooks/pre-commit"
+[ -x "$HOOK" ] || exit 0
+exec "$HOOK" "$@"

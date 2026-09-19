@@ -5,6 +5,7 @@
 - Always check files before staging: use `git status` and `git diff` to verify changes before running `git add`.
 - Use `git rm` instead of `rm` for files tracked by git.
 - Write commit messages in English using conventional commit format (feat:, fix:, docs:, style:, refactor:, test:, chore:).
+- Keep each commit small enough that a single-line subject describes it fully. Split the change into several commits instead of writing a message body.
 
 ## Comments
 
