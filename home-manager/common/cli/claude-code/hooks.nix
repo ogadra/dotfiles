@@ -73,6 +73,13 @@ in
             type = "command";
             command = "$HOME/.claude/scripts/pre-bash.sh";
           }
+          # rtk proxy へコマンドを書き換え、出力を圧縮してトークンを削減する。
+          # 禁止コマンドの判定は書き換え前の入力に対して行われるため、
+          # pre-bash.sh のガードはこの hook の影響を受けない。
+          {
+            type = "command";
+            command = "rtk hook claude";
+          }
         ];
       }
     ];
