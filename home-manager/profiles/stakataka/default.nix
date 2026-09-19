@@ -32,6 +32,7 @@ let
     ../../common/cli/fzf
     ../../common/cli/mpv
     ../../common/cli/nano
+    ../../common/cli/rtk
     ../../common/cli/starship
     ../../common/cli/tmux
     ../../common/cli/tree
