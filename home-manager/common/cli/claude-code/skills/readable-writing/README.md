@@ -11,7 +11,7 @@ AIが書いた文章特有の読みにくさを解消するClaude Skill。
 - コード内コメント
 - 実装計画書
 
-観点ごとに、`scripts/review.sh` が `claude -p` を並列で起動する。集まった指摘は、スキルを呼んだClaudeが同じセッションで直し、修正後の文章だけを返す。
+観点ごとに、`scripts/review.sh` が `claude -p` を並列で起動する。集まった指摘は、スキルを呼んだClaudeが同じセッションで直し、修正後の文章だけを返す。ポリシー全文はレビュアーだけが持ち、直すClaudeは `SKILL.md` の検出対象の一覧から必要な節だけを開く。
 
 ## 由来
 
@@ -24,7 +24,7 @@ AIが書いた文章特有の読みにくさを解消するClaude Skill。
 ## 構成
 
 ```
-SKILL.md                 対象、レビューの起動、統合、修正
+SKILL.md                 対象、レビューの起動、統合、修正、検出対象の一覧
 scripts/
 ├── review.sh            観点ごとに claude -p を並列起動し、findingsのJSONを返す
 ├── mechanical.pl        正規表現で確定判定できるものを集める
@@ -96,6 +96,7 @@ policies/
 | 主語の立て方 | `policies/common/agency.md` |
 | 主張の強さ、引き受け方 | `policies/common/stance.md` |
 | 対象文書、統合、修正 | `SKILL.md` |
+| 検出対象を足す | `policies/<lang>/<観点>.md` と `SKILL.md` の一覧 |
 | プロンプトの組み立て、言語判定、並列の起動 | `scripts/review.sh` |
 | 正規表現で決まる規則の検出 | `scripts/mechanical.pl` |
 
@@ -106,7 +107,7 @@ policies/
 - `scripts/review.sh`
     - `perspectives` に行を足す
 - `SKILL.md`
-    - 対応表に行を足す
+    - 対応表と検出対象の一覧に行を足す
 
 ## ライセンス
 
