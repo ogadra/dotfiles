@@ -14,8 +14,8 @@ in
     function module.apply_to_config(config, wezterm)
       local act = wezterm.action
 
-      -- Send the tmux prefix (C-q = \x11) followed by a command key
-      local function tmux(cmd)
+      -- Send the herdr prefix (C-q = \x11) followed by a command key
+      local function herdr(cmd)
         return act.SendString('\x11' .. cmd)
       end
 
@@ -29,12 +29,12 @@ in
       { key = '=', mods = '${mod}', action = act.IncreaseFontSize },
       { key = '-', mods = '${mod}', action = act.DecreaseFontSize },
 
-      -- Tab Control (delegated to tmux)
-      { key = 't', mods = '${mod}', action = tmux('c') },
-      { key = 'w', mods = '${mod}', action = tmux('w') },
+      -- Tab Control (delegated to herdr)
+      { key = 't', mods = '${mod}', action = herdr('c') },
+      { key = 'w', mods = '${mod}', action = herdr('w') },
 
-      { key = 'Tab', mods = 'CTRL', action = tmux('n') },
-      { key = 'Tab', mods = 'SHIFT|CTRL', action = tmux('p') },
+      { key = 'Tab', mods = 'CTRL', action = herdr('n') },
+      { key = 'Tab', mods = 'SHIFT|CTRL', action = herdr('p') },
 
       -- Copy & Paste
       { key = 'c', mods = '${mod}', action = act.CopyTo("Clipboard") },
@@ -43,19 +43,19 @@ in
       -- Line Edit
       { key = 'k', mods = 'CTRL', action = act.SendKey { key = 'k', mods = 'CTRL' } },
 
-      -- Pane Split (delegated to tmux)
-      { key = 'd', mods = '${mod}', action = tmux('%') },
+      -- Pane Split (delegated to herdr)
+      { key = 'd', mods = '${mod}', action = herdr('%') },
 
-      -- CopyMode (delegated to tmux)
-      { key = "X", mods = "CTRL", action = tmux('[') },
+      -- CopyMode (delegated to herdr)
+      { key = "X", mods = "CTRL", action = herdr('[') },
 
-      -- tmux prefix
+      -- herdr prefix
       { key = 'q', mods = 'CTRL', action = act.SendString('\x11') },
     }
 
-    -- Open the link under the cursor with Ctrl+click. tmux's mouse mode makes
-    -- wezterm forward plain clicks to tmux, so the mouse_reporting=true variant
-    -- is required for the binding to fire inside tmux panes.
+    -- Open the link under the cursor with Ctrl+click. herdr's mouse capture makes
+    -- wezterm forward plain clicks to herdr, so the mouse_reporting=true variant
+    -- is required for the binding to fire inside herdr panes.
     config.mouse_bindings = {
       {
         event = { Up = { streak = 1, button = 'Left' } },
