@@ -7,7 +7,9 @@ model=$(jq -r '.model.display_name // .model.id // ""' <<<"$input")
 effort=$(jq -r '.model.effort_level // .model.reasoning_effort // .effort_level // .reasoning_effort // "high"' <<<"$input")
 ctx_pct=$(jq -r '.context_window.used_percentage // empty' <<<"$input")
 rl_5h=$(jq -r '.rate_limits.five_hour.used_percentage // empty' <<<"$input")
+rl_5h_reset=$(jq -r '.rate_limits.five_hour.resets_at // empty' <<<"$input")
 rl_7d=$(jq -r '.rate_limits.seven_day.used_percentage // empty' <<<"$input")
+rl_7d_reset=$(jq -r '.rate_limits.seven_day.resets_at // empty' <<<"$input")
 
 RESET=$'\033[0m'
 MODEL_COLOR=$'\033[93m'
@@ -18,6 +20,10 @@ SEPARATOR_COLOR=$'\033[2m'
 
 colorize() {
   printf '%s%s%s' "$1" "$2" "$RESET"
+}
+
+format_epoch() {
+  date -d "@$1" +"$2" 2>/dev/null || date -r "$1" +"$2" 2>/dev/null || true
 }
 
 # ccusage呼び出し結果のキャッシュ。
@@ -65,10 +71,24 @@ if [ -n "$ctx_pct" ]; then
 fi
 
 if [ -n "$rl_5h" ]; then
-  parts+=("$(colorize "$LIMIT_COLOR" "$(printf '5h %.0f%% used' "$rl_5h")")")
+  rl_5h_str=$(printf '5h %.0f%% used' "$rl_5h")
+  if [ -n "$rl_5h_reset" ]; then
+    rl_5h_at=$(format_epoch "$rl_5h_reset" '%H:%M')
+    if [ -n "$rl_5h_at" ]; then
+      rl_5h_str="$rl_5h_str (resets $rl_5h_at)"
+    fi
+  fi
+  parts+=("$(colorize "$LIMIT_COLOR" "$rl_5h_str")")
 fi
 if [ -n "$rl_7d" ]; then
-  parts+=("$(colorize "$LIMIT_COLOR" "$(printf 'weekly %.0f%% used' "$rl_7d")")")
+  rl_7d_str=$(printf 'weekly %.0f%% used' "$rl_7d")
+  if [ -n "$rl_7d_reset" ]; then
+    rl_7d_at=$(format_epoch "$rl_7d_reset" '%-m/%-d %H:%M')
+    if [ -n "$rl_7d_at" ]; then
+      rl_7d_str="$rl_7d_str (resets $rl_7d_at)"
+    fi
+  fi
+  parts+=("$(colorize "$LIMIT_COLOR" "$rl_7d_str")")
 fi
 
 cost_parts=()
