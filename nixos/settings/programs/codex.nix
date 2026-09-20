@@ -21,6 +21,10 @@ in
       source = shared + "/scripts/git/block-default-push.sh";
       mode = "0555";
     };
+    "codex/hooks/git/block-force-push.sh" = {
+      source = shared + "/scripts/git/block-force-push.sh";
+      mode = "0555";
+    };
     "codex/hooks/git/block-no-verify.sh" = {
       source = shared + "/scripts/git/block-no-verify.sh";
       mode = "0555";

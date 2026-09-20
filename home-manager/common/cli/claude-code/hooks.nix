@@ -90,6 +90,7 @@ in
     ".claude/scripts/statusline.sh" = mkScript ./scripts/statusline.sh;
     ".claude/scripts/git/check.sh" = mkScript (shared + "/scripts/git/check.sh");
     ".claude/scripts/git/block-default-push.sh" = mkScript (shared + "/scripts/git/block-default-push.sh");
+    ".claude/scripts/git/block-force-push.sh" = mkScript (shared + "/scripts/git/block-force-push.sh");
     ".claude/scripts/git/block-no-verify.sh" = mkScript (shared + "/scripts/git/block-no-verify.sh");
     ".claude/scripts/git/block-clone.sh" = mkScript (shared + "/scripts/git/block-clone.sh");
     ".claude/scripts/gh/check.sh" = mkScript (shared + "/scripts/gh/check.sh");
