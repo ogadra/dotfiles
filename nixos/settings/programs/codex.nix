@@ -29,6 +29,10 @@ in
       source = shared + "/scripts/git/block-no-verify.sh";
       mode = "0555";
     };
+    "codex/hooks/git/block-amend-pushed.sh" = {
+      source = shared + "/scripts/git/block-amend-pushed.sh";
+      mode = "0555";
+    };
     "codex/hooks/git/block-clone.sh" = {
       source = shared + "/scripts/git/block-clone.sh";
       mode = "0555";
