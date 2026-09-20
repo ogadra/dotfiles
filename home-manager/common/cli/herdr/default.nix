@@ -11,6 +11,10 @@ let
   teal = "#37dddd";
   blue = "#7878ff";
 
+  # Herdr cannot dim inactive panes, so the unfocused pane border sits well
+  # below dimOrange to let the accent-colored focused border stand out
+  fadedOrange = "#6b4126";
+
   # Emit a tab-bar git segment only when the focused pane is inside a repo.
   # Herdr strips escape sequences from command entries, so the output is plain text.
   gitSegment = pkgs.writeShellScript "herdr-git-segment" ''
@@ -102,7 +106,7 @@ in
           surface0 = black;
           surface1 = dimOrange;
           surface_dim = deepBlack;
-          overlay0 = dimOrange;
+          overlay0 = fadedOrange;
           overlay1 = orange;
           text = orange;
           subtext0 = dimOrange;
