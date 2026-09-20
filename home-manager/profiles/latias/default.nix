@@ -27,7 +27,7 @@ let
     ../../common/cli/nano
     ../../common/cli/rtk
     ../../common/cli/starship
-    ../../common/cli/tmux
+    ../../common/cli/herdr
     ../../common/cli/tree
     ../../common/cli/zsh
   ];
