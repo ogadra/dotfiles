@@ -67,6 +67,11 @@ in
         prompt_new_tab_name = false;
 
         tab_bar_right = [
+          # Separators land only between segments, so literals at both ends close the strip
+          {
+            type = "text";
+            text = " ";
+          }
           {
             type = "command";
             command = "${gitSegment}";
@@ -79,8 +84,13 @@ in
             type = "datetime";
             format = "%H:%M:%S";
           }
+          {
+            type = "text";
+            text = " ";
+          }
         ];
-        tab_bar_right_separator = " │ ";
+        # A slanted line: herdr draws the separator in one color, so a filled glyph reads as a wedge
+        tab_bar_right_separator = "  ";
       };
 
       theme = {
