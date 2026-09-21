@@ -14,12 +14,12 @@
     blue = "#7878ff";
   };
 
-  # The same colors after wezterm swaps the palette on focus loss
+  # The same colors after wezterm swaps the palette on focus loss; lit colors lose their edge and surfaces drift toward grey
   unfocused = {
     orange = "#caa153";
     dimOrange = "#8c6b2e";
-    black = "#1a1a1a";
-    deepBlack = "#0a0a0a";
+    black = "#242424";
+    deepBlack = "#141414";
     white = "#d0d0d0";
     green = "#43b153";
     red = "#b85443";
