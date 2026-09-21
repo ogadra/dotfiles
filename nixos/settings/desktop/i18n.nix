@@ -28,7 +28,7 @@
           fcitx5-gtk
         ] ++ (with skkDictionaries; [ l jinmei geo propernoun station assoc ]));
         waylandFrontend  = true;
-        # TODO: home-manager側に寄せて`ignoreUserConfig`を消す
+        # TODO: move this to home-manager and drop `ignoreUserConfig`
         ignoreUserConfig = true;
 
         settings = {
@@ -50,9 +50,9 @@
             };
             "Groups/0/Items/0".Name = "skk";
           };
-          # 変換確定のReturnを改行(=送信)としてアプリに渡さない
+          # Keeps the Return that commits a conversion from reaching the app as a newline, which would send
           addons.skk.globalSection.EggLikeNewLine = "True";
-          # 有効化した直後はASCII入力から始める
+          # Starts in ASCII the moment the IME is switched on
           addons.skk.globalSection.InitialInputMode = "Latin";
         };
       };
