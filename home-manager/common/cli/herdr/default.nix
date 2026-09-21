@@ -29,8 +29,8 @@ in
       keys = {
         prefix = "ctrl+q";
 
-        # prefix+w matches the old tmux kill-window, so the workspace picker
-        # moves aside and rename-workspace vacates the slot it lands on
+        # close_tab claims prefix+w, so the workspace picker moves to
+        # prefix+shift+w and rename_workspace vacates that slot
         close_tab = [
           "prefix+w"
           "prefix+shift+x"
@@ -38,7 +38,7 @@ in
         workspace_picker = "prefix+shift+w";
         rename_workspace = "prefix+shift+e";
 
-        # tmux split keys alongside the herdr defaults
+        # prefix+% is what wezterm's split key sends
         split_vertical = [
           "prefix+%"
           "prefix+v"
@@ -51,10 +51,6 @@ in
           "prefix+d"
           "prefix+q"
         ];
-
-        # tmux's prefix ] and prefix = have no herdr counterpart: copies land in
-        # the system clipboard, so wezterm pastes them and prefix+e opens the
-        # scrollback in $EDITOR
       };
 
       ui = {
@@ -63,7 +59,6 @@ in
         # wezterm's new-tab key expects a tab to appear without a name prompt
         prompt_new_tab_name = false;
 
-        # Mirrors the old tmux status-right
         tab_bar_right = [
           {
             type = "command";
@@ -109,7 +104,7 @@ in
       };
 
       advanced = {
-        # Herdr caps scrollback by bytes; roughly the old 50000-line tmux limit
+        # Herdr caps scrollback by bytes, not lines; this is roughly 50000 lines
         scrollback_limit_bytes = 50000000;
       };
     };
