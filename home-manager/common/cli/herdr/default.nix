@@ -97,28 +97,29 @@ in
         # Fall back to the wezterm palette for tokens that are not overridden
         name = "terminal";
         custom = {
-          # wezterm's ANSI yellow is the NERV orange, and the slot follows its palette swap
+          # Focused pane border and focused tab background; wezterm's ANSI yellow is the NERV orange and follows its palette swap
           accent = "yellow";
-          panel_bg = nerv.deepBlack;
-          sidebar_bg = nerv.deepBlack;
-          active_row_bg = nerv.black;
-          selection_bg = nerv.dimOrange;
-          surface0 = nerv.black;
-          surface1 = nerv.dimOrange;
-          surface_dim = nerv.deepBlack;
+          # Unfocused pane border, and sidebar rows herdr does not have focus on
           overlay0 = fadedOrange;
+          panel_bg = nerv.focused.deepBlack;
+          sidebar_bg = nerv.focused.deepBlack;
+          active_row_bg = nerv.focused.black;
+          selection_bg = nerv.focused.dimOrange;
+          surface0 = nerv.focused.black;
+          surface1 = nerv.focused.dimOrange;
+          surface_dim = nerv.focused.deepBlack;
           # Paints the tab bar's right-hand status text, and inactive tab labels with it
-          overlay1 = nerv.orange;
-          text = nerv.orange;
-          subtext0 = nerv.dimOrange;
-          mauve = nerv.purple;
-          green = nerv.green;
+          overlay1 = nerv.focused.orange;
+          text = nerv.focused.orange;
+          subtext0 = nerv.focused.dimOrange;
+          mauve = nerv.focused.purple;
+          green = nerv.focused.green;
           # NERV has no distinct yellow; wezterm maps yellow onto orange too
-          yellow = nerv.orange;
-          peach = nerv.orange;
-          red = nerv.red;
-          blue = nerv.blue;
-          teal = nerv.teal;
+          yellow = nerv.focused.orange;
+          peach = nerv.focused.orange;
+          red = nerv.focused.red;
+          blue = nerv.focused.blue;
+          teal = nerv.focused.teal;
         };
       };
 

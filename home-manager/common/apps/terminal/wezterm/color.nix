@@ -9,16 +9,16 @@ in
     -- NERV HUD inspired colors (shared across modules)
     module.palette = {
       -- Base colors
-      orange = '${nerv.orange}',
-      black = '${nerv.black}',
-      deep_black = '${nerv.deepBlack}',
-      dim_orange = '${nerv.dimOrange}',
-      white = '${nerv.white}',
+      orange = '${nerv.focused.orange}',
+      black = '${nerv.focused.black}',
+      deep_black = '${nerv.focused.deepBlack}',
+      dim_orange = '${nerv.focused.dimOrange}',
+      white = '${nerv.focused.white}',
       -- Status colors
-      green = '${nerv.green}',
-      red = '${nerv.red}',
-      purple = '${nerv.purple}',
-      teal = '${nerv.teal}',
+      green = '${nerv.focused.green}',
+      red = '${nerv.focused.red}',
+      purple = '${nerv.focused.purple}',
+      teal = '${nerv.focused.teal}',
     }
 
     function module.apply_to_config(config, wezterm)
@@ -59,7 +59,7 @@ in
           p.red,      -- red (warning)
           p.green,    -- green (active)
           p.orange,   -- yellow -> NERV orange
-          '${nerv.blue}',  -- blue -> Eva purple-blue
+          '${nerv.focused.blue}',  -- blue -> Eva purple-blue
           p.purple,   -- magenta -> Eva Unit 01 purple
           p.teal,     -- cyan -> teal accent
           '#cacaca',  -- white

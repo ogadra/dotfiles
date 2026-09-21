@@ -1,4 +1,7 @@
 { ... }:
+let
+  nerv = import ../../../theme/nerv.nix;
+in
 {
   xdg.configFile."wezterm/focus.lua".text = ''
     local module = {}
@@ -12,20 +15,20 @@
     local unfocused_hsb = { saturation = 0.7, brightness = 0.8 }
 
     local unfocused_colors = {
-      foreground = '#caa153',
+      foreground = '${nerv.unfocused.orange}',
       background = '#000000',
-      cursor_bg = '#caa153',
-      cursor_fg = '#0a0a0a',
-      selection_bg = '#caa153',
-      selection_fg = '#0a0a0a',
+      cursor_bg = '${nerv.unfocused.orange}',
+      cursor_fg = '${nerv.unfocused.deepBlack}',
+      selection_bg = '${nerv.unfocused.orange}',
+      selection_fg = '${nerv.unfocused.deepBlack}',
       ansi = {
-        '#1a1a1a',
-        '#b85443',
-        '#43b153',
-        '#caa153',
-        '#6655ca',
-        '#b243c1',
-        '#4397a6',
+        '${nerv.unfocused.black}',
+        '${nerv.unfocused.red}',
+        '${nerv.unfocused.green}',
+        '${nerv.unfocused.orange}',
+        '${nerv.unfocused.blue}',
+        '${nerv.unfocused.purple}',
+        '${nerv.unfocused.teal}',
         '#a6a6a6',
       },
       brights = {
@@ -39,10 +42,10 @@
         '#cacaca',
       },
       indexed = {
-        [16] = '#caa153',
-        [17] = '#1a1a1a',
-        [18] = '#0a0a0a',
-        [19] = '#8c6b2e',
+        [16] = '${nerv.unfocused.orange}',
+        [17] = '${nerv.unfocused.black}',
+        [18] = '${nerv.unfocused.deepBlack}',
+        [19] = '${nerv.unfocused.dimOrange}',
         [20] = '#0c3a13',
         [21] = '#4a1910',
         [22] = '#1a6a26',
@@ -55,18 +58,18 @@
         [29] = '#ab5969',
       },
       tab_bar = {
-        background = '#caa153',
+        background = '${nerv.unfocused.orange}',
         active_tab = {
-          bg_color = '#1a1a1a',
-          fg_color = '#caa153',
+          bg_color = '${nerv.unfocused.black}',
+          fg_color = '${nerv.unfocused.orange}',
         },
         inactive_tab = {
-          bg_color = '#0a0a0a',
-          fg_color = '#8c6b2e',
+          bg_color = '${nerv.unfocused.deepBlack}',
+          fg_color = '${nerv.unfocused.dimOrange}',
         },
         inactive_tab_hover = {
-          bg_color = '#8c6b2e',
-          fg_color = '#d0d0d0',
+          bg_color = '${nerv.unfocused.dimOrange}',
+          fg_color = '${nerv.unfocused.white}',
         },
       },
     }
