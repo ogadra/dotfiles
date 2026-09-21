@@ -68,8 +68,6 @@
 
   # Packages in the system profile; search with `nix search wget`
   environment.systemPackages = with pkgs; [
-  #  vim
-  #  wget
     net-tools
   ];
 
