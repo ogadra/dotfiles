@@ -87,7 +87,9 @@ in
         # Fall back to the wezterm palette for tokens that are not overridden
         name = "terminal";
         custom = {
-          accent = nerv.orange;
+          # wezterm's ANSI yellow is the NERV orange, and naming the slot instead of the
+          # hex lets the focused tab's background follow the unfocused-window palette swap
+          accent = "yellow";
           panel_bg = nerv.deepBlack;
           sidebar_bg = nerv.deepBlack;
           active_row_bg = nerv.black;
