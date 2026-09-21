@@ -22,11 +22,13 @@ in
     # Apps listed: 0=from every Space, 1=from the current Space
     appsToShow = 0;
 
+    # Navigate with the arrow keys
     arrowKeysEnabled = "false";
 
     # On crash: 0=do nothing, 1=relaunch
     crashPolicy = 1;
 
+    # Cursor follows focus: 0=no
     cursorFollowFocus = 0;
     cursorFollowFocusEnabled = 0;
 
@@ -36,10 +38,13 @@ in
       { bundleIdentifier = "com.apple.mail";   ignore = "0"; hide = "2"; }
     ];
 
+    # Hide apps with no windows
     hideWindowlessApps = 1;
 
+    # Preferences file version
     preferencesVersion = "10.11.0";
 
+    # Preview the selected window in front
     previewFocusedWindow = "true";
 
     # Screens listed: 0=all, 1=only the one showOnScreen picks
@@ -48,6 +53,7 @@ in
     # Mark the first-launch settings window as already seen
     settingsWindowShownOnFirstLaunch = "true";
 
+    # Number of shortcuts
     shortcutCount = "1";
 
     # Shortcut style: 0=cmd+Tab, 1=custom
@@ -80,6 +86,7 @@ in
     # Theme: 0=macOS default, 1=macOS
     theme = 1;
 
+    # Trackpad haptic feedback
     trackpadHapticFeedbackEnabled = "false";
 
     # Updates: 0=check automatically, 1=never check

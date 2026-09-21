@@ -11,14 +11,19 @@ in
 
     raycastWindowPresentationMode = 2;
 
+    # Preferred window mode
     raycastPreferredWindowMode = "default";
 
+    # Follow the system light and dark appearance
     raycastShouldFollowSystemAppearance = 1;
 
+    # Hyper key icon in the menu bar
     useHyperKeyIcon = 0;
 
+    # Force the input source to ABC when Raycast opens
     enforcedInputSourceIDOnOpen = "com.apple.keylayout.ABC";
 
+    # Skin tone in the emoji picker
     emojiPicker_skinTone = "light";
   };
 

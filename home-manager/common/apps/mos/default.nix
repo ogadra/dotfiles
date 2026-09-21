@@ -6,17 +6,17 @@ let
 in
 {
   targets.darwin.defaults."com.caldis.Mos" = {
-    smooth = true;
-    reverse = false; # true is the natural scroll direction
-    duration = 3.9;
-    speed = 3;
-    step = 35;
-    precision = 1;
+    smooth = true; # Smooth scrolling
+    reverse = false; # Natural scroll direction
+    duration = 3.9; # Length of the scroll animation
+    speed = 3; # Scroll speed
+    step = 35; # Distance covered per step
+    precision = 1; # Precision scrolling
     dash = 0; # Accelerated scrolling
     toggle = 0; # Key that suspends smooth scrolling
-    block = 0;
-    allowlist = false;
-    hideStatusItem = false;
+    block = 0; # Blocklist mode
+    allowlist = false; # Allowlist mode
+    hideStatusItem = false; # Hide the menu bar icon
     optionsExist = "optionsExist"; # Flag Mos reads as having been configured
   };
 
