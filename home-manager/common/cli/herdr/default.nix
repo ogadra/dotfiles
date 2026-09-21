@@ -138,7 +138,7 @@ in
     end
 
     # Attach every wezterm OS window to the one shared session; skip inside herdr and Claude Code
-    if status is-interactive; and not set -q HERDR_ENV; and not set -q CLAUDECODE
+    if not set -q HERDR_ENV; and not set -q CLAUDECODE
       exec ${herdrBin}
     end
 
