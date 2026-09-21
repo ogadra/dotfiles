@@ -107,7 +107,8 @@ in
           surface1 = nerv.dimOrange;
           surface_dim = nerv.deepBlack;
           overlay0 = fadedOrange;
-          overlay1 = nerv.dimOrange;
+          # Paints the tab bar's right-hand status text, and inactive tab labels with it
+          overlay1 = nerv.orange;
           text = nerv.orange;
           subtext0 = nerv.dimOrange;
           mauve = nerv.purple;
