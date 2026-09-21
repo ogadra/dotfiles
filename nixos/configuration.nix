@@ -1,30 +1,40 @@
 { config, pkgs, ... }:
 
 {
+  # Bootloader
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
+  # Wireless support via wpa_supplicant
   # networking.wireless.enable = true;
+
+  # Network proxy
   # networking.proxy.default = "http://user:password@proxy:port/";
   # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
 
+  # Networking
   networking.networkmanager.enable = true;
 
+  # Time zone
   time.timeZone = "Asia/Tokyo";
 
-  # Can go once the Wayland session is the only one in use
+  # X11 windowing system; can go once the Wayland session is the only one in use
   services.xserver.enable = true;
 
+  # KDE Plasma desktop environment
   services.displayManager.sddm.enable = true;
   services.desktopManager.plasma6.enable = true;
 
+  # Keymap in X11
   services.xserver.xkb = {
     layout = "us";
     variant = "";
   };
 
+  # CUPS, for printing
   services.printing.enable = true;
 
+  # Sound through pipewire
   services.pulseaudio.enable = false;
   security.rtkit.enable = true;
   services.pipewire = {
@@ -32,12 +42,16 @@
     alsa.enable = true;
     alsa.support32Bit = true;
     pulse.enable = true;
+    # For JACK applications
     #jack.enable = true;
+    # The example session manager, on by default since nothing else is packaged
     #media-session.enable = true;
   };
 
+  # Touchpad support, already on in most desktopManagers
   # services.xserver.libinput.enable = true;
 
+  # User account; set a password with `passwd`
   users.users.ogadra = {
     isNormalUser = true;
     description = "ogadra";
@@ -52,21 +66,24 @@
 
   nixpkgs.config.allowUnfree = true;
 
-  # Search with `nix search wget`
+  # Packages in the system profile; search with `nix search wget`
   environment.systemPackages = with pkgs; [
   #  vim
   #  wget
     net-tools
   ];
 
+  # Programs needing SUID wrappers or a user session
   # programs.mtr.enable = true;
   # programs.gnupg.agent = {
   #   enable = true;
   #   enableSSHSupport = true;
   # };
 
+  # OpenSSH daemon
   # services.openssh.enable = true;
 
+  # Firewall ports, and the firewall itself
   # networking.firewall.allowedTCPPorts = [ ... ];
   # networking.firewall.allowedUDPPorts = [ ... ];
   # networking.firewall.enable = false;
