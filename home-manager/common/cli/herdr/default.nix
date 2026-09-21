@@ -58,7 +58,6 @@ in
       };
 
       ui = {
-        accent = nerv.orange;
         # Copy on mouse selection and scroll 2 lines per wheel notch
         copy_on_select = true;
         mouse_scroll_lines = 2;
@@ -70,8 +69,6 @@ in
           {
             type = "command";
             command = "${gitSegment}";
-            interval_seconds = 5;
-            timeout_seconds = 2;
           }
           {
             type = "text";
