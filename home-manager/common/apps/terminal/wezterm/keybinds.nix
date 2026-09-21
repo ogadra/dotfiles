@@ -54,9 +54,7 @@ in
       { key = 'q', mods = 'CTRL', action = act.SendString('\x11') },
     }
 
-    -- Open the link under the cursor with Ctrl+click. herdr's mouse capture makes
-    -- wezterm forward plain clicks to herdr, so the mouse_reporting=true variant
-    -- is required for the binding to fire inside herdr panes.
+    -- herdr captures plain clicks, so the binding needs the mouse_reporting=true variant
     config.mouse_bindings = {
       {
         event = { Up = { streak = 1, button = 'Left' } },

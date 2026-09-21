@@ -9,8 +9,7 @@ let
 
   herdrBin = "${config.programs.herdr.package}/bin/herdr";
 
-  # Emit a tab-bar git segment only when the focused pane is inside a repo.
-  # Herdr strips escape sequences from command entries, so the output is plain text.
+  # Herdr strips escape sequences from command entries, so emit plain text
   gitSegment = pkgs.writeShellScript "herdr-git-segment" ''
     cd "$HERDR_ACTIVE_PANE_CWD" 2>/dev/null || exit 0
     branch=$(${pkgs.git}/bin/git rev-parse --abbrev-ref HEAD 2>/dev/null) || exit 0
@@ -32,8 +31,7 @@ in
       keys = {
         prefix = "ctrl+q";
 
-        # close_tab claims prefix+w, so the workspace picker moves to
-        # prefix+shift+w and rename_workspace vacates that slot
+        # close_tab takes prefix+w, so the picker and rename_workspace each shift one slot
         close_tab = [
           "prefix+w"
           "prefix+shift+x"
