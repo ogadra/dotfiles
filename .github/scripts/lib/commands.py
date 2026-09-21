@@ -16,3 +16,7 @@ def capture_text(*command: str) -> str:
 
 def try_run(*command: str) -> bool:
     return subprocess.run(command, check=False).returncode == 0
+
+
+def exit_code(*command: str) -> int:
+    return subprocess.run(command, stdout=subprocess.DEVNULL, check=False).returncode

@@ -55,11 +55,6 @@ def commit_on_branch(branch: str, parent: str, commit: str) -> str:
     return oid
 
 
-def is_signed(commit: str) -> bool:
-    verified: bool = gh_get(f"commits/{commit}")["commit"]["verification"]["verified"]
-    return verified
-
-
 def push_signed(branch: str) -> None:
     head = capture_text("git", "rev-parse", f"origin/{branch}").strip()
     if gh_get(f"git/refs/heads/{branch}")["object"]["sha"] != head:
