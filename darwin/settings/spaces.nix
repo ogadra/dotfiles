@@ -1,7 +1,7 @@
 { ... }:
 {
   system.defaults.spaces = {
-    # true: 1つのSpaceが全ディスプレイに適用 / false: ディスプレイごとに独立
+    # true spans one Space across every display, false keeps them independent
     spans-displays = false;
   };
 }

@@ -1,89 +1,73 @@
 { ... }:
 {
   system.defaults.trackpad = {
-    # タップでクリック
+    # Tap to click
     Clicking = false;
 
-    # タップでドラッグ
+    # Tap to drag
     Dragging = false;
 
-    # ドラッグロック
     DragLock = false;
 
-    # 2本指タップ/クリックで右クリック
+    # Two-finger tap or click as a right click
     TrackpadRightClick = true;
 
-    # コーナーで右クリック
-    # 0=無効, 1=左下, 2=右下
+    # 0=disabled, 1=bottom left, 2=bottom right
     TrackpadCornerSecondaryClick = 0;
 
-    # 強押しクリックを無効化
+    # Force click
     ForceSuppressed = true;
 
-    # ハプティックフィードバック
+    # Haptic feedback
     ActuateDetents = false;
 
-    # クリック音
-    # 0=サイレント, 1=通常
+    # 0=silent, 1=normal
     ActuationStrength = 0;
 
-    # クリックの強さ
-    # 0=弱い, 1=中, 2=強い
+    # 0=light, 1=medium, 2=firm
     FirstClickThreshold = 0;
 
-    # 強押しの強さ
-    # 0=弱い, 1=中, 2=強い
+    # 0=light, 1=medium, 2=firm
     SecondClickThreshold = 0;
 
-    # 慣性スクロール
     TrackpadMomentumScroll = true;
 
-    # 2本指ピンチでズーム
+    # Two-finger pinch to zoom
     TrackpadPinch = true;
 
-    # 2本指回転ジェスチャー
     TrackpadRotate = true;
 
-    # 2本指ダブルタップでスマートズーム
+    # Smart zoom
     TrackpadTwoFingerDoubleTapGesture = false;
 
-    # 2本指で右端からスワイプ
-    # 0=無効, 3=通知センター
+    # Swipe in from the right edge: 0=disabled, 3=notification center
     TrackpadTwoFingerFromRightEdgeSwipeGesture = 3;
 
-    # 3本指タップ
-    # 0=無効, 2=調べる
+    # 0=disabled, 2=look up
     TrackpadThreeFingerTapGesture = 0;
 
-    # 3本指ドラッグ
     TrackpadThreeFingerDrag = false;
 
-    # 3本指横スワイプ
-    # 0=無効, 1=ページ切替, 2=フルスクリーンアプリ切替
+    # 0=disabled, 1=switch pages, 2=switch full-screen apps
     TrackpadThreeFingerHorizSwipeGesture = 2;
 
-    # 3本指縦スワイプ
-    # 0=無効, 2=Mission Control / App Expose
+    # 0=disabled, 2=Mission Control / App Expose
     TrackpadThreeFingerVertSwipeGesture = 2;
 
-    # 4本指横スワイプ
-    # 0=無効, 2=フルスクリーンアプリ切替
+    # 0=disabled, 2=switch full-screen apps
     TrackpadFourFingerHorizSwipeGesture = 2;
 
-    # 4本指ピンチ
-    # 0=無効, 2=開くとデスクトップ / 閉じるとLaunchpad
+    # 0=disabled, 2=spread for the desktop and pinch for Launchpad
     TrackpadFourFingerPinchGesture = 0;
 
-    # 4本指縦スワイプ
-    # 0=無効, 2=Mission Control / App Expose
+    # 0=disabled, 2=Mission Control / App Expose
     TrackpadFourFingerVertSwipeGesture = 0;
   };
 
   system.defaults.NSGlobalDomain = {
-    # 強押しクリック
     "com.apple.trackpad.forceClick" = false;
 
-    # トラックパッド速度
+    # Tracking speed
     "com.apple.trackpad.scaling" = 3.0;
   };
 }

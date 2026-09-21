@@ -4,19 +4,12 @@
     # Stage Manager
     GloballyEnabled = false;
 
-    # クリックでデスクトップを表示
     EnableStandardClickToShowDesktop = false;
-
-    # デスクトップアイコンを隠す
     StandardHideDesktopIcons = true;
-
-    # デスクトップを隠す
     HideDesktop = true;
-
-    # ウィジェットを隠す
     StandardHideWidgets = true;
   };
 
-  # アプリ切替時にそのアプリがあるSpaceに自動移動しない
+  # Jump to the Space that already holds the app being switched to
   system.defaults.NSGlobalDomain.AppleSpacesSwitchOnActivate = false;
 }

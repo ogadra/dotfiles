@@ -1,29 +1,24 @@
 { ... }:
 {
   system.defaults.dock = {
-
-    # Dockを自動的に隠す
     autohide = true;
 
-    # Dock表示までの遅延秒数
+    # An hour of delay keeps the hidden Dock from ever sliding back in
     autohide-delay = 3600.0;
 
-    # アプリ起動時のバウンスアニメーション
+    # Bounce animation while an app launches
     launchanim = false;
 
-    # ウィンドウ最小化エフェクト "genie" | "scale"
+    # "genie" | "scale"
     mineffect = "scale";
 
-    # 最近使ったSpaceの使用順自動並替
+    # Reorder Spaces by most recent use
     mru-spaces = false;
 
-    # Dockアイコンサイズ
+    # Icon size
     tilesize = 1;
 
-    # 起動中アプリのインジケータを表示するか
     show-process-indicators = false;
-
-    # 最近使ったアプリをDockに表示
     show-recents = false;
   };
 }

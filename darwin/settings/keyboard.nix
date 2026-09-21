@@ -1,28 +1,26 @@
 { ... }:
 {
   system.defaults.NSGlobalDomain = {
-    # キーリピート開始までの遅延 (小さいほど速い, 最速=10)
+    # Lower is faster, 10 is the floor
     InitialKeyRepeat = 15;
 
-    # キーリピート速度 (小さいほど速い, 最速=1)
+    # Lower is faster, 1 is the floor
     KeyRepeat = 2;
 
-    # true: 長押しでアクセント文字パネル / false: キーリピート
+    # true opens the accent panel on hold, false repeats the key instead
     ApplePressAndHoldEnabled = false;
 
-    # 文頭の自動大文字化
     NSAutomaticCapitalizationEnabled = false;
 
-    # -- を em dash に自動置換
+    # Substitutes an em dash for --
     NSAutomaticDashSubstitutionEnabled = false;
 
-    # スペース2回でピリオド自動挿入
+    # Inserts a period on a double space
     NSAutomaticPeriodSubstitutionEnabled = false;
 
-    # straight quotes を curly quotes に自動置換
+    # Substitutes curly quotes for straight ones
     NSAutomaticQuoteSubstitutionEnabled = false;
 
-    # 自動スペル修正
     NSAutomaticSpellingCorrectionEnabled = false;
   };
 }
