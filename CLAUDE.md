@@ -28,3 +28,9 @@ make update   # Update all flake inputs
 - Platform-specific configs go in `home-manager/nixos/` (Linux)
 - Some files in `home-manager/profiles/stakataka/` have skip-worktree set to protect local-only changes from being committed
 - Do not add informational/diagnostic `echo` to Nix scripts. Functional uses of `echo` (piping data to another command, appending a newline to a file) are fine.
+
+## Comments
+
+- Write every comment in English, on a single line. Rewrite rather than wrap.
+- Comment on why, not what. Drop anything the code already says: a comment that restates the identifier it sits above earns nothing.
+- Worth keeping: accepted values, units and ranges, opaque names, version caveats, and the reason a value was chosen.
