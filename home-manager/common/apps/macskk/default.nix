@@ -4,12 +4,11 @@ let
   dmgUrl = "https://github.com/mtgto/macSKK/releases/download/${version}/macSKK-${version}.dmg";
   dmgSha256 = "114cbb9892ff41100bfbd50db61c4761ca1829c8f9b2a49e396419b813d19ac8";
 
-  # Input Methodは~/Library/Input Methods/配下に置けばsudo不要
+  # An input method under ~/Library/Input Methods/ installs without sudo
   installDir = "$HOME/Library/Input Methods";
   appName = "macSKK.app";
 
-  # SKK-JISYO.L (EUC-JP) をstoreに固定し、UTF-8変換版をderivationで生成。
-  # macSKKのサンドボックスは ~/Library/Containers/.../Dictionaries/ から辞書を読み込む。
+  # SKK-JISYO.L ships as EUC-JP, so pin it in the store and convert to the UTF-8 copy macSKK's sandbox reads from its Containers directory
   skkJisyoEuc = pkgs.fetchurl {
     url = "https://raw.githubusercontent.com/skk-dev/dict/master/SKK-JISYO.L";
     sha256 = "c791f578d1b4040fce282db29bc22b2cc7ea46f83e269fab2e0fa779e2967e40";
@@ -26,7 +25,7 @@ let
 
   asciiInputSourceId = "${bundleId}.ascii";
 
-  # macSKKの読み込みが終わるまで切り替えは効かず、macismは失敗しても0を返す
+  # Switching does nothing until macSKK finishes loading, and macism exits 0 even when it fails
   selectAsciiScript = pkgs.writeShellScript "macskk-select-ascii" ''
     for _ in $(/usr/bin/seq 1 15); do
       ${pkgs.macism}/bin/macism ${asciiInputSourceId}
@@ -45,7 +44,7 @@ lib.mkIf (!pkgs.stdenv.hostPlatform.isLinux) {
       _dmg=$(/usr/bin/mktemp /tmp/macskk-XXXXXX.dmg)
       /usr/bin/curl -L -o "$_dmg" "${dmgUrl}"
       echo "${dmgSha256}  $_dmg" | /usr/bin/shasum -a 256 -c - || { rm -f "$_dmg"; exit 1; }
-      # DMG内は .pkg インストーラなので、ボリューム名は固定指定せず動的に取得する
+      # The DMG holds a .pkg, so read the volume name back instead of assuming it
       _mnt=$(/usr/bin/hdiutil attach "$_dmg" -nobrowse -readonly | /usr/bin/awk -F'\t' '$NF ~ /^\/Volumes\// {print $NF}' | /usr/bin/tail -1)
       _pkg=$(/usr/bin/find "$_mnt" -maxdepth 2 -name '*.pkg' -type f | /usr/bin/head -1)
       if [ -z "$_pkg" ]; then
@@ -53,7 +52,7 @@ lib.mkIf (!pkgs.stdenv.hostPlatform.isLinux) {
         rm -f "$_dmg"
         exit 1
       fi
-      # pkgのペイロードを展開してmacSKK.appを取り出す (sudo不要)
+      # Expanding the pkg payload pulls out macSKK.app without sudo
       _extract=$(/usr/bin/mktemp -d /tmp/macskk-extract-XXXXXX)
       /usr/sbin/pkgutil --expand-full "$_pkg" "$_extract/pkg"
       _app=$(/usr/bin/find "$_extract" -name "${appName}" -type d | /usr/bin/head -1)
@@ -69,8 +68,7 @@ lib.mkIf (!pkgs.stdenv.hostPlatform.isLinux) {
     fi
   '';
 
-  # macSKKのサンドボックスContainersはmacSKK初回起動後にmacOSが作成するため、
-  # ディレクトリが無ければ何もしない（再ログイン後の2回目のactivationで配置される）。
+  # macOS only creates the sandbox Containers after macSKK's first launch, so skip until it exists and let a later activation place the dictionary
   home.activation.installMacSKKDict = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     if [ -d "${dictDir}" ] && [ ! -s "${dictDir}/skk-jisyo.utf8" ]; then
       /bin/cp ${skkJisyoUtf8} "${dictDir}/skk-jisyo.utf8"
@@ -78,8 +76,7 @@ lib.mkIf (!pkgs.stdenv.hostPlatform.isLinux) {
     fi
   '';
 
-  # macSKKは辞書ファイルを再検出するたびに既定のEUC-JPで登録し直すため、UTF-8辞書だと
-  # 変換候補が出なくなる。登録エンコーディングをUTF-8(String.Encoding.utf8.rawValue=4)に固定する。
+  # macSKK re-registers a rediscovered dictionary as EUC-JP and then finds no candidates, so pin the encoding to UTF-8 (String.Encoding.utf8.rawValue=4)
   home.activation.configureMacSKKDictionary = lib.hm.dag.entryAfter [ "signWezTerm" ] ''
     if [ -s "${dictDir}/skk-jisyo.utf8" ] && \
        ! /usr/bin/defaults read ${bundleId} dictionaries 2>/dev/null | /usr/bin/grep -q 'encoding = 4;'; then
@@ -89,7 +86,7 @@ lib.mkIf (!pkgs.stdenv.hostPlatform.isLinux) {
     fi
   '';
 
-  # macOSは最後の入力モードを復元するので、ログインごとに直接入力へ戻す
+  # macOS restores the last input mode, so force direct input back at every login
   launchd.agents.macskk-select-ascii = {
     enable = true;
     config = {
@@ -98,8 +95,7 @@ lib.mkIf (!pkgs.stdenv.hostPlatform.isLinux) {
     };
   };
 
-  # macSKKが起動中/cfprefsdがキャッシュを保持していると `defaults write` した設定が
-  # 反映されない/直後に上書きされることがあるので、書き込み前に停止しキャッシュを飛ばす
+  # A running macSKK or a warm cfprefsd cache swallows or overwrites a `defaults write`, so stop both before writing
   home.activation.configureMacSKKKeyBindings = lib.hm.dag.entryAfter [ "signWezTerm" ] ''
     if [ -d "${prefsDir}" ] && [ "$(/usr/bin/defaults read ${bundleId} selectedKeyBindingSetId 2>/dev/null)" != "${keyBindingSetId}" ]; then
       /usr/bin/pkill -x macSKK 2>/dev/null || true

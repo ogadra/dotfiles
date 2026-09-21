@@ -1,7 +1,7 @@
 { ... }:
 {
   system.defaults.".GlobalPreferences" = {
-    # システム警告音
+    # System alert sound
     "com.apple.sound.beep.sound" = "/System/Library/Sounds/Tink.aiff";
   };
 }

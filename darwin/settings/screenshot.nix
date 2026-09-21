@@ -1,7 +1,7 @@
 { ... }:
 {
   system.defaults.screencapture = {
-    # 保存先ディレクトリ
+    # Where screenshots land
     location = "~/Pictures/ScreenShots";
   };
 }

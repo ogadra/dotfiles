@@ -1,23 +1,23 @@
 { lib, ... }:
 let
-  # Mos は Sparkle 形式の zip 配布で、URL にビルド日時が含まれるため version では組み立てられない
+  # Mos ships a Sparkle zip whose URL carries a build timestamp, so version alone cannot build it
   zipUrl = "https://github.com/Caldis/Mos/releases/download/4.2.1/Mos.Versions.4.2.1-20260531.1.zip";
   zipSha256 = "2ea69e96f092e44dada93a55bda1cddab3329c527bbd5f06e00dfb78e953960a";
 in
 {
   targets.darwin.defaults."com.caldis.Mos" = {
-    smooth = true; # スムーズスクロールを有効化
-    reverse = false; # スクロール方向の反転を無効（ナチュラルにしない）
-    duration = 3.9; # スクロールアニメーションの長さ
-    speed = 3; # スクロール速度
-    step = 35; # 1 ステップあたりのスクロール量
-    precision = 1; # 精密スクロール
-    dash = 0; # 加速スクロール（ダッシュ）
-    toggle = 0; # 一時的にスムーズスクロールを切り替えるキー
-    block = 0; # ブロックリスト方式
-    allowlist = false; # 許可リスト方式
-    hideStatusItem = false; # メニューバーアイコンの非表示
-    optionsExist = "optionsExist"; # Mos が設定済みと判定するためのフラグ
+    smooth = true; # Smooth scrolling
+    reverse = false; # Natural scroll direction
+    duration = 3.9; # Length of the scroll animation
+    speed = 3; # Scroll speed
+    step = 35; # Distance covered per step
+    precision = 1; # Precision scrolling
+    dash = 0; # Accelerated scrolling
+    toggle = 0; # Key that suspends smooth scrolling
+    block = 0; # Blocklist mode
+    allowlist = false; # Allowlist mode
+    hideStatusItem = false; # Hide the menu bar icon
+    optionsExist = "optionsExist"; # Flag Mos reads as having been configured
   };
 
   home.activation.installMos = lib.hm.dag.entryAfter [ "writeBoundary" ] ''

@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-# Block `git clone`; clone via `ghq get` to keep repos under a managed root.
-# Input: one git command per stdin line (e.g., "git clone https://...").
+# Block `git clone` so `ghq get` keeps repos under a managed root; input is one git command per stdin line.
 set -u
 
 while IFS= read -r SEG; do

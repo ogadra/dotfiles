@@ -1,9 +1,6 @@
 { ... }:
 {
-  # ThinkPad P14s Gen 6 (Realtek ALC257 / SOF HDA-DSP) は内蔵スピーカーと
-  # ヘッドホンを相互排他な ACP プロファイルとして提供する。優先度既定では
-  # ヘッドホン側が選ばれ、内蔵スピーカーの sink が表に出てこない。
-  # 内蔵スピーカーを含むプロファイルを WirePlumber に固定させる。
+  # The ThinkPad P14s Gen 6 (Realtek ALC257 / SOF HDA-DSP) exposes its speakers and headphones as mutually exclusive ACP profiles, and the default priorities pick headphones and hide the speaker sink, so pin WirePlumber to a profile that carries the speakers
   services.pipewire.wireplumber.extraConfig."51-audio-profile" = {
     "monitor.alsa.rules" = [
       {

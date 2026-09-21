@@ -10,10 +10,9 @@
       end
     end
 
-    # Ctrl+g で ghq-fzf を実行
     bind \cg ghq-fzf
 
-    # 処理終了時に音を鳴らす
+    # Rings once a long job is over
     function done
       mpv --no-terminal --volume=30 ~/.config/fish/sounds/done.mp3 </dev/null >/dev/null 2>&1 &
       disown

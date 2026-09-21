@@ -1,10 +1,10 @@
 { ... }:
 {
   system.defaults.screensaver = {
-    # スクリーンセーバー復帰時にパスワードを要求
+    # Require a password when the screen saver ends
     askForPassword = true;
 
-    # パスワード要求までの猶予秒数
+    # Seconds of grace before the password is asked for
     askForPasswordDelay = 0;
   };
 }

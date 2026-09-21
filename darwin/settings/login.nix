@@ -1,43 +1,43 @@
 { ... }:
 {
   system.defaults.loginwindow = {
-    # ゲストログイン
+    # Guest login
     GuestEnabled = false;
 
-    # ユーザーリストではなく名前/パスワード入力欄を表示
+    # Prompt for a name and password instead of listing users
     SHOWFULLNAME = true;
 
-    # ログイン画面に表示するテキスト
+    # Message shown on the login screen
     LoginwindowText = null;
 
-    # 自動ログインユーザー
+    # User logged in automatically
     autoLoginUser = null;
 
-    # ログイン画面のシャットダウンボタン
+    # Shut down button on the login screen
     ShutDownDisabled = false;
 
-    # ログイン画面のスリープボタン
+    # Sleep button on the login screen
     SleepDisabled = false;
 
-    # ログイン画面の再起動ボタン
+    # Restart button on the login screen
     RestartDisabled = false;
 
-    # ログイン中のAppleメニューからシャットダウンを無効化
+    # Shut down in the Apple menu while logged in
     ShutDownDisabledWhileLoggedIn = false;
 
-    # ログイン中のAppleメニューから電源OFFを無効化
+    # Power off in the Apple menu while logged in
     PowerOffDisabledWhileLoggedIn = false;
 
-    # ログイン中のAppleメニューから再起動を無効化
+    # Restart in the Apple menu while logged in
     RestartDisabledWhileLoggedIn = false;
 
-    # ログイン画面での >console によるCUIアクセスを無効化
+    # Console access through >console at the login screen
     DisableConsoleAccess = false;
   };
 
   system.defaults.CustomUserPreferences = {
     "com.apple.loginwindow" = {
-      # ログアウト時にウィンドウ状態を保存しない
+      # Save window state on logout
       TALLogoutSavesState = false;
     };
   };

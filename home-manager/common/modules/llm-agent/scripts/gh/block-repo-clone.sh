@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-# Block `gh repo clone` and `gh repo create --clone`; clone via `ghq get` to keep repos under a managed root.
-# Input: one gh command per stdin line (e.g., "gh repo clone owner/repo").
+# Block `gh repo clone` and `gh repo create --clone` so `ghq get` keeps repos under a managed root; input is one gh command per stdin line.
 set -u
 
 deny() {

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# 観点ごとに `claude -p` を並列で起動し、`findings` を1つのJSON配列にまとめて標準出力に出す。
+# Runs one `claude -p` per perspective in parallel and prints every `findings` entry as a single JSON array
 set -euo pipefail
 
 usage() {
@@ -25,7 +25,7 @@ now="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 log_dir="${XDG_STATE_HOME:-$HOME/.local/state}/readable-writing"
 log="$log_dir/findings.tsv"
 
-# 文書の言語を判定して渡すポリシーを決める。日英が混ざる文書には両方を渡す。
+# A document that mixes Japanese and English gets both rule sets
 lang_dirs=$(nix run nixpkgs#perl -- -CSD -ne '
     if (/\p{Hiragana}|\p{Katakana}|\p{Han}/) {
         $ja++;
@@ -42,7 +42,7 @@ lang_dirs=$(nix run nixpkgs#perl -- -CSD -ne '
     }
 ' "$target")
 
-# 名前|ファイル名|見るもの
+# name|file|what it looks at
 perspectives='立場|stance|書き手が引き受ける範囲
 主体|agency|行為の主体
 箇条書き|lists|箇条書きの階層と粒度
@@ -117,7 +117,7 @@ findings_schema='{
 
 attempts=3
 
-# claudeが落ちたときと壊れたJSONを返したときに、`attempts` 回まで引き直す。
+# Retries up to `attempts` times when claude dies or hands back broken JSON
 run_reviewer() {
     local key=$1 attempt=1 delay
     while :; do
@@ -168,7 +168,7 @@ for entry in $running; do
         }
 done
 
-# 列を増やすときは末尾に足す。
+# Add new columns at the end
 log_findings() {
     mkdir -p "$log_dir"
     jq -r --arg time "$now" --arg run "$run_id" --arg target "$target" --arg lang "$lang_dirs" '
@@ -176,7 +176,7 @@ log_findings() {
                .source, .perspective, .category,
                (.line | tostring), .quote, .problem] | @tsv' \
         "$tmp/merged.json" > "$tmp/records.tsv"
-    # jqから直接追記すると4KiBごとに書き込みが割れて、並行する実行と混ざる。
+    # Appending straight from jq splits the write every 4KiB and interleaves with concurrent runs
     cat "$tmp/records.tsv" >> "$log"
 }
 

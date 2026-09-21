@@ -1,25 +1,25 @@
 { ... }:
 {
   system.defaults.controlcenter = {
-    # バッテリー残量をパーセント表示
+    # Battery percentage in the menu bar
     BatteryShowPercentage = true;
 
-    # メニューバーにBluetoothアイコンを表示
+    # Bluetooth icon in the menu bar
     Bluetooth = true;
 
-    # メニューバーにAirDropアイコンを表示
+    # AirDrop icon in the menu bar
     AirDrop = true;
 
-    # メニューバーにディスプレイ輝度アイコンを表示
+    # Display brightness icon in the menu bar
     Display = true;
 
-    # メニューバーにサウンドアイコンを表示
+    # Sound icon in the menu bar
     Sound = true;
 
-    # メニューバーにフォーカスモードアイコンを表示
+    # Focus modes icon in the menu bar
     FocusModes = true;
 
-    # メニューバーにNowPlayingアイコンを表示
+    # Now Playing icon in the menu bar
     NowPlaying = false;
   };
 }

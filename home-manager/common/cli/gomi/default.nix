@@ -4,7 +4,7 @@
   ...
 }:
 let
-  # `-G` は BSD/macOS では色付け、GNU/Linux ではグループ列省略を意味する
+  # `-G` colorizes on BSD and macOS but drops the group column on GNU and Linux
   directoryCommand =
     if pkgs.stdenv.hostPlatform.isLinux then
       "ls -F -1 -A --color=always"

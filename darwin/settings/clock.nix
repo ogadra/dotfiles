@@ -1,20 +1,19 @@
 { ... }:
 {
   system.defaults.menuExtraClock = {
-    # 24時間表示
+    # 24-hour time
     Show24Hour = true;
 
-    # 秒を表示
+    # Show seconds
     ShowSeconds = true;
 
-    # 曜日を表示
+    # Show the day of the week
     ShowDayOfWeek = true;
 
-    # アナログ表示にしない
+    # Keep the clock digital
     IsAnalog = false;
 
-    # 日付の表示
-    # 0=スペースがある時, 1=常に表示, 2=表示しない
+    # Date: 0=when there is room, 1=always, 2=never
     ShowDate = 1;
   };
 }
