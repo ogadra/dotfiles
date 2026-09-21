@@ -7,10 +7,10 @@ import sys
 from pathlib import Path
 from typing import Any
 
-from lib.commands import capture, try_run
+from lib.commands import capture
 from lib.errors import RefusedError
-from lib.rebase import rebase_onto_main
-from lib.signing import is_signed, push_signed
+from lib.rebase import conflicts_with_main, rebase_onto_main
+from lib.signing import push_signed
 
 
 def main() -> None:
@@ -26,7 +26,7 @@ def main() -> None:
         "--limit",
         "100",
         "--json",
-        "number,headRefName,headRefOid",
+        "number,headRefName",
     )
     pull_requests: list[dict[str, Any]] = json.loads(listing)
 
@@ -38,10 +38,8 @@ def main() -> None:
             continue
         try:
             capture("git", "fetch", "--quiet", "origin", branch)
-            merged = try_run(
-                "git", "merge-base", "--is-ancestor", "origin/main", f"origin/{branch}"
-            )
-            if merged and is_signed(pull_request["headRefOid"]):
+            # Rebase only what conflicts: a branch that merely trails main still merges cleanly.
+            if not conflicts_with_main(f"origin/{branch}"):
                 continue
             capture("git", "checkout", "--quiet", "-B", branch, f"origin/{branch}")
             rebase_onto_main()
