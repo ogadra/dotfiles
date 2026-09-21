@@ -1,10 +1,17 @@
-{ pkgs, profile, ... }:
+{
+  pkgs,
+  config,
+  profile,
+  ...
+}:
 let
   nerv = import ../../theme/nerv.nix;
 
   # Herdr cannot dim inactive panes, so the unfocused pane border sits well
   # below dimOrange to let the accent-colored focused border stand out
   fadedOrange = "#6b4126";
+
+  herdrBin = "${config.programs.herdr.package}/bin/herdr";
 
   # Emit a tab-bar git segment only when the focused pane is inside a repo.
   # Herdr strips escape sequences from command entries, so the output is plain text.
@@ -127,12 +134,12 @@ in
       else
         set name (string replace --regex "^$HOME" "~" -- "$path")
       end
-      command herdr tab rename "$HERDR_TAB_ID" "$name"
+      ${herdrBin} tab rename "$HERDR_TAB_ID" "$name"
     end
 
     # Attach every wezterm OS window to the one shared session; skip inside herdr and Claude Code
     if status is-interactive; and not set -q HERDR_ENV; and not set -q CLAUDECODE
-      exec ${pkgs.herdr}/bin/herdr
+      exec ${herdrBin}
     end
 
     if set -q HERDR_ENV
