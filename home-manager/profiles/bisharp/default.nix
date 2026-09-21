@@ -23,13 +23,13 @@ let
     ../../common/cli/gitleaks
     ../../common/cli/gnumake
     ../../common/cli/gomi
+    ../../common/cli/herdr
     ../../common/cli/hunk
     ../../common/cli/jq
     ../../common/cli/mpv
     ../../common/cli/rtk
     ../../common/cli/starship
     ../../common/cli/takt
-    ../../common/cli/tmux
     ../../common/cli/tree
     ../../common/cli/unzip
     ../../common/cli/zsh

@@ -1,28 +1,34 @@
 { ... }:
+let
+  nerv = import ../../../theme/nerv.nix;
+in
 {
   xdg.configFile."wezterm/focus.lua".text = ''
     local module = {}
 
-    local focused_border_width = '6px'
-    local unfocused_border_width = '4px'
+    -- One width for both states: changing it reflows every cell the moment focus moves
+    local border_width = '6px'
     local unfocused_border = '#3a3a3a'
-    local unfocused_opacity = 0.5
+    local unfocused_opacity = 0.85
+
+    -- herdr's chrome is truecolor, so only an HSB pass hazes it like the palette swap does
+    local unfocused_hsb = { saturation = 0.7, brightness = 0.8 }
 
     local unfocused_colors = {
-      foreground = '#caa153',
+      foreground = '${nerv.unfocused.orange}',
       background = '#000000',
-      cursor_bg = '#caa153',
-      cursor_fg = '#0a0a0a',
-      selection_bg = '#caa153',
-      selection_fg = '#0a0a0a',
+      cursor_bg = '${nerv.unfocused.orange}',
+      cursor_fg = '${nerv.unfocused.deepBlack}',
+      selection_bg = '${nerv.unfocused.orange}',
+      selection_fg = '${nerv.unfocused.deepBlack}',
       ansi = {
-        '#1a1a1a',
-        '#b85443',
-        '#43b153',
-        '#caa153',
-        '#6655ca',
-        '#b243c1',
-        '#4397a6',
+        '${nerv.unfocused.black}',
+        '${nerv.unfocused.red}',
+        '${nerv.unfocused.green}',
+        '${nerv.unfocused.orange}',
+        '${nerv.unfocused.blue}',
+        '${nerv.unfocused.purple}',
+        '${nerv.unfocused.teal}',
         '#a6a6a6',
       },
       brights = {
@@ -36,10 +42,10 @@
         '#cacaca',
       },
       indexed = {
-        [16] = '#caa153',
-        [17] = '#1a1a1a',
-        [18] = '#0a0a0a',
-        [19] = '#8c6b2e',
+        [16] = '${nerv.unfocused.orange}',
+        [17] = '${nerv.unfocused.black}',
+        [18] = '${nerv.unfocused.deepBlack}',
+        [19] = '${nerv.unfocused.dimOrange}',
         [20] = '#0c3a13',
         [21] = '#4a1910',
         [22] = '#1a6a26',
@@ -52,18 +58,18 @@
         [29] = '#ab5969',
       },
       tab_bar = {
-        background = '#caa153',
+        background = '${nerv.unfocused.orange}',
         active_tab = {
-          bg_color = '#1a1a1a',
-          fg_color = '#caa153',
+          bg_color = '${nerv.unfocused.black}',
+          fg_color = '${nerv.unfocused.orange}',
         },
         inactive_tab = {
-          bg_color = '#0a0a0a',
-          fg_color = '#8c6b2e',
+          bg_color = '${nerv.unfocused.deepBlack}',
+          fg_color = '${nerv.unfocused.dimOrange}',
         },
         inactive_tab_hover = {
-          bg_color = '#8c6b2e',
-          fg_color = '#d0d0d0',
+          bg_color = '${nerv.unfocused.dimOrange}',
+          fg_color = '${nerv.unfocused.white}',
         },
       },
     }
@@ -72,7 +78,7 @@
       local color = require 'color'
       local p = color.palette
 
-      local function frame(border_color, border_width)
+      local function frame(border_color)
         return {
           inactive_titlebar_bg = "none",
           active_titlebar_bg = "none",
@@ -89,7 +95,7 @@
         }
       end
 
-      config.window_frame = frame(p.orange, focused_border_width)
+      config.window_frame = frame(p.orange)
 
       wezterm.on('window-focus-changed', function(window)
         local overrides = window:get_config_overrides() or {}
@@ -97,10 +103,12 @@
           overrides.window_frame = nil
           overrides.colors = nil
           overrides.window_background_opacity = nil
+          overrides.foreground_text_hsb = nil
         else
-          overrides.window_frame = frame(unfocused_border, unfocused_border_width)
+          overrides.window_frame = frame(unfocused_border)
           overrides.colors = unfocused_colors
           overrides.window_background_opacity = unfocused_opacity
+          overrides.foreground_text_hsb = unfocused_hsb
         end
         window:set_config_overrides(overrides)
       end)

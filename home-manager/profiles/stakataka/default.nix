@@ -30,11 +30,11 @@ let
     ../../common/cli/claude-code
     ../../common/cli/fish
     ../../common/cli/fzf
+    ../../common/cli/herdr
     ../../common/cli/mpv
     ../../common/cli/nano
     ../../common/cli/rtk
     ../../common/cli/starship
-    ../../common/cli/tmux
     ../../common/cli/tree
     ../../common/cli/zsh
   ];
