@@ -7,10 +7,6 @@
 let
   nerv = import ../../theme/nerv.nix;
 
-  # Herdr cannot dim inactive panes, so the unfocused pane border sits well
-  # below dimOrange to let the accent-colored focused border stand out
-  fadedOrange = "#6b4126";
-
   herdrBin = "${config.programs.herdr.package}/bin/herdr";
 
   # Emit a tab-bar git segment only when the focused pane is inside a repo.
@@ -100,7 +96,7 @@ in
           # Focused pane border and focused tab background; wezterm's ANSI yellow is the NERV orange and follows its palette swap
           accent = "yellow";
           # Unfocused pane border, and sidebar rows herdr does not have focus on
-          overlay0 = fadedOrange;
+          overlay0 = nerv.unfocused.orange;
           panel_bg = nerv.focused.deepBlack;
           sidebar_bg = nerv.focused.deepBlack;
           active_row_bg = nerv.focused.black;
