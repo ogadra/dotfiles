@@ -1,4 +1,7 @@
 { ... }:
+let
+  nerv = import ../../../theme/nerv.nix;
+in
 {
   xdg.configFile."wezterm/color.lua".text = ''
     local module = {}
@@ -6,16 +9,16 @@
     -- NERV HUD inspired colors (shared across modules)
     module.palette = {
       -- Base colors
-      orange = '#ff8a25',
-      black = '#1a1a1a',
-      deep_black = '#0a0a0a',
-      dim_orange = '#935c37',
-      white = '#ffffff',
+      orange = '${nerv.orange}',
+      black = '${nerv.black}',
+      deep_black = '${nerv.deepBlack}',
+      dim_orange = '${nerv.dimOrange}',
+      white = '${nerv.white}',
       -- Status colors
-      green = '#25ef25',
-      red = '#ef2525',
-      purple = '#b837ff',
-      teal = '#37dddd',
+      green = '${nerv.green}',
+      red = '${nerv.red}',
+      purple = '${nerv.purple}',
+      teal = '${nerv.teal}',
     }
 
     function module.apply_to_config(config, wezterm)
@@ -56,7 +59,7 @@
           p.red,      -- red (warning)
           p.green,    -- green (active)
           p.orange,   -- yellow -> NERV orange
-          '#7878ff',  -- blue -> Eva purple-blue
+          '${nerv.blue}',  -- blue -> Eva purple-blue
           p.purple,   -- magenta -> Eva Unit 01 purple
           p.teal,     -- cyan -> teal accent
           '#cacaca',  -- white

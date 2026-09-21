@@ -1,15 +1,6 @@
 { pkgs, profile, ... }:
 let
-  # NERV palette (kept in sync with wezterm color.nix)
-  orange = "#ff8a25";
-  black = "#1a1a1a";
-  deepBlack = "#0a0a0a";
-  dimOrange = "#935c37";
-  green = "#25ef25";
-  red = "#ef2525";
-  purple = "#b837ff";
-  teal = "#37dddd";
-  blue = "#7878ff";
+  nerv = import ../../theme/nerv.nix;
 
   # Herdr cannot dim inactive panes, so the unfocused pane border sits well
   # below dimOrange to let the accent-colored focused border stand out
@@ -67,7 +58,7 @@ in
       };
 
       ui = {
-        accent = orange;
+        accent = nerv.orange;
         # Copy on mouse selection and scroll 2 lines per wheel notch
         copy_on_select = true;
         mouse_scroll_lines = 2;
@@ -98,26 +89,26 @@ in
         # Fall back to the wezterm palette for tokens that are not overridden
         name = "terminal";
         custom = {
-          accent = orange;
-          panel_bg = deepBlack;
-          sidebar_bg = deepBlack;
-          active_row_bg = black;
-          selection_bg = dimOrange;
-          surface0 = black;
-          surface1 = dimOrange;
-          surface_dim = deepBlack;
+          accent = nerv.orange;
+          panel_bg = nerv.deepBlack;
+          sidebar_bg = nerv.deepBlack;
+          active_row_bg = nerv.black;
+          selection_bg = nerv.dimOrange;
+          surface0 = nerv.black;
+          surface1 = nerv.dimOrange;
+          surface_dim = nerv.deepBlack;
           overlay0 = fadedOrange;
-          overlay1 = orange;
-          text = orange;
-          subtext0 = dimOrange;
-          mauve = purple;
-          green = green;
+          overlay1 = nerv.orange;
+          text = nerv.orange;
+          subtext0 = nerv.dimOrange;
+          mauve = nerv.purple;
+          green = nerv.green;
           # NERV has no distinct yellow; wezterm maps yellow onto orange too
-          yellow = orange;
-          peach = orange;
-          red = red;
-          blue = blue;
-          teal = teal;
+          yellow = nerv.orange;
+          peach = nerv.orange;
+          red = nerv.red;
+          blue = nerv.blue;
+          teal = nerv.teal;
         };
       };
 
