@@ -206,8 +206,8 @@
   # autoMode = null;
   # Treat the bypass permissions dialog as already read.
   # skipDangerousModePermissionPrompt = null;
-  # Treat the auto mode opt-in dialog as already read.
-  # skipAutoPermissionPrompt = null;
+  # Treat the auto mode opt-in dialog as already read; defaultMode already picks auto, so the dialog asks nothing new.
+  skipAutoPermissionPrompt = true;
   # Disable auto mode, for managed settings.
   # disableAutoMode = null;
 
