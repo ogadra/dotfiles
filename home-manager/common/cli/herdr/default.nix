@@ -9,7 +9,7 @@ let
   # Emit a tab-bar git segment only when the focused pane is inside a repo.
   # Herdr strips escape sequences from command entries, so the output is plain text.
   gitSegment = pkgs.writeShellScript "herdr-git-segment" ''
-    cd "''${HERDR_ACTIVE_PANE_CWD:-$PWD}" 2>/dev/null || exit 0
+    cd "$HERDR_ACTIVE_PANE_CWD" 2>/dev/null || exit 0
     branch=$(${pkgs.git}/bin/git rev-parse --abbrev-ref HEAD 2>/dev/null) || exit 0
     [ -n "$branch" ] || exit 0
     printf '%s\n' "$branch"
