@@ -6,7 +6,12 @@
     local focused_border_width = '6px'
     local unfocused_border_width = '4px'
     local unfocused_border = '#3a3a3a'
-    local unfocused_opacity = 0.5
+    local unfocused_opacity = 0.85
+
+    -- herdr paints its chrome in truecolor, so the palette swap below never reaches it.
+    -- These multipliers carry NERV orange onto the washed-out gold the palette already
+    -- uses, keeping the hue and hazing everything the same way.
+    local unfocused_hsb = { saturation = 0.7, brightness = 0.8 }
 
     local unfocused_colors = {
       foreground = '#caa153',
@@ -97,10 +102,12 @@
           overrides.window_frame = nil
           overrides.colors = nil
           overrides.window_background_opacity = nil
+          overrides.foreground_text_hsb = nil
         else
           overrides.window_frame = frame(unfocused_border, unfocused_border_width)
           overrides.colors = unfocused_colors
           overrides.window_background_opacity = unfocused_opacity
+          overrides.foreground_text_hsb = unfocused_hsb
         end
         window:set_config_overrides(overrides)
       end)
