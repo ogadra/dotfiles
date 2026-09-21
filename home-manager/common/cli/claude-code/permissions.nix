@@ -1,4 +1,6 @@
 {
+  # Permission mode at session start (default/acceptEdits/plan/bypassPermissions/auto); auto lets the classifier approve tool calls while the deny rules below still win.
+  defaultMode = "auto";
   allow = [
     "Bash(git push origin:*)"
     "Bash(git push -u origin:*)"
