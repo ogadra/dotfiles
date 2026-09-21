@@ -1,6 +1,5 @@
 # NERV HUD palette. Single source for every module that paints in these colors.
 {
-  # What every color looks like while the window holds focus
   focused = {
     orange = "#ff8a25";
     dimOrange = "#935c37";
@@ -14,7 +13,6 @@
     blue = "#7878ff";
   };
 
-  # The same colors after wezterm swaps the palette on focus loss; lit colors lose their edge and surfaces drift toward grey
   unfocused = {
     orange = "#caa153";
     dimOrange = "#8c6b2e";
