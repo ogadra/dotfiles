@@ -58,7 +58,6 @@ in
       };
 
       ui = {
-        # Copy on mouse selection and scroll 2 lines per wheel notch
         copy_on_select = true;
         mouse_scroll_lines = 2;
         # wezterm's new-tab key expects a tab to appear without a name prompt
@@ -141,7 +140,6 @@ in
       exec ${pkgs.herdr}/bin/herdr
     end
 
-    # Set the initial tab name when already inside herdr
     if set -q HERDR_ENV
       __herdr_rename_tab
     end
