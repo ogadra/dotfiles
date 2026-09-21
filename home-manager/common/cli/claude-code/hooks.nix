@@ -4,6 +4,11 @@ let
     executable = true;
   };
   shared = ../../modules/llm-agent;
+
+  playSound =
+    sound: "(mpv --no-terminal --volume=30 ~/.claude/sounds/${sound} </dev/null >/dev/null 2>&1 &)";
+
+  whenAttended = command: ''if [ "$CLAUDE_CODE_SESSION_ATTENDED" = "1" ]; then ${command}; fi'';
 in
 {
   hooks = {
@@ -13,7 +18,7 @@ in
         hooks = [
           {
             type = "command";
-            command = "(mpv --no-terminal --volume=30 ~/.claude/sounds/notification.mp3 </dev/null >/dev/null 2>&1 &)";
+            command = whenAttended (playSound "notification.mp3");
           }
         ];
       }
@@ -26,7 +31,9 @@ in
         hooks = [
           {
             type = "command";
-            command = "[ -f /tmp/claude_task_stopped_$PPID ] || (mpv --no-terminal --volume=30 ~/.claude/sounds/notification.mp3 </dev/null >/dev/null 2>&1 &)";
+            command = whenAttended ''[ -f /tmp/claude_task_stopped_$PPID ] || ${
+              playSound "notification.mp3"
+            }'';
           }
         ];
       }
@@ -37,7 +44,9 @@ in
         hooks = [
           {
             type = "command";
-            command = "touch /tmp/claude_task_stopped_$PPID; (mpv --no-terminal --volume=30 ~/.claude/sounds/stop.mp3 </dev/null >/dev/null 2>&1 &)";
+            command = whenAttended ''touch /tmp/claude_task_stopped_$PPID; ${
+              playSound "stop.mp3"
+            }'';
           }
         ];
       }
