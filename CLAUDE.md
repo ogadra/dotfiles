@@ -13,13 +13,6 @@ Machine profiles:
 
 `private_dot_config/` was managed by chezmoi and is being phased out. New configs go through Nix; do not add files there.
 
-## Build Commands
-
-```bash
-make build    # Build configuration
-make update   # Update all flake inputs
-```
-
 ## Key Patterns
 
 - Machine profiles are in `profiles/<hostname>/` and `home-manager/profiles/<hostname>/`
