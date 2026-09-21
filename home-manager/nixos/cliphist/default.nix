@@ -1,7 +1,6 @@
 { pkgs, ... }:
 let
-  # Alt+V paste script (xremap converts Alt+V to Ctrl+V)
-  # Key codes: 56=Alt, 47=V
+  # Alt+V paste, which xremap turns into Ctrl+V; 56=Alt and 47=V
   cliphist-paste = pkgs.writeScriptBin "cliphist-paste" ''
     #!${pkgs.bash}/bin/bash
     selected=$(cliphist list | wofi -S dmenu)

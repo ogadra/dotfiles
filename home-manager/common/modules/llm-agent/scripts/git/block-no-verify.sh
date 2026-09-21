@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
-# Block git invocations that bypass hooks:
-#   - any `git ... --no-verify`
-#   - `git commit -n` (including bundled short flags like `-nam`)
-# Input: one git command per stdin line.
+# Block git invocations that bypass hooks, meaning any `git ... --no-verify` and `git commit -n` down to bundled short flags like `-nam`; input is one git command per stdin line.
 set -u
 
 deny() {

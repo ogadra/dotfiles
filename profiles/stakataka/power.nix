@@ -1,8 +1,6 @@
 { ... }:
 {
-  # 電源管理 (pmset)
-  # AC電源・バッテリー駆動を問わず、スリープと蓋閉じスリープを無効化し、
-  # WiFi接続・バックグラウンド処理を継続させる。
+  # Blocks sleep and lid-close sleep on both AC and battery so WiFi and background work carry on
   system.activationScripts.pmset.text = ''
     /usr/bin/pmset -a sleep 0
     /usr/bin/pmset -a disksleep 0

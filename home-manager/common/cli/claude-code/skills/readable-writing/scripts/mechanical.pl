@@ -87,7 +87,7 @@ sub term_re {
     return qr/$pat/;
 }
 
-# 語リストは言語ごとのファイルに分かれている。読んだ言語を各ルールに焼き込む。
+# Word lists live in per-language files, so bake the language that was read into every rule
 my $rules_dir = File::Spec->catdir(dirname(__FILE__), 'rules');
 my (@LITERAL, @FAMILY, @JA_ADVERBS, %LY_STOP);
 for my $l (sort keys %lang) {

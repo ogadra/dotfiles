@@ -1,7 +1,7 @@
 { ... }:
 {
   system.defaults.LaunchServices = {
-    # ダウンロードしたアプリの検疫警告を表示するか
+    # Quarantine warning when a downloaded app first runs
     LSQuarantine = false;
   };
 }

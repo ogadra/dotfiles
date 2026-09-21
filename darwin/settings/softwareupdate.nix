@@ -1,7 +1,7 @@
 { ... }:
 {
   system.defaults.SoftwareUpdate = {
-    # macOSアップデートの自動インストール
+    # Install macOS updates automatically
     AutomaticallyInstallMacOSUpdates = false;
   };
 }

@@ -1,22 +1,19 @@
 { ... }:
 {
   system.defaults.ActivityMonitor = {
-    # 表示するプロセス
-    # 100=全て, 101=階層, 102=自分, 103=システム,
-    # 104=他ユーザー, 105=アクティブ, 106=非アクティブ, 107=ウィンドウ付き
+    # Processes listed: 100=all, 101=hierarchy, 102=mine, 103=system, 104=other users, 105=active, 106=inactive, 107=windowed
     ShowCategory = 102;
 
-    # Dockアイコンの種類
-    # 0=アプリアイコン, 2=ネットワーク, 3=ディスク, 5=CPU, 6=CPU履歴
+    # Dock icon: 0=app icon, 2=network, 3=disk, 5=CPU, 6=CPU history
     IconType = 0;
 
-    # ソート列
+    # Sort column
     SortColumn = "Command";
 
-    # ソート方向: 0=降順, 1=昇順
+    # Sort direction: 0=descending, 1=ascending
     SortDirection = 1;
 
-    # 起動時にメインウィンドウを開く
+    # Open the main window at launch
     OpenMainWindow = true;
   };
 }

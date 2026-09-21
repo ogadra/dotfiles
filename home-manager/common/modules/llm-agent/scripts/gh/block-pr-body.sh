@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
-# Block PR creation and PR body edits that bypass the pr-create wrapper.
-# The wrapper caps the body at three lines and runs it through readable-writing.
-# Input: one gh command per stdin line (e.g., "gh pr create --title x").
+# Block PR creation and body edits that bypass the pr-create wrapper, which caps the body at three lines and runs readable-writing; input is one gh command per stdin line.
 set -u
 
 WRAPPER="$HOME/.claude/scripts/gh/pr-create.sh"

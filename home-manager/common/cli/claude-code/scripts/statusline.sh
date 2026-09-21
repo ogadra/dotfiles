@@ -26,12 +26,10 @@ format_epoch() {
   date -d "@$1" +"$2" 2>/dev/null || date -r "$1" +"$2" 2>/dev/null || true
 }
 
-# ccusage呼び出し結果のキャッシュ。
-# 月次は重いので15分、当日は1分。stale-while-revalidate的に古い値があれば即返す。
+# Cache ccusage results for 15 minutes monthly and 1 minute daily, serving a stale value right away when one is there
 cache_dir="${XDG_CACHE_HOME:-$HOME/.cache}/claude-statusline"
 mkdir -p "$cache_dir"
 
-# 引数: <cache_file> <ttl_sec> <jq_filter> <ccusage args...>
 get_cost() {
   local cache_file="$1" ttl="$2" filter="$3"
   shift 3

@@ -1,11 +1,7 @@
 { pkgs, ... }:
 let
   isLinux = pkgs.stdenv.hostPlatform.isLinux;
-  # Mesa's iris OpenGL driver hangs this Intel Arrow Lake iGPU while wezterm
-  # paints (i915 logs "GPU HANG: ... in wezterm-gui") and aborts the process
-  # when the batch flush cannot recover, so the window dies before showing
-  # anything. The Vulkan-backed WebGpu front end drives the same iGPU without
-  # hanging, so prefer it on Linux and leave macOS on the default front end.
+  # Mesa's iris driver hangs this Intel Arrow Lake iGPU while wezterm paints and aborts before the window ever shows, while the Vulkan-backed WebGpu front end drives the same iGPU fine, so take it on Linux and leave macOS alone.
   platformConfig = if isLinux then "    config.front_end = 'WebGpu'\n" else "";
 in
 {

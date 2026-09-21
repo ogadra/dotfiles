@@ -1,13 +1,13 @@
 { ... }:
 {
-  # ファイル拡張子を常に表示
+  # Always show file extensions
   system.defaults.NSGlobalDomain.AppleShowAllExtensions = true;
 
   system.defaults.finder = {
-    # 隠しファイルを表示
+    # Show hidden files
     AppleShowAllFiles = true;
 
-    # デフォルトの表示形式: Nlsv=リスト, icnv=アイコン, clmv=カラム, Flwv=ギャラリー
+    # Default view style: Nlsv=list, icnv=icon, clmv=column, Flwv=gallery
     FXPreferredViewStyle = "Nlsv";
   };
 }

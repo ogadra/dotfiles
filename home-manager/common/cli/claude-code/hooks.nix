@@ -23,8 +23,7 @@ in
         ];
       }
     ];
-    # タスク完了(Stop)後はフラグファイルを立て、次のプロンプト送信
-    # (UserPromptSubmit)までアイドル通知(idle_prompt)を鳴らさない。
+    # Stop drops a flag file that mutes the idle_prompt sound until the next UserPromptSubmit
     Notification = [
       {
         matcher = "idle_prompt";
@@ -68,7 +67,7 @@ in
         hooks = [
           {
             type = "command";
-            # ファイル末尾が改行で終わっていなければ改行を1つ追記する。
+            # Append a newline when the file does not already end in one
             command = ''FILE_PATH=$(jq -r '.tool_input.file_path') && [ -n "$(tail -c1 "$FILE_PATH")" ] && echo >> "$FILE_PATH"'';
           }
         ];
@@ -82,9 +81,7 @@ in
             type = "command";
             command = "$HOME/.claude/scripts/pre-bash.sh";
           }
-          # rtk proxy へコマンドを書き換え、出力を圧縮してトークンを削減する。
-          # 禁止コマンドの判定は書き換え前の入力に対して行われるため、
-          # pre-bash.sh のガードはこの hook の影響を受けない。
+          # Rewriting the command through the rtk proxy compresses its output; pre-bash.sh still judges the original input, so its guards survive this hook
           {
             type = "command";
             command = "rtk hook claude";

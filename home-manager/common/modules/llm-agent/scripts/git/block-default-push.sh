@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-# Block `git push` to the remote's default branch.
-# Input: one git command per stdin line (e.g., "git push origin main").
+# Block `git push` to the remote's default branch; input is one git command per stdin line.
 set -u
 
 while IFS= read -r SEG; do
@@ -39,8 +38,7 @@ while IFS= read -r SEG; do
     shift
   done
 
-  # Extract the remote-side branch from the refspec (dst side of src:dst).
-  # When refspec has no ':', src and dst are the same.
+  # Take the remote-side branch from the dst half of src:dst, which equals src when there is no ':'.
   REFSPEC="${REFSPEC#+}"
   case "$REFSPEC" in
     *:*) TARGET="${REFSPEC#*:}" ;;
