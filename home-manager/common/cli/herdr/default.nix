@@ -146,7 +146,7 @@ in
       else
         set name (string replace --regex "^$HOME" "~" -- "$path")
       end
-      ${herdrBin} tab rename "$HERDR_TAB_ID" "$name"
+      ${herdrBin} tab rename "$HERDR_TAB_ID" "$name" >/dev/null 2>&1
     end
 
     # Attach every wezterm OS window to the one shared session; skip inside herdr and Claude Code
