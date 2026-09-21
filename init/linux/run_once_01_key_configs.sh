@@ -1,11 +1,8 @@
 #!/bin/bash
 
-# Enable Emacs Keybindings for GTK(Desktop) Applications
-# You have to log out and log back in for the changes to take effect
-# Reference: https://linuxfan.info/emacs-key-theme
+# Emacs keybindings for GTK apps, which need a logout to take effect; see https://linuxfan.info/emacs-key-theme
 gsettings set org.gnome.desktop.interface gtk-key-theme 'Emacs'
 
-# Add xremap for Ubuntu
 # https://github.com/xremap/xremap
 cargo install xremap --features x11
 
