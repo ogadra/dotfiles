@@ -37,6 +37,9 @@ in
       { key = 'Tab', mods = 'CTRL', action = herdr('n') },
       { key = 'Tab', mods = 'SHIFT|CTRL', action = herdr('p') },
 
+      -- Workspace Control (delegated to herdr); a capital N is how herdr's prefix+shift+n arrives over a pty
+      { key = 'T', mods = 'SHIFT|${mod}', action = herdr('N') },
+
       -- Copy & Paste
       { key = 'c', mods = '${mod}', action = act.CopyTo("Clipboard") },
       { key = 'v', mods = '${mod}', action = act.PasteFrom("Clipboard") },
