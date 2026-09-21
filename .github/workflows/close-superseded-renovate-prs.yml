@@ -1,0 +1,23 @@
+name: Close superseded Renovate PRs
+on:
+  schedule:
+    - cron: "15 * * * *"
+  workflow_dispatch:
+permissions:
+  contents: write
+  pull-requests: write
+concurrency:
+  group: close-superseded-renovate-prs
+jobs:
+  close:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4 # v10.1.0
+        with:
+          python-version: "3.14.7"
+      # Runs after the hourly merge-freeze job so a PR that just thawed is already green here.
+      - name: Close every Renovate PR that a newer ready one replaced
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: uv run --no-project .github/scripts/close_superseded_renovate_prs.py
