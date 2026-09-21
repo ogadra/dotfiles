@@ -24,6 +24,7 @@ in
     config.keys = {
       -- Window Control
       { key = 'n', mods = '${mod}', action = act.SpawnWindow },
+      { key = 'q', mods = '${mod}', action = act.QuitApplication },
       { key = '=', mods = 'CTRL', action = act.IncreaseFontSize },
       { key = '-', mods = 'CTRL', action = act.DecreaseFontSize },
       { key = '=', mods = '${mod}', action = act.IncreaseFontSize },
