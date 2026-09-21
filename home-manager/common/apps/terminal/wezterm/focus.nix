@@ -8,9 +8,7 @@
     local unfocused_border = '#3a3a3a'
     local unfocused_opacity = 0.85
 
-    -- herdr paints its chrome in truecolor, so the palette swap below never reaches it.
-    -- These multipliers carry NERV orange onto the washed-out gold the palette already
-    -- uses, keeping the hue and hazing everything the same way.
+    -- herdr's chrome is truecolor, so only an HSB pass hazes it like the palette swap does
     local unfocused_hsb = { saturation = 0.7, brightness = 0.8 }
 
     local unfocused_colors = {
