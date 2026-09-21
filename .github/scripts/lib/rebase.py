@@ -2,10 +2,18 @@ import json
 import re
 from pathlib import Path
 
-from .commands import capture, capture_text, try_run
-from .errors import ConflictError, LockRegressionError, RebaseStalledError
+from .commands import capture, capture_text, exit_code, try_run
+from .errors import CommandError, ConflictError, LockRegressionError, RebaseStalledError
 
 HUNK = re.compile(r"<<<<<<< [^\n]*\n(.*?)\n=======\n(.*?)>>>>>>> [^\n]*\n", re.S)
+MERGE_TREE = ("git", "merge-tree", "--write-tree", "origin/main")
+
+
+def conflicts_with_main(branch: str) -> bool:
+    code = exit_code(*MERGE_TREE, branch)
+    if code > 1:
+        raise CommandError((*MERGE_TREE, branch))
+    return code == 1
 
 
 def version(side: str) -> tuple[int, ...] | None:
