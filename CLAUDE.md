@@ -32,5 +32,6 @@ make update   # Update all flake inputs
 ## Comments
 
 - Write every comment in English, on a single line. Rewrite rather than wrap.
-- Comment on why, not what. Drop anything the code already says: a comment that restates the identifier it sits above earns nothing.
-- Worth keeping: accepted values, units and ranges, opaque names, version caveats, and the reason a value was chosen.
+- Comment on why, not what. Drop anything the code already says.
+- Settings files are the exception: every property keeps its comment, because an option name on its own rarely says what it controls.
+- Always worth keeping: accepted values, units and ranges, opaque names, version caveats, and the reason a value was chosen.
