@@ -3,8 +3,8 @@
   xdg.configFile."wezterm/focus.lua".text = ''
     local module = {}
 
-    local focused_border_width = '6px'
-    local unfocused_border_width = '4px'
+    -- One width for both states: changing it reflows every cell the moment focus moves
+    local border_width = '6px'
     local unfocused_border = '#3a3a3a'
     local unfocused_opacity = 0.85
 
@@ -77,7 +77,7 @@
       local color = require 'color'
       local p = color.palette
 
-      local function frame(border_color, border_width)
+      local function frame(border_color)
         return {
           inactive_titlebar_bg = "none",
           active_titlebar_bg = "none",
@@ -94,7 +94,7 @@
         }
       end
 
-      config.window_frame = frame(p.orange, focused_border_width)
+      config.window_frame = frame(p.orange)
 
       wezterm.on('window-focus-changed', function(window)
         local overrides = window:get_config_overrides() or {}
@@ -104,7 +104,7 @@
           overrides.window_background_opacity = nil
           overrides.foreground_text_hsb = nil
         else
-          overrides.window_frame = frame(unfocused_border, unfocused_border_width)
+          overrides.window_frame = frame(unfocused_border)
           overrides.colors = unfocused_colors
           overrides.window_background_opacity = unfocused_opacity
           overrides.foreground_text_hsb = unfocused_hsb
