@@ -14,8 +14,7 @@ let
     ip = "127.0.0.1";
   };
 
-  # Only keys that Docker Desktop persists to settings-store.json are managed here.
-  # Keys not written by Docker Desktop itself will be ignored/removed on next launch.
+  # Only keys Docker Desktop itself writes to settings-store.json survive; anything else is dropped on the next launch.
   desktopSettings = {
     AnalyticsEnabled = false;
     AutoDownloadUpdates = false;

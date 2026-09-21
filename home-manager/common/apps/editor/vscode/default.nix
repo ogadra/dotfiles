@@ -39,12 +39,10 @@ in
                 "files.insertFinalNewline" = true;
 
                 "update.mode" = "none";
-                # This key takes the "on"/"off" enum, not a boolean; a boolean is
-                # silently ignored and leaves auto update on.
+                # This key takes the "on"/"off" enum, and a boolean is silently ignored and leaves auto update on.
                 "extensions.autoUpdate" = "off";
                 "extensions.autoCheckUpdates" = false;
-                # settings.json is a read-only nix store symlink, so VSCode cannot
-                # persist a dismissal of the recommendation prompt by itself.
+                # settings.json is a read-only nix store symlink, so VSCode cannot persist a dismissal of the recommendation prompt on its own.
                 "extensions.ignoreRecommendations" = true;
 
                 "cSpell.userWords" = [ "ogadra" ];

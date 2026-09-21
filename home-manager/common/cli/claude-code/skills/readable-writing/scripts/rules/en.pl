@@ -136,7 +136,7 @@ my @LITERAL = (
     },
 );
 
-# `[A-Za-z]{3,}ly` に引っかかるが副詞ではない語。
+# Words that match `[A-Za-z]{3,}ly` without being adverbs
 my %LY_STOP = map { $_ => 1 } qw(
     only
     family

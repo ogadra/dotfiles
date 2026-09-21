@@ -6,24 +6,19 @@ let
 in
 {
   targets.darwin.defaults."com.raycast.macos" = {
-    # グローバルホットキー: Command-49 (Cmd+Space)
+    # Global hotkey; Command-49 is cmd+Space
     raycastGlobalHotkey = "Command-49";
 
     raycastWindowPresentationMode = 2;
 
-    # 優先ウィンドウモード
     raycastPreferredWindowMode = "default";
 
-    # システムの外観 (ライト/ダーク) に追従する
     raycastShouldFollowSystemAppearance = 1;
 
-    # メニューバーでハイパーキーアイコンを使わない
     useHyperKeyIcon = 0;
 
-    # Raycast起動時に入力ソースをABCへ強制する
     enforcedInputSourceIDOnOpen = "com.apple.keylayout.ABC";
 
-    # 絵文字ピッカーの肌の色
     emojiPicker_skinTone = "light";
   };
 

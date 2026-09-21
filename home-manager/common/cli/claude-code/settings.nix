@@ -2,225 +2,209 @@
 {
   "$schema" = "https://json.schemastore.org/claude-code-settings.json";
 
-  ## モデル / 推論
+  ## Model and reasoning
 
-  # 既定モデル。"opus" / "sonnet" / "haiku" などのエイリアス、または完全な model ID。
+  # An alias such as "opus" / "sonnet" / "haiku", or a full model ID.
   # model = null;
-  # 拡張思考の自動有効化。false で thinking 無効、true/未設定で対応モデルでは自動 ON。
+  # false disables extended thinking; true or unset turns it on for models that support it.
   alwaysThinkingEnabled = true;
-  # 対応モデル向けの effort レベル（low/medium/high/xhigh）。
+  # low/medium/high/xhigh, for models that support it.
   effortLevel = "high";
-  # Fast mode（Opus 4.6 の高速出力モード）の常時有効化。
+  # Fast mode is Opus 4.6's high-throughput output mode.
   fastMode = false;
-  # Fast mode をセッションをまたいで保持しない。各セッションは fast mode OFF で開始。
+  # false keeps Fast mode out of every new session rather than carrying the last choice over.
   fastModePerSessionOptIn = false;
-  # メインスレッドで使用する agent 名（組み込み or カスタム）。
+  # Agent used on the main thread, built-in or custom.
   # agent = null;
-  # サーバーサイドの advisor tool で使用するモデル。
+  # Model used by the server-side advisor tool.
   # advisorModel = null;
-  # アシスタント応答の出力スタイル。
   # outputStyle = null;
-  # 利用可能モデルの allowlist（managed 設定向け）。
+  # Allowlist of usable models, for managed settings.
   # availableModels = null;
-  # Anthropic model ID → プロバイダ固有 ID のマッピング（managed 設定向け）。
+  # Anthropic model ID to provider-specific ID mapping, for managed settings.
   # modelOverrides = null;
 
-  ## 権限 / フック
+  ## Permissions and hooks
 
-  # 許可・拒否ルール（permissions.nix で定義）。
   permissions = import ./permissions.nix;
-  # フック定義（hooks.nix で定義）。
   hooks = hooksConfig.hooks;
-  # すべての hook と statusLine の実行を無効化するフラグ。
+  # Kill switch for every hook and for statusLine.
   disableAllHooks = false;
-  # managed 設定で hooks の独占を強制（user/project/local の hooks は無視）。
+  # Lets managed settings own hooks outright, ignoring user, project, and local ones.
   # allowManagedHooksOnly = null;
-  # HTTP hook の URL allowlist。
   # allowedHttpHookUrls = null;
-  # HTTP hook が header に展開できる環境変数の allowlist。
+  # Environment variables an HTTP hook may expand into a header.
   # httpHookAllowedEnvVars = null;
-  # managed 設定で permission rule の独占を強制（user/project/local/CLI 引数は無視）。
+  # Lets managed settings own permission rules outright, ignoring user, project, local, and CLI ones.
   # allowManagedPermissionRulesOnly = null;
 
-  ## 表示 / UI
+  ## Display and UI
 
-  # Claude の応答および音声入力で優先する言語。
+  # Covers Claude's responses and voice input.
   language = "Japanese";
-  # 配色テーマ（auto/dark/light/各daltonized/各ansi または custom:xxx）。
+  # auto/dark/light, their daltonized and ansi variants, or custom:xxx.
   theme = "custom:nerv";
-  # プロンプト入力欄のキーバインド（normal/vim）。
+  # normal/vim.
   editorMode = "normal";
-  # ツール出力を要約せずに全文表示するか。
+  # true prints tool output in full instead of summarizing it.
   verbose = false;
-  # 起動時の transcript view モード（default/verbose/focus）。
+  # Transcript view at startup: default/verbose/focus.
   viewMode = "default";
-  # 既定の transcript view（chat = ユーザー発言のチェックポイントのみ / transcript = 全文）。
+  # chat shows only user checkpoints, transcript shows everything.
   defaultView = "chat";
-  # TUI レンダラ。"fullscreen" は alt-screen＋仮想スクロールバックでちらつきが出にくい。"default" はクラシックなメインスクリーン描画。
+  # "fullscreen" uses the alt screen and virtual scrollback and flickers less, "default" draws on the main screen.
   tui = "default";
-  # 入力欄の `!` で起動する既定シェル。
+  # Shell that `!` in the input line launches.
   defaultShell = "bash";
-  # diff のシンタックスハイライトを無効化するか。
+  # Applies to diffs.
   syntaxHighlightingDisabled = false;
-  # `/rename` で端末タブ名を更新するか。false で自動生成タイトルを維持。
+  # false keeps the generated title instead of letting `/rename` retitle the terminal tab.
   terminalTitleFromRename = true;
-  # アクセシビリティ目的でアニメーション（スピナー輝き、フラッシュ等）を抑制。
+  # Covers spinner shimmer, flashes, and the like.
   prefersReducedMotion = false;
-  # transcript view（Ctrl+O）で thinking のサマリを表示するか。
+  # Applies to the transcript view on Ctrl+O.
   showThinkingSummaries = false;
-  # 各アシスタントターン後に「Cooked for Nm Ns」を表示するか。
+  # Prints "Cooked for Nm Ns" after each assistant turn.
   showTurnDuration = true;
-  # 各アシスタントメッセージに到達時刻スタンプを付けるか。
   showMessageTimestamps = false;
-  # 長時間処理中に OSC 9;4 progress エスケープを emit するか。
+  # Emits the OSC 9;4 progress escape during long operations.
   terminalProgressBarEnabled = true;
-  # plan 承認ダイアログに "clear context" オプションを出すか。
   showClearContextOnPlanAccept = false;
-  # プロンプト候補（サジェスト）機能を有効化するか。
   promptSuggestionEnabled = true;
-  # 5分以上離席後の復帰時に表示されるセッション要約を有効化するか。
+  # The summary appears when returning after five minutes away.
   awaySummaryEnabled = true;
-  # 未応答の AskUserQuestion ダイアログが選択済みオプションで自動継続するまでの idle 時間。"60s"/"5m"/"10m"/"never"。v2.1.200+。
+  # Idle time before the selected option is taken: "60s"/"5m"/"10m"/"never". v2.1.200+.
   askUserQuestionTimeout = "never";
 
-  ## 音声入力
+  ## Voice input
 
-  # 音声入力（ディクテーション）を有効化するか。/voice の設定先。
+  # This is what /voice writes to.
   voiceEnabled = true;
-  # 音声入力の詳細。mode は hold（キー押下中のみ録音）/ tap（タップで開始・再タップで送信）。
+  # hold records only while the key is down; tap starts on a tap and sends on the next.
   voice = {
     enabled = true;
     mode = "hold";
   };
 
-  ## スピナー / ステータスライン
+  ## Spinner and status line
 
-  # スピナー中の Tips 表示を有効化するか。
   spinnerTipsEnabled = true;
-  # スピナー動詞のカスタマイズ（append/replace モード）。
+  # Takes an append or replace mode.
   # spinnerVerbs = null;
-  # スピナー Tips のオーバーライド（excludeDefault と tips 配列）。
+  # Takes excludeDefault plus a tips array.
   # spinnerTipsOverride = null;
-  # カスタムステータスライン定義（command 型）。
   statusLine = {
     type = "command";
     command = "$HOME/.claude/scripts/statusline.sh";
     padding = 2;
   };
-  # サブエージェントごとのステータスライン定義。
   # subagentStatusLine = null;
-  # 起動時に表示する企業アナウンス（複数なら 1 件ランダム選択）。
+  # One is picked at random when there are several.
   # companyAnnouncements = null;
-  # PR リンクの URL テンプレート（{host}/{owner}/{repo}/{number}/{url}）。
+  # Takes {host}/{owner}/{repo}/{number}/{url}.
   # prUrlTemplate = null;
 
-  ## 通知
+  ## Notifications
 
-  # OS 通知チャネル（auto/iterm2/iterm2_with_bell/terminal_bell/kitty/ghostty/notifications_disabled）。
+  # auto/iterm2/iterm2_with_bell/terminal_bell/kitty/ghostty/notifications_disabled.
   preferredNotifChannel = "auto";
-  # 入力要求／permission prompt 待ち時にモバイルへプッシュ通知するか。
+  # Pushes to mobile while waiting on input or a permission prompt.
   inputNeededNotifEnabled = true;
-  # Claude からの能動的なモバイル通知を許可するか。
+  # Covers the mobile notifications Claude sends of its own accord.
   agentPushNotifEnabled = true;
 
-  ## セッション / コンテキスト
+  ## Sessions and context
 
-  # コンテキストが埋まった際に自動で会話を圧縮するか。
   autoCompactEnabled = false;
-  # 自動圧縮のウィンドウサイズ（トークン数。100k〜1M）。
+  # Tokens, from 100k to 1M.
   autoCompactWindow = 200000;
-  # 会話 view を底まで自動スクロールするか（fullscreen モード時のみ）。
+  # Fullscreen mode only.
   autoScrollEnabled = true;
-  # /rewind で復元できるよう、編集前にファイルのスナップショットを取るか。
+  # The snapshots are what /rewind restores from.
   fileCheckpointingEnabled = true;
-  # todo / タスク追跡パネルを有効化するか。
   todoFeatureEnabled = true;
-  # transcript の自動保持日数（最小1、既定30）。
+  # Days, minimum 1, default 30.
   cleanupPeriodDays = 30;
 
-  ## 更新
+  ## Updates
 
-  # 起動時の自動更新。
   autoUpdates = false;
 
-  ## メモリ / プラン
+  ## Memory and plans
 
-  # auto-memory 機能の有効化（~/.claude/projects/<cwd>/memory/ への読み書き）。
+  # Auto-memory reads and writes ~/.claude/projects/<cwd>/memory/.
   autoMemoryEnabled = false;
-  # auto-memory の保存先ディレクトリのカスタムパス。
   # autoMemoryDirectory = null;
-  # バックグラウンドでの memory 統合（auto-dream）の有効化。
+  # Auto-dream consolidates memory in the background.
   autoDreamEnabled = false;
-  # plan ファイルのカスタムディレクトリ（プロジェクトルートからの相対）。
+  # Relative to the project root.
   # plansDirectory = null;
-  # 読み込み除外する CLAUDE.md の glob/絶対パスリスト。
+  # Globs and absolute paths of CLAUDE.md files to leave unread.
   # claudeMdExcludes = null;
 
-  ## Skill 一覧
+  ## Skill listing
 
-  # Claude に渡す skill 一覧の各 description の文字数上限。
   skillListingMaxDescChars = 1536;
-  # Claude に渡す skill 一覧が消費する context window の割合（0–1、既定 0.01）。
+  # Share of the context window the listing may consume, 0 to 1, default 0.01.
   skillListingBudgetFraction = 0.01;
-  # skill ごとの listing override（on/name-only/user-invocable-only/off）。
+  # on/name-only/user-invocable-only/off, per skill.
   # skillOverrides = null;
 
-  ## ファイル / リポジトリ / Git
+  ## Files, repositories, and Git
 
-  # ファイルピッカーで .gitignore を尊重するか。
+  # Applies to the file picker.
   respectGitignore = true;
-  # @ メンション時のカスタムファイルサジェスト（command 型）。
+  # Custom suggestions for @ mentions, command type.
   # fileSuggestion = null;
-  # PR の attribution。空文字で非表示にする。
+  # An empty string hides the attribution.
   attribution = {
     pr = "";
   };
-  # コミット／PR ワークフローの組み込み指示をシステムプロンプトに含めるか。
+  # Puts the built-in commit and PR workflow instructions in the system prompt.
   includeGitInstructions = true;
-  # --worktree フラグでの worktree 設定（共有ディレクトリ、sparse-checkout 対象）。
+  # Used by the --worktree flag.
   worktree = {
     symlinkDirectories = [ ];
     sparsePaths = [ ];
   };
 
-  ## Remote / バックグラウンド
+  ## Remote and background
 
-  # Remote Control（claude.ai/code 連携）のセッション開始時自動起動。
+  # Remote Control is the claude.ai/code integration.
   remoteControlAtStartup = false;
-  # Remote Control 経由で別マシンのピアセッションへ SendMessage する前に明示承認を要求。
+  # Asks before SendMessage reaches a peer session on another machine.
   isolatePeerMachines = true;
-  # バックグラウンドサービス未起動時の挙動。transient はその場で起動、ask は常駐インストールを提案。
+  # transient starts a background service on the spot, ask offers to install a resident one.
   daemonColdStart = "transient";
-  # ローカルセッションを claude.ai に view-only でミラーアップロードするか。
+  # The uploads are view-only mirrors of local sessions.
   autoUploadSessions = false;
-  # teammate（spawn される別エージェント）の実行モード（auto/tmux/in-process）。
+  # How spawned teammate agents run: auto/tmux/in-process.
   teammateMode = "auto";
-  # remote セッションの既定 environment ID。
+  # Default environment ID for remote sessions.
   # remote = null;
 
-  ## モード制御
+  ## Mode control
 
-  # plan モードを auto mode セマンティクスで動かすか（auto mode が有効な場合）。
+  # Only bites when auto mode is on.
   useAutoModeDuringPlan = true;
-  # auto mode 分類器のカスタマイズ（allow/soft_deny/environment）。
+  # Takes allow/soft_deny/environment.
   # autoMode = null;
-  # bypass permissions モードのダイアログを既読扱いにするか。
+  # Treats the bypass permissions dialog as already read.
   # skipDangerousModePermissionPrompt = null;
-  # auto mode オプトインダイアログを既読扱いにするか。
+  # Treats the auto mode opt-in dialog as already read.
   # skipAutoPermissionPrompt = null;
-  # auto mode の無効化（managed 設定向け）。
+  # For managed settings.
   # disableAutoMode = null;
 
-  # セッション品質サーベイの出現確率（0–1）。
+  # Odds the survey appears, 0 to 1.
   feedbackSurveyRate = 0;
 
   ## Done-means-merged
 
-  # PR が merge 可能になるまで Claude が作業を続ける挙動（@internal）。
+  # Keeps Claude working until the PR can merge (@internal).
   doneMeansMerged = false;
 
-  ## 環境変数
+  ## Environment variables
 
-  # Claude Code セッションに設定する環境変数。
   env = { };
 }

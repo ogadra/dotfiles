@@ -1,105 +1,94 @@
 { lib, ... }:
 let
-  # nixpkgs 版はソースからビルドして ad-hoc 署名するため、リビルドのたびに cdhash が変わる。
-  # 画面収録などの TCC 権限は ad-hoc 署名アプリを cdhash で識別するので、その都度許可が失効する。
-  # 公式配布版は Developer ID 署名 + notarize 済みで、TeamIdentifier で識別されるため権限が保持される。
+  # The nixpkgs build is ad-hoc signed, so its cdhash shifts on every rebuild and TCC grants like screen recording lapse with it; the official build is notarized and identified by TeamIdentifier, so the grants stick
   version = "11.4.3";
   zipUrl = "https://github.com/lwouis/alt-tab-macos/releases/download/v${version}/AltTab-${version}.zip";
   zipSha256 = "f6471d3cfc3ca70986ab55fe2dd334da5ad629d517eaf8eb3449fc0e7123eddd";
 in
 {
   targets.darwin.defaults."com.lwouis.alt-tab-macos" = {
-    # サムネイルの揃え方: 0=左揃え, 1=中央揃え
+    # Thumbnail alignment: 0=left, 1=center
     alignThumbnails = 1;
 
-    # ウィンドウパネルのサイズ: 0=小, 1=中, 2=大, 3=最大
+    # Panel size: 0=small, 1=medium, 2=large, 3=largest
     appearanceSize = "1";
 
-    # カラーテーマ: 0=システム, 1=ライト, 2=ダーク
+    # Color theme: 0=system, 1=light, 2=dark
     appearanceTheme = 2;
 
-    # パネルの表示タイミング: 0=ホールドキー押下後すぐ, 1=遅延後
+    # Panel timing: 0=as soon as the hold key is pressed, 1=after a delay
     appearanceVisibility = 1;
 
-    # 表示するアプリ: 0=すべてのSpaceのアプリ, 1=現在のSpaceのアプリ
+    # Apps listed: 0=from every Space, 1=from the current Space
     appsToShow = 0;
 
-    # 矢印キーでのナビゲーション有効化
     arrowKeysEnabled = "false";
 
-    # クラッシュ時のポリシー: 0=何もしない, 1=自動再起動
+    # On crash: 0=do nothing, 1=relaunch
     crashPolicy = 1;
 
-    # カーソルをフォーカスに追従: 0=しない
     cursorFollowFocus = 0;
     cursorFollowFocusEnabled = 0;
 
-    # アプリごとの表示例外リスト
-    # ignore: 0=ショートカット有効, 1=常に無効, 2=フルスクリーン時のみ無効
-    # hide:   0=常に表示, 1=常に非表示, 2=ウィンドウなしのとき非表示
+    # Per-app exceptions; ignore: 0=shortcut on, 1=always off, 2=off only in full screen; hide: 0=always show, 1=always hide, 2=hide when windowless
     exceptions = builtins.toJSON [
       { bundleIdentifier = "com.apple.finder"; ignore = "0"; hide = "2"; }
       { bundleIdentifier = "com.apple.mail";   ignore = "0"; hide = "2"; }
     ];
 
-    # ウィンドウなしアプリを隠す
     hideWindowlessApps = 1;
 
-    # 設定ファイルのバージョン
     preferencesVersion = "10.11.0";
 
-    # 選択中のウィンドウを最前面にプレビュー表示
     previewFocusedWindow = "true";
 
-    # 表示するスクリーン: 0=すべてのスクリーン, 1=showOnScreenと同じスクリーンのみ
+    # Screens listed: 0=all, 1=only the one showOnScreen picks
     screensToShow = 0;
 
-    # 初回起動時に設定画面を表示済みとする
+    # Mark the first-launch settings window as already seen
     settingsWindowShownOnFirstLaunch = "true";
 
-    # ショートカット数
     shortcutCount = "1";
 
-    # ショートカットスタイル: 0=⌘+Tab, 1=カスタム
+    # Shortcut style: 0=cmd+Tab, 1=custom
     shortcutStyle = 0;
 
-    # フルスクリーンウィンドウを表示: 0=常に表示, 1=非表示, 2=末尾に表示
+    # Full-screen windows: 0=always show, 1=hide, 2=show last
     showFullscreenWindows = 0;
 
-    # 隠しウィンドウを表示: 0=常に表示, 1=非表示, 2=末尾に表示
+    # Hidden windows: 0=always show, 1=hide, 2=show last
     showHiddenWindows = 1;
 
-    # 最小化ウィンドウを表示: 0=常に表示, 1=非表示, 2=末尾に表示
+    # Minimized windows: 0=always show, 1=hide, 2=show last
     showMinimizedWindows = 0;
 
-    # パネルを表示するスクリーン: 0=アクティブなスクリーン, 1=マウスカーソルがあるスクリーン, 2=メニューバーがあるスクリーン
+    # Screen the panel opens on: 0=active, 1=the one under the cursor, 2=the one with the menu bar
     showOnScreen = "0";
 
-    # ウィンドウタイトルの表示: 0=非表示, 1=タイトルのみ, 2=アプリ名+タイトル
+    # Window titles: 0=hide, 1=title only, 2=app name and title
     showTitles = 2;
 
-    # ウィンドウなしアプリの表示: 0=表示, 1=非表示, 2=末尾に表示
+    # Windowless apps: 0=show, 1=hide, 2=show last
     showWindowlessApps = 1;
 
-    # 2つ目以降のショートカット用のウィンドウなしアプリ表示設定 (shortcutCount=1のため未使用)
+    # Windowless apps for the second shortcut onward, unused while shortcutCount is 1
     showWindowlessApps10 = "0";
 
-    # 表示するSpace: 0=すべてのSpace, 1=現在のSpace
+    # Spaces listed: 0=all, 1=the current one
     spacesToShow = 0;
 
-    # テーマ: 0=macOSデフォルト, 1=macOS
+    # Theme: 0=macOS default, 1=macOS
     theme = 1;
 
-    # トラックパッドの触覚フィードバック
     trackpadHapticFeedbackEnabled = "false";
 
-    # アップデートポリシー: 0=自動確認, 1=確認しない
+    # Updates: 0=check automatically, 1=never check
     updatePolicy = "0";
 
-    # パネル表示の遅延 (ミリ秒)
+    # Delay in milliseconds before the panel appears
     windowDisplayDelay = 0;
 
-    # 最大ウィンドウ幅 (行の割合 %)
+    # Widest a window may get, as a percentage of the row
     windowMaxWidthInRow = 30;
   };
 
@@ -116,9 +105,7 @@ in
     fi
   '';
 
-  # ショートカット設定はNSKeyedArchiverバイナリ形式のため targets.darwin.defaults では扱えない。
-  # defaults import でplistから適用する。targets.darwin.defaults より後に実行されることを保証するため
-  # writeBoundary の後に実行する (targets.darwin.defaults は linkGeneration 前に適用される)。
+  # Shortcuts are NSKeyedArchiver blobs that targets.darwin.defaults cannot write, so import the plist after writeBoundary, which is where that option has already been applied
   home.activation.altTabShortcuts = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     /usr/bin/defaults import com.lwouis.alt-tab-macos ${./com.lwouis.alt-tab-macos.plist}
   '';

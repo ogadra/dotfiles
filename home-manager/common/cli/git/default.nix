@@ -13,8 +13,7 @@ in
 {
   home.file.".ssh/allowed_signers".source = ./allowed_signers;
 
-  # Hooks for LLM agent sessions, reached through core.hooksPath in the
-  # .gitconfig those sessions load via GIT_CONFIG_GLOBAL.
+  # Hooks for LLM agent sessions, reached through core.hooksPath in the .gitconfig those sessions load via GIT_CONFIG_GLOBAL.
   xdg.configFile = {
     "git/hooks-llm-agent/commit-msg" = mkHook "commit-msg";
     "git/hooks-llm-agent/pre-commit" = mkHook "pre-commit";

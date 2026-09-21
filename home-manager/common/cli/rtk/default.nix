@@ -5,7 +5,6 @@
 {
   home.packages = [ pkgs.rtk ];
 
-  # claude-code の PreToolUse(Bash) hook が rtk へコマンドを書き換える。
-  # その挙動を Claude に説明する指示書で、CLAUDE.md から @RTK.md で参照する。
+  # Explains to Claude why its PreToolUse(Bash) hook rewrites commands into rtk; CLAUDE.md pulls it in as @RTK.md
   home.file.".claude/RTK.md".source = ./RTK.md;
 }

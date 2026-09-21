@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
-# Reject a commit message that carries a body.
-# A change that needs prose is a change that should be several commits.
-# Blank lines and trailers ("Key: value") after the subject are fine.
+# Reject a commit message with a body, since a change that needs prose should be several commits; trailers after the subject are fine.
 set -u
 
 GIT_DIR=$(git rev-parse --git-dir)
