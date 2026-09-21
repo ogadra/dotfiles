@@ -98,7 +98,7 @@ in
           surface1 = nerv.dimOrange;
           surface_dim = nerv.deepBlack;
           overlay0 = fadedOrange;
-          overlay1 = nerv.orange;
+          overlay1 = nerv.dimOrange;
           text = nerv.orange;
           subtext0 = nerv.dimOrange;
           mauve = nerv.purple;
