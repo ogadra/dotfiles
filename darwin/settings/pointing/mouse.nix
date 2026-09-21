@@ -1,7 +1,7 @@
 { ... }:
 {
   system.defaults.".GlobalPreferences" = {
-    # Tracking speed
+    # Mouse tracking speed
     "com.apple.mouse.scaling" = 3.0;
   };
 }
