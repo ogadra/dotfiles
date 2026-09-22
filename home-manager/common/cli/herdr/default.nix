@@ -17,6 +17,12 @@ let
     printf '%s\n' "$branch"
   '';
 
+  # Publish the session name as a wezterm user var so its keybinds can drive this window's session; OSC 1337 takes a base64 value
+  sessionExec = pkgs.writeShellScript "herdr-session-exec" ''
+    printf '\033]1337;SetUserVar=herdr_session=%s\007' "$(printf %s "$1" | ${pkgs.coreutils}/bin/base64)"
+    exec ${herdrBin} --session "$1"
+  '';
+
   # One session per wezterm OS window: the git segment reads the session-wide active pane
   windowSession = pkgs.writeShellScript "herdr-window-session" ''
     set -u
@@ -24,7 +30,7 @@ let
     mkdir -p "$lock_dir"
     slot=1
     while :; do
-      ${pkgs.flock}/bin/flock -n -E 66 "$lock_dir/$slot" ${herdrBin} --session "window$slot"
+      ${pkgs.flock}/bin/flock -n -E 66 "$lock_dir/$slot" ${sessionExec} "window$slot"
       status=$?
       # 66 is flock's conflict code, so only a slot another window holds continues the search
       [ "$status" -eq 66 ] || exit "$status"
