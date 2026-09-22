@@ -43,5 +43,6 @@ in
     ".claude/skills/pr-review/policies/testing.md".source = ./skills/pr-review/policies/testing.md;
     ".claude/skills/pr-review/policies/ai-antipattern.md".source = ./skills/pr-review/policies/ai-antipattern.md;
     ".claude/skills/readable-writing".source = ./skills/readable-writing;
+    ".claude/skills/ponytail".source = ./skills/ponytail;
   } // hooksConfig.scripts;
 }
