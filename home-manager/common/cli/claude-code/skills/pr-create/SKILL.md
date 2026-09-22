@@ -1,12 +1,12 @@
 ---
 name: pr-create
-description: GitHubのPull Requestを作る。ユーザーが「PRを作る」「PR出して」と言ったとき、`/pr-create` で呼ばれたとき、または `gh pr create` がhookにブロックされたときに使う。Creates a GitHub pull request with a three-line body.
+description: GitHubのPull Requestを作る、または既存PRのbodyを直す。ユーザーが「PRを作る」「PR出して」「PRのbodyを直して」と言ったとき、`/pr-create` で呼ばれたとき、または `gh pr create` や `gh pr edit --body` がhookにブロックされたときに使う。Creates or edits a GitHub pull request with a three-line body.
 allowed-tools: Bash(git status:*), Bash(git diff:*), Bash(git log:*), Bash(git rev-parse:*), Bash(git branch:*), Bash(git push:*), Bash(gh pr view:*), Bash(gh pr list:*), Bash(gh repo view:*), Bash($HOME/.claude/scripts/gh/pr-body.sh:*), Read, Write
 ---
 
 # PR Create
 
-`gh pr create` と `gh pr edit --body` はhookがブロックする。PRは `~/.claude/scripts/gh/pr-body.sh` 経由でのみ作れる。
+`gh pr create` と `gh pr edit --body` はhookがブロックする。PRの作成とbodyの変更は `~/.claude/scripts/gh/pr-body.sh` 経由でのみできる。
 
 ## PR bodyの条件
 
@@ -22,7 +22,7 @@ allowed-tools: Bash(git status:*), Bash(git diff:*), Bash(git log:*), Bash(git r
 
 箇条書きは使ってよい。1項目が1行として数えられる。
 
-## 手順
+## 作成の手順
 
 ### 1. 変更の把握
 
@@ -50,7 +50,20 @@ git push -u origin <branch>
 - `--body` は使えない。bodyは必ず `--body-file` で渡す
 - `--draft` などの残りの引数は `gh pr create` にそのまま渡る
 
-### 5. 拒否されたときの対応
+## 編集の手順
+
+既存PRのbodyを直すときは `--edit` を付ける。
+
+```bash
+~/.claude/scripts/gh/pr-body.sh --edit --body-file <path> [<PR番号>]
+```
+
+- PR番号を省略すると現在のブランチのPRが対象になる
+- `--title` は省略できる。省略すると今のtitleが残る
+- bodyの条件と拒否されたときの対応は作成と同じ
+- titleやラベルだけを変えるなら `gh pr edit` を直接実行してよい
+
+## 拒否されたときの対応
 
 スクリプトはbodyの行数を見たあと、readable-writingの `review.sh` にかける。
 
@@ -66,4 +79,3 @@ git push -u origin <branch>
 ## 注意
 
 - `review.sh` は `claude -p` を7並列で起動するので、1回の実行に時間がかかる
-- 作成後にbodyを直すときも `gh pr edit --body` は使えない。`--title` やラベルの変更は `gh pr edit` で直接できる

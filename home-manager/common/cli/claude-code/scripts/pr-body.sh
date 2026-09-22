@@ -7,12 +7,14 @@ REVIEW="$HOME/.claude/skills/readable-writing/scripts/review.sh"
 usage() {
   cat >&2 <<'EOF'
 usage: pr-body.sh --title <title> --body-file <path> [gh pr create args...]
+       pr-body.sh --edit [--title <title>] --body-file <path> [gh pr edit args...]
 EOF
   exit 2
 }
 
 title=""
 body_file=""
+edit=0
 rest=()
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -20,12 +22,14 @@ while [ $# -gt 0 ]; do
     --title=*) title=${1#--title=}; shift ;;
     --body-file) body_file=${2-}; shift 2 || usage ;;
     --body-file=*) body_file=${1#--body-file=}; shift ;;
+    --edit) edit=1; shift ;;
     --body|--body=*|-b) echo "pr-body.sh: bodyは --body-file で渡す。" >&2; exit 2 ;;
     *) rest+=("$1"); shift ;;
   esac
 done
 
-[ -n "$title" ] || usage
+# gh pr edit keeps the current title when --title is omitted, so only creation requires one
+[ -n "$title" ] || [ "$edit" -eq 1 ] || usage
 [ -n "$body_file" ] || usage
 [ -f "$body_file" ] || { echo "pr-body.sh: no such file: $body_file" >&2; exit 1; }
 
@@ -78,4 +82,13 @@ if [ "$(printf '%s' "$blocking" | jq 'length')" -gt 0 ]; then
 fi
 
 rm -f "$state"
-exec gh pr create --title "$title" --body-file "$body_file" ${rest[@]+"${rest[@]}"}
+
+if [ "$edit" -eq 1 ]; then
+  gh_args=(pr edit)
+else
+  gh_args=(pr create)
+fi
+[ -n "$title" ] && gh_args+=(--title "$title")
+gh_args+=(--body-file "$body_file")
+
+exec gh "${gh_args[@]}" ${rest[@]+"${rest[@]}"}
