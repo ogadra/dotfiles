@@ -1,6 +1,11 @@
 { pkgs, config, ... }:
 let
   herdrBin = "${config.programs.herdr.package}/bin/herdr";
+  # A stopped session keeps its state on disk, so delete follows stop; one script keeps the pair off wezterm's GUI thread
+  dropSession = pkgs.writeShellScript "herdr-drop-session" ''
+    ${herdrBin} session stop "$1"
+    ${herdrBin} session delete "$1"
+  '';
   isLinux = pkgs.stdenv.hostPlatform.isLinux;
   mod = if isLinux then "ALT" else "SUPER";
   altCompose = if isLinux then "" else ''
@@ -34,6 +39,15 @@ in
         return payload.result.tabs
       end
 
+      -- A session belongs to one window, so it dies with the window instead of lingering detached
+      local function close_window(win, pane)
+        local session = pane:get_user_vars().herdr_session
+        win:perform_action(act.CloseCurrentTab { confirm = false }, pane)
+        if session then
+          wezterm.background_child_process { '${dropSession}', session }
+        end
+      end
+
       -- Closing the last tab leaves herdr with nothing to show, so the window goes with it
       local close_tab = wezterm.action_callback(function(win, pane)
         local session = pane:get_user_vars().herdr_session
@@ -42,12 +56,10 @@ in
           win:perform_action(herdr('w'), pane)
           return
         end
-        if tabs[1] then
-          -- Close over the socket rather than the prefix key: the keystroke would race the window teardown
-          wezterm.run_child_process { '${herdrBin}', '--session', session, 'tab', 'close', tabs[1].tab_id }
-        end
-        win:perform_action(act.CloseCurrentTab { confirm = false }, pane)
+        close_window(win, pane)
       end)
+
+      local quit_window = wezterm.action_callback(close_window)
 
     config.disable_default_key_bindings = true
     ${altCompose}
@@ -55,7 +67,7 @@ in
       -- Window Control
       { key = 'n', mods = '${mod}', action = act.SpawnWindow },
       -- Close this window alone, not the whole app; a window holds a single wezterm tab because herdr draws the tab row
-      { key = 'q', mods = '${mod}', action = act.CloseCurrentTab { confirm = false } },
+      { key = 'q', mods = '${mod}', action = quit_window },
       { key = '=', mods = 'CTRL', action = act.IncreaseFontSize },
       { key = '-', mods = 'CTRL', action = act.DecreaseFontSize },
       { key = '=', mods = '${mod}', action = act.IncreaseFontSize },
