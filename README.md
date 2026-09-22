@@ -21,6 +21,9 @@ make update
 
 # 特定の入力のみ更新 (例: llm-agents.nix)
 make update llm-agents
+
+# ビルド成果物と古いストアパスを削除
+make clean
 ```
 
 ## ディレクトリ構成
