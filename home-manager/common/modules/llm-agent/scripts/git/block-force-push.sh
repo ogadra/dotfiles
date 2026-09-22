@@ -2,7 +2,8 @@
 set -u
 
 deny() {
-  printf 'Blocked: `git push %s` rewrites remote history. Do not amend or rebase pushed commits; add a new commit instead.\n' "$1" >&2
+  printf 'Blocked: `git push %s` rewrites remote history. Pushed commits must not be amended or rebased.\n' "$1" >&2
+  printf 'Find the pushed commit with `git reflog`, restore the branch with `git reset --hard <sha>`, then redo the change as a new commit.\n' >&2
   exit 2
 }
 

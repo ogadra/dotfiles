@@ -1,20 +1,15 @@
 #!/usr/bin/env bash
-# Dispatch git-related Bash commands to per-check scripts.
+# Dispatch git commands to per-check scripts; input is one normalized command per stdin line.
 set -u
 
-INPUT=$(cat)
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-CMD=$(printf '%s' "$INPUT" | jq -r '.tool_input.command // ""')
-CWD=$(printf '%s' "$INPUT" | jq -r '.cwd // ""')
-[ -n "$CWD" ] && cd "$CWD" 2>/dev/null
 
 GIT_SEGMENTS=""
 while IFS= read -r SEG; do
-  SEG="${SEG#"${SEG%%[![:space:]]*}"}"
   case "$SEG" in
     "git"|"git "*) GIT_SEGMENTS="${GIT_SEGMENTS}${SEG}"$'\n' ;;
   esac
-done < <(printf '%s\n' "$CMD" | tr ';&|' '\n')
+done
 
 [ -z "$GIT_SEGMENTS" ] && exit 0
 

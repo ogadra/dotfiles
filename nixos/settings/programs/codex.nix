@@ -9,6 +9,10 @@ in
       source = shared + "/scripts/pre-bash.sh";
       mode = "0555";
     };
+    "codex/hooks/normalize.sh" = {
+      source = shared + "/scripts/normalize.sh";
+      mode = "0555";
+    };
     "codex/hooks/play-sound.sh" = {
       source = shared + "/scripts/play-sound.sh";
       mode = "0555";
@@ -43,6 +47,10 @@ in
     };
     "codex/hooks/gh/block-repo-clone.sh" = {
       source = shared + "/scripts/gh/block-repo-clone.sh";
+      mode = "0555";
+    };
+    "codex/hooks/gh/block-pr-body.sh" = {
+      source = shared + "/scripts/gh/block-pr-body.sh";
       mode = "0555";
     };
     "codex/sounds/notification.mp3".source = ../../../home-manager/common/sounds/notification.mp3;
