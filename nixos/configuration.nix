@@ -3,6 +3,8 @@
 {
   # Bootloader
   boot.loader.systemd-boot.enable = true;
+  # Number of generations kept as boot entries; 10 fits the 1GB ESP at roughly 60MB of kernel and initrd per generation
+  boot.loader.systemd-boot.configurationLimit = 10;
   boot.loader.efi.canTouchEfiVariables = true;
 
   # Wireless support via wpa_supplicant
