@@ -9,6 +9,10 @@ in
       source = shared + "/scripts/pre-bash.sh";
       mode = "0555";
     };
+    "codex/hooks/normalize.sh" = {
+      source = shared + "/scripts/normalize.sh";
+      mode = "0555";
+    };
     "codex/hooks/play-sound.sh" = {
       source = shared + "/scripts/play-sound.sh";
       mode = "0555";
