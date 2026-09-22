@@ -1,7 +1,7 @@
 HOST := $(shell hostname -s | tr '[:upper:]' '[:lower:]')
 UNAME := $(shell uname)
 
-.PHONY: ensure-nix build switch update
+.PHONY: ensure-nix build switch update clean
 
 ensure-nix:
 	@command -v nix >/dev/null 2>&1 || { \
@@ -27,6 +27,9 @@ build:
 switch:
 	sudo nixos-rebuild switch --flake .#$(HOST)
 endif
+
+clean:
+	bash scripts/clean.sh
 
 update:
 	nix flake update --access-tokens "github.com=$$(gh auth token)" $(filter-out $@,$(MAKECMDGOALS))
