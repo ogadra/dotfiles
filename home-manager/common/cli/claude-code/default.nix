@@ -33,6 +33,7 @@ in
     ".claude/config/.gitconfig".source = shared + "/.gitconfig";
     ".claude/skills/absolute-rules/SKILL.md".source = ./skills/absolute-rules/SKILL.md;
     ".claude/skills/cascade-merge/SKILL.md".source = ./skills/cascade-merge/SKILL.md;
+    ".claude/skills/ponytail".source = ./skills/ponytail;
     ".claude/skills/pr-create/SKILL.md".source = ./skills/pr-create/SKILL.md;
     ".claude/skills/pr-review/SKILL.md".source = ./skills/pr-review/SKILL.md;
     ".claude/skills/pr-review/policies/absolute-rules.md".source = ./skills/pr-review/policies/absolute-rules.md;
@@ -43,6 +44,5 @@ in
     ".claude/skills/pr-review/policies/testing.md".source = ./skills/pr-review/policies/testing.md;
     ".claude/skills/pr-review/policies/ai-antipattern.md".source = ./skills/pr-review/policies/ai-antipattern.md;
     ".claude/skills/readable-writing".source = ./skills/readable-writing;
-    ".claude/skills/ponytail".source = ./skills/ponytail;
   } // hooksConfig.scripts;
 }
