@@ -49,6 +49,10 @@ in
       source = shared + "/scripts/gh/block-repo-clone.sh";
       mode = "0555";
     };
+    "codex/hooks/gh/block-pr-body.sh" = {
+      source = shared + "/scripts/gh/block-pr-body.sh";
+      mode = "0555";
+    };
     "codex/sounds/notification.mp3".source = ../../../home-manager/common/sounds/notification.mp3;
     "codex/sounds/stop.mp3".source = ../../../home-manager/common/sounds/stop.mp3;
   };
