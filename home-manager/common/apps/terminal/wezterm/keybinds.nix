@@ -54,7 +54,8 @@ in
     config.keys = {
       -- Window Control
       { key = 'n', mods = '${mod}', action = act.SpawnWindow },
-      { key = 'q', mods = '${mod}', action = act.QuitApplication },
+      -- Close this window alone, not the whole app; a window holds a single wezterm tab because herdr draws the tab row
+      { key = 'q', mods = '${mod}', action = act.CloseCurrentTab { confirm = false } },
       { key = '=', mods = 'CTRL', action = act.IncreaseFontSize },
       { key = '-', mods = 'CTRL', action = act.DecreaseFontSize },
       { key = '=', mods = '${mod}', action = act.IncreaseFontSize },
