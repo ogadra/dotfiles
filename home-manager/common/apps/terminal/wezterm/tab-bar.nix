@@ -88,8 +88,7 @@
       end
     end
 
-    -- Get path relative to git root, or shortened path if not in a git repo
-    -- Uses cache, does not call external processes
+    -- Path relative to the git root, or a shortened path outside a repo, read from the cache without spawning a process
     local function get_display_path(url_or_path)
       local path = extract_path(url_or_path)
       if not path then
