@@ -1,12 +1,12 @@
 ---
 name: pr-create
 description: GitHubのPull Requestを作る。ユーザーが「PRを作る」「PR出して」と言ったとき、`/pr-create` で呼ばれたとき、または `gh pr create` がhookにブロックされたときに使う。Creates a GitHub pull request with a three-line body.
-allowed-tools: Bash(git status:*), Bash(git diff:*), Bash(git log:*), Bash(git rev-parse:*), Bash(git branch:*), Bash(git push:*), Bash(gh pr view:*), Bash(gh pr list:*), Bash(gh repo view:*), Bash($HOME/.claude/scripts/gh/pr-create.sh:*), Read, Write
+allowed-tools: Bash(git status:*), Bash(git diff:*), Bash(git log:*), Bash(git rev-parse:*), Bash(git branch:*), Bash(git push:*), Bash(gh pr view:*), Bash(gh pr list:*), Bash(gh repo view:*), Bash($HOME/.claude/scripts/gh/pr-body.sh:*), Read, Write
 ---
 
 # PR Create
 
-`gh pr create` と `gh pr edit --body` はhookがブロックする。PRは `~/.claude/scripts/gh/pr-create.sh` 経由でのみ作れる。
+`gh pr create` と `gh pr edit --body` はhookがブロックする。PRは `~/.claude/scripts/gh/pr-body.sh` 経由でのみ作れる。
 
 ## PR bodyの条件
 
@@ -43,7 +43,7 @@ git push -u origin <branch>
 ### 4. 作成
 
 ```bash
-~/.claude/scripts/gh/pr-create.sh --title <title> --body-file <path> --base main
+~/.claude/scripts/gh/pr-body.sh --title <title> --body-file <path> --base main
 ```
 
 - `--title` は英語のconventional commit形式で書く

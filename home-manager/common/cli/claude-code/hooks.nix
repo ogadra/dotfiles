@@ -105,6 +105,6 @@ in
     ".claude/scripts/gh/check.sh" = mkScript (shared + "/scripts/gh/check.sh");
     ".claude/scripts/gh/block-repo-clone.sh" = mkScript (shared + "/scripts/gh/block-repo-clone.sh");
     ".claude/scripts/gh/block-pr-body.sh" = mkScript (shared + "/scripts/gh/block-pr-body.sh");
-    ".claude/scripts/gh/pr-create.sh" = mkScript ./scripts/pr-create.sh;
+    ".claude/scripts/gh/pr-body.sh" = mkScript ./scripts/pr-body.sh;
   };
 }

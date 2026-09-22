@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# Block PR creation and body edits that bypass the pr-create wrapper, which caps the body at three lines and runs readable-writing; input is one gh command per stdin line.
+# Block PR creation and body edits that bypass the pr-body wrapper, which caps the body at three lines and runs readable-writing; input is one gh command per stdin line.
 set -u
 
-WRAPPER="$HOME/.claude/scripts/gh/pr-create.sh"
+WRAPPER="$HOME/.claude/scripts/gh/pr-body.sh"
 
 deny() {
   cat >&2 <<EOF
