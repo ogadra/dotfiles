@@ -84,7 +84,7 @@ in
           # Rewriting the command through the rtk proxy compresses its output; pre-bash.sh still judges the original input, so its guards survive this hook
           {
             type = "command";
-            command = "rtk hook claude";
+            command = "$HOME/.claude/scripts/rtk-hook.sh";
           }
         ];
       }
@@ -93,6 +93,7 @@ in
 
   scripts = {
     ".claude/scripts/pre-bash.sh" = mkScript (shared + "/scripts/pre-bash.sh");
+    ".claude/scripts/rtk-hook.sh" = mkScript ./scripts/rtk-hook.sh;
     ".claude/scripts/statusline.sh" = mkScript ./scripts/statusline.sh;
     ".claude/scripts/git/check.sh" = mkScript (shared + "/scripts/git/check.sh");
     ".claude/scripts/git/block-default-push.sh" = mkScript (shared + "/scripts/git/block-default-push.sh");
