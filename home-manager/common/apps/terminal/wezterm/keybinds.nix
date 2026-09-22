@@ -1,5 +1,6 @@
-{ pkgs, ... }:
+{ pkgs, config, ... }:
 let
+  herdrBin = "${config.programs.herdr.package}/bin/herdr";
   isLinux = pkgs.stdenv.hostPlatform.isLinux;
   mod = if isLinux then "ALT" else "SUPER";
   altCompose = if isLinux then "" else ''
@@ -19,6 +20,35 @@ in
         return act.SendString('\x11' .. cmd)
       end
 
+      -- Tabs of the session this window runs, counted across every workspace; nil when the query fails
+      local function herdr_tabs(session)
+        local ok, stdout = wezterm.run_child_process { '${herdrBin}', '--session', session, 'tab', 'list' }
+        if not ok then
+          return nil
+        end
+        -- A stopped session answers with an error object instead of a result
+        local decoded, payload = pcall(wezterm.json_parse, stdout)
+        if not decoded or type(payload) ~= 'table' or not payload.result then
+          return nil
+        end
+        return payload.result.tabs
+      end
+
+      -- Closing the last tab leaves herdr with nothing to show, so the window goes with it
+      local close_tab = wezterm.action_callback(function(win, pane)
+        local session = pane:get_user_vars().herdr_session
+        local tabs = session and herdr_tabs(session)
+        if not tabs or #tabs > 1 then
+          win:perform_action(herdr('w'), pane)
+          return
+        end
+        if tabs[1] then
+          -- Close over the socket rather than the prefix key: the keystroke would race the window teardown
+          wezterm.run_child_process { '${herdrBin}', '--session', session, 'tab', 'close', tabs[1].tab_id }
+        end
+        win:perform_action(act.CloseCurrentTab { confirm = false }, pane)
+      end)
+
     config.disable_default_key_bindings = true
     ${altCompose}
     config.keys = {
@@ -32,7 +62,7 @@ in
 
       -- Tab Control (delegated to herdr)
       { key = 't', mods = '${mod}', action = herdr('c') },
-      { key = 'w', mods = '${mod}', action = herdr('w') },
+      { key = 'w', mods = '${mod}', action = close_tab },
 
       { key = 'Tab', mods = 'CTRL', action = herdr('n') },
       { key = 'Tab', mods = 'SHIFT|CTRL', action = herdr('p') },
