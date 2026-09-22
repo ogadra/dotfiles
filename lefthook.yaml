@@ -19,16 +19,22 @@ pre-commit:
           {
             line = $0
             sub(/^[ \t]+/, "", line)
-            body = ""
+            comment = 0
             # A shebang is not a comment, and -- only opens a Lua comment when it does not continue a backslashed line
-            if (line ~ /^#/ && line !~ /^#!/) body = substr(line, 2)
-            else if (line ~ /^--/ && !cont) body = substr(line, 3)
+            if (line ~ /^#/ && line !~ /^#!/) { comment = 1; body = substr(line, 2) }
+            else if (line ~ /^--/ && !cont) { comment = 1; body = substr(line, 3) }
             cont = ($0 ~ /\\$/)
-            # An empty comment or a commented-out line of code carries no prose, so it never continues a comment
-            if (body == "" || body ~ /=/ || body ~ /;[ \t]*$/) { run = 0; next }
-            if (++run > 1) { printf "%s:%d:%s\n", FILENAME, FNR, $0; found = 1 }
+            if (!comment) { run = 0; next }
+            if (body ~ /^[ \t]*$/) { printf "%s:%d:%s\n", FILENAME, FNR, $0; blank = 1; run = 0; next }
+            # A commented-out line of code carries no prose, so it never continues a comment
+            if (body ~ /=/ || body ~ /;[ \t]*$/) { run = 0; next }
+            if (++run > 1) { printf "%s:%d:%s\n", FILENAME, FNR, $0; spans = 1 }
           }
-          END { if (found) { print "keep each comment on one line" > "/dev/stderr"; exit 1 } }
+          END {
+            if (blank) print "drop comments with no body" > "/dev/stderr"
+            if (spans) print "keep each comment on one line" > "/dev/stderr"
+            if (blank || spans) exit 1
+          }
         ' {staged_files}
     04_format:
       glob: "*.py"
