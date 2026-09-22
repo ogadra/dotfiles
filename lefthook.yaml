@@ -11,12 +11,31 @@ pre-commit:
           echo 'platform conditionals must use pkgs.stdenv.hostPlatform.isLinux (negate it for the non-Linux case)' >&2
           exit 1
         fi
-    03_format:
+    03_comments:
+      glob: "*.{nix,sh,py,yml,yaml,toml,pl}"
+      run: |
+        awk '
+          FNR == 1 { run = 0; cont = 0 }
+          {
+            line = $0
+            sub(/^[ \t]+/, "", line)
+            body = ""
+            # A shebang is not a comment, and -- only opens a Lua comment when it does not continue a backslashed line
+            if (line ~ /^#/ && line !~ /^#!/) body = substr(line, 2)
+            else if (line ~ /^--/ && !cont) body = substr(line, 3)
+            cont = ($0 ~ /\\$/)
+            # An empty comment or a commented-out line of code carries no prose, so it never continues a comment
+            if (body == "" || body ~ /=/ || body ~ /;[ \t]*$/) { run = 0; next }
+            if (++run > 1) { printf "%s:%d:%s\n", FILENAME, FNR, $0; found = 1 }
+          }
+          END { if (found) { print "keep each comment on one line" > "/dev/stderr"; exit 1 } }
+        ' {staged_files}
+    04_format:
       glob: "*.py"
       run: uv run ruff format --check {staged_files}
-    04_lint:
+    05_lint:
       glob: "*.py"
       run: uv run ruff check {staged_files}
-    05_types:
+    06_types:
       glob: "*.py"
       run: uv run mypy
