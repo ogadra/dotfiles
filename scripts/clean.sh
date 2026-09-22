@@ -1,27 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Keep a week of generations for rollback
-keep="7d"
-optimise=false
-
-while [ $# -gt 0 ]; do
-  case "$1" in
-    --keep)
-      keep="${2:?--keep needs a period such as 7d}"
-      shift 2
-      ;;
-    --optimise)
-      optimise=true
-      shift
-      ;;
-    *)
-      printf 'usage: clean.sh [--keep <period>] [--optimise]\n' >&2
-      exit 2
-      ;;
-  esac
-done
-
 repo_root=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 
 # result symlinks are GC roots that pin the closure
@@ -41,9 +20,6 @@ done
 # Build sandboxes carry no PID, so fall back to age
 find /tmp -maxdepth 1 -type d -name 'nix-build-*' -mtime +1 -exec rm -rf {} +
 
-nix-collect-garbage --delete-older-than "$keep"
-sudo nix-collect-garbage --delete-older-than "$keep"
-
-if [ "$optimise" = true ]; then
-  nix store optimise
-fi
+# -d drops every generation but the current one, so rollback is no longer possible
+nix-collect-garbage -d
+sudo nix-collect-garbage -d
