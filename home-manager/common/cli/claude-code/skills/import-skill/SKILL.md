@@ -10,9 +10,7 @@ allowed-tools: Bash(curl:*), Bash(tar:*), Bash(mkdir:*), Bash(cp:*), Bash(ls:*),
 
 ## 手順
 
-### 1. 取得
-
-`git clone` はhookが止めるので、tarballを落とす。
+### 1. 取得する
 
 ```bash
 curl -sSL https://codeload.github.com/<owner>/<repo>/tar.gz/refs/heads/<branch> | tar xz -C <tmpdir> --strip-components=1
@@ -24,15 +22,15 @@ curl -sSL https://codeload.github.com/<owner>/<repo>/tar.gz/refs/heads/<branch> 
 gh api repos/<owner>/<repo>/commits/<branch> --jq '.sha[0:7] + " " + .commit.committer.date[0:10]'
 ```
 
-### 2. ライセンスの確認
-
-上流の `LICENSE` を読む。
+### 2. ライセンスを確認する
 
 - 取り込めるライセンス
     - MIT
     - Apache-2.0
     - BSD
-    - 著作権表示とライセンス全文を同梱する
+- 取り込むときに同梱するもの
+    - 著作権表示
+    - ライセンス全文
 - ユーザーに判断を仰ぐライセンス
     - GPL
     - AGPL
@@ -43,16 +41,15 @@ gh api repos/<owner>/<repo>/commits/<branch> --jq '.sha[0:7] + " " + .commit.com
 
 ### 3. 取り込む範囲を決める
 
-Claude Codeに効くものだけ取る。上流はプラグインとして配布されていることが多く、`SKILL.md` が配布機構や他のエージェント向けの分岐を参照している。取らなかった部分への参照が `SKILL.md` に残るので、そこを探してREADMEに書く。
+Claude Codeに効くものだけ取る。上流の作者がスキルをプラグインとして配布している場合、`SKILL.md` に配布機構や他のエージェント向けの分岐への参照がある。取らなかった部分への参照は残るので、探してREADMEに書く。
 
 - `SKILL.md`
 - スキルが読むファイル
-    - ポリシー
-    - プロンプト
+    - ポリシーやプロンプトのテキスト
     - スクリプト
 - `LICENSE`
 
-### 4. 配置
+### 4. 配置する
 
 ```
 home-manager/common/cli/claude-code/skills/<name>/
@@ -61,15 +58,18 @@ home-manager/common/cli/claude-code/skills/<name>/
 └── README.md
 ```
 
-READMEに書くもの。
+READMEには次を書く。
 
 - 何をするスキルか
 - 由来
     - 上流のURL
     - ライセンス
-    - 取り込み元のコミットと日付
+    - 取り込み元のコミット
+    - 取り込み元の日付
 - 上流から変えたところ
-- 直すときに触るファイルと節
+- 直すときに触るところ
+    - ファイル
+    - 節
 
 ### 5. Nixに繋ぐ
 
@@ -88,15 +88,13 @@ READMEに書くもの。
 git add -N home-manager/common/cli/claude-code/skills/<name>
 ```
 
-flakesの対象はgit管理下のファイルだけなので、先にこれを実行する。
-
 ### 7. 文章を直す
 
 READMEと、書き換えた `SKILL.md` に `/readable-writing` をかける。
 
-frontmatterの `description` は上流のまま残す。Claudeがそのスキルを起動するか判断するときに読む文字列で、書き換えると起動条件を変えてしまう。`Do NOT use for ...` のような除外条件も残す。
+frontmatterの `description` は上流のまま残す。Claudeがそのスキルを起動するか判断するときに読む。`Do NOT use for ...` のような除外条件も残す。
 
-### 8. コミット
+### 8. コミットしてPRを作る
 
 2つに分ける。
 
