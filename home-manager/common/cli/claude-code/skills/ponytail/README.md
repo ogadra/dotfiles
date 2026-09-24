@@ -15,7 +15,7 @@ Claudeに過剰実装をやめさせるSkill。コードを書く前に次の順
 - 既定
     - `full`
 
-強度は呼び出しごとに決まる。`/ponytail ultra` のように毎回渡す。
+強度は `/ponytail ultra` のように呼び出しごとに渡す。
 
 ## 由来
 
@@ -27,7 +27,7 @@ Claudeに過剰実装をやめさせるSkill。コードを書く前に次の順
     - `e3ba2aa`
     - 2026-09-14
 
-`SKILL.md` の本文はreadable-writingをかけた文章で、frontmatterの `description` だけが上流のまま。ここはClaudeがこのスキルを起動するか判断するときに読む文字列で、`Do NOT use for non-coding requests` を消すとClaudeはコード以外の依頼でもこのスキルを起動する。
+`SKILL.md` はfrontmatterを含めてreadable-writingをかけている。
 
 ## 構成
 
@@ -38,7 +38,7 @@ LICENSE    上流のMIT
 
 ## 直したいとき
 
-直しは `SKILL.md` に直接入れる。触るのはこの1ファイルだけ。
+直しは `SKILL.md` に直接入れる。
 
 | 直したいもの | 触る節 |
 |---|---|
@@ -48,4 +48,4 @@ LICENSE    上流のMIT
 | lite、full、ultraの差 | Intensity |
 | 手を抜かせない範囲 | Limits |
 | 残させるテスト | Tests |
-| 自動起動する条件 | frontmatterの `description` |
+| Claudeが自分で起動する条件 | frontmatterの `description` |
