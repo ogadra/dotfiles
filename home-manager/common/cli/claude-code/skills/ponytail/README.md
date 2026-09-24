@@ -27,8 +27,6 @@ Claudeに過剰実装をやめさせるSkill。コードを書く前に次の順
     - `e3ba2aa`
     - 2026-09-14
 
-`SKILL.md` はfrontmatterを含めてreadable-writingをかけている。
-
 ## 構成
 
 ```
