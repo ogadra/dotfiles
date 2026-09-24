@@ -35,9 +35,7 @@ gh api repos/<owner>/<repo>/commits/<branch> --jq '.sha[0:7] + " " + .commit.com
     - GPL
     - AGPL
     - LGPL
-- `LICENSE` がない
-    - 取り込めない
-    - ユーザーに伝えて止める
+    - `LICENSE` がない
 
 ### 3. 取り込む範囲を決める
 
@@ -84,23 +82,15 @@ READMEには次を書く。
 - ディレクトリごと渡す
 - アルファベット順の位置に入れる
 
-### 6. gitに見せる
-
-```bash
-git add -N home-manager/common/cli/claude-code/skills/<name>
-```
-
-### 7. 文章を直す
+### 6. 文章を直す
 
 READMEと、書き換えた `SKILL.md` に `/readable-writing` をかける。
 
 frontmatterの `description` は上流のまま残す。Claudeがそのスキルを起動するか判断するときに読む。`Do NOT use for ...` のような除外条件も残す。
 
-### 8. コミットしてPRを作る
+### 7. コミットする
 
 2つに分ける。
 
 1. 取り込み
 2. 文章の修正
-
-PRは `/pr-create` で作る。
