@@ -114,9 +114,7 @@ READMEには次を書く。
 
 ### 8. 文章を直す
 
-READMEに `/readable-writing` をかける。
-
-`SKILL.md` は上流の本文をそのまま置く。書き換えるのはfrontmatterと、統合や削除で自分が書いた箇所だけ。
+READMEと `SKILL.md` に `/readable-writing` をかける。
 
 ### 9. PRを出す
 
