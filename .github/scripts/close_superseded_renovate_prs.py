@@ -61,7 +61,6 @@ def listed(state: str) -> list[dict[str, Any]]:
 
 def main() -> None:
     groups: defaultdict[str, list[dict[str, Any]]] = defaultdict(list)
-    # Merged PRs join their group so that an update already on main supersedes the ones it replaced.
     for pull_request in listed("open") + listed("merged"):
         branch = pull_request["headRefName"]
         if branch.startswith("renovate/"):
