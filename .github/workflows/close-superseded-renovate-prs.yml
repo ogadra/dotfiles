@@ -1,7 +1,11 @@
 name: Close superseded Renovate PRs
 on:
+  # A merge turns the merged PR into the winner of its group, so close the PRs it superseded without waiting for the cron.
+  push:
+    branches: [main]
   schedule:
     - cron: "15 1-4 * * *"
+  workflow_dispatch:
 permissions:
   contents: write
   pull-requests: write
