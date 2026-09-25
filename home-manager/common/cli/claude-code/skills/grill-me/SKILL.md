@@ -6,21 +6,18 @@ disable-model-invocation: true
 
 Interview the user relentlessly until you reach a shared understanding. Map this as a **design tree**: every decision branches into the decisions that hang off it.
 
-Work the tree in **rounds**. The **frontier** is every decision whose prerequisites are already settled: the questions you can ask _now_ without guessing at answers you haven't heard yet. Ask the whole frontier in one round: number each question and give your recommended answer. Then wait for the user's answers before the next round.
+Work the tree in **rounds**. The **frontier** is every decision whose prerequisites are already settled: the questions you can ask _now_ without guessing at answers you haven't heard yet. Ask the whole frontier in one round, then wait for the user's answers before the next round.
 
-Format a round like so:
+Put every question through the **AskUserQuestion** tool, never through prose. The tool renders each question and each option in the UI, so that is where the detail belongs:
 
-```
-❓ **Q1** - **<question title>**: <question body, might be multiple paragraphs, including multiple choices>
+- `question` carries the whole body: the decision, what hangs off it, whatever the user needs in order to choose. Several paragraphs if the decision earns them.
+- `header` is the chip label, at most 12 characters.
+- `options` are the candidate answers, 2 to 4 of them. Your recommendation goes first, with ` (Recommended)` appended to its `label`. Each `description` says what picking that option commits the design to, and what it costs.
+- The tool appends its own "Other" escape, so never write one yourself. A decision with no obvious menu still gets concrete candidates rather than an open-ended prompt.
+- `multiSelect: true` where the answers stack instead of excluding each other.
+- `preview` where the options are artifacts worth comparing side by side: code snippets, layouts, config. Single-select only.
 
-➡️ <your recommended answer>
-
----
-
-❓ **Q2** - **<question title>**: <question body, might be multiple paragraphs, including multiple choices>
-
-➡️ <your recommended answer>
-```
+One call carries at most 4 questions. A frontier wider than that means back-to-back calls inside the same round, not a narrower round.
 
 Each round the user answers reshapes the tree: settled decisions push the frontier outward and unblock questions that depended on them. Recompute the frontier and ask the next round. A question whose answer depends on another question still open in this round belongs to a _later_ round, not this one.
 
