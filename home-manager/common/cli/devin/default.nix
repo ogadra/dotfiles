@@ -6,6 +6,18 @@
 let
   shared = ../../modules/llm-agent;
 
+  devin-cli = pkgs.symlinkJoin {
+    name = "devin-cli-wrapped";
+    paths = [ pkgs.devin-cli ];
+    nativeBuildInputs = [ pkgs.makeWrapper ];
+    postBuild = ''
+      wrapProgram $out/bin/devin \
+        --run 'export GIT_CONFIG_GLOBAL="''${GIT_CONFIG_GLOBAL:-$HOME/.config/devin/config/.gitconfig}"' \
+        --set-default GIT_CONFIG_SYSTEM /dev/null \
+        --set CO_AUTHOR "Devin <158243242+devin-ai-integration[bot]@users.noreply.github.com>"
+    '';
+  };
+
   mkScript = src: {
     source = src;
     executable = true;
@@ -89,9 +101,11 @@ let
   mergedConfig = pkgs.writeText "devin-config-fragment.json" (builtins.toJSON { inherit hooks permissions; });
 in
 {
-  home.packages = [ pkgs.devin-cli ];
+  home.packages = [ devin-cli ];
 
   home.file = {
+    # Agent-session git config that points core.hooksPath at ~/.config/git/hooks-llm-agent
+    ".config/devin/config/.gitconfig".source = shared + "/.gitconfig";
     ".config/devin/sounds/notification.mp3".source = ../../sounds/notification.mp3;
     ".config/devin/sounds/stop.mp3".source = ../../sounds/stop.mp3;
     ".config/devin/scripts/pre-bash.sh" = mkScript (shared + "/scripts/pre-bash.sh");
