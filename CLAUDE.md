@@ -13,6 +13,11 @@ Machine profiles:
 
 `private_dot_config/` was managed by chezmoi and is being phased out. New configs go through Nix; do not add files there.
 
+## Verification
+
+- Linux (NixOS): `nix build .#nixosConfigurations.<hostname>.config.system.build.toplevel --no-link` evaluates and builds without switching
+- Scripts referenced by flakes must be tracked by git (`git add`) or `nix eval` fails
+
 ## Key Patterns
 
 - Machine profiles are in `profiles/<hostname>/` and `home-manager/profiles/<hostname>/`
