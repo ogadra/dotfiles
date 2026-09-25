@@ -11,6 +11,7 @@ from lib.commands import capture
 
 DATE_PREFIX = re.compile(r"^\d{4}-\d{2}-\d{2}-")
 VERSION_SUFFIX = re.compile(r"-v?\d+(?:\.\d+)*$")
+FIELDS = "number,headRefName,createdAt,isDraft,mergeable,statusCheckRollup,state"
 
 
 def update_key(branch: str) -> str:
@@ -24,6 +25,9 @@ def outcome(check: dict[str, Any]) -> str:
 
 
 def is_ready(pull_request: dict[str, Any]) -> bool:
+    # An update already on main beats anything a check could say about it.
+    if pull_request["state"] == "MERGED":
+        return True
     checks: list[dict[str, Any]] = pull_request["statusCheckRollup"]
     return (
         not pull_request["isDraft"]
@@ -49,20 +53,16 @@ def close(pull_request: dict[str, Any], winner: dict[str, Any]) -> None:
     )
 
 
+def listed(state: str) -> list[dict[str, Any]]:
+    listing = capture("gh", "pr", "list", "--state", state, "--limit", "100", "--json", FIELDS)
+    pull_requests: list[dict[str, Any]] = json.loads(listing)
+    return pull_requests
+
+
 def main() -> None:
-    listing = capture(
-        "gh",
-        "pr",
-        "list",
-        "--state",
-        "open",
-        "--limit",
-        "100",
-        "--json",
-        "number,headRefName,createdAt,isDraft,mergeable,statusCheckRollup",
-    )
     groups: defaultdict[str, list[dict[str, Any]]] = defaultdict(list)
-    for pull_request in json.loads(listing):
+    # Merged PRs join their group so that an update already on main supersedes the ones it replaced.
+    for pull_request in listed("open") + listed("merged"):
         branch = pull_request["headRefName"]
         if branch.startswith("renovate/"):
             groups[update_key(branch)].append(pull_request)
@@ -76,6 +76,8 @@ def main() -> None:
         for pull_request in group:
             if pull_request is winner:
                 break
+            if pull_request["state"] != "OPEN":
+                continue
             close(pull_request, winner)
             closed.append(pull_request["number"])
 
