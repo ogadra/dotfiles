@@ -63,12 +63,11 @@ in
     ];
     PostToolUse = [
       {
-        matcher = "Write";
+        matcher = "^(Write|Edit|NotebookEdit)$";
         hooks = [
           {
             type = "command";
-            # Append a newline when the file does not already end in one
-            command = ''FILE_PATH=$(jq -r '.tool_input.file_path') && [ -n "$(tail -c1 "$FILE_PATH")" ] && echo >> "$FILE_PATH"'';
+            command = "$HOME/.claude/scripts/ensure-trailing-newline.sh";
           }
         ];
       }
@@ -94,7 +93,8 @@ in
   scripts = {
     ".claude/scripts/pre-bash.sh" = mkScript (shared + "/scripts/pre-bash.sh");
     ".claude/scripts/normalize.sh" = mkScript (shared + "/scripts/normalize.sh");
-    ".claude/scripts/rtk-hook.sh" = mkScript ./scripts/rtk-hook.sh;
+    ".claude/scripts/rtk-hook.sh" = mkScript (shared + "/scripts/rtk-hook.sh");
+    ".claude/scripts/ensure-trailing-newline.sh" = mkScript (shared + "/scripts/ensure-trailing-newline.sh");
     ".claude/scripts/statusline.sh" = mkScript ./scripts/statusline.sh;
     ".claude/scripts/git/check.sh" = mkScript (shared + "/scripts/git/check.sh");
     ".claude/scripts/git/block-default-push.sh" = mkScript (shared + "/scripts/git/block-default-push.sh");
