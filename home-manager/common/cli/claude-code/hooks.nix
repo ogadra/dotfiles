@@ -94,7 +94,7 @@ in
   scripts = {
     ".claude/scripts/pre-bash.sh" = mkScript (shared + "/scripts/pre-bash.sh");
     ".claude/scripts/normalize.sh" = mkScript (shared + "/scripts/normalize.sh");
-    ".claude/scripts/rtk-hook.sh" = mkScript ./scripts/rtk-hook.sh;
+    ".claude/scripts/rtk-hook.sh" = mkScript (shared + "/scripts/rtk-hook.sh");
     ".claude/scripts/statusline.sh" = mkScript ./scripts/statusline.sh;
     ".claude/scripts/git/check.sh" = mkScript (shared + "/scripts/git/check.sh");
     ".claude/scripts/git/block-default-push.sh" = mkScript (shared + "/scripts/git/block-default-push.sh");
