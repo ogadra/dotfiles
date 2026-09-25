@@ -63,7 +63,7 @@ in
     ];
     PostToolUse = [
       {
-        matcher = "Write";
+        matcher = "^(Write|Edit|NotebookEdit)$";
         hooks = [
           {
             type = "command";
