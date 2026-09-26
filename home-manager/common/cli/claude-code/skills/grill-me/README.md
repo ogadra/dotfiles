@@ -1,24 +1,28 @@
 # grill-me
 
-計画や設計を詰めるまでClaudeに質問させ続けるSkill。
+Claudeが、計画や設計を詰めるまで質問し続ける。
 
 1. 前提が決まっている質問をまとめて出す
 2. ユーザーの答えで木を組み直す
 
-質問はAskUserQuestionツールで出す。本文と選択肢をUIに並べ、推奨する答えを先頭に置く。1回の呼び出しに入るのは4問までなので、それを超えるラウンドは呼び出しを分ける。
+質問はAskUserQuestionツールで出す。
 
-環境を調べればわかることはサブエージェントに投げるので、ユーザーに残るのは決めごとだけ。どこまでを調査に回すかは `Finding facts is your job` にある。
+- UIに並べるもの
+    - 本文
+    - 選択肢は推奨する答えを先頭に置く
+- 1回の呼び出しに入る質問
+    - 4問ごとに呼び出しを分ける
 
-聞くことがなくなったら止める。
+環境を調べればわかることはサブエージェントに投げる。
 
-`/grill-me` で呼ぶ。frontmatterの `disable-model-invocation: true` で、起動はユーザーからだけになる。
+`/grill-me` で呼ぶ。frontmatterに `disable-model-invocation: true` を置いている。
 
 ## 由来
 
 - 上流
     - [mattpocock/skills](https://github.com/mattpocock/skills)
-    - `skills/productivity/grill-me`
-    - `skills/productivity/grilling`
+        - `skills/productivity/grill-me`
+        - `skills/productivity/grilling`
 - ライセンス
     - MIT
 - 取り込み元のコミット
@@ -38,7 +42,6 @@ LICENSE    上流のMIT
 |---|---|
 | 1ラウンドに出す質問の選び方 | Work the tree in rounds |
 | 質問の出し方 | Put each question through the AskUserQuestion tool |
-| 次のラウンドの組み立て方 | Once the user answers |
-| ユーザーに聞かず自分で調べる範囲 | Finding facts is your job |
+| 自分で調べる範囲 | Dispatch a sub-agent |
 | 終わる条件 | The session is done |
 | Claudeが自分で起動するか | frontmatterの `disable-model-invocation` |
