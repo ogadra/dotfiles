@@ -1,7 +1,4 @@
-# Routes `agent` calls to whichever agent CLI spawned the caller: Claude Code exports
-# CLAUDECODE and Devin exports CHISEL_SESSION_DB to their tool environments, and
-# CLAUDECODE wins because the innermost agent is the caller. Lives in .zshenv so
-# `zsh -c 'agent ...'` callers such as review.sh can reach it from any shell.
+# Routes `agent` calls to whichever agent CLI spawned the caller (CLAUDECODE marks Claude Code, CHISEL_SESSION_DB marks Devin, CLAUDECODE wins when nested).
 agent() {
     if [[ -z $CHISEL_SESSION_DB || -n $CLAUDECODE ]]; then
         command claude "$@"
