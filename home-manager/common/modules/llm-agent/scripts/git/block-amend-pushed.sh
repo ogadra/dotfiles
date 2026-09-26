@@ -27,6 +27,21 @@ while IFS= read -r SEG; do
   set -- $SEG
   shift
 
+  # Skip options that sit before the subcommand, such as `git -C <dir> commit --amend`.
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      -c|-C|--git-dir|--work-tree|--namespace|--exec-path)
+        shift 2 || break
+        ;;
+      -*)
+        shift
+        ;;
+      *)
+        break
+        ;;
+    esac
+  done
+
   [ $# -gt 0 ] || continue
   SUB="$1"
   shift
