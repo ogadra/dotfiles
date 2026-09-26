@@ -27,20 +27,30 @@
   };
 
   outputs =
-  {
-    self,
-    nixpkgs,
-    nix-darwin,
-    home-manager,
-    ...
-  }@inputs:
+    {
+      self,
+      nixpkgs,
+      nix-darwin,
+      home-manager,
+      ...
+    }@inputs:
     let
-      supportedSystems = [ "x86_64-linux" "x86_64-darwin" "aarch64-darwin" ];
+      supportedSystems = [
+        "x86_64-linux"
+        "x86_64-darwin"
+        "aarch64-darwin"
+      ];
       forAllSystems = nixpkgs.lib.genAttrs supportedSystems;
 
-      mkNixLib = system:
-        let pkgs = nixpkgs.legacyPackages.${system};
-        in import ./lib { inherit (nixpkgs) lib; inherit pkgs; };
+      mkNixLib =
+        system:
+        let
+          pkgs = nixpkgs.legacyPackages.${system};
+        in
+        import ./lib {
+          inherit (nixpkgs) lib;
+          inherit pkgs;
+        };
 
       nixosSystemArgs =
         {
@@ -79,26 +89,29 @@
     {
       nixosConfigurations = {
         bisharp = nixosSystem (nixosSystemArgs {
-          system   = "x86_64-linux";
-          profile  = "bisharp";
+          system = "x86_64-linux";
+          profile = "bisharp";
           username = "ogadra";
         });
       };
 
       darwinConfigurations = {
         latias = darwinSystem (darwinSystemArgs {
-          system   = "x86_64-darwin";
-          profile  = "latias";
+          system = "x86_64-darwin";
+          profile = "latias";
           username = "ogadra";
         });
         stakataka = darwinSystem (darwinSystemArgs {
-          system   = "aarch64-darwin";
-          profile  = "stakataka";
+          system = "aarch64-darwin";
+          profile = "stakataka";
           username = "ogadra";
         });
       };
 
-      devShells = forAllSystems (system:
+      formatter = forAllSystems (system: nixpkgs.legacyPackages.${system}.nixfmt-tree);
+
+      devShells = forAllSystems (
+        system:
         let
           pkgs = nixpkgs.legacyPackages.${system};
         in

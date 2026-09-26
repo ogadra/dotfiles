@@ -30,9 +30,7 @@ in
         hooks = [
           {
             type = "command";
-            command = whenAttended ''[ -f /tmp/claude_task_stopped_$PPID ] || ${
-              playSound "notification.mp3"
-            }'';
+            command = whenAttended "[ -f /tmp/claude_task_stopped_$PPID ] || ${playSound "notification.mp3"}";
           }
         ];
       }
@@ -43,9 +41,7 @@ in
         hooks = [
           {
             type = "command";
-            command = whenAttended ''touch /tmp/claude_task_stopped_$PPID; ${
-              playSound "stop.mp3"
-            }'';
+            command = whenAttended "touch /tmp/claude_task_stopped_$PPID; ${playSound "stop.mp3"}";
           }
         ];
       }
@@ -94,13 +90,19 @@ in
     ".claude/scripts/pre-bash.sh" = mkScript (shared + "/scripts/pre-bash.sh");
     ".claude/scripts/normalize.sh" = mkScript (shared + "/scripts/normalize.sh");
     ".claude/scripts/rtk-hook.sh" = mkScript (shared + "/scripts/rtk-hook.sh");
-    ".claude/scripts/ensure-trailing-newline.sh" = mkScript (shared + "/scripts/ensure-trailing-newline.sh");
+    ".claude/scripts/ensure-trailing-newline.sh" = mkScript (
+      shared + "/scripts/ensure-trailing-newline.sh"
+    );
     ".claude/scripts/statusline.sh" = mkScript ./scripts/statusline.sh;
     ".claude/scripts/git/check.sh" = mkScript (shared + "/scripts/git/check.sh");
-    ".claude/scripts/git/block-default-push.sh" = mkScript (shared + "/scripts/git/block-default-push.sh");
+    ".claude/scripts/git/block-default-push.sh" = mkScript (
+      shared + "/scripts/git/block-default-push.sh"
+    );
     ".claude/scripts/git/block-force-push.sh" = mkScript (shared + "/scripts/git/block-force-push.sh");
     ".claude/scripts/git/block-no-verify.sh" = mkScript (shared + "/scripts/git/block-no-verify.sh");
-    ".claude/scripts/git/block-amend-pushed.sh" = mkScript (shared + "/scripts/git/block-amend-pushed.sh");
+    ".claude/scripts/git/block-amend-pushed.sh" = mkScript (
+      shared + "/scripts/git/block-amend-pushed.sh"
+    );
     ".claude/scripts/git/block-clone.sh" = mkScript (shared + "/scripts/git/block-clone.sh");
     ".claude/scripts/gh/check.sh" = mkScript (shared + "/scripts/gh/check.sh");
     ".claude/scripts/gh/block-repo-clone.sh" = mkScript (shared + "/scripts/gh/block-repo-clone.sh");

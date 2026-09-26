@@ -45,3 +45,7 @@ pre-commit:
     06_types:
       glob: "*.py"
       run: uv run mypy
+    07_nixfmt:
+      glob: "*.nix"
+      run: nix fmt {staged_files}
+      stage_fixed: true

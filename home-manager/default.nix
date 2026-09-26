@@ -10,16 +10,16 @@
 }:
 {
   home-manager = {
-    useGlobalPkgs       = true;
-    useUserPackages     = true;
+    useGlobalPkgs = true;
+    useUserPackages = true;
     backupFileExtension = "backup";
-    users.${username}   = import ./profiles/${profile};
-    extraSpecialArgs    = {
+    users.${username} = import ./profiles/${profile};
+    extraSpecialArgs = {
       inherit
         username
         inputs
         profile
-      ;
+        ;
     };
   };
 }

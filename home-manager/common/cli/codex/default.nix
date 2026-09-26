@@ -14,13 +14,15 @@ let
   codex-wrapper = pkgs.writeShellScriptBin "codex" ''
     set -euo pipefail
 
-    export PATH="${lib.makeBinPath [
-      pkgs.bash
-      pkgs.git
-      pkgs.jq
-      pkgs.mpv
-      inputs.llm-agents.packages.${pkgs.system}.ccusage
-    ]}:$PATH"
+    export PATH="${
+      lib.makeBinPath [
+        pkgs.bash
+        pkgs.git
+        pkgs.jq
+        pkgs.mpv
+        inputs.llm-agents.packages.${pkgs.system}.ccusage
+      ]
+    }:$PATH"
     export GIT_CONFIG_GLOBAL="''${GIT_CONFIG_GLOBAL:-$HOME/.codex/config/.gitconfig}"
     export GIT_CONFIG_SYSTEM="''${GIT_CONFIG_SYSTEM:-/dev/null}"
     export CO_AUTHOR="Codex <199175422+chatgpt-codex-connector[bot]@users.noreply.github.com>"

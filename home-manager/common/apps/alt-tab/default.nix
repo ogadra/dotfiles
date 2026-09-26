@@ -34,8 +34,16 @@ in
 
     # Per-app exceptions; ignore: 0=shortcut on, 1=always off, 2=off only in full screen; hide: 0=always show, 1=always hide, 2=hide when windowless
     exceptions = builtins.toJSON [
-      { bundleIdentifier = "com.apple.finder"; ignore = "0"; hide = "2"; }
-      { bundleIdentifier = "com.apple.mail";   ignore = "0"; hide = "2"; }
+      {
+        bundleIdentifier = "com.apple.finder";
+        ignore = "0";
+        hide = "2";
+      }
+      {
+        bundleIdentifier = "com.apple.mail";
+        ignore = "0";
+        hide = "2";
+      }
     ];
 
     # Hide apps with no windows

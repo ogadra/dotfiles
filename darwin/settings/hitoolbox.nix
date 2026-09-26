@@ -10,16 +10,17 @@ let
   };
 
   # The emoji viewer, press-and-hold, and kana palette never show in the input menu, yet leaving them out disables those features
-  nonKeyboardInputSources = map
-    (bundleId: {
-      "Bundle ID" = bundleId;
-      InputSourceKind = "Non Keyboard Input Method";
-    })
-    [
-      "com.apple.CharacterPaletteIM"
-      "com.apple.PressAndHold"
-      "com.apple.50onPaletteIM"
-    ];
+  nonKeyboardInputSources =
+    map
+      (bundleId: {
+        "Bundle ID" = bundleId;
+        InputSourceKind = "Non Keyboard Input Method";
+      })
+      [
+        "com.apple.CharacterPaletteIM"
+        "com.apple.PressAndHold"
+        "com.apple.50onPaletteIM"
+      ];
 in
 {
   system.defaults.hitoolbox = {

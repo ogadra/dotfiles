@@ -24,7 +24,7 @@ in
 
     settings = {
       user = {
-        name  = username;
+        name = username;
         email = "61941819+ogadra@users.noreply.github.com";
       };
 
@@ -37,8 +37,8 @@ in
     };
 
     signing = {
-      format        = "ssh";
-      key           = "~/.ssh/id_ed25519.pub";
+      format = "ssh";
+      key = "~/.ssh/id_ed25519.pub";
       signByDefault = true;
     };
 

@@ -8,10 +8,14 @@ let
   '';
   isLinux = pkgs.stdenv.hostPlatform.isLinux;
   mod = if isLinux then "ALT" else "SUPER";
-  altCompose = if isLinux then "" else ''
-    config.send_composed_key_when_left_alt_is_pressed = false
-    config.send_composed_key_when_right_alt_is_pressed = false
-  '';
+  altCompose =
+    if isLinux then
+      ""
+    else
+      ''
+        config.send_composed_key_when_left_alt_is_pressed = false
+        config.send_composed_key_when_right_alt_is_pressed = false
+      '';
 in
 {
   xdg.configFile."wezterm/keybinds.lua".text = ''
