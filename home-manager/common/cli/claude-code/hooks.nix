@@ -100,8 +100,8 @@ in
     );
     ".claude/scripts/git/block-force-push.sh" = mkScript (shared + "/scripts/git/block-force-push.sh");
     ".claude/scripts/git/block-no-verify.sh" = mkScript (shared + "/scripts/git/block-no-verify.sh");
-    ".claude/scripts/git/block-amend-pushed.sh" = mkScript (
-      shared + "/scripts/git/block-amend-pushed.sh"
+    ".claude/scripts/git/block-rewrite-pushed.sh" = mkScript (
+      shared + "/scripts/git/block-rewrite-pushed.sh"
     );
     ".claude/scripts/git/block-clone.sh" = mkScript (shared + "/scripts/git/block-clone.sh");
     ".claude/scripts/gh/check.sh" = mkScript (shared + "/scripts/gh/check.sh");
