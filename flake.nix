@@ -108,7 +108,6 @@
         });
       };
 
-      # nixfmt-tree instead of nixfmt: bare nixfmt deprecates directory args and trips on the gitignored `result` store symlink
       formatter = forAllSystems (system: nixpkgs.legacyPackages.${system}.nixfmt-tree);
 
       devShells = forAllSystems (
