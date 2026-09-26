@@ -171,8 +171,9 @@
   respectGitignore = true;
   # Custom file suggestions for @ mentions.
   # fileSuggestion = null;
-  # PR attribution; an empty string hides it.
+  # Commit and PR attribution; an empty string hides it, and the commit-msg hook adds the trailer from CO_AUTHOR instead.
   attribution = {
+    commit = "";
     pr = "";
   };
   # Put the built-in commit and PR workflow instructions in the system prompt.
