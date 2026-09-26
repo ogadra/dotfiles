@@ -14,7 +14,8 @@ let
     postBuild = ''
       wrapProgram $out/bin/claude \
         --run 'export GIT_CONFIG_GLOBAL="''${GIT_CONFIG_GLOBAL:-$HOME/.claude/config/.gitconfig}"' \
-        --set-default GIT_CONFIG_SYSTEM /dev/null
+        --set-default GIT_CONFIG_SYSTEM /dev/null \
+        --set CO_AUTHOR "Claude <noreply@anthropic.com>"
     '';
   };
   hooksConfig = import ./hooks.nix;
