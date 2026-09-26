@@ -90,5 +90,6 @@ in
       shared + "/scripts/gh/block-repo-clone.sh"
     );
     ".config/devin/scripts/gh/block-pr-body.sh" = mkScript (shared + "/scripts/gh/block-pr-body.sh");
+    ".config/devin/scripts/gh/block-pr-close.sh" = mkScript (shared + "/scripts/gh/block-pr-close.sh");
   };
 }

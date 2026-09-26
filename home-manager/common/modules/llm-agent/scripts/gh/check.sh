@@ -13,7 +13,7 @@ done
 
 [ -z "$GH_SEGMENTS" ] && exit 0
 
-for child in block-repo-clone.sh block-pr-body.sh; do
+for child in block-repo-clone.sh block-pr-body.sh block-pr-close.sh; do
   printf '%s' "$GH_SEGMENTS" | "$SCRIPT_DIR/$child"
   rc=$?
   [ "$rc" -ne 0 ] && exit "$rc"
