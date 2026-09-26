@@ -12,7 +12,7 @@ pre-commit:
           exit 1
         fi
     03_comments:
-      glob: "*.{nix,sh,py,yml,yaml,toml,pl}"
+      glob: "*.{nix,sh,zsh,py,yml,yaml,toml,pl}"
       run: |
         awk '
           FNR == 1 { run = 0; cont = 0 }

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Runs one `claude -p` per perspective in parallel and prints every `findings` entry as a single JSON array
+# Runs one `agent -p` per perspective in parallel and prints every `findings` entry as a single JSON array
 set -euo pipefail
 
 usage() {
@@ -117,11 +117,11 @@ findings_schema='{
 
 attempts=3
 
-# Retries up to `attempts` times when claude dies or hands back broken JSON
+# Retries up to `attempts` times when the reviewer agent dies or hands back broken JSON
 run_reviewer() {
     local key=$1 attempt=1 delay
     while :; do
-        if claude -p "$(cat "$tmp/prompt.$key")" --json-schema "$findings_schema" \
+        if zsh -c 'agent "$@"' agent -p "$(cat "$tmp/prompt.$key")" --json-schema "$findings_schema" \
             < /dev/null > "$tmp/out.$key" 2> "$tmp/err.$key" \
             && jq -e . "$tmp/out.$key" > /dev/null 2>&1; then
             return 0
@@ -150,7 +150,7 @@ for entry in $running; do
     pid=${entry%%:*}
     key=${entry#*:}; key=${key%%:*}
     if ! wait "$pid"; then
-        echo "review.sh: claude failed for $key after $attempts attempts" >&2
+        echo "review.sh: agent failed for $key after $attempts attempts" >&2
         cat "$tmp/err.$key" >&2
         failed=1
     fi
