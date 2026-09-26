@@ -1,54 +1,54 @@
 { pkgs, ... }:
 let
-  emacsPackage =
-    if pkgs.stdenv.hostPlatform.isLinux
-    then pkgs.emacs-pgtk
-    else pkgs.emacs-macport;
+  emacsPackage = if pkgs.stdenv.hostPlatform.isLinux then pkgs.emacs-pgtk else pkgs.emacs-macport;
 in
 {
   programs.emacs = {
     enable = true;
     package = emacsPackage;
-    extraPackages = epkgs: with epkgs; [
-      use-package
+    extraPackages =
+      epkgs: with epkgs; [
+        use-package
 
-      vertico
-      marginalia
-      orderless
-      consult
-      embark
-      embark-consult
+        vertico
+        marginalia
+        orderless
+        consult
+        embark
+        embark-consult
 
-      corfu
-      cape
+        corfu
+        cape
 
-      magit
+        magit
 
-      terraform-mode
+        terraform-mode
 
-      (treesit-grammars.with-grammars (gs: with gs; [
-        tree-sitter-go
-        tree-sitter-typescript
-        tree-sitter-javascript
-        tree-sitter-hcl
-        tree-sitter-lua
-      ]))
+        (treesit-grammars.with-grammars (
+          gs: with gs; [
+            tree-sitter-go
+            tree-sitter-typescript
+            tree-sitter-javascript
+            tree-sitter-hcl
+            tree-sitter-lua
+          ]
+        ))
 
-      org
-      org-modern
+        org
+        org-modern
 
-      markdown-mode
+        markdown-mode
 
-      dirvish
+        dirvish
 
-      doom-themes
-      doom-modeline
-      nerd-icons
+        doom-themes
+        doom-modeline
+        nerd-icons
 
-      which-key
-      rainbow-delimiters
-      super-save
-    ];
+        which-key
+        rainbow-delimiters
+        super-save
+      ];
   };
 
   xdg.configFile."emacs/init.el".source = ./init.el;

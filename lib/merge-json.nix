@@ -3,7 +3,8 @@ path: nixValues:
 let
   json = lib.escapeShellArg (builtins.toJSON nixValues);
   jq = "${pkgs.jq}/bin/jq";
-in ''
+in
+''
   (
     _file="${path}"
     _nix=${json}

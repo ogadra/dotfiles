@@ -51,10 +51,5 @@ let
 in
 {
   home.stateVersion = "25.11";
-  imports =
-    appConfigs
-    ++ commonConfigs
-    ++ nixDesktopConfigs
-    ++ deviceConfigs
-    ;
+  imports = appConfigs ++ commonConfigs ++ nixDesktopConfigs ++ deviceConfigs;
 }

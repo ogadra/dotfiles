@@ -1,9 +1,9 @@
 { ... }:
 {
   services.xremap = {
-    enable     = true;
-    watch      = true;
-    withKDE    = true;
+    enable = true;
+    watch = true;
+    withKDE = true;
     config = {
       modmap = [
         {
@@ -30,17 +30,35 @@
           name = "Emacs Like";
           application.not = [ "/wezterm/" ];
           remap = {
-            C-b = { with_mark = "left"; };
-            C-f = { with_mark = "right"; };
-            C-p = { with_mark = "up"; };
-            C-n = { with_mark = "down"; };
-            C-a = { with_mark = "home"; };
-            C-e = { with_mark = "end"; };
-            C-v = { with_mark = "pagedown"; };
+            C-b = {
+              with_mark = "left";
+            };
+            C-f = {
+              with_mark = "right";
+            };
+            C-p = {
+              with_mark = "up";
+            };
+            C-n = {
+              with_mark = "down";
+            };
+            C-a = {
+              with_mark = "home";
+            };
+            C-e = {
+              with_mark = "end";
+            };
+            C-v = {
+              with_mark = "pagedown";
+            };
             C-h = "BackSpace";
             C-d = "Delete";
             C-m = "enter";
-            C-k = [ "Shift-end" "C-x" { set_mark = false; } ];
+            C-k = [
+              "Shift-end"
+              "C-x"
+              { set_mark = false; }
+            ];
           };
         }
         {

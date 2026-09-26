@@ -34,7 +34,8 @@ in
     ".config/devin/config/.gitconfig".source = shared + "/.gitconfig";
     ".config/devin/sounds/notification.mp3".source = ../../sounds/notification.mp3;
     ".config/devin/sounds/stop.mp3".source = ../../sounds/stop.mp3;
-  } // hooksConfig.scripts;
+  }
+  // hooksConfig.scripts;
 
   # devin itself rewrites config.json (model, org), so merge the managed keys instead of replacing the file
   home.activation.mergeDevinConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] ''

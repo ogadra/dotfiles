@@ -43,16 +43,18 @@ let
           home.homeDirectory = lib.mkForce "/Users/${username}";
         };
         extraSpecialArgs = {
-          inherit username inputs nixLib profile;
+          inherit
+            username
+            inputs
+            nixLib
+            profile
+            ;
         };
       };
     })
   ];
 
-  allModules =
-    baseModules
-    ++ homeManagerModules
-    ;
+  allModules = baseModules ++ homeManagerModules;
 in
 {
   inherit system;

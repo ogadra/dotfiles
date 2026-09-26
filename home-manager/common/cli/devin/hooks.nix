@@ -68,15 +68,27 @@ in
     ".config/devin/scripts/normalize.sh" = mkScript (shared + "/scripts/normalize.sh");
     ".config/devin/scripts/rtk-hook.sh" = mkScript (shared + "/scripts/rtk-hook.sh");
     ".config/devin/scripts/play-sound.sh" = mkScript (shared + "/scripts/play-sound.sh");
-    ".config/devin/scripts/ensure-trailing-newline.sh" = mkScript (shared + "/scripts/ensure-trailing-newline.sh");
+    ".config/devin/scripts/ensure-trailing-newline.sh" = mkScript (
+      shared + "/scripts/ensure-trailing-newline.sh"
+    );
     ".config/devin/scripts/git/check.sh" = mkScript (shared + "/scripts/git/check.sh");
-    ".config/devin/scripts/git/block-default-push.sh" = mkScript (shared + "/scripts/git/block-default-push.sh");
-    ".config/devin/scripts/git/block-force-push.sh" = mkScript (shared + "/scripts/git/block-force-push.sh");
-    ".config/devin/scripts/git/block-no-verify.sh" = mkScript (shared + "/scripts/git/block-no-verify.sh");
-    ".config/devin/scripts/git/block-amend-pushed.sh" = mkScript (shared + "/scripts/git/block-amend-pushed.sh");
+    ".config/devin/scripts/git/block-default-push.sh" = mkScript (
+      shared + "/scripts/git/block-default-push.sh"
+    );
+    ".config/devin/scripts/git/block-force-push.sh" = mkScript (
+      shared + "/scripts/git/block-force-push.sh"
+    );
+    ".config/devin/scripts/git/block-no-verify.sh" = mkScript (
+      shared + "/scripts/git/block-no-verify.sh"
+    );
+    ".config/devin/scripts/git/block-amend-pushed.sh" = mkScript (
+      shared + "/scripts/git/block-amend-pushed.sh"
+    );
     ".config/devin/scripts/git/block-clone.sh" = mkScript (shared + "/scripts/git/block-clone.sh");
     ".config/devin/scripts/gh/check.sh" = mkScript (shared + "/scripts/gh/check.sh");
-    ".config/devin/scripts/gh/block-repo-clone.sh" = mkScript (shared + "/scripts/gh/block-repo-clone.sh");
+    ".config/devin/scripts/gh/block-repo-clone.sh" = mkScript (
+      shared + "/scripts/gh/block-repo-clone.sh"
+    );
     ".config/devin/scripts/gh/block-pr-body.sh" = mkScript (shared + "/scripts/gh/block-pr-body.sh");
   };
 }

@@ -37,13 +37,18 @@ in
     ".claude/skills/ponytail".source = ./skills/ponytail;
     ".claude/skills/pr-create/SKILL.md".source = ./skills/pr-create/SKILL.md;
     ".claude/skills/pr-review/SKILL.md".source = ./skills/pr-review/SKILL.md;
-    ".claude/skills/pr-review/policies/absolute-rules.md".source = ./skills/pr-review/policies/absolute-rules.md;
-    ".claude/skills/pr-review/policies/ai-antipattern.md".source = ./skills/pr-review/policies/ai-antipattern.md;
-    ".claude/skills/pr-review/policies/architecture.md".source = ./skills/pr-review/policies/architecture.md;
-    ".claude/skills/pr-review/policies/code-quality.md".source = ./skills/pr-review/policies/code-quality.md;
+    ".claude/skills/pr-review/policies/absolute-rules.md".source =
+      ./skills/pr-review/policies/absolute-rules.md;
+    ".claude/skills/pr-review/policies/ai-antipattern.md".source =
+      ./skills/pr-review/policies/ai-antipattern.md;
+    ".claude/skills/pr-review/policies/architecture.md".source =
+      ./skills/pr-review/policies/architecture.md;
+    ".claude/skills/pr-review/policies/code-quality.md".source =
+      ./skills/pr-review/policies/code-quality.md;
     ".claude/skills/pr-review/policies/security.md".source = ./skills/pr-review/policies/security.md;
     ".claude/skills/pr-review/policies/stop-slop.md".source = ./skills/pr-review/policies/stop-slop.md;
     ".claude/skills/pr-review/policies/testing.md".source = ./skills/pr-review/policies/testing.md;
     ".claude/skills/readable-writing".source = ./skills/readable-writing;
-  } // hooksConfig.scripts;
+  }
+  // hooksConfig.scripts;
 }

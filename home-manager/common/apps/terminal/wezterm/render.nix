@@ -6,11 +6,11 @@ let
 in
 {
   xdg.configFile."wezterm/render.lua".text = ''
-    local module = {}
+        local module = {}
 
-    function module.apply_to_config(config, wezterm)
-${platformConfig}    end
+        function module.apply_to_config(config, wezterm)
+    ${platformConfig}    end
 
-    return module
+        return module
   '';
 }

@@ -4,58 +4,58 @@ let
 
   common = [
     {
-        key     = "ctrl+tab";
-        command = "workbench.action.nextEditor";
+      key = "ctrl+tab";
+      command = "workbench.action.nextEditor";
     }
     {
-        key     = "ctrl+shift+tab";
-        command = "workbench.action.previousEditor";
+      key = "ctrl+shift+tab";
+      command = "workbench.action.previousEditor";
     }
     {
-        key     = "meta+b";
-        command = "-editor.action.toggleSidebarVisibility";
+      key = "meta+b";
+      command = "-editor.action.toggleSidebarVisibility";
     }
     {
-        key     = "shift+meta+2";
-        command = "workbench.action.splitEditorRight";
+      key = "shift+meta+2";
+      command = "workbench.action.splitEditorRight";
     }
     {
-        key     = "alt+meta+n";
-        command = "workbench.action.duplicateWorkspaceInNewWindow";
+      key = "alt+meta+n";
+      command = "workbench.action.duplicateWorkspaceInNewWindow";
     }
     {
-        key     = "alt+enter";
-        command = "-testing.editFocusedTest";
-        when    = "focusedView == 'workbench.view.testing'";
+      key = "alt+enter";
+      command = "-testing.editFocusedTest";
+      when = "focusedView == 'workbench.view.testing'";
     }
     {
-        key     = "ctrl+shift+enter";
-        command = "testing.runAtCursor";
-        when    = "editorTextFocus";
+      key = "ctrl+shift+enter";
+      command = "testing.runAtCursor";
+      when = "editorTextFocus";
     }
     {
-        key     = "alt+1";
-        command = "workbench.action.focusFirstEditorGroup";
+      key = "alt+1";
+      command = "workbench.action.focusFirstEditorGroup";
     }
     {
-        key     = "alt+2";
-        command = "workbench.action.focusSecondEditorGroup";
+      key = "alt+2";
+      command = "workbench.action.focusSecondEditorGroup";
     }
     {
-        key     = "alt+3";
-        command = "workbench.action.focusThirdEditorGroup";
+      key = "alt+3";
+      command = "workbench.action.focusThirdEditorGroup";
     }
     {
-        key     = "ctrl+j";
-        command = "-editor.action.joinLines";
-        when    = "editorTextFocus && !editorReadonly";
+      key = "ctrl+j";
+      command = "-editor.action.joinLines";
+      when = "editorTextFocus && !editorReadonly";
     }
   ];
 
   linuxOnly = [
     {
-        key     = "meta+z";
-        command = "editor.action.toggleWordWrap";
+      key = "meta+z";
+      command = "editor.action.toggleWordWrap";
     }
   ];
 in

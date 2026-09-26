@@ -23,10 +23,7 @@ let
     })
   ];
 
-  allModules =
-    baseModules
-    ++ homeManagerModules
-    ;
+  allModules = baseModules ++ homeManagerModules;
 in
 {
   inherit system;

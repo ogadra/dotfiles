@@ -1,4 +1,9 @@
-{ lib, pkgs, nixLib, ... }:
+{
+  lib,
+  pkgs,
+  nixLib,
+  ...
+}:
 let
   version = "4.71.0";
   build = "225177";

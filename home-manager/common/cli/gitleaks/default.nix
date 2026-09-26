@@ -1,4 +1,9 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 let
   gitleaksConfig = "${config.xdg.configHome}/gitleaks/gitleaks.toml";
   gitleaksRelPath = "github.com/ogadra/dotfiles/data/gitleaks.toml";
