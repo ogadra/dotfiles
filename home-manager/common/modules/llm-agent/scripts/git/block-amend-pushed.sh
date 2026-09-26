@@ -12,7 +12,9 @@ pushed() {
 }
 
 deny() {
-  printf 'Blocked: HEAD is already pushed (%s), so %s would need a force push. Add a new commit instead.\n' "$BRANCHES" "$1" >&2
+  printf 'Blocked: HEAD is already pushed (%s). Pushed history is a permanent record here, mistakes included.\n' "$BRANCHES" >&2
+  printf 'Do not rewrite it with `%s`, and do not look for another route to the same result. Add a follow-up commit.\n' "$1" >&2
+  printf 'Merges never squash, so the follow-up commit is meant to stay visible. That is the intended outcome, not a mess to clean up.\n' >&2
   exit 2
 }
 
@@ -55,7 +57,7 @@ while IFS= read -r SEG; do
         esac
       done
       [ "$IS_AMEND" -eq 1 ] || continue
-      pushed && deny "amending it"
+      pushed && deny "git commit --amend"
       ;;
     rebase)
       # --abort and --quit end an in-progress rebase without rewriting anything.
@@ -64,7 +66,7 @@ while IFS= read -r SEG; do
           --abort|--quit) continue 2 ;;
         esac
       done
-      pushed && deny "rebasing onto it"
+      pushed && deny "git rebase"
       ;;
   esac
 done
