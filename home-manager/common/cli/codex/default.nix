@@ -25,6 +25,7 @@ let
     }:$PATH"
     export GIT_CONFIG_GLOBAL="''${GIT_CONFIG_GLOBAL:-$HOME/.codex/config/.gitconfig}"
     export GIT_CONFIG_SYSTEM="''${GIT_CONFIG_SYSTEM:-/dev/null}"
+    export CO_AUTHOR="Codex <199175422+chatgpt-codex-connector[bot]@users.noreply.github.com>"
 
     case "''${1-}" in
       ""|exec|e|review|resume|archive|unarchive|fork|sandbox)
