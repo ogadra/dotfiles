@@ -34,6 +34,7 @@ in
     ".claude/config/.gitconfig".source = shared + "/.gitconfig";
     ".claude/skills/absolute-rules/SKILL.md".source = ./skills/absolute-rules/SKILL.md;
     ".claude/skills/cascade-merge/SKILL.md".source = ./skills/cascade-merge/SKILL.md;
+    ".claude/skills/grill-me".source = ./skills/grill-me;
     ".claude/skills/import-skill/SKILL.md".source = ./skills/import-skill/SKILL.md;
     ".claude/skills/ponytail".source = ./skills/ponytail;
     ".claude/skills/pr-create/SKILL.md".source = ./skills/pr-create/SKILL.md;
