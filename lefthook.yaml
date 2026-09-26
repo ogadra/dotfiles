@@ -47,6 +47,5 @@ pre-commit:
       run: uv run mypy
     07_nixfmt:
       glob: "*.nix"
-      # stage_fixed puts the formatted content back into the index
       run: nix fmt {staged_files}
       stage_fixed: true
