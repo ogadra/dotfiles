@@ -1,6 +1,6 @@
 # readable-writing
 
-AIが書いた文章特有の読みにくさを、Claudeが直すSkill。
+AIが書いた文章特有の読みにくさを、エージェントが直すSkill。
 
 対象は次の文書。
 
@@ -11,7 +11,7 @@ AIが書いた文章特有の読みにくさを、Claudeが直すSkill。
 - コード内コメント
 - 実装計画書
 
-観点ごとに、`scripts/review.sh` が `claude -p` を並列で起動する。スキルを呼んだClaudeは出た指摘を同じセッションで直し、修正後の文章だけを返す。ポリシー全文はレビュアーだけが持ち、直すClaudeは `SKILL.md` の検出対象の一覧から必要な節だけを開く。
+観点ごとに、`scripts/review.sh` が `agent -p` を並列で起動する。スキルを呼んだエージェントは出た指摘を同じセッションで直し、修正後の文章だけを返す。ポリシー全文はレビュアーだけが持ち、直すエージェントは `SKILL.md` の検出対象の一覧から必要な節だけを開く。
 
 ## 由来
 
@@ -27,7 +27,7 @@ AIが書いた文章特有の読みにくさを、Claudeが直すSkill。
 ```
 SKILL.md                 対象、レビューの起動、統合、修正、検出対象の一覧
 scripts/
-├── review.sh            観点ごとに claude -p を並列起動し、findingsのJSONを返す
+├── review.sh            観点ごとに agent -p を並列起動し、findingsのJSONを返す
 ├── mechanical.pl        正規表現で確定判定できるものを集める
 └── rules/               mechanical.pl が使う語リスト
     ├── ja.pl
