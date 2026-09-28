@@ -14,6 +14,7 @@ let
       wrapProgram $out/bin/devin \
         --run 'export GIT_CONFIG_GLOBAL="''${GIT_CONFIG_GLOBAL:-$HOME/.config/devin/config/.gitconfig}"' \
         --set-default GIT_CONFIG_SYSTEM /dev/null \
+        --set-default DEVIN_PERMISSION_MODE smart \
         --set CO_AUTHOR "Devin <158243242+devin-ai-integration[bot]@users.noreply.github.com>"
     '';
   };
