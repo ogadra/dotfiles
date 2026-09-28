@@ -202,8 +202,17 @@
 
   # Run plan mode under auto mode semantics; only bites when auto mode is on.
   useAutoModeDuringPlan = true;
-  # Auto mode classifier customization: allow/soft_deny/environment.
-  # autoMode = null;
+  # Auto mode classifier customization: allow/soft_deny/hard_deny/environment; "$defaults" keeps the built-in rules and appends the entries after it.
+  autoMode = {
+    environment = [
+      "$defaults"
+      # The built-in default trusts only the repo the session started in, which blocks work across the owned orgs.
+      "Source control: github.com/ogadra and github.com/grease-the-benchmark, and all repos under them"
+      # Pushing to the dotfiles remote publishes to a public repo.
+      "Repository visibility: github.com/ogadra/dotfiles is public; other repos follow the default rule"
+      "Host containment: personal NixOS and macOS workstations with open internet, no container or egress allow-list"
+    ];
+  };
   # Treat the bypass permissions dialog as already read.
   # skipDangerousModePermissionPrompt = null;
   # Treat the auto mode opt-in dialog as already read; defaultMode already picks auto, so the dialog asks nothing new.
