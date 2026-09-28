@@ -1,12 +1,10 @@
 # 主体
 
-誰が何をしたかを見る。
-
 ## 検出対象
 
 ### false agency
 
-モノに人間の動作をさせている。無生物が能動的な動詞を取る。
+無生物に人間の動作をさせている。
 
 #### AI版
 
@@ -45,7 +43,7 @@ Since we moved to this architecture, adding a feature touches one file instead o
 
 ### 実装判断の壮大化
 
-実装判断を一つ、抽象命題に膨らませている。判断そのものを主語にして `思想` や `設計` を当てる。
+判断そのものを主語にして `思想` や `設計` を当てる。
 
 #### AI版
 
@@ -71,8 +69,6 @@ We capped retries at three. Nothing succeeded on the fourth attempt or later in 
     - `こう直したら直った` で終える
 
 ### 受動態
-
-行為者を伏せている。
 
 #### AI版
 
@@ -101,8 +97,6 @@ Load testing put this endpoint over 500ms, so I put a cache in front of it.
 
 ### 遠くから語る話者
 
-高所から社会を論じ、読者を場に置かない。
-
 #### AI版
 
 ```
@@ -121,14 +115,11 @@ If your build takes nine minutes and you run it six times a day, you're waiting 
 
 #### 修正の型
 
-- 読み手を場に置く
 - 集団を指す語を `自分` か `あなた` に書き換える
     - `現代の開発者`
     - `我々`
 
 ### 一般論だけの段落
-
-具体の話を、世間全体の話にすり替えている。
 
 #### AI版
 
@@ -149,9 +140,10 @@ In this repository, adding `actions/cache` took the first build from nine minute
 #### 修正の型
 
 - 入れるもの
-    - 具体的な人
-    - 具体的なエピソード
-    - 具体的な失敗
+    - 具体的な話題
+        - 人
+        - エピソード
+        - 失敗
     - 数値
     - 固有名詞
 - 入れられない場合
@@ -170,4 +162,6 @@ In this repository, adding `actions/cache` took the first build from nine minute
     - 固有名詞が入っているか確かめる
     - 数値が入っているか確かめる
 5. 実装判断を主語にした文
-    - `思想` や `設計` を述語に取る文を集める
+    - 探す語
+        - `思想`
+        - `設計`

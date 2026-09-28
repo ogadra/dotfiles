@@ -39,8 +39,7 @@ Inanimate things taking human verbs.
 ### Narrator from a distance
 
 - Nobody designed this.
-    - Someone took the shortcut under a deadline
-    - It stayed
+    - Someone took the shortcut under a deadline, and it stayed
 - This happens because...
     - Name the mechanism you saw
 - This is why...
@@ -66,7 +65,7 @@ Inanimate things taking human verbs.
         - `was`
         - `were`
         - `is being`
-    - Each followed by a past participle
+    - Keep the ones followed by a past participle
     - Check whether the actor appears in the text
 3. Collect generalized subjects
     - Search terms
@@ -78,7 +77,7 @@ Inanimate things taking human verbs.
         - `matters in`
         - `is important`
     - Replace the sentence with something the writer did on a named day
-4. Collect the sentences that explain why something happened
+4. Find the sentences that explain why something happened
     - Search terms
         - `nobody`
         - `this happens because`

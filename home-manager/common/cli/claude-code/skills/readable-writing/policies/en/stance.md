@@ -25,7 +25,7 @@ This refactor has a structural problem. The implications are significant and the
 This refactor left seven places where `OrderService` calls `PaymentGateway` directly. Swapping the payment provider means editing all seven.
 ```
 
-Name the specific thing — the seven call sites, the missing index, whatever it is. If you can't name it, cut the sentence.
+Name the specific thing: the seven call sites, the missing index, whatever it is. If you can't name it, cut the sentence.
 
 ### Dodging the conclusion
 
@@ -62,7 +62,7 @@ We went with a monorepo. We only have three packages, and keeping their versions
 - `this is not ideal`
 - `consider avoiding`
 
-Say `Don't do X`, and name the breaking point when you know it.
+Say `Don't do X`, and name the breaking point.
 
 - Maintenance cost may grow
     - This breaks once the team passes ten people
@@ -122,11 +122,11 @@ KDE dropped `org_kde_kwin_blur` in KWin 6.7 and added `ext_background_effect_man
 - `in some cases`
 - `arguably`
 
-A hedge is a word that narrows what you take on. Two or more in one sentence is the finding.
+A hedge is a word you use to narrow what you take on. Two or more in one sentence is the finding.
 
 Write the scope you're claiming.
 
-- This is only my experience
+- This might arguably be true in some cases
     - On my ten-person team
 
 ### Ritual disclaimers

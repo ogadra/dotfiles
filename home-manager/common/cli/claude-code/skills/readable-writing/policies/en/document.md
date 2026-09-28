@@ -4,6 +4,8 @@
 
 ### Headings where you make a claim
 
+Rewrite each as a plain description.
+
 - Why We Chose X
     - Reasons for picking X
 - What X Taught Us About Y
