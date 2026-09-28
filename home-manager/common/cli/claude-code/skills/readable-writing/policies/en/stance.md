@@ -62,7 +62,7 @@ We went with a monorepo. We only have three packages, and keeping their versions
 - `this is not ideal`
 - `consider avoiding`
 
-Say `Don't do X`, and name the breaking point when you know it.
+Say `Don't do X`, and name the breaking point.
 
 - Maintenance cost may grow
     - This breaks once the team passes ten people

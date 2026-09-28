@@ -224,7 +224,7 @@ Lambda reaches the internet through an EIP on its ENI.
 
 ### 経緯の記録
 
-変更前の状態と、そこへ至る作業が本文に残っている。
+書き手が変更前の状態と、そこへ至る作業を本文に残している。
 
 - 編集跡
     - 変更前と変更後を並べた節

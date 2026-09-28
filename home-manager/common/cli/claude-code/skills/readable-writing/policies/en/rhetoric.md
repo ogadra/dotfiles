@@ -70,7 +70,7 @@ Search for `three` followed by a noun.
 
 - A heading with the count in it
     - Drop the count from the heading
-- Items padding the list to three
+- Items the writer added to pad the list to three
     - Cut the ones that say the same thing as another item
 
 #### Before
@@ -112,7 +112,7 @@ Search for `three` followed by a noun.
         - Why
         - How
     - Lead with the subject or the verb
-    - Rewrite "What makes this hard is..." as "The constraint is..."
+        - Rewrite "What makes this hard is..." as "The constraint is..."
 - Paragraphs that open with "So"
     - Start with content
 - Sentences that open with "Look,"

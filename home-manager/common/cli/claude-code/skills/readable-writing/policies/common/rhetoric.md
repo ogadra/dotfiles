@@ -4,7 +4,7 @@
 
 ### 二項対比
 
-`XではなくYだ` と書いてしまう。Yを書き、否定で絞った範囲は肯定文の側にも入れる。
+`XではなくYだ` と書いてしまう。
 
 #### AI版
 
@@ -24,7 +24,7 @@ This skill keeps what the writer saw and got stuck on in the text.
 
 #### 修正の型
 
-否定を消すと書き手が絞った範囲を読み手に伝えられないので、落ちた分は肯定文の側を広げて埋める。
+否定を消して、落ちた分は肯定文の側を広げて埋める。
 
 - 元の文
     - 「3本まとめて採点するのではなく、2本で採点する」
@@ -32,11 +32,10 @@ This skill keeps what the writer saw and got stuck on in the text.
 - 書き換え
     - 「採点は該当する2本で行う」
     - "Grade the two that apply."
-
-比較を書くときは軸を名指しし、XとYの違いを具体的に書く。
-
-- 「この場面では速さより正確さを取った」
-- "Here we chose accuracy over speed."
+- 比較を書き換える場合
+    - 軸を名指して違いを具体的に書く
+        - 「この場面では速さより正確さを取った」
+        - "Here we chose accuracy over speed."
 
 ### 否定的列挙
 
@@ -304,8 +303,8 @@ This skill reviews from seven perspectives. It works in Japanese and English, an
     - 探す語
         - `3つの`
         - `three`
-    - 見出しに項目数を書いた箇条書きを集める
     - 項目数が3の箇条書きを集める
+        - 見出しに項目数を書いたもの
         - 中身の重なる項目があるものを残す
 5. 段落ごとに文字数を数える
     - 分散が小さい箇所を集める
