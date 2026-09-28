@@ -144,8 +144,8 @@ In this repository, adding `actions/cache` took the first build from nine minute
         - 人
         - エピソード
         - 失敗
-        - 数値
-        - 固有名詞
+    - 数値
+    - 固有名詞
 - 入れられない場合
     - その段落を消す
 
