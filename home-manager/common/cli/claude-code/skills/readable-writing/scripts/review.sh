@@ -105,10 +105,9 @@ findings_schema='{
           "line": { "type": "string" },
           "quote": { "type": "string" },
           "category": { "type": "string" },
-          "problem": { "type": "string" },
-          "fix": { "type": ["string", "null"] }
+          "problem": { "type": "string" }
         },
-        "required": ["line", "quote", "category", "problem", "fix"],
+        "required": ["line", "quote", "category", "problem"],
         "additionalProperties": false
       }
     }
