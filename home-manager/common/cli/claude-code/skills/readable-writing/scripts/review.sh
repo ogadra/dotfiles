@@ -15,6 +15,8 @@ EOF
 
 target=$1
 [ -f "$target" ] || { echo "review.sh: no such file: $target" >&2; exit 1; }
+# Resolve to an absolute path so the seen key and log do not depend on how the caller spelled the path
+target=$(cd -- "$(dirname -- "$target")" && pwd)/$(basename -- "$target")
 
 skill_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 policies="$skill_dir/policies"
