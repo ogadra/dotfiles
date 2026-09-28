@@ -38,12 +38,16 @@ The best teams optimize for learning.
 
 ### Negative listing
 
-- "Not a X... Not a Y... A Z." / "It wasn't X. It wasn't Y. It was Z."
+- "Not a X... Not a Y... A Z."
+    - "It was Z."
+- "It wasn't X. It wasn't Y. It was Z."
     - "It was Z."
 
 ### Dramatic fragmentation
 
-- "[Noun]. That's it. That's the [thing]." / "X. And Y. And Z."
+- "[Noun]. That's it. That's the [thing]."
+    - Write the complete sentence
+- "X. And Y. And Z."
     - Write the complete sentence
 - "This unlocks something. [Word]."
     - Name what you can do next
@@ -98,7 +102,7 @@ Search for `three` followed by a noun.
 
 ### Sentence and paragraph starters
 
-- Body sentences starting with a question word
+- Body sentences that open with a question word
     - Search for
         - What
         - When
@@ -109,8 +113,7 @@ Search for `three` followed by a noun.
         - How
     - Lead with the subject or the verb
     - Rewrite "What makes this hard is..." as "The constraint is..."
-        - Name the constraint
-- Paragraphs starting with "So"
+- Paragraphs that open with "So"
     - Start with content
-- Sentences starting with "Look,"
+- Sentences that open with "Look,"
     - Remove

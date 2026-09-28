@@ -78,7 +78,7 @@ Inanimate things taking human verbs.
         - `matters in`
         - `is important`
     - Replace the sentence with something the writer did on a named day
-4. Collect the sentences that explain why something happened
+4. Find the sentences that explain why something happened
     - Search terms
         - `nobody`
         - `this happens because`

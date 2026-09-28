@@ -94,89 +94,6 @@
 - 全項目にかかる条件
     - 並列の1項目として置く
 
-#### 平坦な箇条書きと詰め込みが同時に出る例
-
-READMEのセットアップ節。
-
-##### AI版
-
-```
-## セットアップ
-
-**前提**: Node.js 20以上、pnpm 9以上が必要です。
-
-- **依存の導入**: `pnpm install` を実行します(初回は3分ほどかかります)。
-- **環境変数**: `.env.example` をコピーして `.env` を作り、DATABASE_URL、REDIS_URL、S3_BUCKET を埋めます。
-- **DBの初期化**: `pnpm db:migrate` を実行します(Dockerが起動している必要があります)。
-
-## Setup
-
-**Requirements**: Node.js 20 or later, pnpm 9 or later.
-
-- **Install dependencies**: Run `pnpm install` (the first run takes about three minutes).
-- **Environment**: Copy `.env.example` to `.env` and fill in DATABASE_URL, REDIS_URL, S3_BUCKET.
-- **Database**: Run `pnpm db:migrate` (Docker must be running).
-```
-
-##### 修正版
-
-```
-## セットアップ
-
-### 前提
-
-- Node.js 20以上
-- pnpm 9以上
-- Dockerが起動していること
-
-### 手順
-
-- 依存を入れる
-    - `pnpm install`
-- 環境変数を設定する
-    - `.env.example` をコピーして `.env` を作る
-    - `DATABASE_URL`
-    - `REDIS_URL`
-    - `S3_BUCKET`
-- DBを初期化する
-    - `pnpm db:migrate`
-
-## Setup
-
-### Requirements
-
-- Node.js 20 or later
-- pnpm 9 or later
-- Docker running
-
-### Steps
-
-- Install dependencies
-    - `pnpm install`
-- Set the environment
-    - Copy `.env.example` to `.env`
-    - `DATABASE_URL`
-    - `REDIS_URL`
-    - `S3_BUCKET`
-- Initialize the database
-    - `pnpm db:migrate`
-```
-
-##### 修正の型
-
-- 太字のラベルを見出しにする
-- 節に分けるもの
-    - 前提
-    - 手順
-- 1段下げるもの
-    - 手順の説明
-    - コマンド
-- 環境変数は1項目に1つ置く
-- 括弧の前提条件
-    - 前提の節に移す
-- 実行に関係しない括弧の補足
-    - 消す
-
 ### 条件と処置の同居
 
 1項目に `XならY` が収まっている。条件と処置は別のことなので、読み手は他の項目の条件と突き合わせる前に、1行の中で2つを分解することになる。分岐が3つ並ぶと目で追えなくなる。
@@ -245,7 +162,7 @@ READMEのセットアップ節。
 #### 修正の型
 
 - 第1階層に置く
-    - その項目が何についての項目かを示す語
+    - その項目が何についての項目かを名指す語
     - 分岐を作る条件
         - `XならY` の `X`
 - 1段下げる
@@ -256,7 +173,7 @@ READMEのセットアップ節。
 
 ### 段落に流した並列
 
-並列の項目を、順序を示す接続語を付けて段落に流す。`第一に` から数え始めて、最後まで読まないと項目数が確定しない。
+並列の項目に `第一に` のような数え上げの接続語を付け、段落に流す。`第一に` から数え始めて、最後まで読まないと項目数が確定しない。
 
 #### AI版
 
@@ -302,7 +219,7 @@ First, make ownership explicit. Second, review on a schedule. Third, build a way
     - 1項目に条件と処置の両方を書いていないか確かめる
 3. 第1階層の項目を集める
     - 理由や補足が第1階層に紛れていないか確かめる
-4. 順序を示す接続語を探す
+4. 数え上げの接続語を探す
     - 探す語
         - `第一に`
         - `第二に`
@@ -313,3 +230,87 @@ First, make ownership explicit. Second, review on a schedule. Third, build a way
     - 段落が並列の項目になっていないか確かめる
 5. 第1階層と子項目を突き合わせる
     - 第1階層に値や条件を置き、項目名を1段下げていないか確かめる
+
+## 平坦な箇条書きと詰め込みが同時に出る例
+
+READMEのセットアップ節。
+
+#### AI版
+
+```
+## セットアップ
+
+**前提**: Node.js 20以上、pnpm 9以上が必要です。
+
+- **依存の導入**: `pnpm install` を実行します(初回は3分ほどかかります)。
+- **環境変数**: `.env.example` をコピーして `.env` を作り、DATABASE_URL、REDIS_URL、S3_BUCKET を埋めます。
+- **DBの初期化**: `pnpm db:migrate` を実行します(Dockerが起動している必要があります)。
+
+## Setup
+
+**Requirements**: Node.js 20 or later, pnpm 9 or later.
+
+- **Install dependencies**: Run `pnpm install` (the first run takes about three minutes).
+- **Environment**: Copy `.env.example` to `.env` and fill in DATABASE_URL, REDIS_URL, S3_BUCKET.
+- **Database**: Run `pnpm db:migrate` (Docker must be running).
+```
+
+#### 修正版
+
+```
+## セットアップ
+
+### 前提
+
+- Node.js 20以上
+- pnpm 9以上
+- Dockerが起動していること
+
+### 手順
+
+- 依存を入れる
+    - `pnpm install`
+- 環境変数を設定する
+    - `.env.example` をコピーして `.env` を作る
+    - `DATABASE_URL`
+    - `REDIS_URL`
+    - `S3_BUCKET`
+- DBを初期化する
+    - `pnpm db:migrate`
+
+## Setup
+
+### Requirements
+
+- Node.js 20 or later
+- pnpm 9 or later
+- Docker running
+
+### Steps
+
+- Install dependencies
+    - `pnpm install`
+- Set the environment
+    - Copy `.env.example` to `.env`
+    - `DATABASE_URL`
+    - `REDIS_URL`
+    - `S3_BUCKET`
+- Initialize the database
+    - `pnpm db:migrate`
+```
+
+#### 修正の型
+
+- 太字のラベルを見出しにする
+- 節に分けるもの
+    - 前提
+    - 手順
+- 1段下げるもの
+    - 手順の説明
+    - コマンド
+- 環境変数
+    - 1項目に1つ置く
+- 括弧の前提条件
+    - 前提の節に移す
+- 実行に関係しない括弧の補足
+    - 消す

@@ -1,6 +1,6 @@
 # readable-writing
 
-AIが書いた文章特有の読みにくさを解消するClaude Skill。
+AIが書いた文章特有の読みにくさを、Claudeが直すSkill。
 
 対象は次の文書。
 
@@ -11,15 +11,16 @@ AIが書いた文章特有の読みにくさを解消するClaude Skill。
 - コード内コメント
 - 実装計画書
 
-観点ごとに、`scripts/review.sh` が `claude -p` を並列で起動する。集まった指摘は、スキルを呼んだClaudeが同じセッションで直し、修正後の文章だけを返す。ポリシー全文はレビュアーだけが持ち、直すClaudeは `SKILL.md` の検出対象の一覧から必要な節だけを開く。
+観点ごとに、`scripts/review.sh` が `claude -p` を並列で起動する。スキルを呼んだClaudeは出た指摘を同じセッションで直し、修正後の文章だけを返す。ポリシー全文はレビュアーだけが持ち、直すClaudeは `SKILL.md` の検出対象の一覧から必要な節だけを開く。
 
 ## 由来
 
 - 日本語のパターン
     - [iKora128/stop-ai-slop-jp](https://github.com/iKora128/stop-ai-slop-jp)
+    - MIT
 - 英語のパターン
     - [hardikpandya/stop-slop](https://github.com/hardikpandya/stop-slop)
-- どちらもMIT
+    - MIT
 
 ## 構成
 
@@ -74,7 +75,7 @@ policies/
 
 ## 指摘のログ
 
-出した指摘を、`review.sh` が `${XDG_STATE_HOME:-~/.local/state}/readable-writing/findings.tsv` に追記する。実行をまたいで積むので、過去の実行で出た指摘も同じファイルに残る。
+出した指摘を、`review.sh` が `${XDG_STATE_HOME:-~/.local/state}/readable-writing/findings.tsv` に追記する。
 
 1指摘1行のTSV。ヘッダ行はない。列は `review.sh` の `log_findings` にある。
 
@@ -100,14 +101,12 @@ policies/
 | プロンプトの組み立て、言語判定、並列の起動 | `scripts/review.sh` |
 | 正規表現で決まる規則の検出 | `scripts/mechanical.pl` |
 
-観点を足すときに触る場所。
-
-- `policies/`
-    - ファイルを置く
-- `scripts/review.sh`
-    - `perspectives` に行を足す
-- `SKILL.md`
-    - 対応表と検出対象の一覧に行を足す
+| 観点を足すときに触る場所 | やること |
+|---|---|
+| `policies/` | ファイルを置く |
+| `scripts/review.sh` | `perspectives` に行を足す |
+| `SKILL.md` | 対応表に行を足す |
+| `SKILL.md` | 検出対象の一覧に行を足す |
 
 ## ライセンス
 

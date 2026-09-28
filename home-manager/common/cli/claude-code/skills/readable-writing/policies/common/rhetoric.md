@@ -1,12 +1,10 @@
 # 修辞
 
-文と文の並べ方に出る型を見る。
-
 ## 検出対象
 
 ### 二項対比
 
-`XではなくYだ` と書いてしまう。Yを書き、否定が絞っていた範囲も肯定文に含める。
+`XではなくYだ` と書いてしまう。Yを書き、否定で絞った範囲は肯定文の側にも入れる。
 
 #### AI版
 
@@ -26,7 +24,7 @@ This skill keeps what the writer saw and got stuck on in the text.
 
 #### 修正の型
 
-否定は範囲を狭めて伝える書き方なので、消すと書き手が絞った範囲が読み手に伝わらない。落ちた分は肯定文の側を広げて埋める。
+否定を消すと書き手が絞った範囲を読み手に伝えられないので、落ちた分は肯定文の側を広げて埋める。
 
 - 元の文
     - 「3本まとめて採点するのではなく、2本で採点する」
@@ -42,7 +40,7 @@ This skill keeps what the writer saw and got stuck on in the text.
 
 ### 否定的列挙
 
-示したいものの前に、何でないかが並ぶ。
+示したいものの前に、何でないかを並べる。
 
 #### AI版
 
@@ -66,7 +64,7 @@ It finds the places where the writer has vanished from the text.
 
 ### 劇的な断片化
 
-短文を連発して深さを演出する。句点で間を作ろうとしている。
+短文を連発して深さを演出する。
 
 #### AI版
 
@@ -90,7 +88,7 @@ The cause was the cache. Adding one took the build from nine minutes to three.
 
 ### 一文圧縮
 
-年代、人名、定義、評価が1文か2文に詰まる。
+年代、人名、定義、評価を1文か2文に詰める。
 
 #### AI版
 
@@ -208,8 +206,6 @@ The waiting was the problem. At nine minutes I would switch branches and start s
 
 ### 段落の均一な閉じ方
 
-全段落を律儀に着地させている。
-
 #### AI版
 
 ```
@@ -308,8 +304,9 @@ This skill reviews from seven perspectives. It works in Japanese and English, an
     - 探す語
         - `3つの`
         - `three`
-    - 見出しで項目数を宣言している箇条書きを集める
-    - 項目数が3で、中身の重なる項目がある箇条書きを集める
+    - 見出しに項目数を書いた箇条書きを集める
+    - 項目数が3の箇条書きを集める
+        - 中身の重なる項目があるものを残す
 5. 段落ごとに文字数を数える
     - 分散が小さい箇所を集める
 6. 各段落の最終文を集める
