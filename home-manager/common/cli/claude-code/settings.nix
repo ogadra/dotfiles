@@ -208,8 +208,6 @@
       "$defaults"
       # The built-in default trusts only the repo the session started in, which blocks work across the owned orgs.
       "Source control: github.com/ogadra and github.com/grease-the-benchmark, and all repos under them"
-      # Pushing to the dotfiles remote publishes to a public repo.
-      "Repository visibility: github.com/ogadra/dotfiles is public; other repos follow the default rule"
       "Host containment: personal NixOS and macOS workstations with open internet, no container or egress allow-list"
     ];
   };
