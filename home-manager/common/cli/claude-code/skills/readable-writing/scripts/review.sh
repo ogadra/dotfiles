@@ -80,7 +80,13 @@ build_prompt() {
         while IFS= read -r file; do
             dir=$(basename "$(dirname "$file")")
             printf '## %s/%s\n\n' "$dir" "$(basename "$file")"
-            cat "$file"
+            # Reviewers only flag problems, so fixed examples stay out of the prompt
+            awk '
+                /^\s*(`{3,}|~{3,})/ { fence = !fence }
+                !fence && /^#### (修正版|修正の型|After|How to fix)[[:space:]]*$/ { skip = 1; next }
+                skip && !fence && /^#{1,4}[[:space:]]/ { skip = 0 }
+                !skip { print }
+            ' "$file"
             printf '\n'
         done <<< "$files"
 
