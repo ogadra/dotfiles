@@ -24,6 +24,8 @@ run_id="$(date -u +%Y%m%d-%H%M%S)-$$"
 now="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 log_dir="${XDG_STATE_HOME:-$HOME/.local/state}/readable-writing"
 log="$log_dir/findings.tsv"
+# sha1 of the target path gives a deterministic name and lets the script locate it without caller input
+seen="$log_dir/seen/$(printf '%s' "$target" | sha1sum | cut -c1-16).tsv"
 
 # A document that mixes Japanese and English gets both rule sets
 lang_dirs=$(nix run nixpkgs#perl -- -CSD -ne '
@@ -178,11 +180,28 @@ log_findings() {
         "$tmp/merged.json" > "$tmp/records.tsv"
     # Appending straight from jq splits the write every 4KiB and interleaves with concurrent runs
     cat "$tmp/records.tsv" >> "$log"
+    jq -r '.[] | [.category, .quote] | @tsv' "$tmp/merged.json" > "$tmp/seen-records.tsv"
+    cat "$tmp/seen-records.tsv" >> "$seen"
 }
 
 jq -s 'add | sort_by(.line | tostring | capture("(?<n>[0-9]+)").n | tonumber)' \
     "$tmp"/json.* > "$tmp/merged.json"
 
-cat "$tmp/merged.json"
+# A (category, quote) pair already flagged for this file goes to stderr; the user has seen it once
+mkdir -p "$(dirname "$seen")"
+if [ ! -f "$seen" ]; then
+    : > "$seen"
+    # Backfill from the findings log so suppression covers runs from before the seen file existed
+    if [ -f "$log" ]; then
+        awk -F'\t' -v t="$target" '$3 == t { print $7 "\t" $9 }' "$log" >> "$seen"
+    fi
+fi
+
+jq --rawfile seen "$seen" '
+    def norm: gsub("\\\\n"; " ") | gsub("\\\\t"; " ") | gsub("\\s+"; " ") | sub("^ "; "") | sub(" $"; "");
+    ($seen | split("\n") | map(select(index("\t")) | split("\t")
+        | (.[0] | ascii_downcase) + "\t" + (.[1] | norm))) as $keys
+    | map(. as $f | select($keys | index(($f.category | ascii_downcase) + "\t" + ($f.quote | norm)) | not))
+' "$tmp/merged.json"
 
 log_findings

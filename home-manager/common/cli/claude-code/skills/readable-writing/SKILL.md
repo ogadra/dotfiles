@@ -124,6 +124,9 @@ metadata:
 bash ~/.claude/skills/readable-writing/scripts/review.sh <ファイルパス>
 ```
 
+- 過去のrunと同じ `(category, quote)` の指摘
+    - 標準出力に含めない
+
 ### 3. 指摘の整理
 
 - 重複の統合
