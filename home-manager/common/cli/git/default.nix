@@ -1,8 +1,12 @@
 {
+  lib,
+  pkgs,
   username,
   ...
 }:
 let
+  email = "61941819+ogadra@users.noreply.github.com";
+
   shared = ../../modules/llm-agent;
 
   mkHook = name: {
@@ -11,7 +15,19 @@ let
   };
 in
 {
-  home.file.".ssh/allowed_signers".source = ./allowed_signers;
+  # Signing keys come from GitHub so a key registered there is trusted on the next switch without editing this repo
+  home.activation.fetchAllowedSigners = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    tmp=$(mktemp)
+    # Keep the previous file when GitHub is unreachable so an offline switch still succeeds
+    if ${pkgs.curl}/bin/curl -fsSL https://api.github.com/users/ogadra/ssh_signing_keys \
+      | ${pkgs.jq}/bin/jq -r --arg email "${email}" '.[] | "\($email) \(.key)"' > "$tmp" && [ -s "$tmp" ]; then
+      mkdir -p "$HOME/.ssh"
+      chmod 644 "$tmp"
+      mv -f "$tmp" "$HOME/.ssh/allowed_signers"
+    else
+      rm -f "$tmp"
+    fi
+  '';
 
   # Hooks for LLM agent sessions, reached through core.hooksPath in the .gitconfig those sessions load via GIT_CONFIG_GLOBAL.
   xdg.configFile = {
@@ -25,7 +41,7 @@ in
     settings = {
       user = {
         name = username;
-        email = "61941819+ogadra@users.noreply.github.com";
+        inherit email;
       };
 
       init.defaultBranch = "main";
