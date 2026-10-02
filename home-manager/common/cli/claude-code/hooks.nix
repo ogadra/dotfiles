@@ -54,6 +54,11 @@ in
             type = "command";
             command = "rm -f /tmp/claude_task_stopped_$PPID";
           }
+          # The built-in /fork skips this hook, so the fork skill shadows it and this hook does the fork
+          {
+            type = "command";
+            command = "$HOME/.claude/scripts/herdr-fork.sh";
+          }
         ];
       }
     ];
@@ -94,6 +99,7 @@ in
       shared + "/scripts/ensure-trailing-newline.sh"
     );
     ".claude/scripts/statusline.sh" = mkScript ./scripts/statusline.sh;
+    ".claude/scripts/herdr-fork.sh" = mkScript ./scripts/herdr-fork.sh;
     ".claude/scripts/git/check.sh" = mkScript (shared + "/scripts/git/check.sh");
     ".claude/scripts/git/block-default-push.sh" = mkScript (
       shared + "/scripts/git/block-default-push.sh"
