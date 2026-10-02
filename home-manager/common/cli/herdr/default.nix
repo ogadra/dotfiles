@@ -52,13 +52,13 @@ in
       keys = {
         prefix = "ctrl+q";
 
-        # close_tab takes prefix+w, so the picker and rename_workspace each shift one slot
+        # close_tab takes prefix+w, so the picker shifts one slot
         close_tab = [
           "prefix+w"
           "prefix+shift+x"
         ];
         workspace_picker = "prefix+shift+w";
-        rename_workspace = "prefix+shift+e";
+        rename_workspace = "f2";
 
         # prefix+% is what wezterm's split key sends
         split_vertical = [
