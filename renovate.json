@@ -35,9 +35,12 @@
   "packageRules": [
     {
       "matchManagers": ["nix"],
-      "matchUpdateTypes": ["!lockFileMaintenance"],
       "automerge": false,
       "groupName": "nix flake inputs"
+    },
+    {
+      "matchUpdateTypes": ["lockFileMaintenance"],
+      "groupName": "lock file maintenance"
     }
   ]
 }
