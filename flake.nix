@@ -93,6 +93,11 @@
           profile = "bisharp";
           username = "ogadra";
         });
+        xurkitree = nixosSystem (nixosSystemArgs {
+          system = "x86_64-linux";
+          profile = "xurkitree";
+          username = "ogadra";
+        });
       };
 
       darwinConfigurations = {
