@@ -48,6 +48,7 @@ let
   ];
 
   deviceConfigs = [
+    ./devices/display.nix
     ./devices/input.nix
     ./devices/xremap.nix
   ];
