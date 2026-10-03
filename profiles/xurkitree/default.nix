@@ -45,6 +45,8 @@ in
 {
   networking.hostName = "xurkitree";
 
+  services.openssh.enable = true;
+
   imports = [
     ./hardware-configuration.nix
   ]
