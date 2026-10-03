@@ -29,7 +29,7 @@ jobs:
       - uses: renovatebot/github-action@1cd96b855fee0da6f230617e89dbff0e06ea393a # v46.3.5
         with:
           token: ${{ steps.app-token.outputs.token }}
-          renovate-version: 44.121.4
+          renovate-version: 44.131.3
           configurationFile: renovate-dated-config.json
         env:
           RENOVATE_REPOSITORIES: ${{ github.repository }}
