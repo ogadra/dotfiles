@@ -1,16 +1,10 @@
 { ... }:
-let
-  kwinShortcuts = import ./kwin.nix { };
-  plasmashellShortcuts = import ./plasmashell.nix { };
-  mediaShortcuts = import ./media.nix { };
-  systemShortcuts = import ./system.nix { };
-  cliphistShortcuts = import ./cliphist.nix { };
-in
 {
-  xdg.configFile."kglobalshortcutsrc".text =
-    systemShortcuts.system
-    + mediaShortcuts.media
-    + kwinShortcuts.kwin
-    + plasmashellShortcuts.plasmashell
-    + cliphistShortcuts.cliphist;
+  imports = [
+    ./cliphist.nix
+    ./kwin.nix
+    ./media.nix
+    ./plasmashell.nix
+    ./system.nix
+  ];
 }
