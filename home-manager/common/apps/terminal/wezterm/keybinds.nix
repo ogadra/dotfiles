@@ -100,6 +100,8 @@ in
       -- CopyMode (delegated to herdr)
       { key = "X", mods = "CTRL", action = herdr('[') },
 
+      { key = 'd', mods = 'CTRL|ALT', action = act.SendString('/fork\r') },
+
       -- herdr prefix
       { key = 'q', mods = 'CTRL', action = act.SendString('\x11') },
     }
