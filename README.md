@@ -7,6 +7,7 @@
 | ホスト名 | OS | アーキテクチャ |
 |---|---|---|
 | `bisharp` | NixOS (KDE Plasma 6) | x86_64-linux |
+| `xurkitree` | NixOS (KDE Plasma 6) | x86_64-linux |
 | `latias` | macOS (nix-darwin) | x86_64-darwin |
 | `stakataka` | macOS (nix-darwin) | aarch64-darwin |
 
