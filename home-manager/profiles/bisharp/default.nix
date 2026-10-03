@@ -43,6 +43,7 @@ let
     ../../nixos/wl-clipboard
     ../../nixos/wofi
     ../../nixos/cliphist
+    ../../nixos/xremap
   ];
 
   deviceConfigs = [

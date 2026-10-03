@@ -1,100 +1,24 @@
 { ... }:
 {
-  services.xremap = {
-    enable = true;
-    watch = true;
-    withKDE = true;
-    config = {
-      modmap = [
-        {
-          name = "internal-kbd-swap-capslock-ctrl";
-          device.only = [ "AT Translated Set 2 keyboard" ];
-          remap = {
-            CAPSLOCK = "LEFTCTRL";
-            LEFTCTRL = "CAPSLOCK";
-          };
-        }
-        {
-          name = "hhkb-swap-alt-super";
-          device.only = [ "HHKB" ];
-          remap = {
-            LEFTALT = "LEFTMETA";
-            LEFTMETA = "LEFTALT";
-            RIGHTALT = "RIGHTMETA";
-            RIGHTMETA = "RIGHTALT";
-          };
-        }
-      ];
-      keymap = [
-        {
-          name = "Emacs Like";
-          application.not = [ "/wezterm/" ];
-          remap = {
-            C-b = {
-              with_mark = "left";
-            };
-            C-f = {
-              with_mark = "right";
-            };
-            C-p = {
-              with_mark = "up";
-            };
-            C-n = {
-              with_mark = "down";
-            };
-            C-a = {
-              with_mark = "home";
-            };
-            C-e = {
-              with_mark = "end";
-            };
-            C-v = {
-              with_mark = "pagedown";
-            };
-            C-h = "BackSpace";
-            C-d = "Delete";
-            C-m = "enter";
-            C-k = [
-              "Shift-end"
-              "C-x"
-              { set_mark = false; }
-            ];
-          };
-        }
-        {
-          name = "Default";
-          application.not = [ "/wezterm/" ];
-          remap = {
-            Alt-a = "C-a";
-            Alt-b = "C-b";
-            Alt-c = "C-c";
-            Alt-d = "C-d";
-            Alt-e = "C-e";
-            Alt-f = "C-f";
-            Alt-g = "C-g";
-            Alt-h = "C-h";
-            Alt-i = "C-i";
-            Alt-j = "C-j";
-            Alt-k = "C-k";
-            Alt-l = "C-l";
-            Alt-m = "C-m";
-            Alt-n = "C-n";
-            Alt-o = "C-o";
-            Alt-p = "C-p";
-            Alt-q = "C-q";
-            Alt-r = "C-r";
-            Alt-s = "C-s";
-            Alt-t = "C-t";
-            Alt-u = "C-u";
-            Alt-v = "C-v";
-            Alt-Super-v = "Alt-Super-v";
-            Alt-w = "C-w";
-            Alt-x = "C-x";
-            Alt-y = "C-y";
-            Alt-z = "C-z";
-          };
-        }
-      ];
-    };
-  };
+  # Device-specific modmaps; enable/keymap live in home-manager/nixos/xremap
+  services.xremap.config.modmap = [
+    {
+      name = "internal-kbd-swap-capslock-ctrl";
+      device.only = [ "AT Translated Set 2 keyboard" ];
+      remap = {
+        CAPSLOCK = "LEFTCTRL";
+        LEFTCTRL = "CAPSLOCK";
+      };
+    }
+    {
+      name = "hhkb-swap-alt-super";
+      device.only = [ "HHKB" ];
+      remap = {
+        LEFTALT = "LEFTMETA";
+        LEFTMETA = "LEFTALT";
+        RIGHTALT = "RIGHTMETA";
+        RIGHTMETA = "RIGHTALT";
+      };
+    }
+  ];
 }
