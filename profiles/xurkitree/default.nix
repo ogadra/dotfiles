@@ -47,6 +47,9 @@ in
 
   services.openssh.enable = true;
 
+  # Numlock accepts: on, off, none
+  services.displayManager.sddm.settings.General.Numlock = "off";
+
   imports = [
     ./hardware-configuration.nix
   ]

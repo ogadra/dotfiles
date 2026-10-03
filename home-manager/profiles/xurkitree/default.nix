@@ -36,9 +36,9 @@ let
     ../../common/cli/zsh
   ];
 
+  # devices/input.nix replaces nixos/mouse; xdg.configFile kcminputrc conflicts with plasma-manager
   nixDesktopConfigs = [
     ../../nixos/kwin
-    ../../nixos/mouse
     ../../nixos/klipper
     ../../nixos/wl-clipboard
     ../../nixos/wofi
@@ -47,6 +47,7 @@ let
   ];
 
   deviceConfigs = [
+    ./devices/input.nix
     ./devices/xremap.nix
   ];
 in
