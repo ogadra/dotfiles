@@ -40,6 +40,7 @@ let
   nixDesktopConfigs = [
     ../../nixos/kwin
     ../../nixos/klipper
+    ../../nixos/screenlocker
     ../../nixos/wl-clipboard
     ../../nixos/wofi
     ../../nixos/cliphist
