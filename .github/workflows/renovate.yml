@@ -17,19 +17,19 @@ jobs:
           client-id: ${{ secrets.RENOVATE_APP_CLIENT_ID }}
           private-key: ${{ secrets.RENOVATE_APP_PRIVATE_KEY }}
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      # Renovate puts this date into the branch name for one lock file maintenance PR per day; `branchTopic` cannot do it because grouping replaces it with the group slug.
+      # Renovate puts this date into each lock file maintenance branch name and PR title for one PR per lock file per day; `branchTopic` cannot do it because grouping replaces it with the group slug.
       - name: Build the dated Renovate config
         run: |
           jq -n --arg date "$(date -u +%Y-%m-%d)" '{
             lockFileMaintenance: {
               additionalBranchPrefix: "\($date)-",
-              commitMessageAction: "Lock file maintenance (\($date))"
+              commitMessageExtra: "(\($date))"
             }
           }' > renovate-dated-config.json
-      - uses: renovatebot/github-action@1cd96b855fee0da6f230617e89dbff0e06ea393a # v46.3.5
+      - uses: renovatebot/github-action@6d26fcf0275dc65624cbc3d51fe78bc773f98321 # v46.3.6
         with:
           token: ${{ steps.app-token.outputs.token }}
-          renovate-version: 44.117.2
+          renovate-version: 44.127.0
           configurationFile: renovate-dated-config.json
         env:
           RENOVATE_REPOSITORIES: ${{ github.repository }}
