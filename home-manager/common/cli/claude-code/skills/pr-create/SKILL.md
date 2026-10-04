@@ -42,7 +42,11 @@ git push -u origin <branch>
 
 ### 3. bodyの作成
 
-Writeで一時ファイルにbodyを書く。
+`mktemp` で一時ファイルを作り、`mktemp` が返したパスにWriteでbodyを書く。
+
+```bash
+mktemp
+```
 
 ### 4. 作成
 

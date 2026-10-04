@@ -37,6 +37,16 @@
       "matchManagers": ["nix"],
       "automerge": false,
       "groupName": "nix flake inputs"
+    },
+    {
+      "matchManagers": ["nix"],
+      "matchUpdateTypes": ["lockFileMaintenance"],
+      "commitMessageTopic": "flake.lock"
+    },
+    {
+      "matchManagers": ["pep621"],
+      "matchUpdateTypes": ["lockFileMaintenance"],
+      "commitMessageTopic": "uv.lock"
     }
   ]
 }
