@@ -11,7 +11,10 @@ file="$HOME/.local/state/herdr-claude/$session/$pane_id"
 {
   read -r session_id
   read -r cwd
+  read -r transcript
 } <"$file"
+
+grep -q '"type":"user"' "$transcript" 2>/dev/null || exit 0
 
 new_pane=$(
   herdr --session "$session" tab create --workspace "$workspace_id" --cwd "$cwd" --no-focus |

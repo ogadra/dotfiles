@@ -11,7 +11,7 @@ file="$dir/$HERDR_PANE_ID"
 case "$(jq -r '.hook_event_name' <<<"$input")" in
   SessionStart)
     mkdir -p "$dir"
-    jq -r '.session_id, .cwd' <<<"$input" >"$file"
+    jq -r '.session_id, .cwd, .transcript_path' <<<"$input" >"$file"
     ;;
   # /clear ends one session and starts another, so only the session that wrote the file removes it
   SessionEnd)
