@@ -2,8 +2,9 @@ name: Close superseded Renovate PRs
 on:
   push:
     branches: [main]
-  schedule:
-    - cron: "15 1-4 * * *"
+  workflow_run:
+    workflows: [Merge freeze]
+    types: [completed]
 permissions:
   contents: write
   pull-requests: write
