@@ -7,16 +7,14 @@ let
     ${herdrBin} session delete "$1"
   '';
   # Fork the focused pane's Claude session into a background tab; herdr-session.sh in claude-code records the session per pane
-  forkClaude = pkgs.writeShellScript "herdr-fork-claude" ''
-    set -eu
-    session=$1
-    read -r pane_id workspace_id < <(${herdrBin} --session "$session" pane list | ${pkgs.jq}/bin/jq -r '.result.panes[] | select(.focused) | "\(.pane_id) \(.workspace_id)"')
-    file="$HOME/.local/state/herdr-claude/$session/$pane_id"
-    [ -f "$file" ] || exit 0
-    { read -r session_id; read -r cwd; } <"$file"
-    new_pane=$(${herdrBin} --session "$session" tab create --workspace "$workspace_id" --cwd "$cwd" --no-focus | ${pkgs.jq}/bin/jq -r '.result.root_pane.pane_id')
-    ${herdrBin} --session "$session" pane run "$new_pane" "claude --resume $session_id --fork-session" >/dev/null
-  '';
+  forkClaude = pkgs.writeShellApplication {
+    name = "herdr-fork-claude";
+    runtimeInputs = [
+      config.programs.herdr.package
+      pkgs.jq
+    ];
+    text = builtins.readFile ./scripts/herdr-fork-claude.sh;
+  };
   isLinux = pkgs.stdenv.hostPlatform.isLinux;
   mod = if isLinux then "ALT" else "SUPER";
   altCompose =
@@ -79,7 +77,7 @@ in
       local fork_claude = wezterm.action_callback(function(_, pane)
         local session = pane:get_user_vars().herdr_session
         if session then
-          wezterm.background_child_process { '${forkClaude}', session }
+          wezterm.background_child_process { '${forkClaude}/bin/herdr-fork-claude', session }
         end
       end)
 
