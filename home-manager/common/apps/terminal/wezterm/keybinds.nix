@@ -6,6 +6,17 @@ let
     ${herdrBin} session stop "$1"
     ${herdrBin} session delete "$1"
   '';
+  # Fork the focused pane's Claude session into a background tab; herdr-session.sh in claude-code records the session per pane
+  forkClaude = pkgs.writeShellScript "herdr-fork-claude" ''
+    set -eu
+    session=$1
+    read -r pane_id workspace_id < <(${herdrBin} --session "$session" pane list | ${pkgs.jq}/bin/jq -r '.result.panes[] | select(.focused) | "\(.pane_id) \(.workspace_id)"')
+    file="$HOME/.local/state/herdr-claude/$session/$pane_id"
+    [ -f "$file" ] || exit 0
+    { read -r session_id; read -r cwd; } <"$file"
+    new_pane=$(${herdrBin} --session "$session" tab create --workspace "$workspace_id" --cwd "$cwd" --no-focus | ${pkgs.jq}/bin/jq -r '.result.root_pane.pane_id')
+    ${herdrBin} --session "$session" pane run "$new_pane" "claude --resume $session_id --fork-session" >/dev/null
+  '';
   isLinux = pkgs.stdenv.hostPlatform.isLinux;
   mod = if isLinux then "ALT" else "SUPER";
   altCompose =
@@ -65,6 +76,13 @@ in
 
       local quit_window = wezterm.action_callback(close_window)
 
+      local fork_claude = wezterm.action_callback(function(_, pane)
+        local session = pane:get_user_vars().herdr_session
+        if session then
+          wezterm.background_child_process { '${forkClaude}', session }
+        end
+      end)
+
     config.disable_default_key_bindings = true
     ${altCompose}
     config.keys = {
@@ -100,7 +118,8 @@ in
       -- CopyMode (delegated to herdr)
       { key = "X", mods = "CTRL", action = herdr('[') },
 
-      { key = 'd', mods = 'CTRL|ALT', action = act.SendString('/fork\r') },
+      -- Claude Code fork (delegated to herdr)
+      { key = 'd', mods = 'CTRL|ALT', action = fork_claude },
 
       -- herdr prefix
       { key = 'q', mods = 'CTRL', action = act.SendString('\x11') },
