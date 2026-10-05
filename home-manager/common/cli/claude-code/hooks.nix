@@ -57,29 +57,6 @@ in
         ];
       }
     ];
-    # Record which Claude session runs in each herdr pane so wezterm's fork key can resume it
-    SessionStart = [
-      {
-        matcher = "";
-        hooks = [
-          {
-            type = "command";
-            command = "$HOME/.claude/scripts/herdr-session.sh";
-          }
-        ];
-      }
-    ];
-    SessionEnd = [
-      {
-        matcher = "";
-        hooks = [
-          {
-            type = "command";
-            command = "$HOME/.claude/scripts/herdr-session.sh";
-          }
-        ];
-      }
-    ];
     PostToolUse = [
       {
         matcher = "^(Write|Edit|NotebookEdit)$";
@@ -117,7 +94,6 @@ in
       shared + "/scripts/ensure-trailing-newline.sh"
     );
     ".claude/scripts/statusline.sh" = mkScript ./scripts/statusline.sh;
-    ".claude/scripts/herdr-session.sh" = mkScript ./scripts/herdr-session.sh;
     ".claude/scripts/git/check.sh" = mkScript (shared + "/scripts/git/check.sh");
     ".claude/scripts/git/block-default-push.sh" = mkScript (
       shared + "/scripts/git/block-default-push.sh"

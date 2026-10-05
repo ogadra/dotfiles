@@ -5,15 +5,25 @@ read -r pane_id workspace_id < <(
     jq -r '.result.panes[] | select(.focused) | "\(.pane_id) \(.workspace_id)"'
 )
 
-file="$HOME/.local/state/herdr-claude/$session/$pane_id"
-[ -f "$file" ] || exit 0
+# Claude Code writes a live per-pid session registry, so the pane's claude pid resolves its session
+mapfile -t pids < <(
+  herdr --session "$session" pane process-info --pane "$pane_id" |
+    jq -r '.result.process_info.foreground_processes[].pid'
+)
+session_file=
+for pid in "${pids[@]}"; do
+  f="$HOME/.claude/sessions/$pid.json"
+  [ -f "$f" ] && session_file=$f && break
+done
+# ponytail: silently does nothing when the registry layout changes or no claude runs in the pane
+[ -n "$session_file" ] || exit 0
 
-{
-  read -r session_id
-  read -r cwd
-  read -r transcript
-} <"$file"
+mapfile -t info < <(jq -r '.sessionId, .cwd' "$session_file")
+session_id=${info[0]}
+cwd=${info[1]}
 
+# Forking an empty session is pointless, so the transcript must hold at least one user message
+transcript=$(find "$HOME/.claude/projects" -name "$session_id.jsonl" -print -quit)
 grep -q '"type":"user"' "$transcript" 2>/dev/null || exit 0
 
 new_pane=$(

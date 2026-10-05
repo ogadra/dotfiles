@@ -6,7 +6,7 @@ let
     ${herdrBin} session stop "$1"
     ${herdrBin} session delete "$1"
   '';
-  # Fork the focused pane's Claude session into a background tab; herdr-session.sh in claude-code records the session per pane
+  # Fork the focused pane's Claude session into a background tab; the script resolves the session from the pane's claude pid
   forkClaude = pkgs.writeShellApplication {
     name = "herdr-fork-claude";
     runtimeInputs = [
