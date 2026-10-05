@@ -6,8 +6,6 @@ on:
       - flake.lock
 permissions:
   contents: read
-  # The nix installer uses OIDC for FlakeHub Cache
-  id-token: write
 jobs:
   build:
     runs-on: ${{ matrix.os }}
