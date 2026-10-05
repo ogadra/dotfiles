@@ -10,6 +10,11 @@
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    plasma-manager = {
+      url = "github:nix-community/plasma-manager";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.home-manager.follows = "home-manager";
+    };
     xremap = {
       url = "github:xremap/nix-flake";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -91,6 +96,11 @@
         bisharp = nixosSystem (nixosSystemArgs {
           system = "x86_64-linux";
           profile = "bisharp";
+          username = "ogadra";
+        });
+        xurkitree = nixosSystem (nixosSystemArgs {
+          system = "x86_64-linux";
+          profile = "xurkitree";
           username = "ogadra";
         });
       };

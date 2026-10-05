@@ -8,6 +8,7 @@ Dotfiles managed by Nix Flakes + Home Manager.
 
 Machine profiles:
 - `bisharp` (x86_64-linux, NixOS, KDE Plasma 6)
+- `xurkitree` (x86_64-linux, NixOS, KDE Plasma 6)
 - `latias` (x86_64-darwin, macOS)
 - `stakataka` (aarch64-darwin, macOS)
 

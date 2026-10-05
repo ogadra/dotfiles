@@ -40,6 +40,7 @@ let
     ../../nixos/kwin
     ../../nixos/mouse
     ../../nixos/klipper
+    ../../nixos/screenlocker
     ../../nixos/wl-clipboard
     ../../nixos/wofi
     ../../nixos/cliphist
@@ -47,6 +48,8 @@ let
   ];
 
   deviceConfigs = [
+    ./devices/display.nix
+    ./devices/numlock.nix
     ./devices/xremap.nix
   ];
 in
