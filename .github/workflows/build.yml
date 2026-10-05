@@ -1,0 +1,20 @@
+name: Build
+on:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  nixos:
+    # Lock file bumps are the main source of package breakage, so only Renovate PRs pay the build cost
+    if: startsWith(github.head_ref, 'renovate/')
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        host:
+          - bisharp
+          - xurkitree
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: DeterminateSystems/nix-installer-action@3138316df39ed29be04236d7ffc686fa525866aa # v23
+      - run: nix build --print-out-paths '.#nixosConfigurations."${{ matrix.host }}".config.system.build.toplevel' --no-link
