@@ -19,6 +19,10 @@ Machine profiles:
 - Linux (NixOS): `nix build .#nixosConfigurations.<hostname>.config.system.build.toplevel --no-link` evaluates and builds without switching
 - Scripts referenced by flakes must be tracked by git (`git add`) or `nix eval` fails
 
+## Dependency updates
+
+- Do not adopt nixpkgs revs younger than 3 days; fresh revs can ship packages that fail to build before Hydra fixes land
+
 ## Key Patterns
 
 - Machine profiles are in `profiles/<hostname>/` and `home-manager/profiles/<hostname>/`
