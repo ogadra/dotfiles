@@ -17,7 +17,6 @@ jobs:
             os: ubuntu-latest
           - host: xurkitree
             os: ubuntu-latest
-          # Only stakataka is covered on darwin; latias is intentionally excluded
           - host: stakataka
             os: macos-latest
     steps:
