@@ -6,6 +6,15 @@ let
     ${herdrBin} session stop "$1"
     ${herdrBin} session delete "$1"
   '';
+  # Fork the focused pane's Claude session into a background tab; the script resolves the session from the pane's claude pid
+  forkClaude = pkgs.writeShellApplication {
+    name = "herdr-fork-claude";
+    runtimeInputs = [
+      config.programs.herdr.package
+      pkgs.jq
+    ];
+    text = builtins.readFile ./scripts/herdr-fork-claude.sh;
+  };
   isLinux = pkgs.stdenv.hostPlatform.isLinux;
   mod = if isLinux then "ALT" else "SUPER";
   altCompose =
@@ -65,6 +74,13 @@ in
 
       local quit_window = wezterm.action_callback(close_window)
 
+      local fork_claude = wezterm.action_callback(function(_, pane)
+        local session = pane:get_user_vars().herdr_session
+        if session then
+          wezterm.background_child_process { '${forkClaude}/bin/herdr-fork-claude', session }
+        end
+      end)
+
     config.disable_default_key_bindings = true
     ${altCompose}
     config.keys = {
@@ -99,6 +115,9 @@ in
 
       -- CopyMode (delegated to herdr)
       { key = "X", mods = "CTRL", action = herdr('[') },
+
+      -- Claude Code fork (delegated to herdr)
+      { key = 'd', mods = 'CTRL|ALT', action = fork_claude },
 
       -- herdr prefix
       { key = 'q', mods = 'CTRL', action = act.SendString('\x11') },
