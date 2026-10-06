@@ -1,4 +1,0 @@
-#!/bin/bash
-
-# Disable the default shortcut keys for switching workspaces and monitors
-gsettings set org.gnome.mutter.keybindings switch-monitor "['']"

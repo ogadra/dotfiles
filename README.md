@@ -38,7 +38,5 @@ make update llm-agents
 │   │   └── cli/             # CLI (fish, git, starship, etc.)
 │   ├── nixos/               # Linux 固有 (kwin, wofi, etc.)
 │   └── profiles/            # マシン固有のユーザープロファイル
-├── private_dot_config/      # chezmoi管理 (レガシー)
-├── data/                    # 設定データ
-└── init/                    # 初期化スクリプト (レガシー)
+└── data/                    # 設定データ
 ```
