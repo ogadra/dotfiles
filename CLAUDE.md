@@ -12,8 +12,6 @@ Machine profiles:
 - `latias` (x86_64-darwin, macOS)
 - `stakataka` (aarch64-darwin, macOS)
 
-`private_dot_config/` was managed by chezmoi and is being phased out. New configs go through Nix; do not add files there.
-
 ## Verification
 
 - Linux (NixOS): `nix build .#nixosConfigurations.<hostname>.config.system.build.toplevel --no-link` evaluates and builds without switching
