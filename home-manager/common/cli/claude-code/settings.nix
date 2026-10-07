@@ -157,7 +157,6 @@
   # claudeMdExcludes = null;
   # Instruction files to load: claude-md-or-agents-md (default), claude-md-and-agents-md, claude-md, or managed-only; needs v2.1.277 or later.
   pluginConfigs."cc-plugin-agents-md@builtin".options = {
-    # Both, so a repository's AGENTS.md still loads when a CLAUDE.md or CLAUDE.local.md sits in it or above it, such as ~/CLAUDE.md.
     instructionFiles = "claude-md-and-agents-md";
   };
 
