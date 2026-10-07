@@ -1,4 +1,4 @@
-# AGENTS.md (user)
+# AGENTS.md
 
 ## Language
 
