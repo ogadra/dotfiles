@@ -109,6 +109,7 @@ in
 
       -- Line Edit
       { key = 'k', mods = 'CTRL', action = act.SendKey { key = 'k', mods = 'CTRL' } },
+      { key = 'u', mods = 'CTRL', action = act.Nop },
 
       -- Pane Split (delegated to herdr)
       { key = 'd', mods = '${mod}', action = herdr('%') },
