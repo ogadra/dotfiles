@@ -29,7 +29,8 @@ in
     ".claude/sounds/notification.mp3".source = ../../sounds/notification.mp3;
     ".claude/sounds/stop.mp3".source = ../../sounds/stop.mp3;
     ".claude/settings.json".text = settingsJson;
-    ".claude/CLAUDE.md".source = ./CLAUDE.md;
+    # Claude Code has no user-level AGENTS.md, so the shared one goes to the user CLAUDE.md, which Devin CLI also reads
+    ".claude/CLAUDE.md".source = shared + "/AGENTS.md";
     ".claude/themes/nerv.json".source = ./themes/nerv.json;
     ".claude/config/.gitconfig".source = shared + "/.gitconfig";
     ".claude/skills/absolute-rules/SKILL.md".source = ./skills/absolute-rules/SKILL.md;
