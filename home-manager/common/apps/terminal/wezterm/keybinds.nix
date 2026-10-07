@@ -109,6 +109,8 @@ in
 
       -- Line Edit
       { key = 'k', mods = 'CTRL', action = act.SendKey { key = 'k', mods = 'CTRL' } },
+      -- Swallow ctrl+u so a stray press cannot wipe the Claude Code prompt
+      { key = 'u', mods = 'CTRL', action = act.Nop },
 
       -- Pane Split (delegated to herdr)
       { key = 'd', mods = '${mod}', action = herdr('%') },
