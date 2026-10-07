@@ -45,6 +45,24 @@ let
         ;;
     esac
   '';
+  # Codex applies updatedInput only alongside permissionDecision allow, which rtk's Claude-format output leaves out
+  rtk-hook = pkgs.writeShellScript "codex-rtk-hook" ''
+    ${pkgs.bash}/bin/bash ${shared + "/scripts/rtk-hook.sh"} \
+      | ${pkgs.jq}/bin/jq -c 'if .hookSpecificOutput.updatedInput then .hookSpecificOutput.permissionDecision = "allow" else . end'
+  '';
+  hooksJson = builtins.toJSON {
+    hooks.PreToolUse = [
+      {
+        matcher = "Bash";
+        hooks = [
+          {
+            type = "command";
+            command = "${rtk-hook}";
+          }
+        ];
+      }
+    ];
+  };
   codex = pkgs.symlinkJoin {
     name = "codex-wrapped";
     paths = [
@@ -60,6 +78,7 @@ in
     ".codex/ogadra.config.toml".source = ./ogadra.config.toml;
     ".codex/AGENTS.md".source = shared + "/AGENTS.md";
     ".codex/RTK.md".source = ../rtk/RTK.md;
+    ".codex/hooks.json".text = hooksJson;
     ".codex/packages/standalone/current/codex".source = codex + "/bin/codex";
     ".codex/rules/default.rules" = {
       source = ./default.rules;
