@@ -58,7 +58,7 @@ in
 
   home.file = {
     ".codex/ogadra.config.toml".source = ./ogadra.config.toml;
-    ".codex/AGENTS.md".source = ./AGENTS.md;
+    ".codex/AGENTS.md".source = shared + "/AGENTS.md";
     ".codex/packages/standalone/current/codex".source = codex + "/bin/codex";
     ".codex/rules/default.rules" = {
       source = ./default.rules;
