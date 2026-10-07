@@ -155,6 +155,10 @@
   # plansDirectory = null;
   # Globs and absolute paths of CLAUDE.md files to leave unread.
   # claudeMdExcludes = null;
+  # Instruction files to load: claude-md-or-agents-md (default), claude-md-and-agents-md, claude-md, or managed-only; needs v2.1.277 or later.
+  pluginConfigs."cc-plugin-agents-md@builtin".options = {
+    instructionFiles = "claude-md-and-agents-md";
+  };
 
   ## Skill listing
 
