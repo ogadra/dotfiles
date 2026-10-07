@@ -45,7 +45,7 @@ let
         ;;
     esac
   '';
-  # Codex applies updatedInput only alongside permissionDecision allow, which rtk's Claude-format output leaves out
+  # Codex applies updatedInput only alongside permissionDecision allow, which rtk's hook output leaves out
   rtk-hook = pkgs.writeShellScript "codex-rtk-hook" ''
     ${pkgs.bash}/bin/bash ${shared + "/scripts/rtk-hook.sh"} \
       | ${pkgs.jq}/bin/jq -c 'if .hookSpecificOutput.updatedInput then .hookSpecificOutput.permissionDecision = "allow" else . end'
