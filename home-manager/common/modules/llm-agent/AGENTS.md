@@ -2,22 +2,39 @@
 
 ## Language
 
-- Use Japanese for user-facing replies unless the user asks for another language.
+- User-facing replies
+    - Default: Japanese
+    - When the user asks for another language: that language
 
 ## Git
 
-- Always check files before staging: use `git status` and `git diff` to verify changes before running `git add`.
+- Before running `git add`, check the changes with `git status` and `git diff`.
 - Use `git rm` instead of `rm` for files tracked by git.
-- Write commit messages in English using conventional commit format (`feat:`, `fix:`, `docs:`, `style:`, `refactor:`, `test:`, `chore:`).
-- Keep each commit small enough that a single-line subject describes it fully.
+- Write commit messages in English with a conventional commit prefix.
+    - `feat:`
+    - `fix:`
+    - `docs:`
+    - `style:`
+    - `refactor:`
+    - `test:`
+    - `chore:`
+- Keep each commit small enough that one subject line describes the whole change.
 
 ## Pull Requests
 
-- Write at most three lines in the PR body, stating what was done.
-- Do not write the rationale, headings, test plans, or a list of changed files.
+- Write only what you changed in the PR body, in three lines or fewer.
+
+## What Goes Where
+
+- Application code
+    - Code: how it works
+    - Comments: why not, such as the alternative you rejected and the reason
+- Test code
+    - Code: what behavior it checks
 
 ## Comments
 
-- When modifying comments, change the entire comment so that it does not feel like revision history. Do not append parenthesized notes to old comments.
+- When you modify a comment
+    - Rewrite the whole comment so it does not read like revision history.
 
 @RTK.md
