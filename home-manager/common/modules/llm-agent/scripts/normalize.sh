@@ -48,6 +48,9 @@ while IFS= read -r SEG; do
     # sudo and xargs stay out of this list so pre-bash.sh can still deny them by name
     elif [[ "$SEG" =~ ^(command|exec|nohup|nice|env|time)[[:space:]]+(.*)$ ]]; then
       SEG="${BASH_REMATCH[2]}"
+    # rtk wraps commands to compress their output, so unwrap it or the guards never see the real command
+    elif [[ "$SEG" =~ ^rtk([[:space:]]+-[^[:space:]]+)*[[:space:]]+(proxy([[:space:]]+-[^[:space:]]+)*[[:space:]]+)?(.*)$ ]]; then
+      SEG="${BASH_REMATCH[4]}"
     elif [[ "$SEG" =~ ^\\(.*)$ ]]; then
       SEG="${BASH_REMATCH[1]}"
     else

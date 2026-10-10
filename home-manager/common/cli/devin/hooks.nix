@@ -72,6 +72,9 @@ in
       shared + "/scripts/ensure-trailing-newline.sh"
     );
     ".config/devin/scripts/git/check.sh" = mkScript (shared + "/scripts/git/check.sh");
+    ".config/devin/scripts/git/block-default-commit.sh" = mkScript (
+      shared + "/scripts/git/block-default-commit.sh"
+    );
     ".config/devin/scripts/git/block-default-push.sh" = mkScript (
       shared + "/scripts/git/block-default-push.sh"
     );

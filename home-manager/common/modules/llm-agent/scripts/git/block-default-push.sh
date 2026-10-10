@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
-# Block `git push` to the remote's default branch; input is one git command per stdin line.
+# Block `git push` that updates a default branch; input is one git command per stdin line.
 set -u
+
+deny() {
+  printf 'Blocked: pushing to "%s" on "%s" is not allowed. Open a PR instead.\n' "$1" "$2" >&2
+  exit 2
+}
 
 while IFS= read -r SEG; do
   [ -n "$SEG" ] || continue
@@ -14,7 +19,7 @@ while IFS= read -r SEG; do
   shift # drop "git"
   shift # drop "push"
   REMOTE=""
-  REFSPEC=""
+  REFSPECS=""
   while [ $# -gt 0 ]; do
     case "$1" in
       --repo|-o|--push-option|--receive-pack|--exec|--upload-pack)
@@ -32,30 +37,44 @@ while IFS= read -r SEG; do
     esac
     if [ -z "$REMOTE" ]; then
       REMOTE="$1"
-    elif [ -z "$REFSPEC" ]; then
-      REFSPEC="$1"
+    else
+      REFSPECS="$REFSPECS $1"
     fi
     shift
   done
 
-  # Take the remote-side branch from the dst half of src:dst, which equals src when there is no ':'.
-  REFSPEC="${REFSPEC#+}"
-  case "$REFSPEC" in
-    *:*) TARGET="${REFSPEC#*:}" ;;
-    *)   TARGET="$REFSPEC"      ;;
-  esac
-  if [ -z "$TARGET" ]; then
-    TARGET=$(git symbolic-ref --short HEAD 2>/dev/null) || continue
-  fi
-
   [ -n "$REMOTE" ] || REMOTE="origin"
-  DEFAULT=$(git symbolic-ref --short "refs/remotes/$REMOTE/HEAD" 2>/dev/null) || continue
-  DEFAULT="${DEFAULT#"$REMOTE"/}"
-  [ -n "$DEFAULT" ] || continue
+  # main and master stay unconditional so a push that dodges remote-HEAD resolution, such as a URL remote, still hits the wall.
+  DEFAULTS="main master $(git config --get init.defaultBranch 2>/dev/null)"
+  REMOTE_HEAD=$(git symbolic-ref --quiet --short "refs/remotes/$REMOTE/HEAD" 2>/dev/null)
+  DEFAULTS="$DEFAULTS ${REMOTE_HEAD#"$REMOTE"/}"
 
-  if [ "$TARGET" = "$DEFAULT" ]; then
-    printf 'Blocked: pushing to default branch "%s" on "%s" is not allowed. Open a PR instead.\n' "$DEFAULT" "$REMOTE" >&2
-    exit 2
-  fi
+  REFSPECS="${REFSPECS# }"
+  # An empty refspec means the current branch under push.default=nothing, so HEAD stands in for it.
+  [ -n "$REFSPECS" ] || REFSPECS="HEAD"
+  for R in $REFSPECS; do
+    R="${R#+}"
+    if [ "$R" = ":" ]; then
+      for B in $(git for-each-ref --format='%(refname:short)' refs/heads); do
+        for D in $DEFAULTS; do
+          [ "$B" = "$D" ] && deny "$B" "$REMOTE"
+        done
+      done
+      continue
+    fi
+    # The dst half of src:dst is the remote-side name; it equals src when there is no ':'.
+    case "$R" in
+      *:*) TARGET="${R#*:}" ;;
+      *)   TARGET="$R"      ;;
+    esac
+    TARGET="${TARGET#refs/heads/}"
+    # A bare or HEAD refspec means the current branch, so resolve it before comparing.
+    if [ -z "$TARGET" ] || [ "$TARGET" = "HEAD" ]; then
+      TARGET=$(git symbolic-ref --quiet --short HEAD 2>/dev/null) || continue
+    fi
+    for D in $DEFAULTS; do
+      [ "$TARGET" = "$D" ] && deny "$TARGET" "$REMOTE"
+    done
+  done
 done
 exit 0
