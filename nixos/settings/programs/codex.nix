@@ -33,8 +33,8 @@ in
       source = shared + "/scripts/git/block-no-verify.sh";
       mode = "0555";
     };
-    "codex/hooks/git/block-amend-pushed.sh" = {
-      source = shared + "/scripts/git/block-amend-pushed.sh";
+    "codex/hooks/git/block-rewrite-pushed.sh" = {
+      source = shared + "/scripts/git/block-rewrite-pushed.sh";
       mode = "0555";
     };
     "codex/hooks/git/block-clone.sh" = {
