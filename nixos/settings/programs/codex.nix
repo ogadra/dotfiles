@@ -21,6 +21,10 @@ in
       source = shared + "/scripts/git/check.sh";
       mode = "0555";
     };
+    "codex/hooks/git/block-default-commit.sh" = {
+      source = shared + "/scripts/git/block-default-commit.sh";
+      mode = "0555";
+    };
     "codex/hooks/git/block-default-push.sh" = {
       source = shared + "/scripts/git/block-default-push.sh";
       mode = "0555";

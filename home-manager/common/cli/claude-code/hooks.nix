@@ -95,6 +95,9 @@ in
     );
     ".claude/scripts/statusline.sh" = mkScript ./scripts/statusline.sh;
     ".claude/scripts/git/check.sh" = mkScript (shared + "/scripts/git/check.sh");
+    ".claude/scripts/git/block-default-commit.sh" = mkScript (
+      shared + "/scripts/git/block-default-commit.sh"
+    );
     ".claude/scripts/git/block-default-push.sh" = mkScript (
       shared + "/scripts/git/block-default-push.sh"
     );
