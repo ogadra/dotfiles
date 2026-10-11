@@ -233,8 +233,5 @@
   ## Environment variables
 
   # Environment variables set for a Claude Code session.
-  env = {
-    # herdr shows the terminal title as the tab label, which would overwrite herdr-name-tab.sh's name and read as a manual F2 rename
-    CLAUDE_CODE_DISABLE_TERMINAL_TITLE = "1";
-  };
+  env = { };
 }
