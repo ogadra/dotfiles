@@ -58,7 +58,8 @@ in
           "prefix+shift+x"
         ];
         workspace_picker = "prefix+shift+w";
-        rename_workspace = "f2";
+        rename_tab = "f2";
+        rename_workspace = "shift+f2";
 
         # prefix+% is what wezterm's split key sends
         split_vertical = [
