@@ -43,6 +43,11 @@ in
             type = "command";
             command = whenAttended "touch /tmp/claude_task_stopped_$PPID; ${playSound "stop.mp3"}";
           }
+          # Claude Code titles the conversation asynchronously, so the first prompt's title only exists by Stop
+          {
+            type = "command";
+            command = "$HOME/.claude/scripts/herdr-name-tab.sh";
+          }
         ];
       }
     ];
@@ -54,10 +59,9 @@ in
             type = "command";
             command = "rm -f /tmp/claude_task_stopped_$PPID";
           }
-          # Hooks are disabled in the summarizer so its Stop does not play the stop sound
           {
             type = "command";
-            command = "$HOME/.claude/scripts/herdr-name-tab.sh --model haiku --no-session-persistence --tools '' --settings '{\"disableAllHooks\":true}'";
+            command = "$HOME/.claude/scripts/herdr-name-tab.sh";
           }
         ];
       }
