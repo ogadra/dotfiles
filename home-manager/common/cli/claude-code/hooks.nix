@@ -57,7 +57,7 @@ in
           # Hooks are disabled in the summarizer so its Stop does not play the stop sound
           {
             type = "command";
-            command = "$HOME/.claude/scripts/herdr-name-tab.sh claude -p --model haiku --no-session-persistence --tools '' --settings '{\"disableAllHooks\":true}'";
+            command = "$HOME/.claude/scripts/herdr-name-tab.sh --model haiku --no-session-persistence --tools '' --settings '{\"disableAllHooks\":true}'";
           }
         ];
       }

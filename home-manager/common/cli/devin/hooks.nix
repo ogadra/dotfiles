@@ -58,7 +58,7 @@ in
         hooks = [
           {
             type = "command";
-            command = "$HOME/.config/devin/scripts/herdr-name-tab.sh devin -p --model swe-2";
+            command = "$HOME/.config/devin/scripts/herdr-name-tab.sh --model swe-2";
           }
         ];
       }
