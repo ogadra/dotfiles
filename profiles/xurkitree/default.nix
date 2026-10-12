@@ -13,6 +13,7 @@ let
 
   # Hardware; bisharp's audio.nix and thunderbolt.nix are ThinkPad-specific, so a desktop skips them
   hardwareSettings = [
+    ../../nixos/settings/hardware/multi-hdmi-audio.nix
   ];
 
   # Nix-ld
