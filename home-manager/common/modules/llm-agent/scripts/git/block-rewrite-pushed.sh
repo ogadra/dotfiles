@@ -2,7 +2,7 @@
 # Block rewriting commits that are already pushed; input is one normalized git command per stdin line.
 set -u
 
-# check.sh feeds `cd <abs>` lines so repo state is resolved where the git command would run, not in the hook's cwd
+# `cd <abs>` lines from check.sh mark where each command runs
 RUN_CWD=$PWD
 BRANCHES=""
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Dispatch git commands to per-check scripts; input is one normalized command per stdin line. `cd` segments become absolute-path lines so children can tell which worktree each git command runs in.
+# Dispatch git commands to per-check scripts; input is one normalized command per stdin line. `cd` segments are forwarded as absolute paths.
 set -u
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
@@ -15,17 +15,17 @@ while IFS= read -r SEG; do
       DIR=${SEG#cd}
       DIR=${DIR# }
       [ -z "$DIR" ] && DIR=$HOME
-      # Normalization keeps quote characters, so strip a wrapping pair before resolving
+      # Strip one wrapping quote pair
       case "$DIR" in
         \"*\") DIR=${DIR#\"}; DIR=${DIR%\"} ;;
         \'*\') DIR=${DIR#\'}; DIR=${DIR%\'} ;;
       esac
-      # `git -C ""` normalizes to `cd ""`, and an empty -C is a no-op
+      # An empty -C is a no-op
       [ -z "$DIR" ] && DIR=.
       case "$DIR" in "~"|"~/"*) DIR=$HOME${DIR#~} ;; esac
-      # `cd -` needs OLDPWD, which a normalized command stream cannot reconstruct
+      # `cd -` needs OLDPWD, which is untracked
       [ "$DIR" = "-" ] && continue
-      # An unresolvable cd leaves the tracked cwd alone, matching a `;` chain where git still runs there
+      # A failed cd keeps the old cwd, matching a `;` chain
       NEXT=$(cd "$RUN_CWD" 2>/dev/null && cd "$DIR" 2>/dev/null && pwd) || continue
       RUN_CWD=$NEXT
       GIT_SEGMENTS="${GIT_SEGMENTS}cd $RUN_CWD"$'\n'

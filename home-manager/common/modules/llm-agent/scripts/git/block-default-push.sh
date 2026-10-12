@@ -7,7 +7,7 @@ deny() {
   exit 2
 }
 
-# check.sh feeds `cd <abs>` lines so repo state is resolved where the git command would run, not in the hook's cwd
+# `cd <abs>` lines from check.sh mark where each command runs
 RUN_CWD=$PWD
 while IFS= read -r SEG; do
   [ -n "$SEG" ] || continue
