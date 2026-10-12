@@ -5,7 +5,10 @@ let
   };
   shared = ../../modules/llm-agent;
 
-  playSound = sound: "$HOME/.config/devin/scripts/play-sound.sh $HOME/.config/devin/sounds/${sound}";
+  # The tab-naming summarizer runs devin with HERDR_TAB_NAMING set and must stay silent
+  playSound =
+    sound:
+    ''[ -n "$HERDR_TAB_NAMING" ] || $HOME/.config/devin/scripts/play-sound.sh $HOME/.config/devin/sounds/${sound}'';
 in
 {
   # Devin reads Claude Code's hook schema, so event names and the command type carry over unchanged
@@ -55,7 +58,7 @@ in
         hooks = [
           {
             type = "command";
-            command = "$HOME/.config/devin/scripts/herdr-name-tab.sh";
+            command = "$HOME/.config/devin/scripts/herdr-name-tab.sh --model swe-2";
           }
         ];
       }
@@ -68,10 +71,6 @@ in
           {
             type = "command";
             command = playSound "stop.mp3";
-          }
-          {
-            type = "command";
-            command = "$HOME/.config/devin/scripts/herdr-name-tab.sh";
           }
         ];
       }
