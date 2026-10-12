@@ -2,11 +2,13 @@
 # Block rewriting commits that are already pushed; input is one normalized git command per stdin line.
 set -u
 
+# `cd <abs>` lines from check.sh mark where each command runs
+RUN_CWD=$PWD
 BRANCHES=""
 
 # HEAD counts as pushed when any remote-tracking branch contains it.
 pushed() {
-  REMOTE=$(git branch -r --contains HEAD 2>/dev/null) || return 1
+  REMOTE=$(git -C "$RUN_CWD" branch -r --contains HEAD 2>/dev/null) || return 1
   BRANCHES=$(printf '%s\n' "$REMOTE" | grep -v -e ' -> ' | tr -d ' ' | paste -sd, -)
   [ -n "$BRANCHES" ]
 }
@@ -21,6 +23,7 @@ deny() {
 while IFS= read -r SEG; do
   [ -n "$SEG" ] || continue
   case "$SEG" in
+    "cd "*) RUN_CWD=${SEG#cd }; continue ;;
     "git"|"git "*) ;;
     *) continue ;;
   esac

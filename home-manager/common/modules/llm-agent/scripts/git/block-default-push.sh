@@ -7,9 +7,12 @@ deny() {
   exit 2
 }
 
+# `cd <abs>` lines from check.sh mark where each command runs
+RUN_CWD=$PWD
 while IFS= read -r SEG; do
   [ -n "$SEG" ] || continue
   case "$SEG" in
+    "cd "*) RUN_CWD=${SEG#cd }; continue ;;
     "git push"|"git push "*) ;;
     *) continue ;;
   esac
@@ -45,8 +48,8 @@ while IFS= read -r SEG; do
 
   [ -n "$REMOTE" ] || REMOTE="origin"
   # main and master stay unconditional so a push that dodges remote-HEAD resolution, such as a URL remote, still hits the wall.
-  DEFAULTS="main master $(git config --get init.defaultBranch 2>/dev/null)"
-  REMOTE_HEAD=$(git symbolic-ref --quiet --short "refs/remotes/$REMOTE/HEAD" 2>/dev/null)
+  DEFAULTS="main master $(git -C "$RUN_CWD" config --get init.defaultBranch 2>/dev/null)"
+  REMOTE_HEAD=$(git -C "$RUN_CWD" symbolic-ref --quiet --short "refs/remotes/$REMOTE/HEAD" 2>/dev/null)
   DEFAULTS="$DEFAULTS ${REMOTE_HEAD#"$REMOTE"/}"
 
   REFSPECS="${REFSPECS# }"
@@ -55,7 +58,7 @@ while IFS= read -r SEG; do
   for R in $REFSPECS; do
     R="${R#+}"
     if [ "$R" = ":" ]; then
-      for B in $(git for-each-ref --format='%(refname:short)' refs/heads); do
+      for B in $(git -C "$RUN_CWD" for-each-ref --format='%(refname:short)' refs/heads); do
         for D in $DEFAULTS; do
           [ "$B" = "$D" ] && deny "$B" "$REMOTE"
         done
@@ -70,7 +73,7 @@ while IFS= read -r SEG; do
     TARGET="${TARGET#refs/heads/}"
     # A bare or HEAD refspec means the current branch, so resolve it before comparing.
     if [ -z "$TARGET" ] || [ "$TARGET" = "HEAD" ]; then
-      TARGET=$(git symbolic-ref --quiet --short HEAD 2>/dev/null) || continue
+      TARGET=$(git -C "$RUN_CWD" symbolic-ref --quiet --short HEAD 2>/dev/null) || continue
     fi
     for D in $DEFAULTS; do
       [ "$TARGET" = "$D" ] && deny "$TARGET" "$REMOTE"

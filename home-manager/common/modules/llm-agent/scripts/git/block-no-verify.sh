@@ -9,6 +9,8 @@ deny() {
 
 while IFS= read -r SEG; do
   [ -n "$SEG" ] || continue
+  # `cd` context lines carry no flags
+  case "$SEG" in "cd "*) continue ;; esac
   # shellcheck disable=SC2086
   set -- $SEG
 
