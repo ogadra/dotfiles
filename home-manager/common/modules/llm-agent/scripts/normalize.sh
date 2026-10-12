@@ -7,15 +7,25 @@ CMD=$(cat)
 # A trailing backslash continues the command, so join it before splitting or the tail of the command escapes every guard
 CMD="${CMD//\\$'\n'/ }"
 
-# Reduce a git invocation to "git <subcommand> ..." so guards can match the subcommand without knowing the global options
+# Reduce a git invocation to "git <subcommand> ..." so guards can match the subcommand without knowing the global options; -C becomes a `cd` line so the guards resolve repo state in the targeted worktree
 strip_git_globals() {
   # shellcheck disable=SC2086
   set -- $1
   shift # drop "git"
+  CDS=""
   while [ $# -gt 0 ]; do
     case "$1" in
+      # A later -C resolves relative to the earlier one, so emit one `cd` per flag in order
+      -C)
+        if [ $# -ge 2 ]; then
+          CDS="${CDS}cd $2"$'\n'
+          shift 2
+        else
+          break
+        fi
+        ;;
       # Global options that take their value as the next word
-      -C|-c|--git-dir|--work-tree|--namespace|--super-prefix|--config-env|--attr-source)
+      -c|--git-dir|--work-tree|--namespace|--super-prefix|--config-env|--attr-source)
         shift 2 || break
         ;;
       -*)
@@ -26,6 +36,7 @@ strip_git_globals() {
         ;;
     esac
   done
+  printf '%s' "$CDS"
   if [ $# -eq 0 ]; then
     printf 'git\n'
   else
