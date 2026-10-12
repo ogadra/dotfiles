@@ -7,7 +7,7 @@ CMD=$(cat)
 # A trailing backslash continues the command, so join it before splitting or the tail of the command escapes every guard
 CMD="${CMD//\\$'\n'/ }"
 
-# Reduce a git invocation to "git <subcommand> ..." so guards can match the subcommand without knowing the global options; -C becomes a `cd` line
+# Reduce a git invocation to "git <subcommand> ..." for the guards; -C options become `cd` lines
 strip_git_globals() {
   # shellcheck disable=SC2086
   set -- $1
