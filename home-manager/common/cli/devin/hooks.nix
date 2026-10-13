@@ -72,6 +72,10 @@ in
             type = "command";
             command = playSound "stop.mp3";
           }
+          {
+            type = "command";
+            command = "$HOME/.config/devin/scripts/herdr-name-tab.sh";
+          }
         ];
       }
     ];

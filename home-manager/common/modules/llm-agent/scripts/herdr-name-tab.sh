@@ -1,11 +1,9 @@
 #!/usr/bin/env bash
-# UserPromptSubmit hook that names the herdr tab after a summary of the prompt; the arguments are extra flags for `agent -p`.
 set -u
 
 [ -n "${HERDR_TAB_ID:-}" ] || exit 0
 command -v herdr >/dev/null 2>&1 || exit 0
 
-# Hooks may run under a wrapper shell, so climb past shells to the agent process itself
 agent_args() {
   local pid=$PPID comm
   while [ "$pid" -gt 1 ]; do
@@ -20,25 +18,40 @@ agent_args() {
   done
 }
 
-# Print-mode runs (scripts, other agents, and this hook's own summarizer) share the pane's HERDR_TAB_ID but are not the session the tab belongs to
 case " $(agent_args) " in
 *" -p "* | *" --print "*) exit 0 ;;
 esac
 
 INPUT=$(cat)
 PROMPT=$(printf '%s' "$INPUT" | jq -r '.prompt // ""')
+REPLY=$(printf '%s' "$INPUT" | jq -r '.last_assistant_message // ""')
 SESSION_ID=$(printf '%s' "$INPUT" | jq -r '.session_id // ""')
-[ -n "$PROMPT" ] || exit 0
 
 state_dir="${XDG_RUNTIME_DIR:-${TMPDIR:-/tmp}}/herdr-tab-names"
 mkdir -p "$state_dir"
 state_file="$state_dir/${HERDR_SESSION:-default}_${HERDR_TAB_ID//[^[:alnum:]]/_}"
+history_file="$state_dir/history_${SESSION_ID//[^[:alnum:]-]/_}.jsonl"
+
+remember() {
+  jq -cn --arg role "$1" --arg text "${2:0:1000}" '{role: $role, text: $text}' >>"$history_file"
+  tail -n 6 "$history_file" >"$history_file.tmp" && mv "$history_file.tmp" "$history_file"
+}
+
+if [ -z "$PROMPT" ]; then
+  [ -n "$REPLY" ] && remember agent "$REPLY"
+  exit 0
+fi
+
+conversation=$(
+  [ -f "$history_file" ] && jq -r 'if .role == "user" then "ユーザー: " else "エージェント: " end + .text' "$history_file"
+  printf 'ユーザー（最新）: %s\n' "${PROMPT:0:2000}"
+)
+remember user "$PROMPT"
 
 current_label() {
   herdr tab get "$HERDR_TAB_ID" 2>/dev/null | jq -r '.result.tab.label // ""'
 }
 
-# A label that differs from the last one written here means F2 renamed the tab, which pins it for the rest of the agent session
 pinned() {
   [ -f "$state_file" ] || return 1
   local saved_session saved_label
@@ -49,18 +62,14 @@ pinned() {
 
 pinned && exit 0
 
-# Summarizing takes seconds, so it runs detached instead of holding up the prompt
 (
-  # Devin has no flag to disable hooks, so its sound hooks read this to stay silent in the summarizer
   export HERDR_TAB_NAMING=1
-  request="次の依頼で実行する内容を1行で短く要約してください。要約だけを出力してください。
+  request="次はユーザーとAIエージェントの会話です。ユーザーの最新の依頼で実行する内容を1行で短く要約してください。要約だけを出力してください。
 
-${PROMPT:0:2000}"
-  # agent is the zsh function that dispatches to the CLI of the session that spawned it
+${conversation}"
   label=$(zsh -c 'agent "$@"' agent -p "$request" "$@" </dev/null 2>/dev/null | tr -d '\r' | sed -e '/^[[:space:]]*$/d' -e 's/^[[:space:]"「]*//' -e 's/[[:space:]"」]*$//' | head -n 1)
   label="${label:0:30}"
   [ -n "$label" ] || exit 0
-  # F2 can land while the summary is generating, so recheck right before writing
   pinned && exit 0
   herdr tab rename "$HERDR_TAB_ID" "$label" >/dev/null 2>&1 || exit 0
   printf '%s\t%s\n' "$SESSION_ID" "$label" >"$state_file"

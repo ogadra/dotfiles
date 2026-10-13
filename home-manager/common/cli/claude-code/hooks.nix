@@ -43,6 +43,10 @@ in
             type = "command";
             command = whenAttended "touch /tmp/claude_task_stopped_$PPID; ${playSound "stop.mp3"}";
           }
+          {
+            type = "command";
+            command = "$HOME/.claude/scripts/herdr-name-tab.sh";
+          }
         ];
       }
     ];
