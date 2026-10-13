@@ -5,7 +5,10 @@ let
   };
   shared = ../../modules/llm-agent;
 
-  playSound = sound: "$HOME/.config/devin/scripts/play-sound.sh $HOME/.config/devin/sounds/${sound}";
+  # The tab-naming summarizer runs devin with HERDR_TAB_NAMING set and must stay silent
+  playSound =
+    sound:
+    ''[ -n "$HERDR_TAB_NAMING" ] || $HOME/.config/devin/scripts/play-sound.sh $HOME/.config/devin/sounds/${sound}'';
 in
 {
   # Devin reads Claude Code's hook schema, so event names and the command type carry over unchanged
@@ -49,6 +52,17 @@ in
         ];
       }
     ];
+    UserPromptSubmit = [
+      {
+        matcher = "";
+        hooks = [
+          {
+            type = "command";
+            command = "$HOME/.config/devin/scripts/herdr-name-tab.sh --model swe-2";
+          }
+        ];
+      }
+    ];
     # Devin sessions are always attended, so no CLAUDE_CODE_SESSION_ATTENDED guard is needed
     Stop = [
       {
@@ -57,6 +71,10 @@ in
           {
             type = "command";
             command = playSound "stop.mp3";
+          }
+          {
+            type = "command";
+            command = "$HOME/.config/devin/scripts/herdr-name-tab.sh";
           }
         ];
       }
@@ -67,6 +85,7 @@ in
     ".config/devin/scripts/pre-bash.sh" = mkScript (shared + "/scripts/pre-bash.sh");
     ".config/devin/scripts/normalize.sh" = mkScript (shared + "/scripts/normalize.sh");
     ".config/devin/scripts/rtk-hook.sh" = mkScript (shared + "/scripts/rtk-hook.sh");
+    ".config/devin/scripts/herdr-name-tab.sh" = mkScript (shared + "/scripts/herdr-name-tab.sh");
     ".config/devin/scripts/play-sound.sh" = mkScript (shared + "/scripts/play-sound.sh");
     ".config/devin/scripts/ensure-trailing-newline.sh" = mkScript (
       shared + "/scripts/ensure-trailing-newline.sh"
