@@ -2,6 +2,7 @@
 set -u
 
 [ -n "${HERDR_TAB_ID:-}" ] || exit 0
+[ -z "${HERDR_TAB_NAMING:-}" ] || exit 0
 command -v herdr >/dev/null 2>&1 || exit 0
 
 agent_args() {
