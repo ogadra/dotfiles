@@ -65,10 +65,16 @@ pinned && exit 0
 
 (
   export HERDR_TAB_NAMING=1
-  request="次はユーザーとAIエージェントの会話です。ユーザーの最新の依頼で実行する内容を1行で短く要約してください。要約だけを出力してください。
+  request="以下はユーザーとAIエージェントの会話です。他のセッションと区別するための要約を2,3語で出力してください。
 
-${conversation}"
-  label=$(zsh -c 'agent "$@"' agent -p "$request" "$@" </dev/null 2>/dev/null | tr -d '\r' | sed -e '/^[[:space:]]*$/d' -e 's/^[[:space:]"「]*//' -e 's/[[:space:]"」]*$//' | head -n 1)
+\`\`\`
+${conversation}
+\`\`\`"
+  schema='{"type":"object","properties":{"label":{"type":"string"}},"required":["label"],"additionalProperties":false}'
+  for _ in 1 2 3; do
+    label=$(zsh -c 'agent "$@"' agent -p "$request" --json-schema "$schema" "$@" </dev/null 2>/dev/null | jq -r '.label // empty' 2>/dev/null | tr -d '\r\n' | sed -e 's/^[[:space:]"「]*//' -e 's/[[:space:]"」]*$//')
+    [ -n "$label" ] && break
+  done
   label="${label:0:30}"
   [ -n "$label" ] || exit 0
   pinned && exit 0
