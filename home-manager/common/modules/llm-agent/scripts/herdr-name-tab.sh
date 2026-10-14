@@ -65,11 +65,12 @@ pinned && exit 0
 
 (
   export HERDR_TAB_NAMING=1
+  fence='```'
   request="次はユーザーとAIエージェントの会話です。ユーザーの最新の依頼内容を1行で短く要約し、label に入れてください。
 
-\`\`\`
+${fence}
 ${conversation}
-\`\`\`"
+${fence}"
   schema='{"type":"object","properties":{"label":{"type":"string"}},"required":["label"],"additionalProperties":false}'
   for _ in 1 2 3; do
     label=$(zsh -c 'agent "$@"' agent -p "$request" --json-schema "$schema" "$@" </dev/null 2>/dev/null | jq -r '.label // empty' 2>/dev/null | tr -d '\r\n' | sed -e 's/^[[:space:]"「]*//' -e 's/[[:space:]"」]*$//')
