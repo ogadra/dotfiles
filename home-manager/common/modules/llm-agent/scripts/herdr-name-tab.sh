@@ -69,7 +69,10 @@ pinned && exit 0
 
 ${conversation}"
   schema='{"type":"object","properties":{"label":{"type":"string"}},"required":["label"],"additionalProperties":false}'
-  label=$(zsh -c 'agent "$@"' agent -p "$request" --json-schema "$schema" "$@" </dev/null 2>/dev/null | jq -r '.label // empty' 2>/dev/null | tr -d '\r\n' | sed -e 's/^[[:space:]"「]*//' -e 's/[[:space:]"」]*$//')
+  for _ in 1 2 3; do
+    label=$(zsh -c 'agent "$@"' agent -p "$request" --json-schema "$schema" "$@" </dev/null 2>/dev/null | jq -r '.label // empty' 2>/dev/null | tr -d '\r\n' | sed -e 's/^[[:space:]"「]*//' -e 's/[[:space:]"」]*$//')
+    [ -n "$label" ] && break
+  done
   label="${label:0:30}"
   [ -n "$label" ] || exit 0
   pinned && exit 0
