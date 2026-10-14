@@ -65,7 +65,7 @@ pinned && exit 0
 
 (
   export HERDR_TAB_NAMING=1
-  request="次はユーザーとAIエージェントの会話です。ユーザーの最新の依頼内容を1行で短く要約し、label に入れてください。
+  request="以下はユーザーとAIエージェントの会話です。他のセッションと区別するための要約を2,3語で出力してください。
 
 \`\`\`
 ${conversation}
