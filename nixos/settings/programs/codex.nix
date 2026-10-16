@@ -41,6 +41,10 @@ in
       source = shared + "/scripts/git/block-rewrite-pushed.sh";
       mode = "0555";
     };
+    "codex/hooks/git/block-merge-non-base.sh" = {
+      source = shared + "/scripts/git/block-merge-non-base.sh";
+      mode = "0555";
+    };
     "codex/hooks/git/block-clone.sh" = {
       source = shared + "/scripts/git/block-clone.sh";
       mode = "0555";
