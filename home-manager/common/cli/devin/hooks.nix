@@ -1,8 +1,6 @@
 let
-  mkScript = src: {
-    source = src;
-    executable = true;
-  };
+  # executable = true makes home-manager copy the file to set its mode, so the exec bit lives in git and the file stays a symlink to the store
+  mkScript = src: { source = src; };
   shared = ../../modules/llm-agent;
 
   # The tab-naming summarizer runs devin with HERDR_TAB_NAMING set and must stay silent
