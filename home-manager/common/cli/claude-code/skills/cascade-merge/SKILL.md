@@ -20,13 +20,16 @@ Build the dependency chain by finding PRs where `baseRefName` matches the curren
 
 ### 2. Merge and Push Each Branch
 
-For each downstream branch in order:
+Fetch first, then for each downstream branch in order:
 
 ```bash
+git fetch origin
 git checkout <downstream-branch>
-git merge <upstream-branch> --no-edit
+git merge origin/<upstream-branch> --no-edit
 git push origin <downstream-branch>
 ```
+
+A hook allows `git merge` only for the remote-tracking branch of the PR's base, so merge `origin/<upstream-branch>`, not the local branch. Pushing the upstream branch updates `origin/<upstream-branch>` before the next downstream merge.
 
 ### 3. Handle Conflicts
 

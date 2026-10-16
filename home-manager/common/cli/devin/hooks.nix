@@ -1,8 +1,6 @@
 let
-  mkScript = src: {
-    source = src;
-    executable = true;
-  };
+  # executable = true makes home-manager copy the file to set its mode, so the exec bit lives in git and the file stays a symlink to the store
+  mkScript = src: { source = src; };
   shared = ../../modules/llm-agent;
 
   # The tab-naming summarizer runs devin with HERDR_TAB_NAMING set and must stay silent
@@ -105,6 +103,9 @@ in
     );
     ".config/devin/scripts/git/block-rewrite-pushed.sh" = mkScript (
       shared + "/scripts/git/block-rewrite-pushed.sh"
+    );
+    ".config/devin/scripts/git/block-merge-non-base.sh" = mkScript (
+      shared + "/scripts/git/block-merge-non-base.sh"
     );
     ".config/devin/scripts/git/block-clone.sh" = mkScript (shared + "/scripts/git/block-clone.sh");
     ".config/devin/scripts/gh/check.sh" = mkScript (shared + "/scripts/gh/check.sh");
