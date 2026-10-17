@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ config, pkgs, ... }:
 {
   programs.zsh = {
     enable = true;
@@ -12,6 +12,11 @@
 
     initContent = ''
       rm() { ${pkgs.gomi}/bin/gomi "$@"; }
+
+      if [[ $options[zle] = on ]]; then
+        # `fzf --zsh` fails to restore the read-only `zle` option (junegunn/fzf#2262).
+        source <(${config.programs.fzf.package}/bin/fzf --zsh | ${pkgs.gnused}/bin/sed 's/^  eval \(\$__fzf_[a-z_]*options\)$/  eval \1 2>\/dev\/null/')
+      fi
 
       if [[ $- == *i* ]] && [[ -z "$CLAUDECODE" ]]; then
         exec ${pkgs.fish}/bin/fish
