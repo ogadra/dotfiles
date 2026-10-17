@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# Block `git merge` and `git pull` unless they bring in the remote base branch of the current PR; input is one normalized git command per stdin line.
+# Block `git merge` and `git pull` unless they bring in the remote base branch of the current PR, or `git pull` brings in the current branch itself; input is one normalized git command per stdin line.
 set -u
 
 deny() {
   printf 'Blocked: %s\n' "$1" >&2
-  printf 'Only `git merge <remote>/<base>` or `git pull <remote> <base>` is allowed, where <base> is the base branch of the GitHub PR for the current branch.\n' >&2
+  printf 'Only `git merge <remote>/<base>` or `git pull <remote> <base>` is allowed, where <base> is the base branch of the GitHub PR for the current branch, or `git pull <remote> <current branch>`.\n' >&2
   exit 2
 }
 
@@ -116,8 +116,8 @@ while IFS= read -r SEG; do
         ;;
     esac
   done
+  CUR=$(git -C "$RUN_CWD" symbolic-ref --quiet --short HEAD 2>/dev/null)
   if [ -z "$REBASE" ]; then
-    CUR=$(git -C "$RUN_CWD" symbolic-ref --quiet --short HEAD 2>/dev/null)
     MODE=$(git -C "$RUN_CWD" config --get "branch.$CUR.rebase" 2>/dev/null || git -C "$RUN_CWD" config --get pull.rebase 2>/dev/null)
     case "$MODE" in
       ""|false|no|off|0) REBASE=false ;;
@@ -150,6 +150,12 @@ while IFS= read -r SEG; do
       BRANCHES+=("${R#refs/heads/}")
     done
   fi
+  # Pulling the same-named remote branch only catches up with it, so no PR is needed
+  SAME=true
+  for B in "${BRANCHES[@]}"; do
+    [ "$B" = "$CUR" ] || SAME=false
+  done
+  [ "$SAME" = true ] && continue
   require_base "git pull --rebase${REPO:+ $REPO}${REFSPECS[*]:+ ${REFSPECS[*]}}" "${BRANCHES[@]}"
 done
 exit 0
