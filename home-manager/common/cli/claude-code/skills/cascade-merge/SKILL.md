@@ -31,6 +31,8 @@ git push origin <downstream-branch>
 
 A hook allows `git merge` only for the remote-tracking branch of the PR's base, so merge `origin/<upstream-branch>`, not the local branch. Pushing the upstream branch updates `origin/<upstream-branch>` before the next downstream merge.
 
+Do not cherry-pick into a downstream branch, even when the merge is blocked or only one commit is needed. A cherry-picked commit gets a new hash, so git cannot tell it is the same change as the upstream commit. Every later change upstream has to be picked again by hand, and each round leaves duplicate commits and conflicts in the downstream history. A hook blocks `git cherry-pick` on a branch whose PR targets anything other than the default branch. If the merge you need is blocked, report it to the user instead of looking for another route.
+
 ### 3. Handle Conflicts
 
 If a merge conflict occurs:
