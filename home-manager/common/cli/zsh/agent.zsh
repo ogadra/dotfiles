@@ -31,4 +31,19 @@ agent() {
         done
     fi
     command devin "${args[@]}"
+    local ret=$?
+    # `devin -p` has no flag to skip session recording, so mark the sessions hidden afterwards to keep them out of `devin -r`.
+    if ((${args[(Ie)-p]} || ${args[(Ie)--print]})); then
+        (
+            # Interactive user messages carry chisel/client-message-id but print and summarizer sessions never do, and the summarizer spawned later is itself a print session that sweeps itself on exit.
+            nix run nixpkgs#sqlite -- "$CHISEL_SESSION_DB" "
+                UPDATE sessions SET hidden = 1 WHERE hidden = 0
+                  AND EXISTS (SELECT 1 FROM message_nodes m WHERE m.session_id = sessions.id
+                    AND json_extract(m.chat_message, '$.role') = 'user')
+                  AND NOT EXISTS (SELECT 1 FROM message_nodes m WHERE m.session_id = sessions.id
+                    AND json_extract(m.chat_message, '$.metadata.extensions.\"chisel/client-message-id\"') IS NOT NULL)
+            " >/dev/null 2>&1
+        ) &!
+    fi
+    return $ret
 }
