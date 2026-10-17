@@ -166,8 +166,8 @@ in
       ${herdrBin} tab rename "$HERDR_TAB_ID" "$name" >/dev/null 2>&1
     end
 
-    # Give every wezterm OS window its own herdr session; skip inside herdr and Claude Code
-    if not set -q HERDR_ENV; and not set -q CLAUDECODE
+    # Give every wezterm OS window its own herdr session; skip inside herdr, Claude Code, and SSH (the remote herdr would nest inside the local pane)
+    if not set -q HERDR_ENV; and not set -q CLAUDECODE; and not set -q SSH_CONNECTION
       exec ${windowSession}
     end
 
