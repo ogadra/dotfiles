@@ -56,17 +56,11 @@ while IFS= read -r SEG; do
     *) continue ;;
   esac
 
-  # xargs honors quotes without running anything, so a quoted -m message stays one word; plain splitting is the fallback for unbalanced quotes
+  # xargs honors quotes without running anything, so a quoted -m message stays one word
+  SPLIT=$(printf '%s' "$SEG" | xargs -n1 2>/dev/null) || deny "cannot split \"$SEG\" into words; balance its quotes."
   WORDS=()
-  if SPLIT=$(printf '%s' "$SEG" | xargs -n1 2>/dev/null); then
-    while IFS= read -r W; do WORDS+=("$W"); done <<< "$SPLIT"
-  fi
-  if [ "${#WORDS[@]}" -gt 0 ]; then
-    set -- "${WORDS[@]}"
-  else
-    # shellcheck disable=SC2086
-    set -- $SEG
-  fi
+  while IFS= read -r W; do WORDS+=("$W"); done <<< "$SPLIT"
+  set -- "${WORDS[@]}"
   shift # drop "git"
   SUB=$1
   shift
