@@ -5,12 +5,17 @@ set -u
 [ -z "${HERDR_TAB_NAMING:-}" ] || exit 0
 command -v herdr >/dev/null 2>&1 || exit 0
 
+# devin spawns hooks from its `devin acp` worker, so the -p flag sits several ancestors up; check the args of every agent layer, not just the first
 agent_args() {
   local pid=$PPID comm
-  while [ "$pid" -gt 1 ]; do
+  while [ "${pid:-0}" -gt 1 ]; do
     comm=$(ps -o comm= -p "$pid" | sed 's|.*/||; s/^-//')
     case "$comm" in
-    sh | bash | zsh | dash) pid=$(ps -o ppid= -p "$pid" | tr -d ' ') ;;
+    sh | bash | zsh | dash | fish) pid=$(ps -o ppid= -p "$pid" | tr -d ' ') ;;
+    devin | .devin-wrapped | claude)
+      ps -o args= -p "$pid"
+      pid=$(ps -o ppid= -p "$pid" | tr -d ' ')
+      ;;
     *)
       ps -o args= -p "$pid"
       return
