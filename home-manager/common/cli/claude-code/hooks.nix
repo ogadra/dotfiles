@@ -117,6 +117,9 @@ in
     ".claude/scripts/git/block-merge-non-base.sh" = mkScript (
       shared + "/scripts/git/block-merge-non-base.sh"
     );
+    ".claude/scripts/git/block-cherry-pick-stacked.sh" = mkScript (
+      shared + "/scripts/git/block-cherry-pick-stacked.sh"
+    );
     ".claude/scripts/git/block-clone.sh" = mkScript (shared + "/scripts/git/block-clone.sh");
     ".claude/scripts/gh/check.sh" = mkScript (shared + "/scripts/gh/check.sh");
     ".claude/scripts/gh/block-repo-clone.sh" = mkScript (shared + "/scripts/gh/block-repo-clone.sh");

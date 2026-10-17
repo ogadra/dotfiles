@@ -107,6 +107,9 @@ in
     ".config/devin/scripts/git/block-merge-non-base.sh" = mkScript (
       shared + "/scripts/git/block-merge-non-base.sh"
     );
+    ".config/devin/scripts/git/block-cherry-pick-stacked.sh" = mkScript (
+      shared + "/scripts/git/block-cherry-pick-stacked.sh"
+    );
     ".config/devin/scripts/git/block-clone.sh" = mkScript (shared + "/scripts/git/block-clone.sh");
     ".config/devin/scripts/gh/check.sh" = mkScript (shared + "/scripts/gh/check.sh");
     ".config/devin/scripts/gh/block-repo-clone.sh" = mkScript (
