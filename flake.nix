@@ -62,6 +62,7 @@
           system,
           profile,
           username,
+          isucon ? false,
         }:
         import ./nixos {
           inherit
@@ -69,6 +70,7 @@
             profile
             system
             username
+            isucon
             ;
         };
 
@@ -97,6 +99,12 @@
           system = "x86_64-linux";
           profile = "bisharp";
           username = "ogadra";
+        });
+        bisharp-isucon = nixosSystem (nixosSystemArgs {
+          system = "x86_64-linux";
+          profile = "bisharp";
+          username = "ogadra";
+          isucon = true;
         });
         xurkitree = nixosSystem (nixosSystemArgs {
           system = "x86_64-linux";

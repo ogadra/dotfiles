@@ -3,6 +3,7 @@
   profile,
   system,
   username,
+  isucon ? false,
   ...
 }:
 let
@@ -19,6 +20,7 @@ let
         profile
         username
         inputs
+        isucon
         ;
     })
   ];

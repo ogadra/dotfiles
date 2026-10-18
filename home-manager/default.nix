@@ -2,6 +2,7 @@
   profile,
   username,
   inputs,
+  isucon ? false,
 }:
 {
   config,
@@ -19,6 +20,7 @@
         username
         inputs
         profile
+        isucon
         ;
     };
   };
