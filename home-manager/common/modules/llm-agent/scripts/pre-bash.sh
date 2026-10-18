@@ -23,26 +23,31 @@ while IFS= read -r SEG; do
   [ -n "$SEG" ] || continue
 
   case "$SEG" in
-    sudo|"sudo "*)
-      deny "sudo is not allowed in agent sessions."
-      ;;
     "find "*"-delete"*)
       deny "find -delete is not allowed in agent sessions."
       ;;
     "xargs rm"|"xargs rm "*)
       deny "xargs rm is not allowed in agent sessions."
       ;;
-    "git commit -a"|"git commit -a "*)
-      deny "git commit -a is not allowed; stage files intentionally."
-      ;;
   esac
 
-  ADD_RE='^git[[:space:]]+add([[:space:]]|$)'
-  FLAG_RE='(^|[[:space:]])(-A|--all|-u|--update)([[:space:])}]|$)'
-  DOT_RE='(^|[[:space:]])\.([[:space:])}]|$)'
-  if [[ "$SEG" =~ $ADD_RE ]] \
-    && { [[ "$SEG" =~ $FLAG_RE ]] || [[ "$SEG" =~ $DOT_RE ]]; }; then
-    deny "bulk git add is not allowed; inspect and stage explicit files."
+  if [ "${ISUCON:-0}" != 1 ]; then
+    case "$SEG" in
+      sudo|"sudo "*)
+        deny "sudo is not allowed in agent sessions."
+        ;;
+      "git commit -a"|"git commit -a "*)
+        deny "git commit -a is not allowed; stage files intentionally."
+        ;;
+    esac
+
+    ADD_RE='^git[[:space:]]+add([[:space:]]|$)'
+    FLAG_RE='(^|[[:space:]])(-A|--all|-u|--update)([[:space:])}]|$)'
+    DOT_RE='(^|[[:space:]])\.([[:space:])}]|$)'
+    if [[ "$SEG" =~ $ADD_RE ]] \
+      && { [[ "$SEG" =~ $FLAG_RE ]] || [[ "$SEG" =~ $DOT_RE ]]; }; then
+      deny "bulk git add is not allowed; inspect and stage explicit files."
+    fi
   fi
 done <<< "$SEGMENTS"
 

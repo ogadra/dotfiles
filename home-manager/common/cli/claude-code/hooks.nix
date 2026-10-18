@@ -1,3 +1,6 @@
+{
+  isucon ? false,
+}:
 let
   # executable = true makes home-manager copy the file to set its mode, so the exec bit lives in git and the file stays a symlink to the store
   mkScript = src: { source = src; };
@@ -81,7 +84,7 @@ in
         hooks = [
           {
             type = "command";
-            command = "$HOME/.claude/scripts/pre-bash.sh";
+            command = "${if isucon then "ISUCON=1 " else ""}$HOME/.claude/scripts/pre-bash.sh";
           }
           # Rewriting the command through the rtk proxy compresses its output; pre-bash.sh still judges the original input, so its guards survive this hook
           {

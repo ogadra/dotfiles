@@ -2,6 +2,7 @@
   inputs,
   lib,
   pkgs,
+  isucon ? false,
   ...
 }:
 let
@@ -76,7 +77,6 @@ in
 
   home.file = {
     ".codex/ogadra.config.toml".source = ./ogadra.config.toml;
-    ".codex/AGENTS.md".source = shared + "/AGENTS.md";
     ".codex/RTK.md".source = ../rtk/RTK.md;
     ".codex/hooks.json".text = hooksJson;
     ".codex/packages/standalone/current/codex".source = codex + "/bin/codex";
@@ -84,7 +84,11 @@ in
       source = ./default.rules;
       force = true;
     };
-    ".codex/config/.gitconfig".source = shared + "/.gitconfig";
+    ".codex/config/.gitconfig".source =
+      shared + (if isucon then "/isucon.gitconfig" else "/.gitconfig");
+  }
+  // lib.optionalAttrs (!isucon) {
+    ".codex/AGENTS.md".source = shared + "/AGENTS.md";
   };
 
   home.activation.enableCodexRemoteControl = lib.hm.dag.entryAfter [ "linkGeneration" ] ''

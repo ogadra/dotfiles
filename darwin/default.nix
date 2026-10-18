@@ -49,6 +49,7 @@ let
             nixLib
             profile
             ;
+          isucon = false;
         };
       };
     })
