@@ -1,0 +1,8 @@
+# Git config applied only inside LLM coding agent sessions.
+# Loaded via GIT_CONFIG_GLOBAL by each agent wrapper.
+
+[include]
+	path = ~/.config/git/config
+
+[push]
+	default = nothing

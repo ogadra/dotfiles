@@ -1,6 +1,8 @@
 {
   inputs,
+  lib,
   pkgs,
+  isucon ? false,
   ...
 }:
 let
@@ -18,9 +20,9 @@ let
         --set CO_AUTHOR "Claude <noreply@anthropic.com>"
     '';
   };
-  hooksConfig = import ./hooks.nix;
+  hooksConfig = import ./hooks.nix { inherit isucon; };
 
-  settingsJson = builtins.toJSON (import ./settings.nix { inherit hooksConfig; });
+  settingsJson = builtins.toJSON (import ./settings.nix { inherit hooksConfig isucon; });
 in
 {
   home.packages = [ claude-code ];
@@ -29,14 +31,17 @@ in
     ".claude/sounds/notification.mp3".source = ../../sounds/notification.mp3;
     ".claude/sounds/stop.mp3".source = ../../sounds/stop.mp3;
     ".claude/settings.json".text = settingsJson;
-    ".claude/CLAUDE.md".source = shared + "/AGENTS.md";
     ".claude/themes/nerv.json".source = ./themes/nerv.json;
-    ".claude/config/.gitconfig".source = shared + "/.gitconfig";
+    ".claude/config/.gitconfig".source =
+      shared + (if isucon then "/isucon.gitconfig" else "/.gitconfig");
     ".claude/skills/absolute-rules/SKILL.md".source = ./skills/absolute-rules/SKILL.md;
+    ".claude/skills/ponytail".source = ./skills/ponytail;
+  }
+  // lib.optionalAttrs (!isucon) {
+    ".claude/CLAUDE.md".source = shared + "/AGENTS.md";
     ".claude/skills/cascade-merge/SKILL.md".source = ./skills/cascade-merge/SKILL.md;
     ".claude/skills/grill-me".source = ./skills/grill-me;
     ".claude/skills/import-skill/SKILL.md".source = ./skills/import-skill/SKILL.md;
-    ".claude/skills/ponytail".source = ./skills/ponytail;
     ".claude/skills/pr-create/SKILL.md".source = ./skills/pr-create/SKILL.md;
     ".claude/skills/pr-review/SKILL.md".source = ./skills/pr-review/SKILL.md;
     ".claude/skills/pr-review/policies/absolute-rules.md".source =
@@ -53,4 +58,18 @@ in
     ".claude/skills/readable-writing".source = ./skills/readable-writing;
   }
   // hooksConfig.scripts;
+
+  # Claude has no setting to disable the workspace trust dialog; accepted trust propagates to subdirectories, so seed it for the home and ghq roots.
+  home.activation = lib.mkIf isucon {
+    acceptClaudeWorkspaceTrust = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+      config="$HOME/.claude.json"
+      [ -f "$config" ] || printf '{}\n' > "$config"
+      tmp=$(mktemp)
+      ${pkgs.jq}/bin/jq --arg home "$HOME" '
+        .projects[$home].hasTrustDialogAccepted = true
+        | .projects["\($home)/codes"].hasTrustDialogAccepted = true
+      ' "$config" > "$tmp" && cat "$tmp" > "$config"
+      rm -f "$tmp"
+    '';
+  };
 }

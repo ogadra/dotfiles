@@ -1,3 +1,6 @@
+{
+  isucon ? false,
+}:
 let
   # executable = true makes home-manager copy the file to set its mode, so the exec bit lives in git and the file stays a symlink to the store
   mkScript = src: { source = src; };
@@ -18,7 +21,7 @@ in
         hooks = [
           {
             type = "command";
-            command = "$HOME/.config/devin/scripts/pre-bash.sh";
+            command = "${if isucon then "ISUCON=1 " else ""}$HOME/.config/devin/scripts/pre-bash.sh";
           }
           {
             type = "command";

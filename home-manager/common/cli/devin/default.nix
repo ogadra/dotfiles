@@ -1,6 +1,7 @@
 {
   pkgs,
   lib,
+  isucon ? false,
   ...
 }:
 let
@@ -14,17 +15,19 @@ let
       wrapProgram $out/bin/devin \
         --run 'export GIT_CONFIG_GLOBAL="''${GIT_CONFIG_GLOBAL:-$HOME/.config/devin/config/.gitconfig}"' \
         --set-default GIT_CONFIG_SYSTEM /dev/null \
-        --set-default DEVIN_PERMISSION_MODE smart \
+        --set-default DEVIN_PERMISSION_MODE ${if isucon then "dangerous" else "smart"} \
         --set CO_AUTHOR "Devin <158243242+devin-ai-integration[bot]@users.noreply.github.com>"
     '';
   };
 
-  hooksConfig = import ./hooks.nix;
+  hooksConfig = import ./hooks.nix { inherit isucon; };
 
   mergedConfig = pkgs.writeText "devin-config-fragment.json" (
     builtins.toJSON {
       hooks = hooksConfig.hooks;
-      permissions = import ./permissions.nix;
+      permissions = import ./permissions.nix { inherit isucon; };
+      skip_workspace_trust = isucon;
+      deny_replace = isucon;
     }
   );
 in
@@ -32,7 +35,8 @@ in
   home.packages = [ devin-cli ];
 
   home.file = {
-    ".config/devin/config/.gitconfig".source = shared + "/.gitconfig";
+    ".config/devin/config/.gitconfig".source =
+      shared + (if isucon then "/isucon.gitconfig" else "/.gitconfig");
     ".config/devin/sounds/notification.mp3".source = ../../sounds/notification.mp3;
     ".config/devin/sounds/stop.mp3".source = ../../sounds/stop.mp3;
   }
@@ -49,7 +53,8 @@ in
       ${pkgs.jq}/bin/jq --slurpfile fragment ${mergedConfig} '
         . + { hooks: $fragment[0].hooks }
         | .permissions.allow = (((.permissions.allow // []) + $fragment[0].permissions.allow) | unique)
-        | .permissions.deny = (((.permissions.deny // []) + $fragment[0].permissions.deny) | unique)
+        | .permissions.deny = (if $fragment[0].deny_replace then $fragment[0].permissions.deny else (((.permissions.deny // []) + $fragment[0].permissions.deny) | unique) end)
+        | .skip_workspace_trust = $fragment[0].skip_workspace_trust
       ' "$config" > "$tmp" && cat "$tmp" > "$config"
     fi
     rm -f "$tmp"
