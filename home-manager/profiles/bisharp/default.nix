@@ -5,6 +5,7 @@ let
     ../../common/apps/chrome
     ../../common/apps/discord
     ../../common/apps/editor
+    ../../common/apps/espanso
     ../../common/apps/obs
     ../../common/apps/spotify
     ../../common/apps/terminal
