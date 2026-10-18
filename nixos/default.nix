@@ -28,11 +28,11 @@ let
   allModules =
     baseModules
     ++ homeManagerModules
-    # Prevent SNS access during the competition; 0.0.0.0 fails faster than a DNS sinkhole
+    # Redirect SNS domains to loopback during the competition
     ++ inputs.nixpkgs.lib.optional isucon {
       networking.extraHosts = ''
-        0.0.0.0 twitter.com www.twitter.com
-        0.0.0.0 x.com www.x.com
+        127.0.0.1 twitter.com www.twitter.com x.com www.x.com
+        ::1 twitter.com www.twitter.com x.com www.x.com
       '';
     };
 in
