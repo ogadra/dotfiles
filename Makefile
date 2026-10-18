@@ -1,7 +1,7 @@
 HOST := $(shell hostname -s | tr '[:upper:]' '[:lower:]')
 UNAME := $(shell uname)
 FLAKE_SUFFIX := $(if $(filter isucon,$(MAKECMDGOALS)),-isucon,)
-FLAKE := .#$(HOST)$(FLAKE_SUFFIX)
+FLAKE := .\#$(HOST)$(FLAKE_SUFFIX)
 
 .PHONY: ensure-nix build switch update clean
 
