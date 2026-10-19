@@ -13,9 +13,9 @@ done
 
 [ -z "$GH_SEGMENTS" ] && exit 0
 
-# The child list is substituted at build time, so each profile ships a script without a mode switch
-for child in @children@; do
-  printf '%s' "$GH_SEGMENTS" | "$SCRIPT_DIR/$child"
+# Run whichever guards the profile deployed
+for child in "$SCRIPT_DIR"/block-*.sh; do
+  printf '%s' "$GH_SEGMENTS" | "$child"
   rc=$?
   [ "$rc" -ne 0 ] && exit "$rc"
 done

@@ -32,9 +32,10 @@ while IFS= read -r SEG; do
   esac
 done <<< "$SEGMENTS"
 
-# The check list is substituted at build time, so each profile ships a script without a mode switch
-for check in @checks@; do
-  printf '%s\n' "$SEGMENTS" | "$SCRIPT_DIR/$check"
+# Run whichever guards the profile deployed; nullglob drops an unmatched glob
+shopt -s nullglob
+for check in "$SCRIPT_DIR"/block-*.sh "$SCRIPT_DIR/git/check.sh" "$SCRIPT_DIR/gh/check.sh"; do
+  printf '%s\n' "$SEGMENTS" | "$check"
   rc=$?
   [ "$rc" -ne 0 ] && exit "$rc"
 done
