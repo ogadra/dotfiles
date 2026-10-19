@@ -44,4 +44,8 @@
 - Modifying a comment
     - Rewrite the whole comment so it does not read like revision history.
 
+## Commands for the User to Run
+
+- When the user needs to run a command themselves, copy it to the clipboard with `@clipboardCommand@`.
+
 @RTK.md
