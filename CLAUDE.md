@@ -29,6 +29,13 @@ Machine profiles:
 - Platform-specific configs go in `home-manager/nixos/` (Linux)
 - Do not add informational/diagnostic `echo` to Nix scripts. Functional uses of `echo` (piping data to another command, appending a newline to a file) are fine.
 
+## Code Style
+
+- Adding to existing code
+    - Write it the same way as the existing code
+- Changing the style
+    - Rewrite the existing code in the new style too
+
 ## Comments
 
 - Write comments in English
