@@ -13,8 +13,11 @@ done
 
 [ -z "$GH_SEGMENTS" ] && exit 0
 
-children="block-repo-clone.sh block-pr-body.sh block-pr-close.sh"
-[ "${ISUCON:-0}" = 1 ] && children="block-repo-clone.sh block-pr-close.sh"
+case "$ISUCON" in
+  0) readonly children="block-repo-clone.sh block-pr-body.sh block-pr-close.sh" ;;
+  1) readonly children="block-repo-clone.sh block-pr-close.sh" ;;
+  *) printf 'Blocked: ISUCON must be 0 or 1.\n' >&2; exit 2 ;;
+esac
 for child in $children; do
   printf '%s' "$GH_SEGMENTS" | "$SCRIPT_DIR/$child"
   rc=$?

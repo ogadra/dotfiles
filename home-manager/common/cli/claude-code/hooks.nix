@@ -84,12 +84,22 @@ in
         hooks = [
           {
             type = "command";
-            command = "${if isucon then "ISUCON=1 " else ""}$HOME/.claude/scripts/pre-bash.sh";
+            command = "ISUCON=${if isucon then "1" else "0"} $HOME/.claude/scripts/pre-bash.sh";
           }
           # Rewriting the command through the rtk proxy compresses its output; pre-bash.sh still judges the original input, so its guards survive this hook
           {
             type = "command";
             command = "$HOME/.claude/scripts/rtk-hook.sh";
+          }
+        ];
+      }
+      # A "/" in the name nests the worktree below a direct child of .claude/worktrees
+      {
+        matcher = "^EnterWorktree$";
+        hooks = [
+          {
+            type = "command";
+            command = ''if jq -e '.tool_input.name // "" | contains("/")' >/dev/null; then echo 'Blocked: worktree names must not contain "/".' >&2; exit 2; fi'';
           }
         ];
       }
@@ -124,6 +134,9 @@ in
       shared + "/scripts/git/block-cherry-pick-stacked.sh"
     );
     ".claude/scripts/git/block-clone.sh" = mkScript (shared + "/scripts/git/block-clone.sh");
+    ".claude/scripts/git/block-worktree-outside.sh" = mkScript (
+      shared + "/scripts/git/block-worktree-outside.sh"
+    );
     ".claude/scripts/gh/check.sh" = mkScript (shared + "/scripts/gh/check.sh");
     ".claude/scripts/gh/block-repo-clone.sh" = mkScript (shared + "/scripts/gh/block-repo-clone.sh");
     ".claude/scripts/gh/block-pr-body.sh" = mkScript (shared + "/scripts/gh/block-pr-body.sh");
