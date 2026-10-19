@@ -32,6 +32,13 @@
 - Test code
     - Code: what behavior it checks
 
+## Code Style
+
+- Adding to existing code
+    - Write it the same way as the existing code.
+- Changing the style
+    - Rewrite the existing code in the new style too.
+
 ## Comments
 
 - When you modify a comment
