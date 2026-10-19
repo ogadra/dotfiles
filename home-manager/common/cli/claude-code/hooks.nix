@@ -1,4 +1,5 @@
 {
+  pkgs,
   isucon ? false,
 }:
 let
@@ -84,7 +85,7 @@ in
         hooks = [
           {
             type = "command";
-            command = "ISUCON=${if isucon then "1" else "0"} $HOME/.claude/scripts/pre-bash.sh";
+            command = "$HOME/.claude/scripts/pre-bash.sh";
           }
           # Rewriting the command through the rtk proxy compresses its output; pre-bash.sh still judges the original input, so its guards survive this hook
           {
@@ -107,40 +108,17 @@ in
   };
 
   scripts = {
-    ".claude/scripts/pre-bash.sh" = mkScript (shared + "/scripts/pre-bash.sh");
-    ".claude/scripts/normalize.sh" = mkScript (shared + "/scripts/normalize.sh");
     ".claude/scripts/rtk-hook.sh" = mkScript (shared + "/scripts/rtk-hook.sh");
     ".claude/scripts/ensure-trailing-newline.sh" = mkScript (
       shared + "/scripts/ensure-trailing-newline.sh"
     );
     ".claude/scripts/herdr-name-tab.sh" = mkScript (shared + "/scripts/herdr-name-tab.sh");
     ".claude/scripts/statusline.sh" = mkScript ./scripts/statusline.sh;
-    ".claude/scripts/git/check.sh" = mkScript (shared + "/scripts/git/check.sh");
-    ".claude/scripts/git/block-default-commit.sh" = mkScript (
-      shared + "/scripts/git/block-default-commit.sh"
-    );
-    ".claude/scripts/git/block-default-push.sh" = mkScript (
-      shared + "/scripts/git/block-default-push.sh"
-    );
-    ".claude/scripts/git/block-force-push.sh" = mkScript (shared + "/scripts/git/block-force-push.sh");
-    ".claude/scripts/git/block-no-verify.sh" = mkScript (shared + "/scripts/git/block-no-verify.sh");
-    ".claude/scripts/git/block-rewrite-pushed.sh" = mkScript (
-      shared + "/scripts/git/block-rewrite-pushed.sh"
-    );
-    ".claude/scripts/git/block-merge-non-base.sh" = mkScript (
-      shared + "/scripts/git/block-merge-non-base.sh"
-    );
-    ".claude/scripts/git/block-cherry-pick-stacked.sh" = mkScript (
-      shared + "/scripts/git/block-cherry-pick-stacked.sh"
-    );
-    ".claude/scripts/git/block-clone.sh" = mkScript (shared + "/scripts/git/block-clone.sh");
-    ".claude/scripts/git/block-worktree-outside.sh" = mkScript (
-      shared + "/scripts/git/block-worktree-outside.sh"
-    );
-    ".claude/scripts/gh/check.sh" = mkScript (shared + "/scripts/gh/check.sh");
-    ".claude/scripts/gh/block-repo-clone.sh" = mkScript (shared + "/scripts/gh/block-repo-clone.sh");
-    ".claude/scripts/gh/block-pr-body.sh" = mkScript (shared + "/scripts/gh/block-pr-body.sh");
-    ".claude/scripts/gh/block-pr-close.sh" = mkScript (shared + "/scripts/gh/block-pr-close.sh");
-    ".claude/scripts/gh/pr-body.sh" = mkScript ./scripts/pr-body.sh;
+  }
+  # block-pr-body.sh is the only guard that points agents at this wrapper
+  // (if isucon then { } else { ".claude/scripts/gh/pr-body.sh" = mkScript ./scripts/pr-body.sh; })
+  // import (shared + "/scripts.nix") {
+    inherit pkgs isucon;
+    dir = ".claude/scripts";
   };
 }
