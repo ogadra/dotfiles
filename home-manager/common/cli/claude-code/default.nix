@@ -38,7 +38,7 @@ in
     ".claude/skills/ponytail".source = ./skills/ponytail;
   }
   // lib.optionalAttrs (!isucon) {
-    ".claude/CLAUDE.md".source = shared + "/AGENTS.md";
+    ".claude/CLAUDE.md".source = import (shared + "/agents-md.nix") { inherit pkgs; };
     ".claude/skills/cascade-merge/SKILL.md".source = ./skills/cascade-merge/SKILL.md;
     ".claude/skills/grill-me".source = ./skills/grill-me;
     ".claude/skills/import-skill/SKILL.md".source = ./skills/import-skill/SKILL.md;

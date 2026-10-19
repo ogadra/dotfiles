@@ -12,6 +12,7 @@
 
     initContent = ''
       rm() { ${pkgs.gomi}/bin/gomi "$@"; }
+      copy() { ${if pkgs.stdenv.hostPlatform.isLinux then "wl-copy" else "pbcopy"} "$@"; }
 
       if [[ $options[zle] = on ]]; then
         source <(${config.programs.fzf.package}/bin/fzf --zsh | ${pkgs.gnused}/bin/sed 's/^  eval \(\$__fzf_[a-z_]*options\)$/  eval \1 2>\/dev\/null/')
