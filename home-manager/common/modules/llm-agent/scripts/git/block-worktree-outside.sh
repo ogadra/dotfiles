@@ -13,7 +13,7 @@ normalize_path() {
       *) out="$out/$part" ;;
     esac
   done
-  printf '%s' "${out:-/}"
+  printf '/%s' "${out#/}"
 }
 
 # `cd <abs>` lines from check.sh mark where each command runs
@@ -53,20 +53,21 @@ while IFS= read -r SEG; do
   case "$TARGET" in "~"|"~/"*) TARGET=$HOME${TARGET#~} ;; esac
 
   # The common dir points at the main repository even from inside a linked worktree, so nested worktrees land beside their siblings
-  COMMON=$(git -C "$RUN_CWD" rev-parse --path-format=absolute --git-common-dir 2>/dev/null) || continue
-  ROOT=$(cd "$COMMON/.." 2>/dev/null && pwd -P) || continue
-  BASE=$(cd "$RUN_CWD" 2>/dev/null && pwd -P) || continue
+  if ! COMMON=$(git -C "$RUN_CWD" rev-parse --path-format=absolute --git-common-dir 2>/dev/null); then
+    printf 'Blocked: %s is not inside a git repository, so the worktree root cannot be resolved.\n' "$RUN_CWD" >&2
+    exit 2
+  fi
+  ROOT=$(cd "$COMMON/.." && pwd -P)
+  BASE=$(cd "$RUN_CWD" && pwd -P)
 
   case "$TARGET" in
-    /*) ABS=$TARGET ;;
-    *) ABS=$BASE/$TARGET ;;
+    /*) ABS=$(normalize_path "$TARGET") ;;
+    *) ABS=$(normalize_path "$BASE/$TARGET") ;;
   esac
-  ABS=$(normalize_path "$ABS")
-  # Resolve the existing parent so a symlinked prefix such as /var -> /private/var compares equal to ROOT
-  PARENT=$(cd "${ABS%/*}" 2>/dev/null && pwd -P) || PARENT=${ABS%/*}
 
+  # The comparison is lexical because the parent may not exist yet; an absolute target spelled through a symlink is blocked rather than resolved
   ALLOWED="$ROOT/.claude/worktrees"
-  if [ "$PARENT" != "$ALLOWED" ]; then
+  if [ "${ABS%/*}" != "$ALLOWED" ]; then
     printf 'Blocked: worktrees must be direct children of %s/.\n' "$ALLOWED" >&2
     exit 2
   fi
