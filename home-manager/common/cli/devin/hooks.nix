@@ -114,6 +114,9 @@ in
       shared + "/scripts/git/block-cherry-pick-stacked.sh"
     );
     ".config/devin/scripts/git/block-clone.sh" = mkScript (shared + "/scripts/git/block-clone.sh");
+    ".config/devin/scripts/git/block-worktree-outside.sh" = mkScript (
+      shared + "/scripts/git/block-worktree-outside.sh"
+    );
     ".config/devin/scripts/gh/check.sh" = mkScript (shared + "/scripts/gh/check.sh");
     ".config/devin/scripts/gh/block-repo-clone.sh" = mkScript (
       shared + "/scripts/gh/block-repo-clone.sh"

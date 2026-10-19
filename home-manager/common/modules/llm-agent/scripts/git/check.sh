@@ -35,9 +35,9 @@ done
 
 [ -z "$GIT_SEGMENTS" ] && exit 0
 
-children="block-default-commit.sh block-default-push.sh block-force-push.sh block-no-verify.sh block-rewrite-pushed.sh block-merge-non-base.sh block-cherry-pick-stacked.sh block-clone.sh"
+children="block-default-commit.sh block-default-push.sh block-force-push.sh block-no-verify.sh block-rewrite-pushed.sh block-merge-non-base.sh block-cherry-pick-stacked.sh block-clone.sh block-worktree-outside.sh"
 if [ "${ISUCON:-0}" = 1 ]; then
-  children="block-default-commit.sh block-default-push.sh block-force-push.sh block-rewrite-pushed.sh block-clone.sh"
+  children="block-default-commit.sh block-default-push.sh block-force-push.sh block-rewrite-pushed.sh block-clone.sh block-worktree-outside.sh"
 fi
 for child in $children; do
   printf '%s' "$GIT_SEGMENTS" | "$SCRIPT_DIR/$child"
