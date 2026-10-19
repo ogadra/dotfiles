@@ -35,6 +35,9 @@ in
     "codex/hooks/git/block-merge-non-base.sh" = {
       source = shared + "/scripts/git/block-merge-non-base.sh";
     };
+    "codex/hooks/git/block-cherry-pick-stacked.sh" = {
+      source = shared + "/scripts/git/block-cherry-pick-stacked.sh";
+    };
     "codex/hooks/git/block-clone.sh" = {
       source = shared + "/scripts/git/block-clone.sh";
     };
