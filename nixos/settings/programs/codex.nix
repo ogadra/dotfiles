@@ -38,6 +38,9 @@ in
     "codex/hooks/git/block-clone.sh" = {
       source = shared + "/scripts/git/block-clone.sh";
     };
+    "codex/hooks/git/block-worktree-outside.sh" = {
+      source = shared + "/scripts/git/block-worktree-outside.sh";
+    };
     "codex/hooks/gh/check.sh" = {
       source = shared + "/scripts/gh/check.sh";
     };
