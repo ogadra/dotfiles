@@ -35,13 +35,9 @@ done
 
 [ -z "$GIT_SEGMENTS" ] && exit 0
 
-case "$ISUCON" in
-  0) readonly children="block-default-commit.sh block-default-push.sh block-force-push.sh block-no-verify.sh block-rewrite-pushed.sh block-merge-non-base.sh block-cherry-pick-stacked.sh block-clone.sh block-worktree-outside.sh" ;;
-  1) readonly children="block-default-commit.sh block-default-push.sh block-force-push.sh block-rewrite-pushed.sh block-clone.sh block-worktree-outside.sh" ;;
-  *) printf 'Blocked: ISUCON must be 0 or 1.\n' >&2; exit 2 ;;
-esac
-for child in $children; do
-  printf '%s' "$GIT_SEGMENTS" | "$SCRIPT_DIR/$child"
+# Run whichever guards the profile deployed
+for child in "$SCRIPT_DIR"/block-*.sh; do
+  printf '%s' "$GIT_SEGMENTS" | "$child"
   rc=$?
   [ "$rc" -ne 0 ] && exit "$rc"
 done

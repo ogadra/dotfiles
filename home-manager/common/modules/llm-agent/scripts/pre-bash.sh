@@ -19,12 +19,6 @@ deny() {
   exit 2
 }
 
-# An unset ISUCON would trip set -u with exit 1, which Claude Code treats as a non-blocking error and runs the command anyway
-case "${ISUCON-}" in
-  0|1) ;;
-  *) deny "ISUCON must be 0 or 1." ;;
-esac
-
 while IFS= read -r SEG; do
   [ -n "$SEG" ] || continue
 
@@ -36,29 +30,12 @@ while IFS= read -r SEG; do
       deny "xargs rm is not allowed in agent sessions."
       ;;
   esac
-
-  if [ "$ISUCON" = 0 ]; then
-    case "$SEG" in
-      sudo|"sudo "*)
-        deny "sudo is not allowed in agent sessions."
-        ;;
-      "git commit -a"|"git commit -a "*)
-        deny "git commit -a is not allowed; stage files intentionally."
-        ;;
-    esac
-
-    ADD_RE='^git[[:space:]]+add([[:space:]]|$)'
-    FLAG_RE='(^|[[:space:]])(-A|--all|-u|--update)([[:space:])}]|$)'
-    DOT_RE='(^|[[:space:]])\.([[:space:])}]|$)'
-    if [[ "$SEG" =~ $ADD_RE ]] \
-      && { [[ "$SEG" =~ $FLAG_RE ]] || [[ "$SEG" =~ $DOT_RE ]]; }; then
-      deny "bulk git add is not allowed; inspect and stage explicit files."
-    fi
-  fi
 done <<< "$SEGMENTS"
 
-for check in git/check.sh gh/check.sh; do
-  printf '%s\n' "$SEGMENTS" | "$SCRIPT_DIR/$check"
+# Run whichever guards the profile deployed; nullglob drops an unmatched glob
+shopt -s nullglob
+for check in "$SCRIPT_DIR"/block-*.sh "$SCRIPT_DIR/git/check.sh" "$SCRIPT_DIR/gh/check.sh"; do
+  printf '%s\n' "$SEGMENTS" | "$check"
   rc=$?
   [ "$rc" -ne 0 ] && exit "$rc"
 done

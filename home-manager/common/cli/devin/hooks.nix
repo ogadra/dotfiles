@@ -21,7 +21,7 @@ in
         hooks = [
           {
             type = "command";
-            command = "ISUCON=${if isucon then "1" else "0"} $HOME/.config/devin/scripts/pre-bash.sh";
+            command = "$HOME/.config/devin/scripts/pre-bash.sh";
           }
           {
             type = "command";
@@ -101,17 +101,8 @@ in
     ".config/devin/scripts/git/block-force-push.sh" = mkScript (
       shared + "/scripts/git/block-force-push.sh"
     );
-    ".config/devin/scripts/git/block-no-verify.sh" = mkScript (
-      shared + "/scripts/git/block-no-verify.sh"
-    );
     ".config/devin/scripts/git/block-rewrite-pushed.sh" = mkScript (
       shared + "/scripts/git/block-rewrite-pushed.sh"
-    );
-    ".config/devin/scripts/git/block-merge-non-base.sh" = mkScript (
-      shared + "/scripts/git/block-merge-non-base.sh"
-    );
-    ".config/devin/scripts/git/block-cherry-pick-stacked.sh" = mkScript (
-      shared + "/scripts/git/block-cherry-pick-stacked.sh"
     );
     ".config/devin/scripts/git/block-clone.sh" = mkScript (shared + "/scripts/git/block-clone.sh");
     ".config/devin/scripts/git/block-worktree-outside.sh" = mkScript (
@@ -121,7 +112,30 @@ in
     ".config/devin/scripts/gh/block-repo-clone.sh" = mkScript (
       shared + "/scripts/gh/block-repo-clone.sh"
     );
-    ".config/devin/scripts/gh/block-pr-body.sh" = mkScript (shared + "/scripts/gh/block-pr-body.sh");
     ".config/devin/scripts/gh/block-pr-close.sh" = mkScript (shared + "/scripts/gh/block-pr-close.sh");
-  };
+  }
+  // (
+    if isucon then
+      { }
+    else
+      {
+        ".config/devin/scripts/block-sudo.sh" = mkScript (shared + "/scripts/block-sudo.sh");
+        ".config/devin/scripts/git/block-no-verify.sh" = mkScript (
+          shared + "/scripts/git/block-no-verify.sh"
+        );
+        ".config/devin/scripts/git/block-merge-non-base.sh" = mkScript (
+          shared + "/scripts/git/block-merge-non-base.sh"
+        );
+        ".config/devin/scripts/git/block-cherry-pick-stacked.sh" = mkScript (
+          shared + "/scripts/git/block-cherry-pick-stacked.sh"
+        );
+        ".config/devin/scripts/git/block-commit-all.sh" = mkScript (
+          shared + "/scripts/git/block-commit-all.sh"
+        );
+        ".config/devin/scripts/git/block-bulk-add.sh" = mkScript (
+          shared + "/scripts/git/block-bulk-add.sh"
+        );
+        ".config/devin/scripts/gh/block-pr-body.sh" = mkScript (shared + "/scripts/gh/block-pr-body.sh");
+      }
+  );
 }

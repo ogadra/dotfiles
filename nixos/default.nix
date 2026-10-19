@@ -44,6 +44,7 @@ in
       inputs
       profile
       username
+      isucon
       ;
   };
 
