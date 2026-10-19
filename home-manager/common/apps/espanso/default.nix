@@ -1,4 +1,4 @@
-{ ... }:
+{ lib, ... }:
 {
   services.espanso = {
     enable = true;
@@ -14,6 +14,39 @@
         trigger = ";c";
         replace = "continue";
       }
-    ];
+    ]
+    ++ lib.mapAttrsToList (trigger: replace: { inherit trigger replace; }) {
+      ":+1:" = "👍";
+      ":-1:" = "👎";
+      ":bangbang:" = "‼️";
+      ":birthday:" = "🎂";
+      ":boom:" = "💥";
+      ":bow:" = "🙇";
+      ":car:" = "🚗";
+      ":confetti_ball:" = "🎊";
+      ":cry:" = "😢";
+      ":dotted_line_face:" = "🫥";
+      ":eye:" = "👁️";
+      ":eyes:" = "👀";
+      ":fire:" = "🔥";
+      ":first:" = "このわたしがッ！最初のコミットを手にしたぞッ！";
+      ":interrobang:" = "⁉️";
+      ":memo:" = "📝";
+      ":muscle:" = "💪";
+      ":ng:" = "🆖";
+      ":o:" = "⭕";
+      ":ok:" = "🆗";
+      ":pie:" = "🥧";
+      ":pray:" = "🙏";
+      ":smile:" = "😄";
+      ":sob:" = "😭";
+      ":sweat:" = "😓";
+      ":sweat_smile:" = "😅";
+      ":tada:" = "🎉";
+      ":thinking_face:" = "🤔";
+      ":up:" = "🆙";
+      ":x:" = "❌";
+      "cosnt" = "const";
+    };
   };
 }
