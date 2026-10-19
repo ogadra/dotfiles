@@ -19,6 +19,12 @@ deny() {
   exit 2
 }
 
+# An unset ISUCON would trip set -u with exit 1, which Claude Code treats as a non-blocking error and runs the command anyway
+case "${ISUCON-}" in
+  0|1) ;;
+  *) deny "ISUCON must be 0 or 1." ;;
+esac
+
 while IFS= read -r SEG; do
   [ -n "$SEG" ] || continue
 
@@ -31,7 +37,7 @@ while IFS= read -r SEG; do
       ;;
   esac
 
-  if [ "${ISUCON:-0}" != 1 ]; then
+  if [ "$ISUCON" = 0 ]; then
     case "$SEG" in
       sudo|"sudo "*)
         deny "sudo is not allowed in agent sessions."

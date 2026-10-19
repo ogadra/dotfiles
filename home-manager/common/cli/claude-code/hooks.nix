@@ -84,7 +84,7 @@ in
         hooks = [
           {
             type = "command";
-            command = "${if isucon then "ISUCON=1 " else ""}$HOME/.claude/scripts/pre-bash.sh";
+            command = "ISUCON=${if isucon then "1" else "0"} $HOME/.claude/scripts/pre-bash.sh";
           }
           # Rewriting the command through the rtk proxy compresses its output; pre-bash.sh still judges the original input, so its guards survive this hook
           {

@@ -19,7 +19,7 @@ matcher = "^Bash$"
 
 [[hooks.PreToolUse.hooks]]
 type = "command"
-command = "/etc/codex/hooks/pre-bash.sh"
+command = "env ISUCON=0 /etc/codex/hooks/pre-bash.sh"
 timeout = 30
 statusMessage = "Checking managed Bash command"
 

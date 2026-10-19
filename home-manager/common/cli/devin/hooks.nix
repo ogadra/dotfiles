@@ -21,7 +21,7 @@ in
         hooks = [
           {
             type = "command";
-            command = "${if isucon then "ISUCON=1 " else ""}$HOME/.config/devin/scripts/pre-bash.sh";
+            command = "ISUCON=${if isucon then "1" else "0"} $HOME/.config/devin/scripts/pre-bash.sh";
           }
           {
             type = "command";
