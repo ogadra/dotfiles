@@ -37,7 +37,6 @@ let
           keyboard_type_v2 = "ansi";
         };
 
-        # Remapped here instead of in wezterm because wezterm bindings match modifiers exactly and would need every combination listed
         simple_modifications = [
           {
             from.key_code = "keypad_enter";
