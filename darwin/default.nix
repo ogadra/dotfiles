@@ -28,6 +28,7 @@ let
     ./settings/spaces.nix
     ./settings/universalaccess.nix
     ./settings/window-manager.nix
+    ../common/pki.nix
     ../profiles/${profile}
   ];
 
