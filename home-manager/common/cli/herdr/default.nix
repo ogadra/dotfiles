@@ -41,6 +41,10 @@ in
 {
   programs.herdr = {
     enable = true;
+    # Patches the nixpkgs build instead of fetching our own release, so nixpkgs bumps carry the patch without a release workflow
+    package = pkgs.herdr.overrideAttrs (old: {
+      patches = (old.patches or [ ]) ++ [ ./patches/sidebar-tabs.patch ];
+    });
     settings = {
       onboarding = false;
 
@@ -81,6 +85,8 @@ in
         mouse_scroll_lines = 2;
         # wezterm's new-tab key expects a tab to appear without a name prompt
         prompt_new_tab_name = false;
+        # Lists tabs vertically in the sidebar; needs patches/sidebar-tabs.patch, upstream accepts only top and bottom
+        tab_bar_position = "sidebar";
 
         tab_bar_right = [
           # Separators land only between segments, so literals at both ends close the strip

@@ -1,0 +1,501 @@
+Modified by ogadra: list tabs vertically in the sidebar with ui.tab_bar_position = "sidebar". Applied to herdr v0.9.5 (Apache-2.0).
+
+diff --git a/src/client/shell/config.rs b/src/client/shell/config.rs
+index 04a3ddb5..913ea3d5 100644
+--- a/src/client/shell/config.rs
++++ b/src/client/shell/config.rs
+@@ -418,7 +418,8 @@ impl ClientShellConfig {
+         let show_tab_bar = rows > 1 && !(self.hide_tab_bar_when_single_tab && tab_count == 1);
+         let tab_height = u16::from(show_tab_bar);
+         let (tab_bar, pane_surface) = match self.tab_bar_position {
+-            TabBarPositionConfig::Top => (
++            // The sidebar lists the tabs, so the top row only carries status entries.
++            TabBarPositionConfig::Top | TabBarPositionConfig::Sidebar => (
+                 Rect::new(main.x, 0, main.width, tab_height),
+                 Rect::new(
+                     main.x,
+diff --git a/src/client/shell/mouse.rs b/src/client/shell/mouse.rs
+index 8e873d68..ddc10945 100644
+--- a/src/client/shell/mouse.rs
++++ b/src/client/shell/mouse.rs
+@@ -451,6 +451,11 @@ impl ClientShellState {
+     }
+ 
+     fn tab_drop_index_at(&self, point: (u16, u16)) -> Option<usize> {
++        // The sidebar list keeps reordering on the move-tab keys instead of a y-based drop
++        // index, because the indicator and scroll buttons below assume one horizontal row.
++        if !self.hits.tab_list.is_empty() {
++            return None;
++        }
+         let snapshot = self.snapshot.as_deref()?;
+         let workspace_id = snapshot.focused_workspace_id.as_deref()?;
+         let tabs = snapshot
+diff --git a/src/client/shell/render.rs b/src/client/shell/render.rs
+index 248216c1..7ec0b2ac 100644
+--- a/src/client/shell/render.rs
++++ b/src/client/shell/render.rs
+@@ -4,6 +4,8 @@ use super::*;
+ mod overlays;
+ #[path = "../shell/sidebar.rs"]
+ pub(in crate::client::shell) mod sidebar;
++#[path = "../shell/sidebar_tabs.rs"]
++mod sidebar_tabs;
+ #[path = "../shell/tabs.rs"]
+ mod tabs;
+ 
+@@ -11,7 +13,7 @@ pub(super) use super::agent_sidebar::{ordered_agent_pane_ids, render_agent_panel
+ pub(super) use super::aggregate_navigation::navigator_rows as client_navigator_rows;
+ pub(super) use overlays::{render_client_overlay, render_context_menu, render_global_menu};
+ pub(super) use sidebar::{render_collapsed_sidebar, render_sidebar, workspace_entries};
+-pub(super) use tabs::{render_tab_bar, tab_bar_status_width};
++pub(super) use tabs::{render_tab_bar, render_tab_status_row, tab_bar_status_width};
+ 
+ pub(in crate::client::shell) fn render_sidebar_background(
+     buffer: &mut Buffer,
+@@ -258,6 +260,7 @@ pub(super) fn render_shell(
+     mut state: ShellRenderState<'_>,
+ ) -> ShellHitMap {
+     let mut hits = ShellHitMap::default();
++    let sidebar_lists_tabs = sidebar_tabs::sidebar_lists_tabs(layout, config, &state);
+     if layout.mobile_header.height > 0 {
+         super::mobile::render_mobile_header(
+             buffer,
+@@ -309,7 +312,9 @@ pub(super) fn render_shell(
+             );
+         }
+     }
+-    if layout.tab_bar.height > 0 {
++    if layout.tab_bar.height > 0 && sidebar_lists_tabs {
++        render_tab_status_row(buffer, layout.tab_bar, snapshot, config);
++    } else if layout.tab_bar.height > 0 {
+         render_tab_bar(
+             buffer,
+             layout.tab_bar,
+diff --git a/src/client/shell/sidebar.rs b/src/client/shell/sidebar.rs
+index 46c3a1a0..b42d0c10 100644
+--- a/src/client/shell/sidebar.rs
++++ b/src/client/shell/sidebar.rs
+@@ -430,6 +430,14 @@ pub(crate) fn render_sidebar(
+         }
+     }
+ 
++    let detail_area = if config.tab_bar_position == TabBarPositionConfig::Sidebar {
++        let (tab_area, agent_area) =
++            super::sidebar_tabs::split_tab_list_area(detail_area, snapshot, config);
++        super::sidebar_tabs::render_tab_list(buffer, tab_area, snapshot, config, hits);
++        agent_area
++    } else {
++        detail_area
++    };
+     super::render_agent_panel(
+         buffer,
+         detail_area,
+diff --git a/src/client/shell/sidebar_tabs.rs b/src/client/shell/sidebar_tabs.rs
+new file mode 100644
+index 00000000..7b373fd6
+--- /dev/null
++++ b/src/client/shell/sidebar_tabs.rs
+@@ -0,0 +1,137 @@
++use super::*;
++
++/// Rule row plus the " tabs" title row.
++const TAB_LIST_HEADER_ROWS: u16 = 2;
++
++/// Whether this frame lists the tabs in the sidebar instead of on the horizontal row.
++/// A collapsed sidebar has no room for names and the machines sidebar has no tabs section, so
++/// both keep the horizontal row rather than leaving the tabs unreachable.
++pub(super) fn sidebar_lists_tabs(
++    layout: ClientShellLayout,
++    config: &ClientShellConfig,
++    state: &ShellRenderState<'_>,
++) -> bool {
++    config.tab_bar_position == TabBarPositionConfig::Sidebar
++        && layout.sidebar.width > 0
++        && !state.sidebar_collapsed
++        && state.endpoints.len() <= 1
++}
++
++/// Splits the agents area into the tab list on top and the agents below. The list is sized to
++/// its tabs but takes at most half, so the agents stay visible with many tabs open.
++pub(super) fn split_tab_list_area(
++    area: Rect,
++    snapshot: &ClientShellSnapshot,
++    config: &ClientShellConfig,
++) -> (Rect, Rect) {
++    let tab_count = focused_workspace_tabs(snapshot).count();
++    if tab_count == 0 || (config.hide_tab_bar_when_single_tab && tab_count == 1) {
++        return (Rect::default(), area);
++    }
++    let wanted = TAB_LIST_HEADER_ROWS.saturating_add(tab_count.min(u16::MAX as usize) as u16);
++    let height = wanted.min(area.height / 2);
++    (
++        Rect { height, ..area },
++        Rect {
++            y: area.y.saturating_add(height),
++            height: area.height.saturating_sub(height),
++            ..area
++        },
++    )
++}
++
++pub(super) fn render_tab_list(
++    buffer: &mut Buffer,
++    area: Rect,
++    snapshot: &ClientShellSnapshot,
++    config: &ClientShellConfig,
++    hits: &mut ShellHitMap,
++) {
++    let palette = &config.palette;
++    if area.height <= TAB_LIST_HEADER_ROWS {
++        return;
++    }
++    put_text(
++        buffer,
++        area.x,
++        area.y,
++        area.width,
++        &"─".repeat(area.width as usize),
++        Style::default().fg(palette.surface_dim),
++    );
++    put_text(
++        buffer,
++        area.x,
++        area.y + 1,
++        area.width,
++        " tabs",
++        Style::default()
++            .fg(palette.overlay0)
++            .add_modifier(Modifier::BOLD),
++    );
++    let body = Rect::new(
++        area.x,
++        area.y + TAB_LIST_HEADER_ROWS,
++        area.width,
++        area.height - TAB_LIST_HEADER_ROWS,
++    );
++    hits.tab_list = body;
++
++    let tabs = focused_workspace_tabs(snapshot).collect::<Vec<_>>();
++    // Scroll only as far as needed to keep the focused tab on screen; the wheel already moves
++    // between tabs, so a separate list offset would only fight it.
++    let visible = body.height as usize;
++    let first = tabs
++        .iter()
++        .position(|tab| tab.focused)
++        .map_or(0, |focused| (focused + 1).saturating_sub(visible));
++    for (row, tab) in tabs.iter().skip(first).take(visible).enumerate() {
++        let rect = Rect::new(body.x, body.y + row as u16, body.width, 1);
++        render_tab_row(buffer, rect, tab, config);
++        hits.tabs.push((rect, tab.tab_id.clone()));
++    }
++}
++
++fn render_tab_row(
++    buffer: &mut Buffer,
++    rect: Rect,
++    tab: &ClientShellTab,
++    config: &ClientShellConfig,
++) {
++    let palette = &config.palette;
++    if tab.focused {
++        buffer.set_style(rect, Style::default().bg(palette.active_row_bg));
++    }
++    let name_style = if tab.focused {
++        Style::default()
++            .fg(palette.text)
++            .add_modifier(Modifier::BOLD)
++    } else if tab.custom_label {
++        Style::default().fg(palette.subtext0)
++    } else {
++        Style::default().fg(palette.overlay0)
++    };
++    let right = rect.right();
++    let x = put_segment(buffer, rect.x, rect.y, right, " ", Style::default());
++    let x = put_segment(
++        buffer,
++        x,
++        rect.y,
++        right,
++        status_icon(tab.agent_status, config.status_indicators),
++        Style::default().fg(status_color(tab.agent_status, palette)),
++    );
++    let label = if tab.zoomed {
++        format!(" {} Z", tab.label)
++    } else {
++        format!(" {}", tab.label)
++    };
++    put_segment(buffer, x, rect.y, right, &label, name_style);
++}
++
++fn focused_workspace_tabs(snapshot: &ClientShellSnapshot) -> impl Iterator<Item = &ClientShellTab> {
++    snapshot
++        .tabs
++        .iter()
++        .filter(|tab| Some(tab.workspace_id.as_str()) == snapshot.focused_workspace_id.as_deref())
++}
+diff --git a/src/client/shell/state.rs b/src/client/shell/state.rs
+index 5a732920..a0680625 100644
+--- a/src/client/shell/state.rs
++++ b/src/client/shell/state.rs
+@@ -90,6 +90,8 @@ pub(super) struct ShellHitMap {
+     pub(super) workspace_scroll_metrics: Option<crate::pane::ScrollMetrics>,
+     pub(super) workspace_max_scroll: usize,
+     pub(super) tabs: Vec<(Rect, String)>,
++    /// Body of the sidebar tab list; empty when the tabs sit on the horizontal row.
++    pub(super) tab_list: Rect,
+     pub(super) panes: Vec<PaneHit>,
+     pub(super) popup: Option<PaneHit>,
+     pub(super) pane_splits: Vec<PaneSplitHit>,
+diff --git a/src/client/shell/tabs.rs b/src/client/shell/tabs.rs
+index 3fdcf7dc..36015169 100644
+--- a/src/client/shell/tabs.rs
++++ b/src/client/shell/tabs.rs
+@@ -220,7 +220,9 @@ pub(crate) fn render_tab_bar(
+             );
+         }
+     }
+-    render_tab_bar_status(buffer, area, snapshot, palette);
++    if let Some(status) = tab_bar_status_area(snapshot, area) {
++        render_tab_bar_status(buffer, status, snapshot, palette);
++    }
+ }
+ 
+ pub(crate) fn tab_bar_status_width(snapshot: &ClientShellSnapshot) -> u16 {
+@@ -254,15 +256,30 @@ fn tab_bar_content_area(snapshot: &ClientShellSnapshot, area: Rect) -> Rect {
+     }
+ }
+ 
+-fn render_tab_bar_status(
++/// Draws only the status entries, right-aligned, when the tabs are listed in the sidebar.
++/// Without tabs on the row there is no tab strip to keep room for, so the status may use the
++/// whole width.
++pub(crate) fn render_tab_status_row(
+     buffer: &mut Buffer,
+     area: Rect,
+     snapshot: &ClientShellSnapshot,
+-    palette: &Palette,
++    config: &ClientShellConfig,
+ ) {
+-    let Some(status) = tab_bar_status_area(snapshot, area) else {
++    buffer.set_style(area, Style::default().bg(config.palette.panel_bg));
++    let width = tab_bar_status_width(snapshot).min(area.width);
++    if width == 0 {
+         return;
+-    };
++    }
++    let status = Rect::new(area.right().saturating_sub(width), area.y, width, 1);
++    render_tab_bar_status(buffer, status, snapshot, &config.palette);
++}
++
++fn render_tab_bar_status(
++    buffer: &mut Buffer,
++    status: Rect,
++    snapshot: &ClientShellSnapshot,
++    palette: &Palette,
++) {
+     let separator_width = display_width(&snapshot.tab_bar_right_separator);
+     let mut x = status.x;
+     for (index, segment) in snapshot.tab_bar_right.iter().enumerate() {
+@@ -270,7 +287,7 @@ fn render_tab_bar_status(
+             put_text(
+                 buffer,
+                 x,
+-                area.y,
++                status.y,
+                 separator_width,
+                 &snapshot.tab_bar_right_separator,
+                 Style::default().fg(palette.overlay0).bg(palette.panel_bg),
+@@ -286,7 +303,7 @@ fn render_tab_bar_status(
+         } else {
+             Style::default().fg(palette.overlay1).bg(palette.panel_bg)
+         };
+-        put_text(buffer, x, area.y, width, &segment.text, style);
++        put_text(buffer, x, status.y, width, &segment.text, style);
+         x = x.saturating_add(width);
+     }
+ }
+diff --git a/src/client/shell/tests/mod.rs b/src/client/shell/tests/mod.rs
+index 05bfc263..bb0f7c0e 100644
+--- a/src/client/shell/tests/mod.rs
++++ b/src/client/shell/tests/mod.rs
+@@ -261,4 +261,5 @@ mod link_hover;
+ mod mobile;
+ mod mouse_selection;
+ mod popup_focus_projection;
++mod sidebar_tabs;
+ mod startup_overlays;
+diff --git a/src/client/shell/tests/sidebar_tabs.rs b/src/client/shell/tests/sidebar_tabs.rs
+new file mode 100644
+index 00000000..b2a81e2b
+--- /dev/null
++++ b/src/client/shell/tests/sidebar_tabs.rs
+@@ -0,0 +1,120 @@
++use super::*;
++
++fn sidebar_tabs_state(tab_count: usize, focused: usize) -> ClientShellState {
++    let mut projected = snapshot();
++    projected.tab_bar_right = vec![crate::protocol::ClientShellTabStatusSegment {
++        text: "host".into(),
++        accent: false,
++    }];
++    projected.tabs.clear();
++    for number in 1..=tab_count {
++        projected.tabs.push(ClientShellTab {
++            tab_id: format!("tab_{number}"),
++            workspace_id: "ws_1".into(),
++            number,
++            label: format!("name{number}"),
++            custom_label: true,
++            zoomed: false,
++            focused: number == focused,
++            agent_status: AgentStatus::Idle,
++        });
++    }
++    projected.focused_tab_id = Some(format!("tab_{focused}"));
++    let mut config = ClientShellConfig::from_config(&Config::default());
++    config.mobile_width_threshold = 0;
++    config.tab_bar_position = crate::config::TabBarPositionConfig::Sidebar;
++    let mut state = ClientShellState::new(config);
++    state.set_snapshot(Box::new(projected));
++    state.set_pane_surface(surface());
++    state
++}
++
++fn click(state: &mut ClientShellState, kind: MouseEventKind, rect: Rect) -> ClientShellInput {
++    state.handle_raw_events(vec![RawInputEvent::Mouse(MouseEvent {
++        kind,
++        column: rect.x + 1,
++        row: rect.y,
++        modifiers: KeyModifiers::empty(),
++    })])
++}
++
++#[test]
++fn sidebar_position_lists_tabs_in_sidebar_and_keeps_status_on_top_row() {
++    let mut state = sidebar_tabs_state(3, 2);
++    let frame = state.compose(106, 30).expect("sidebar tabs");
++    let layout = state.layout(106, 30);
++    let rows = frame_rows(&frame);
++
++    assert!(!state.hits.tab_list.is_empty());
++    assert_eq!(state.hits.tabs.len(), 3);
++    assert!(state
++        .hits
++        .tabs
++        .iter()
++        .all(|(rect, _)| rect.right() <= layout.sidebar.right() && rect.y > 0));
++    assert!(rows.iter().any(|row| row.contains(" tabs")));
++    let top = &rows[layout.tab_bar.y as usize];
++    assert!(top.ends_with("host"));
++    assert!(!top.contains("name1"));
++    let (column, row) = cell_symbol_position(&frame, layout.sidebar, "name2");
++    let buffer = frame.to_ratatui_buffer().expect("sidebar tabs buffer");
++    let focused = buffer.cell((column, row)).expect("focused tab cell");
++    assert_eq!(focused.bg, state.config.palette.active_row_bg);
++}
++
++#[test]
++fn collapsed_sidebar_falls_back_to_the_tab_row() {
++    let mut state = sidebar_tabs_state(3, 1);
++    state.sidebar_collapsed = true;
++    state.compose(106, 30).expect("collapsed sidebar");
++    let layout = state.layout(106, 30);
++
++    assert!(state.hits.tab_list.is_empty());
++    assert_eq!(state.hits.tabs.len(), 3);
++    assert!(state
++        .hits
++        .tabs
++        .iter()
++        .all(|(rect, _)| rect.y == layout.tab_bar.y));
++}
++
++#[test]
++fn sidebar_tab_click_focuses_and_dragging_does_not_reorder() {
++    let mut state = sidebar_tabs_state(3, 1);
++    state.compose(106, 30).expect("sidebar tabs");
++    let first = state.hits.tabs[0].0;
++    let third = state.hits.tabs[2].0;
++
++    click(&mut state, MouseEventKind::Down(MouseButton::Left), third);
++    click(&mut state, MouseEventKind::Drag(MouseButton::Left), first);
++    assert!(state.chrome_drag.is_none());
++    let release = click(&mut state, MouseEventKind::Up(MouseButton::Left), first);
++
++    assert!(matches!(
++        &release.actions[..],
++        [ClientShellAction::Endpoint { request, .. }]
++            if matches!(&request.method, crate::api::schema::Method::TabFocus(target) if target.tab_id == "tab_3")
++    ));
++}
++
++#[test]
++fn sidebar_tab_list_keeps_the_focused_tab_visible() {
++    let mut state = sidebar_tabs_state(30, 30);
++    state.compose(106, 30).expect("many sidebar tabs");
++
++    assert!(state.hits.tabs.len() < 30);
++    assert_eq!(
++        state.hits.tabs.last().map(|(_, tab_id)| tab_id.as_str()),
++        Some("tab_30")
++    );
++}
++
++#[test]
++fn single_tab_hides_the_sidebar_list_when_configured() {
++    let mut state = sidebar_tabs_state(1, 1);
++    state.config.hide_tab_bar_when_single_tab = true;
++    state.compose(106, 30).expect("single tab");
++
++    assert!(state.hits.tab_list.is_empty());
++    assert!(state.hits.tabs.is_empty());
++}
+diff --git a/src/config/model.rs b/src/config/model.rs
+index 29802fd9..08fbb774 100644
+--- a/src/config/model.rs
++++ b/src/config/model.rs
+@@ -878,6 +878,7 @@ pub enum TabBarPositionConfig {
+     #[default]
+     Top,
+     Bottom,
++    Sidebar,
+ }
+ 
+ #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+@@ -982,7 +983,7 @@ pub struct UiConfig {
+     pub show_agent_labels_on_pane_borders: bool,
+     /// Hide the tab row when the workspace has one tab. Default: false.
+     pub hide_tab_bar_when_single_tab: bool,
+-    /// Desktop tab row placement. Default: top.
++    /// Desktop tab placement: the top or bottom row, or a list in the expanded sidebar. Default: top.
+     pub tab_bar_position: TabBarPositionConfig,
+     /// Ordered entries shown at the right edge of the desktop tab row. Empty by default.
+     pub tab_bar_right: Vec<TabBarRightEntryConfig>,
+@@ -1517,6 +1518,12 @@ status_indicators = "symbols"
+         assert!(wrong_type.contains("\"auto\", \"always\", \"off\", or a legacy boolean"));
+     }
+ 
++    #[test]
++    fn tab_bar_position_parses_sidebar() {
++        let config: Config = toml::from_str("[ui]\ntab_bar_position = \"sidebar\"\n").unwrap();
++        assert_eq!(config.ui.tab_bar_position, TabBarPositionConfig::Sidebar);
++    }
++
+     #[test]
+     fn pane_appearance_defaults_and_parse() {
+         let default_config = Config::default();
+diff --git a/src/main.rs b/src/main.rs
+index f97e7e2b..53e5bdca 100644
+--- a/src/main.rs
++++ b/src/main.rs
+@@ -315,7 +315,9 @@ const DEFAULT_CONFIG: &str = r##"# herdr configuration
+ # New tabs can still be created with the configured keybinding.
+ # hide_tab_bar_when_single_tab = false
+ 
+-# Desktop tab row placement: "top" or "bottom".
++# Desktop tab placement: "top", "bottom", or "sidebar".
++# "sidebar" lists tabs in the expanded sidebar and keeps the top row for status
++# entries; a collapsed or hidden sidebar falls back to the top row.
+ # tab_bar_position = "top"
+ 
+ # Ordered status entries at the right edge of the desktop tab bar.
