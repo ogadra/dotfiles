@@ -10,7 +10,7 @@ let
   baseModules = [
     ./configuration.nix
     ./settings/security/sudo.nix
-    ../common/security/pki.nix
+    ../common/pki.nix
     ../profiles/${profile}
   ];
 
