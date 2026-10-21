@@ -1,7 +1,7 @@
 name: Renovate
 on:
   schedule:
-    - cron: "0 20 * * *"
+    - cron: "0 */6 * * *"
   push:
     branches: [main]
   workflow_dispatch:
@@ -17,10 +17,12 @@ jobs:
           client-id: ${{ secrets.RENOVATE_APP_CLIENT_ID }}
           private-key: ${{ secrets.RENOVATE_APP_PRIVATE_KEY }}
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      # Renovate puts this date into each lock file maintenance branch name and PR title for one PR per lock file per day; `branchTopic` cannot do it because grouping replaces it with the group slug.
+      # Renovate puts this UTC 6-hour slot (YYYY-MM-DD-HH) into each lock file maintenance branch name and PR title for one PR per lock file per slot; `branchTopic` cannot do it because grouping replaces it with the group slug.
       - name: Build the dated Renovate config
         run: |
-          jq -n --arg date "$(date -u +%Y-%m-%d)" '{
+          # 21600 seconds is 6 hours, matching the cron interval so push and manual runs reuse the current slot
+          slot="$(date -u -d "@$(( $(date -u +%s) / 21600 * 21600 ))" +%Y-%m-%d-%H)"
+          jq -n --arg date "$slot" '{
             lockFileMaintenance: {
               additionalBranchPrefix: "\($date)-",
               commitMessageExtra: "(\($date))"
