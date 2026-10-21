@@ -3,6 +3,7 @@ on:
   pull_request:
     paths:
       - "**/*.nix"
+      - "**/*.patch"
       - flake.lock
       - .github/workflows/build.yml
 permissions:
