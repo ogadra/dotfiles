@@ -233,5 +233,8 @@
   ## Environment variables
 
   # Environment variables set for a Claude Code session.
-  env = { };
+  env = {
+    # "1" returns Bash to the project directory after each command, so the user never has to track where the agent is.
+    CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR = "1";
+  };
 }
