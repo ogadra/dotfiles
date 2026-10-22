@@ -23,20 +23,6 @@ let
     exec ${herdrBin} --session "$1"
   '';
 
-  # One session per wezterm OS window: the git segment reads the session-wide active pane
-  windowSession = pkgs.writeShellScript "herdr-window-session" ''
-    set -u
-    lock_dir="''${XDG_RUNTIME_DIR:-''${TMPDIR:-/tmp}}/herdr-windows"
-    mkdir -p "$lock_dir"
-    slot=1
-    while :; do
-      ${pkgs.flock}/bin/flock -n -E 66 "$lock_dir/$slot" ${sessionExec} "window$slot"
-      status=$?
-      # 66 is flock's conflict code, so only a slot another window holds continues the search
-      [ "$status" -eq 66 ] || exit "$status"
-      slot=$((slot + 1))
-    done
-  '';
 in
 {
   programs.herdr = {
@@ -173,9 +159,9 @@ in
       end
     end
 
-    # Give every wezterm OS window its own herdr session; skip inside herdr and Claude Code
+    # Every wezterm OS window attaches to herdr's default session, and each client views its own space and tab; skip inside herdr and Claude Code
     if not set -q HERDR_ENV; and not set -q CLAUDECODE
-      exec ${windowSession}
+      exec ${sessionExec} default
     end
   '';
 }

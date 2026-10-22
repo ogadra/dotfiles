@@ -1,11 +1,6 @@
 { pkgs, config, ... }:
 let
   herdrBin = "${config.programs.herdr.package}/bin/herdr";
-  # A stopped session keeps its state on disk, so delete follows stop; one script keeps the pair off wezterm's GUI thread
-  dropSession = pkgs.writeShellScript "herdr-drop-session" ''
-    ${herdrBin} session stop "$1"
-    ${herdrBin} session delete "$1"
-  '';
   # Fork the focused pane's Claude session into a background tab; the script resolves the session from the pane's claude pid
   forkClaude = pkgs.writeShellApplication {
     name = "herdr-fork-claude";
@@ -52,13 +47,9 @@ in
         return payload.result.tabs
       end
 
-      -- A session belongs to one window, so it dies with the window instead of lingering detached
+      -- Every window attaches to the one shared session, so closing a window only detaches it and the session keeps running
       local function close_window(win, pane)
-        local session = pane:get_user_vars().herdr_session
         win:perform_action(act.CloseCurrentTab { confirm = false }, pane)
-        if session then
-          wezterm.background_child_process { '${dropSession}', session }
-        end
       end
 
       -- Closing the last tab leaves herdr with nothing to show, so the window goes with it
