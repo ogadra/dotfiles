@@ -9,13 +9,32 @@ let
 
   herdrBin = "${config.programs.herdr.package}/bin/herdr";
 
-  # Herdr strips escape sequences from command entries, so emit plain text
-  gitSegment = pkgs.writeShellScript "herdr-git-segment" ''
-    cd "$HERDR_ACTIVE_PANE_CWD" 2>/dev/null || exit 0
-    branch=$(${pkgs.git}/bin/git rev-parse --abbrev-ref HEAD 2>/dev/null) || exit 0
-    [ -n "$branch" ] || exit 0
-    printf '%s\n' "$branch"
-  '';
+  # Herdr strips escape sequences from command entries, so emit plain text; storage reads the home volume because the macOS root is the sealed system snapshot
+  loadSegment = pkgs.writeShellScript "herdr-load-segment" (
+    if pkgs.stdenv.hostPlatform.isLinux then
+      ''
+        # /proc/stat counts since boot, so CPU is the busy share of a one-second delta
+        read -r _ u1 n1 s1 i1 w1 q1 r1 _ </proc/stat
+        sleep 1
+        read -r _ u2 n2 s2 i2 w2 q2 r2 _ </proc/stat
+        busy=$(((u2 + n2 + s2 + q2 + r2) - (u1 + n1 + s1 + q1 + r1)))
+        idle=$(((i2 + w2) - (i1 + w1)))
+        cpu=$((busy * 100 / (busy + idle)))
+        mem=$(${pkgs.gawk}/bin/awk '/^MemTotal/ { t = $2 } /^MemAvailable/ { a = $2 } END { printf "%d", (t - a) * 100 / t }' /proc/meminfo)
+        disk=$(df -P "$HOME" | ${pkgs.gawk}/bin/awk 'NR == 2 { sub(/%/, "", $5); print $5 }')
+        printf 'CPU %s%%  MEM %s%%  DISK %s%%\n' "$cpu" "$mem" "$disk"
+      ''
+    else
+      ''
+        # ps reports decayed per-process averages, so summing them avoids top's multi-second sampling
+        ncpu=$(/usr/sbin/sysctl -n hw.ncpu)
+        cpu=$(/bin/ps -A -o %cpu= | /usr/bin/awk -v n="$ncpu" '{ s += $1 } END { printf "%d", s / n + 0.5 }')
+        # memory_pressure's free share matches what Activity Monitor's pressure gauge reads
+        mem=$(/usr/bin/memory_pressure | /usr/bin/awk '/free percentage/ { sub(/%/, "", $NF); print 100 - $NF }')
+        disk=$(/bin/df -P "$HOME" | /usr/bin/awk 'NR == 2 { sub(/%/, "", $5); print $5 }')
+        printf 'CPU %s%%  MEM %s%%  DISK %s%%\n' "$cpu" "$mem" "$disk"
+      ''
+  );
 
   # Publish the session name as a wezterm user var so its keybinds can drive this window's session; OSC 1337 takes a base64 value
   sessionExec = pkgs.writeShellScript "herdr-session-exec" ''
@@ -91,7 +110,10 @@ in
           }
           {
             type = "command";
-            command = "${gitSegment}";
+            command = "${loadSegment}";
+            # Linux samples /proc/stat for a second, so a 2-second timeout still leaves headroom
+            interval_seconds = 5;
+            timeout_seconds = 2;
           }
           {
             type = "text";
@@ -99,7 +121,7 @@ in
           }
           {
             type = "datetime";
-            format = "%H:%M:%S";
+            format = "%m.%d %a %H:%M:%S";
           }
           {
             type = "text";
