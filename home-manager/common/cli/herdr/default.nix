@@ -88,6 +88,15 @@ in
         # Lists tabs vertically in the sidebar; needs patches/sidebar-tabs.patch, upstream accepts only top and bottom
         tab_bar_position = "sidebar";
 
+        # Two rows like the patched tab list: the tab's name, then the pane's repo-relative path that the patch reports as $path
+        sidebar.agents.rows = [
+          [
+            "state_icon"
+            "tab"
+          ]
+          [ "$path" ]
+        ];
+
         tab_bar_right = [
           # Separators land only between segments, so literals at both ends close the strip
           {
@@ -153,32 +162,20 @@ in
   };
 
   programs.fish.interactiveShellInit = ''
-    # Name the herdr tab with the wezterm-style display path (repo-relative or ~-shortened)
-    function __herdr_rename_tab --on-variable PWD
-      set -q HERDR_TAB_ID; or return
-      set -l path "$PWD"
-      set -l git_root (command git rev-parse --show-toplevel 2>/dev/null)
-      set -l name
-      if test -n "$git_root"
-        set -l repo (basename "$git_root")
-        if test "$path" = "$git_root"
-          set name "$repo"
-        else
-          set name "$repo"/(string sub --start (math (string length "$git_root") + 2) -- "$path")
-        end
+    # The patched tab list falls back to the terminal title for unnamed tabs, so idle prompts keep showing the last command
+    function fish_title
+      if set -q argv[1]
+        echo -- $argv[1]
+      else if set -q history[1]
+        echo -- $history[1]
       else
-        set name (string replace --regex "^$HOME" "~" -- "$path")
+        prompt_pwd
       end
-      ${herdrBin} tab rename "$HERDR_TAB_ID" "$name" >/dev/null 2>&1
     end
 
     # Give every wezterm OS window its own herdr session; skip inside herdr and Claude Code
     if not set -q HERDR_ENV; and not set -q CLAUDECODE
       exec ${windowSession}
-    end
-
-    if set -q HERDR_ENV
-      __herdr_rename_tab
     end
   '';
 }
