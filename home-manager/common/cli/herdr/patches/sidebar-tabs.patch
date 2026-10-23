@@ -1,4 +1,4 @@
-Modified by ogadra: list tabs vertically in the sidebar with ui.tab_bar_position = "sidebar", each with its title and repo-relative path, size the spaces section to its rows, and report that path to agent rows as $path. Applied to herdr v0.9.5 (Apache-2.0).
+Modified by ogadra: list tabs vertically in the sidebar with ui.tab_bar_position = "sidebar", each with its title and repo-relative path, size the spaces section to its rows, pin the agents to the bottom, and report that path to agent rows as $path. Applied to herdr v0.9.5 (Apache-2.0).
 
 diff --git a/src/client/shell/config.rs b/src/client/shell/config.rs
 index 04a3ddb5..913ea3d5 100644
@@ -167,10 +167,10 @@ index 46c3a1a0..5c84e8e0 100644
          detail_area,
 diff --git a/src/client/shell/sidebar_tabs.rs b/src/client/shell/sidebar_tabs.rs
 new file mode 100644
-index 00000000..64946a0b
+index 00000000..be1ded41
 --- /dev/null
 +++ b/src/client/shell/sidebar_tabs.rs
-@@ -0,0 +1,172 @@
+@@ -0,0 +1,194 @@
 +use super::*;
 +
 +/// Rule row plus the " tabs" title row.
@@ -202,27 +202,49 @@ index 00000000..64946a0b
 +    split.min(f32::from(spaces_rows) / f32::from(total_height))
 +}
 +
-+/// Splits the agents area into the tab list on top and the agents below. The list is sized to
-+/// its tabs but takes at most half, so the agents stay visible with many tabs open.
++/// Rule, title, and spacer rows above the agent list, matching `render_agent_list`.
++const AGENT_PANEL_HEADER_ROWS: u16 = 3;
++
++/// Splits the detail area into the tab list on top and the agents pinned to the bottom. The
++/// agents list every space's agents, so sizing them to their rows keeps them in place while the
++/// tab list, which follows the focused space, changes length; they take at most half the area.
 +pub(super) fn split_tab_list_area(
 +    area: Rect,
 +    snapshot: &ClientShellSnapshot,
 +    config: &ClientShellConfig,
 +) -> (Rect, Rect) {
++    let agents = super::agent_sidebar::agent_rows(snapshot, config, None);
++    let agent_rows =
++        agents
++            .iter()
++            .enumerate()
++            .fold(AGENT_PANEL_HEADER_ROWS, |rows, (index, agent)| {
++                let gap = if index + 1 < agents.len() {
++                    config.agents.row_gap
++                } else {
++                    0
++                };
++                rows.saturating_add(agent.rows.len().max(1).min(u16::MAX as usize) as u16)
++                    .saturating_add(gap)
++            });
++    // One row past the list keeps the last agent off the collapse toggle in the bottom corner
++    let agent_height = agent_rows.saturating_add(1).min(area.height / 2);
++    let tab_height = area.height.saturating_sub(agent_height);
++    let agent_area = Rect {
++        y: area.y.saturating_add(tab_height),
++        height: agent_height,
++        ..area
++    };
 +    let tab_count = focused_workspace_tabs(snapshot).count();
 +    if tab_count == 0 || (config.hide_tab_bar_when_single_tab && tab_count == 1) {
-+        return (Rect::default(), area);
++        return (Rect::default(), agent_area);
 +    }
-+    let tab_rows = (tab_count.min(u16::MAX as usize) as u16).saturating_mul(TAB_ROWS);
-+    let wanted = TAB_LIST_HEADER_ROWS.saturating_add(tab_rows);
-+    let height = wanted.min(area.height / 2);
 +    (
-+        Rect { height, ..area },
 +        Rect {
-+            y: area.y.saturating_add(height),
-+            height: area.height.saturating_sub(height),
++            height: tab_height,
 +            ..area
 +        },
++        agent_area,
 +    )
 +}
 +
@@ -511,10 +533,10 @@ index 05bfc263..23a3971a 100644
  mod startup_overlays;
 diff --git a/src/client/shell/tests/sidebar_tabs.rs b/src/client/shell/tests/sidebar_tabs.rs
 new file mode 100644
-index 00000000..5675367e
+index 00000000..ceb6b15c
 --- /dev/null
 +++ b/src/client/shell/tests/sidebar_tabs.rs
-@@ -0,0 +1,150 @@
+@@ -0,0 +1,161 @@
 +use super::*;
 +
 +fn sidebar_tabs_state(tab_count: usize, focused: usize) -> ClientShellState {
@@ -664,6 +686,17 @@ index 00000000..5675367e
 +
 +    assert!(state.hits.sidebar_section_divider.y < sidebar.y + sidebar.height / 2);
 +    assert!(state.hits.tab_list.y < sidebar.y + sidebar.height / 2);
++}
++
++#[test]
++fn agents_stay_pinned_to_the_bottom_when_the_tab_count_changes() {
++    let mut few = sidebar_tabs_state(1, 1);
++    few.compose(106, 30).expect("one tab");
++    let mut many = sidebar_tabs_state(5, 1);
++    many.compose(106, 30).expect("five tabs");
++
++    assert_eq!(few.hits.agent_body, many.hits.agent_body);
++    assert!(many.hits.tab_list.bottom() <= many.hits.agent_body.y);
 +}
 diff --git a/src/config/model.rs b/src/config/model.rs
 index 29802fd9..08fbb774 100644
