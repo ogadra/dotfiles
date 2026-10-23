@@ -25,4 +25,14 @@
     teal = "#4397a6";
     blue = "#6655ca";
   };
+
+  # Row backgrounds that tell spaces apart: the HUD hues darkened so the orange text keeps its contrast
+  spaceTints = [
+    "#0f2a2a"
+    "#24123a"
+    "#16163a"
+    "#10301a"
+    "#3a1414"
+    "#3a2410"
+  ];
 }

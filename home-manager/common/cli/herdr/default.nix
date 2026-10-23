@@ -96,6 +96,8 @@ in
         # Lists tabs vertically in the sidebar; needs patches/sidebar-tabs.patch, upstream accepts only top and bottom
         tab_bar_position = "sidebar";
 
+        # Needs patches/sidebar-tabs.patch; agent rows take the color of their space
+        sidebar.spaces.colors = nerv.spaceTints;
         # Two rows like the patched tab list: the tab's name, then the pane's repo-relative path that the patch reports as $path
         sidebar.agents.rows = [
           [
