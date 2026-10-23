@@ -93,6 +93,8 @@ in
 
       -- Workspace Control (delegated to herdr); a capital N is how herdr's prefix+shift+n arrives over a pty
       { key = 'T', mods = 'SHIFT|${mod}', action = herdr('N') },
+      { key = 'Tab', mods = 'CTRL|ALT', action = herdr(')') },
+      { key = 'Tab', mods = 'SHIFT|CTRL|ALT', action = herdr('(') },
 
       -- Copy & Paste
       { key = 'c', mods = '${mod}', action = act.CopyTo("Clipboard") },

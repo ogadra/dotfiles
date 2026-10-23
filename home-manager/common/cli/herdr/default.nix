@@ -69,6 +69,9 @@ in
         workspace_picker = "prefix+shift+w";
         rename_tab = "f2";
         rename_workspace = "shift+f2";
+        # tmux's session keys, which wezterm's Ctrl+Alt+(Shift+)Tab sends
+        next_workspace = "prefix+)";
+        previous_workspace = "prefix+(";
 
         # prefix+% is what wezterm's split key sends
         split_vertical = [
