@@ -26,14 +26,19 @@
     blue = "#6655ca";
   };
 
-  # Row backgrounds that tell spaces apart: the HUD hues darkened so the orange text keeps its contrast, in rainbow order
+  # Row backgrounds that tell spaces apart: Evangelion unit colors sampled by uto-room.com/color/character/eva, darkened to a 0x3a peak channel so the orange text keeps its contrast
   spaceTints = [
-    "#3a1414"
-    "#3a2410"
-    "#33300f"
-    "#10301a"
-    "#0f2a2a"
-    "#16163a"
-    "#24123a"
+    # Unit-00 orange yellow #f0941b
+    "#3a2407"
+    # Unit-01 purple #65508e
+    "#29213a"
+    # Unit-01 green #6eb72d
+    "#233a0e"
+    # Unit-02 red #a62125
+    "#3a0c0d"
+    # Mark.06 dark blue #013f69
+    "#01233a"
+    # Unit-08 pink #f5aecd
+    "#3a2931"
   ];
 }
