@@ -69,9 +69,9 @@ in
         workspace_picker = "prefix+shift+w";
         rename_tab = "f2";
         rename_workspace = "shift+f2";
-        # wezterm reports these chords in kitty form, since a legacy Tab cannot carry Ctrl or Alt
-        next_workspace = "ctrl+alt+tab";
-        previous_workspace = "ctrl+alt+shift+tab";
+        # wezterm reports these chords in kitty form, since a legacy Alt+Tab arrives as an ESC that herdr may read as its own key
+        next_workspace = "alt+tab";
+        previous_workspace = "alt+shift+tab";
 
         # prefix+% is what wezterm's split key sends
         split_vertical = [
