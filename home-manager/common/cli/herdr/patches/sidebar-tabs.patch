@@ -1,4 +1,4 @@
-Modified by ogadra: list tabs vertically in the sidebar with ui.tab_bar_position = "sidebar", each with its title and repo-relative path, size the spaces section to its rows, pin the agents to the bottom, color spaces and their agents with ui.sidebar.spaces.colors and brighten the focused rows, bold only the focused agent, and report that path to agent rows as $path. Applied to herdr v0.9.5 (Apache-2.0).
+Modified by ogadra: list tabs vertically in the sidebar with ui.tab_bar_position = "sidebar", each with its title and repo-relative path, size the spaces section to its rows, pin the agents to the bottom, color spaces and their agents with ui.sidebar.spaces.colors and brighten the focused space and agent rows, keep the focused branch yellow, bold only the focused agent, and report that path to agent rows as $path. Applied to herdr v0.9.5 (Apache-2.0).
 
 diff --git a/src/client/shell/agent_sidebar.rs b/src/client/shell/agent_sidebar.rs
 index e43ab8cc..bda35337 100644
@@ -160,7 +160,7 @@ index 248216c1..7ec0b2ac 100644
              buffer,
              layout.tab_bar,
 diff --git a/src/client/shell/sidebar.rs b/src/client/shell/sidebar.rs
-index 46c3a1a0..ce259b6c 100644
+index 46c3a1a0..2dd4b3ed 100644
 --- a/src/client/shell/sidebar.rs
 +++ b/src/client/shell/sidebar.rs
 @@ -211,31 +211,7 @@ pub(crate) fn render_sidebar(
@@ -273,12 +273,23 @@ index 46c3a1a0..ce259b6c 100644
      super::render_agent_panel(
          buffer,
          detail_area,
+@@ -745,8 +778,9 @@ pub(in crate::client::shell) fn render_workspace_rows(
+             } else {
+                 Modifier::empty()
+             });
++        // Yellow rather than upstream's mauve so the focused branch stays in the sidebar's orange family
+         let secondary_style = Style::default().fg(if focused {
+-            palette.mauve
++            palette.yellow
+         } else {
+             palette.overlay0
+         });
 diff --git a/src/client/shell/sidebar_tabs.rs b/src/client/shell/sidebar_tabs.rs
 new file mode 100644
-index 00000000..34806c8d
+index 00000000..ce8e3285
 --- /dev/null
 +++ b/src/client/shell/sidebar_tabs.rs
-@@ -0,0 +1,225 @@
+@@ -0,0 +1,219 @@
 +use super::*;
 +
 +/// Rule row plus the " tabs" title row.
@@ -433,7 +444,7 @@ index 00000000..34806c8d
 +            body.width,
 +            TAB_ROWS.min(body.height),
 +        );
-+        render_tab_row(buffer, rect, tab, snapshot, config);
++        render_tab_row(buffer, rect, tab, config);
 +        hits.tabs.push((rect, tab.tab_id.clone()));
 +    }
 +}
@@ -442,17 +453,11 @@ index 00000000..34806c8d
 +    buffer: &mut Buffer,
 +    rect: Rect,
 +    tab: &ClientShellTab,
-+    snapshot: &ClientShellSnapshot,
 +    config: &ClientShellConfig,
 +) {
 +    let palette = &config.palette;
 +    if tab.focused {
-+        let background = super::agent_sidebar::space_color(snapshot, config, &tab.workspace_id)
-+            .map_or(
-+                palette.active_row_bg,
-+                super::agent_sidebar::focused_row_color,
-+            );
-+        buffer.set_style(rect, Style::default().bg(background));
++        buffer.set_style(rect, Style::default().bg(palette.active_row_bg));
 +    }
 +    let name_style = if tab.focused {
 +        Style::default()
