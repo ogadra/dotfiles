@@ -1,7 +1,7 @@
-Modified by ogadra: list tabs vertically in the sidebar with ui.tab_bar_position = "sidebar", each with its title and repo-relative path, size the spaces section to its rows, pin the agents to the bottom, color spaces and their agents with ui.sidebar.spaces.colors, and report that path to agent rows as $path. Applied to herdr v0.9.5 (Apache-2.0).
+Modified by ogadra: list tabs vertically in the sidebar with ui.tab_bar_position = "sidebar", each with its title and repo-relative path, size the spaces section to its rows, pin the agents to the bottom, color spaces and their agents with ui.sidebar.spaces.colors and brighten the focused rows, bold only the focused agent, and report that path to agent rows as $path. Applied to herdr v0.9.5 (Apache-2.0).
 
 diff --git a/src/client/shell/agent_sidebar.rs b/src/client/shell/agent_sidebar.rs
-index e43ab8cc..e15b25c7 100644
+index e43ab8cc..bda35337 100644
 --- a/src/client/shell/agent_sidebar.rs
 +++ b/src/client/shell/agent_sidebar.rs
 @@ -15,6 +15,7 @@ pub(super) struct AgentRow {
@@ -12,7 +12,7 @@ index e43ab8cc..e15b25c7 100644
  }
  
  pub(super) fn ordered_agent_pane_ids(
-@@ -315,9 +316,27 @@ pub(super) fn agent_row(
+@@ -315,9 +316,39 @@ pub(super) fn agent_row(
          status: agent.agent_status,
          focused: agent.focused,
          rows,
@@ -37,10 +37,22 @@ index e43ab8cc..e15b25c7 100644
 +    Some(crate::config::parse_color(&colors[index % colors.len()]))
 +}
 +
++/// Brightens a space color for the focused row. Scaling the channels keeps the hue, where mixing
++/// toward white would wash the dark tints out to grey.
++pub(super) fn focused_row_color(color: ratatui::style::Color) -> ratatui::style::Color {
++    match color {
++        ratatui::style::Color::Rgb(red, green, blue) => {
++            let brighten = |channel: u8| (u16::from(channel) * 9 / 5).min(255) as u8;
++            ratatui::style::Color::Rgb(brighten(red), brighten(green), brighten(blue))
++        }
++        other => other,
++    }
++}
++
  pub(super) fn render_agent_row(
      buffer: &mut Buffer,
      rect: Rect,
-@@ -325,10 +344,10 @@ pub(super) fn render_agent_row(
+@@ -325,22 +356,28 @@ pub(super) fn render_agent_row(
      config: &ClientShellConfig,
  ) {
      let palette = &config.palette;
@@ -48,13 +60,34 @@ index e43ab8cc..e15b25c7 100644
 -        Style::default().bg(palette.active_row_bg)
 -    } else {
 -        Style::default()
-+    let row_style = match row.space_color {
-+        Some(color) => Style::default().bg(color),
-+        None if row.focused => Style::default().bg(palette.active_row_bg),
-+        None => Style::default(),
++    let row_style = match (row.space_color, row.focused) {
++        (Some(color), true) => Style::default().bg(focused_row_color(color)),
++        (Some(color), false) => Style::default().bg(color),
++        (None, true) => Style::default().bg(palette.active_row_bg),
++        (None, false) => Style::default(),
      };
++    // Bold marks only the focused agent, as the spaces and tabs lists do
      let name_style = if row.focused {
          Style::default()
+             .fg(palette.text)
+             .add_modifier(Modifier::BOLD)
+     } else {
++        Style::default().fg(palette.subtext0)
++    };
++    let status_style = Style::default().fg(status_color(row.status, palette));
++    let secondary = if row.focused {
+         Style::default()
+-            .fg(palette.subtext0)
++            .fg(palette.overlay0)
+             .add_modifier(Modifier::BOLD)
++    } else {
++        Style::default().fg(palette.overlay0)
+     };
+-    let status_style = Style::default().fg(status_color(row.status, palette));
+-    let secondary = Style::default().fg(palette.overlay0);
+     let icon = (
+         status_icon(row.status, config.status_indicators),
+         Style::default().fg(status_color(row.status, palette)),
 diff --git a/src/client/shell/config.rs b/src/client/shell/config.rs
 index 04a3ddb5..913ea3d5 100644
 --- a/src/client/shell/config.rs
@@ -127,7 +160,7 @@ index 248216c1..7ec0b2ac 100644
              buffer,
              layout.tab_bar,
 diff --git a/src/client/shell/sidebar.rs b/src/client/shell/sidebar.rs
-index 46c3a1a0..03ef1113 100644
+index 46c3a1a0..ce259b6c 100644
 --- a/src/client/shell/sidebar.rs
 +++ b/src/client/shell/sidebar.rs
 @@ -211,31 +211,7 @@ pub(crate) fn render_sidebar(
@@ -205,7 +238,7 @@ index 46c3a1a0..03ef1113 100644
      let mut metrics = super::scroll::list_scroll_metrics(
          &row_heights,
          &gaps,
-@@ -334,6 +346,14 @@ pub(crate) fn render_sidebar(
+@@ -334,6 +346,19 @@ pub(crate) fn render_sidebar(
              dragged,
              palette,
          );
@@ -215,12 +248,17 @@ index 46c3a1a0..03ef1113 100644
 +            super::agent_sidebar::space_color(snapshot, config, &workspace.workspace_id)
 +                .filter(|_| !selected && !dragged)
 +        {
++            let color = if workspace.focused {
++                super::agent_sidebar::focused_row_color(color)
++            } else {
++                color
++            };
 +            buffer.set_style(rect, Style::default().bg(color));
 +        }
          let group_toggle = render_parent_group_toggle(
              buffer,
              rect,
-@@ -430,6 +450,14 @@ pub(crate) fn render_sidebar(
+@@ -430,6 +455,14 @@ pub(crate) fn render_sidebar(
          }
      }
  
@@ -237,10 +275,10 @@ index 46c3a1a0..03ef1113 100644
          detail_area,
 diff --git a/src/client/shell/sidebar_tabs.rs b/src/client/shell/sidebar_tabs.rs
 new file mode 100644
-index 00000000..be1ded41
+index 00000000..34806c8d
 --- /dev/null
 +++ b/src/client/shell/sidebar_tabs.rs
-@@ -0,0 +1,194 @@
+@@ -0,0 +1,225 @@
 +use super::*;
 +
 +/// Rule row plus the " tabs" title row.
@@ -297,8 +335,33 @@ index 00000000..be1ded41
 +                rows.saturating_add(agent.rows.len().max(1).min(u16::MAX as usize) as u16)
 +                    .saturating_add(gap)
 +            });
-+    // One row past the list keeps the last agent off the collapse toggle in the bottom corner
-+    let agent_height = agent_rows.saturating_add(1).min(area.height / 2);
++    // The tab list is reserved for the space with the most tabs rather than the focused one, so
++    // switching spaces leaves the agents in place while they still take any room tabs never use
++    let busiest_space_tabs = snapshot
++        .workspaces
++        .iter()
++        .map(|workspace| {
++            snapshot
++                .tabs
++                .iter()
++                .filter(|tab| tab.workspace_id == workspace.workspace_id)
++                .count()
++        })
++        .max()
++        .unwrap_or(0);
++    let tab_rows = if busiest_space_tabs == 0
++        || (config.hide_tab_bar_when_single_tab && busiest_space_tabs == 1)
++    {
++        0
++    } else {
++        TAB_LIST_HEADER_ROWS.saturating_add(
++            (busiest_space_tabs.min(u16::MAX as usize) as u16).saturating_mul(TAB_ROWS),
++        )
++    };
++    // One row past the list keeps the last agent off the collapse toggle in the bottom corner;
++    // agents always keep half the area, so a space with many tabs cannot squeeze them out
++    let agent_room = area.height.saturating_sub(tab_rows).max(area.height / 2);
++    let agent_height = agent_rows.saturating_add(1).min(agent_room);
 +    let tab_height = area.height.saturating_sub(agent_height);
 +    let agent_area = Rect {
 +        y: area.y.saturating_add(tab_height),
@@ -370,7 +433,7 @@ index 00000000..be1ded41
 +            body.width,
 +            TAB_ROWS.min(body.height),
 +        );
-+        render_tab_row(buffer, rect, tab, config);
++        render_tab_row(buffer, rect, tab, snapshot, config);
 +        hits.tabs.push((rect, tab.tab_id.clone()));
 +    }
 +}
@@ -379,11 +442,17 @@ index 00000000..be1ded41
 +    buffer: &mut Buffer,
 +    rect: Rect,
 +    tab: &ClientShellTab,
++    snapshot: &ClientShellSnapshot,
 +    config: &ClientShellConfig,
 +) {
 +    let palette = &config.palette;
 +    if tab.focused {
-+        buffer.set_style(rect, Style::default().bg(palette.active_row_bg));
++        let background = super::agent_sidebar::space_color(snapshot, config, &tab.workspace_id)
++            .map_or(
++                palette.active_row_bg,
++                super::agent_sidebar::focused_row_color,
++            );
++        buffer.set_style(rect, Style::default().bg(background));
 +    }
 +    let name_style = if tab.focused {
 +        Style::default()
@@ -603,10 +672,10 @@ index 05bfc263..23a3971a 100644
  mod startup_overlays;
 diff --git a/src/client/shell/tests/sidebar_tabs.rs b/src/client/shell/tests/sidebar_tabs.rs
 new file mode 100644
-index 00000000..36c7cf0a
+index 00000000..8e1b5a97
 --- /dev/null
 +++ b/src/client/shell/tests/sidebar_tabs.rs
-@@ -0,0 +1,201 @@
+@@ -0,0 +1,277 @@
 +use super::*;
 +
 +fn sidebar_tabs_state(tab_count: usize, focused: usize) -> ClientShellState {
@@ -806,7 +875,83 @@ index 00000000..36c7cf0a
 +    let second_space = crate::config::parse_color("#445566");
 +    assert_eq!(bg_at("other"), second_space);
 +    assert_eq!(bg_at("claude"), second_space);
-+    assert_eq!(bg_at("client-shell"), crate::config::parse_color("#112233"));
++    // The focused space brightens its color; the others keep theirs
++    assert_eq!(
++        bg_at("client-shell"),
++        ratatui::style::Color::Rgb(30, 61, 91)
++    );
++}
++
++#[test]
++fn agents_take_the_rows_the_tab_list_never_needs() {
++    let mut state = sidebar_tabs_state(1, 1);
++    let snapshot = state.snapshot.as_mut().expect("snapshot");
++    snapshot.agents = (1..=20)
++        .map(|number| ClientShellAgent {
++            pane_id: format!("pane_{number}"),
++            workspace_id: "ws_1".into(),
++            tab_id: "tab_1".into(),
++            name: Some(format!("agent{number}")),
++            display_agent: None,
++            agent: None,
++            title: None,
++            terminal_title: None,
++            terminal_title_stripped: None,
++            agent_status: AgentStatus::Idle,
++            state_change_seq: number,
++            state_labels: Vec::new(),
++            tokens: Vec::new(),
++            focused: number == 1,
++        })
++        .collect();
++    state.compose(106, 40).expect("many agents");
++    let sidebar = state.layout(106, 40).sidebar;
++    let detail_top = state.hits.tab_list.y;
++    let detail_height = sidebar.bottom() - detail_top;
++
++    assert!(state.hits.agent_body.height > detail_height / 2);
++    assert!(state.hits.tab_list.height >= 2);
++}
++
++#[test]
++fn only_the_focused_agent_is_bold() {
++    let mut state = sidebar_tabs_state(1, 1);
++    let snapshot = state.snapshot.as_mut().expect("snapshot");
++    snapshot.agents = ["active", "other"]
++        .into_iter()
++        .enumerate()
++        .map(|(index, name)| ClientShellAgent {
++            pane_id: format!("pane_{index}"),
++            workspace_id: "ws_1".into(),
++            tab_id: "tab_1".into(),
++            name: Some(name.into()),
++            display_agent: None,
++            agent: None,
++            title: None,
++            terminal_title: None,
++            terminal_title_stripped: None,
++            agent_status: AgentStatus::Idle,
++            state_change_seq: index as u64,
++            state_labels: Vec::new(),
++            tokens: Vec::new(),
++            focused: index == 0,
++        })
++        .collect();
++    state.config.agents.rows = vec![vec![crate::config::AgentSidebarToken::Agent]];
++    let frame = state.compose(106, 30).expect("agents");
++    let buffer = frame.to_ratatui_buffer().expect("agents buffer");
++    let sidebar = state.layout(106, 30).sidebar;
++    let bold_at = |needle: &str| {
++        let (column, row) = cell_symbol_position(&frame, sidebar, needle);
++        buffer
++            .cell((column, row))
++            .expect("cell")
++            .modifier
++            .contains(ratatui::style::Modifier::BOLD)
++    };
++
++    assert!(bold_at("active"));
++    assert!(!bold_at("other"));
 +}
 diff --git a/src/config/model.rs b/src/config/model.rs
 index 29802fd9..08fbb774 100644
