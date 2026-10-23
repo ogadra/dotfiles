@@ -1,7 +1,7 @@
-Modified by ogadra: list tabs vertically in the sidebar with ui.tab_bar_position = "sidebar", each with its title and repo-relative path, size the spaces section to its rows, pin the agents to the bottom, color spaces and their agents with ui.sidebar.spaces.colors and brighten the focused space and agent rows, keep the focused branch yellow, bold only the focused agent, and report that path to agent rows as $path. Applied to herdr v0.9.5 (Apache-2.0).
+Modified by ogadra: list tabs vertically in the sidebar with ui.tab_bar_position = "sidebar", each with its title and repo-relative path, size the spaces section to its rows, pin the agents to the bottom, color spaces and their agents with ui.sidebar.spaces.colors and brighten the focused space and agent rows, keep the focused branch yellow, bold only the focused agent, let the indexed switch keys take non-digit keys by list position and show each key under its row's status icon, and report that path to agent rows as $path. Applied to herdr v0.9.5 (Apache-2.0).
 
 diff --git a/src/client/shell/agent_sidebar.rs b/src/client/shell/agent_sidebar.rs
-index e43ab8cc..bda35337 100644
+index e43ab8cc..03446acc 100644
 --- a/src/client/shell/agent_sidebar.rs
 +++ b/src/client/shell/agent_sidebar.rs
 @@ -15,6 +15,7 @@ pub(super) struct AgentRow {
@@ -12,7 +12,37 @@ index e43ab8cc..bda35337 100644
  }
  
  pub(super) fn ordered_agent_pane_ids(
-@@ -315,9 +316,39 @@ pub(super) fn agent_row(
+@@ -68,6 +69,7 @@ pub(super) fn render_agent_panel(
+     }
+ 
+     let rows = agent_rows(snapshot, config, None);
++    let order = ordered_agent_pane_ids(snapshot, config.agent_panel_sort);
+     render_agent_list(
+         buffer,
+         area,
+@@ -83,6 +85,21 @@ pub(super) fn render_agent_panel(
+         |buffer, rect, row, hits| {
+             hits.agents.push((rect, row.pane_id.clone()));
+             render_agent_row(buffer, rect, row, config);
++            // Looked up by pane, not row position, because agent_rows drops agents it cannot place
++            if let Some(index) = order
++                .iter()
++                .position(|pane_id| *pane_id == row.pane_id)
++                .filter(|_| rect.height > 1)
++            {
++                put_key_hint(
++                    buffer,
++                    rect.x + 1,
++                    rect.y + 1,
++                    &config.keybinds.keybinds.focus_agent,
++                    index,
++                    config,
++                );
++            }
+         },
+     );
+ }
+@@ -315,9 +332,66 @@ pub(super) fn agent_row(
          status: agent.agent_status,
          focused: agent.focused,
          rows,
@@ -49,10 +79,37 @@ index e43ab8cc..bda35337 100644
 +    }
 +}
 +
++/// Draws the key that reaches list position `index`; a direct binding wins over one behind the prefix.
++pub(super) fn put_key_hint(
++    buffer: &mut Buffer,
++    x: u16,
++    y: u16,
++    bindings: &[crate::config::IndexedKeybind],
++    index: usize,
++    config: &ClientShellConfig,
++) {
++    let Some(binding) = bindings
++        .iter()
++        .filter(|binding| binding.index == index)
++        .min_by_key(|binding| !binding.trigger.is_direct())
++    else {
++        return;
++    };
++    let key = binding.label.rsplit('+').next().unwrap_or(&binding.label);
++    put_text(
++        buffer,
++        x,
++        y,
++        display_width(key) as u16,
++        key,
++        Style::default().fg(config.palette.overlay0),
++    );
++}
++
  pub(super) fn render_agent_row(
      buffer: &mut Buffer,
      rect: Rect,
-@@ -325,22 +356,28 @@ pub(super) fn render_agent_row(
+@@ -325,22 +399,28 @@ pub(super) fn render_agent_row(
      config: &ClientShellConfig,
  ) {
      let palette = &config.palette;
@@ -160,7 +217,7 @@ index 248216c1..7ec0b2ac 100644
              buffer,
              layout.tab_bar,
 diff --git a/src/client/shell/sidebar.rs b/src/client/shell/sidebar.rs
-index 46c3a1a0..2dd4b3ed 100644
+index 46c3a1a0..0f8d0872 100644
 --- a/src/client/shell/sidebar.rs
 +++ b/src/client/shell/sidebar.rs
 @@ -211,31 +211,7 @@ pub(crate) fn render_sidebar(
@@ -238,7 +295,7 @@ index 46c3a1a0..2dd4b3ed 100644
      let mut metrics = super::scroll::list_scroll_metrics(
          &row_heights,
          &gaps,
-@@ -334,6 +346,19 @@ pub(crate) fn render_sidebar(
+@@ -334,6 +346,31 @@ pub(crate) fn render_sidebar(
              dragged,
              palette,
          );
@@ -255,10 +312,22 @@ index 46c3a1a0..2dd4b3ed 100644
 +            };
 +            buffer.set_style(rect, Style::default().bg(color));
 +        }
++        if row_height > 1 {
++            // An indented worktree row draws its status icon after the 6-cell tree prefix
++            let icon_x = rect.x + if entry.indented { 6 } else { 1 };
++            super::agent_sidebar::put_key_hint(
++                buffer,
++                icon_x,
++                rect.y + 1,
++                &config.keybinds.keybinds.switch_workspace,
++                entry_position,
++                config,
++            );
++        }
          let group_toggle = render_parent_group_toggle(
              buffer,
              rect,
-@@ -430,6 +455,14 @@ pub(crate) fn render_sidebar(
+@@ -430,6 +467,14 @@ pub(crate) fn render_sidebar(
          }
      }
  
@@ -273,7 +342,7 @@ index 46c3a1a0..2dd4b3ed 100644
      super::render_agent_panel(
          buffer,
          detail_area,
-@@ -745,8 +778,9 @@ pub(in crate::client::shell) fn render_workspace_rows(
+@@ -745,8 +790,9 @@ pub(in crate::client::shell) fn render_workspace_rows(
              } else {
                  Modifier::empty()
              });
@@ -286,10 +355,10 @@ index 46c3a1a0..2dd4b3ed 100644
          });
 diff --git a/src/client/shell/sidebar_tabs.rs b/src/client/shell/sidebar_tabs.rs
 new file mode 100644
-index 00000000..ce8e3285
+index 00000000..7b42e536
 --- /dev/null
 +++ b/src/client/shell/sidebar_tabs.rs
-@@ -0,0 +1,219 @@
+@@ -0,0 +1,229 @@
 +use super::*;
 +
 +/// Rule row plus the " tabs" title row.
@@ -445,6 +514,16 @@ index 00000000..ce8e3285
 +            TAB_ROWS.min(body.height),
 +        );
 +        render_tab_row(buffer, rect, tab, config);
++        if rect.height > 1 {
++            super::agent_sidebar::put_key_hint(
++                buffer,
++                rect.x + 1,
++                rect.y + 1,
++                &config.keybinds.keybinds.switch_tab,
++                first + row,
++                config,
++            );
++        }
 +        hits.tabs.push((rect, tab.tab_id.clone()));
 +    }
 +}
@@ -958,6 +1037,150 @@ index 00000000..8e1b5a97
 +    assert!(bold_at("active"));
 +    assert!(!bold_at("other"));
 +}
+diff --git a/src/config/keybinds.rs b/src/config/keybinds.rs
+index 276764a6..1b3a0b42 100644
+--- a/src/config/keybinds.rs
++++ b/src/config/keybinds.rs
+@@ -305,6 +305,8 @@ impl ActionKeybinds {
+ pub struct IndexedKeybind {
+     pub trigger: BindingTrigger,
+     pub label: String,
++    /// Zero-based target: the digit minus one, or the entry's position among the non-digit keys.
++    pub index: usize,
+ }
+ 
+ impl IndexedKeybind {
+@@ -312,7 +314,7 @@ impl IndexedKeybind {
+         let combo = self.trigger.combo();
+         let (expected_code, _) = normalize_key_combo(combo);
+         let KeyCode::Char(key_number @ '1'..='9') = expected_code else {
+-            return None;
++            return terminal_key_matches_combo(key, combo).then_some(self.index);
+         };
+         let legacy_shifted_number = matches!(key.code, KeyCode::Char(c)
+             if shifted_number_symbol(c) == Some(key_number)
+@@ -937,6 +939,7 @@ fn parse_indexed_bindings(
+     source: BindingSource,
+ ) -> Vec<IndexedKeybind> {
+     let mut bindings = Vec::new();
++    let mut ordinal = 0;
+     for raw in config.values() {
+         let raw = raw.trim();
+         if raw.is_empty() {
+@@ -944,13 +947,22 @@ fn parse_indexed_bindings(
+         }
+         match parse_binding_string(raw) {
+             Some(ParsedBinding::Single(binding)) => {
+-                push_indexed_binding(field, binding, registry, diagnostics, source, &mut bindings);
++                push_indexed_binding(
++                    field,
++                    binding,
++                    &mut ordinal,
++                    registry,
++                    diagnostics,
++                    source,
++                    &mut bindings,
++                );
+             }
+             Some(ParsedBinding::Range(range)) => {
+                 for binding in range {
+                     push_indexed_binding(
+                         field,
+                         binding,
++                        &mut ordinal,
+                         registry,
+                         diagnostics,
+                         source,
+@@ -971,20 +983,20 @@ fn parse_indexed_bindings(
+ fn push_indexed_binding(
+     field: &str,
+     binding: ResolvedBinding,
++    ordinal: &mut usize,
+     registry: &mut BindingRegistry,
+     diagnostics: &mut Vec<String>,
+     source: BindingSource,
+     bindings: &mut Vec<IndexedKeybind>,
+ ) {
+-    if !matches!(binding.trigger.combo().0, KeyCode::Char('1'..='9')) {
+-        let diag = format!(
+-            "indexed keybinding must use 1..9: {field} = {:?}; disabling binding",
+-            binding.label
+-        );
+-        warn!(message = %diag, "config diagnostic");
+-        diagnostics.push(diag);
+-        return;
+-    }
++    // Counted before the conflict check so a rejected key does not shift the keys after it
++    let index = match binding.trigger.combo().0 {
++        KeyCode::Char(digit @ '1'..='9') => digit as usize - '1' as usize,
++        _ => {
++            *ordinal += 1;
++            *ordinal - 1
++        }
++    };
+     if reject_binding(field, &binding, registry, diagnostics, source) {
+         return;
+     }
+@@ -992,6 +1004,7 @@ fn push_indexed_binding(
+     bindings.push(IndexedKeybind {
+         trigger: binding.trigger,
+         label: binding.label,
++        index,
+     });
+ }
+ 
+@@ -1031,6 +1044,7 @@ fn append_legacy_indexed_bindings(
+         target.push(IndexedKeybind {
+             trigger: binding.trigger,
+             label: binding.label,
++            index: idx as usize - 1,
+         });
+     }
+ }
+@@ -2334,11 +2348,11 @@ tabs = "bogus"
+     }
+ 
+     #[test]
+-    fn invalid_indexed_binding_does_not_displace_default_binding() {
++    fn non_digit_indexed_bindings_take_their_list_position() {
+         let config: Config = toml::from_str(
+             r#"
+ [keys]
+-switch_tab = "prefix+?"
++switch_tab = ["alt+q", "alt+w", "prefix+1..9"]
+ "#,
+         )
+         .unwrap();
+@@ -2346,20 +2360,17 @@ switch_tab = "prefix+?"
+         let diagnostics = config.collect_diagnostics();
+         let kb = config.keybinds();
+ 
+-        assert!(kb.switch_tab.is_empty());
++        assert!(diagnostics.is_empty(), "{diagnostics:?}");
++        assert_eq!(kb.switch_tab.len(), 11);
+         assert_eq!(
+-            binding_triggers(&kb.help),
+-            vec![BindingTrigger::Prefix((
+-                KeyCode::Char('?'),
+-                KeyModifiers::empty()
+-            ))]
++            kb.switch_tab[1].matched_index(&TerminalKey::new(KeyCode::Char('w'), KeyModifiers::ALT)),
++            Some(1)
+         );
+-        assert!(diagnostics.iter().any(|diag| {
+-            diag.contains("indexed keybinding must use 1..9") && diag.contains("keys.switch_tab")
+-        }));
+-        assert!(!diagnostics.iter().any(|diag| {
+-            diag.contains("kept keys.switch_tab") && diag.contains("disabled keys.help")
+-        }));
++        assert_eq!(
++            kb.switch_tab[1].matched_index(&TerminalKey::new(KeyCode::Char('q'), KeyModifiers::ALT)),
++            None
++        );
++        assert_eq!(kb.switch_tab[3].index, 1);
+     }
+ 
+     #[test]
 diff --git a/src/config/model.rs b/src/config/model.rs
 index 29802fd9..08fbb774 100644
 --- a/src/config/model.rs

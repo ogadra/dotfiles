@@ -1,5 +1,6 @@
 {
   pkgs,
+  lib,
   config,
   profile,
   ...
@@ -72,6 +73,10 @@ in
         # wezterm reports these chords in kitty form, since a legacy Alt+Tab arrives as an ESC that herdr may read as its own key
         next_workspace = "alt+tab";
         previous_workspace = "alt+shift+tab";
+        # Needs patches/sidebar-tabs.patch, upstream accepts only 1..9; one keyboard row per list, and the sidebar shows each key under its row's status icon
+        switch_workspace = map (key: "alt+${key}") (lib.stringToCharacters "qwertyuiop");
+        switch_tab = map (key: "alt+${key}") (lib.stringToCharacters "asdfghjkl");
+        focus_agent = map (key: "alt+${key}") (lib.stringToCharacters "zxcvbnm");
 
         # prefix+% is what wezterm's split key sends
         split_vertical = [
