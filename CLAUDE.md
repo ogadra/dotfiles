@@ -23,6 +23,7 @@ Machine profiles:
 
 ## Key Patterns
 
+- Manage every setting through this repository; do not edit files under `~/.config` by hand
 - Machine profiles are in `profiles/<hostname>/` and `home-manager/profiles/<hostname>/`
 - New CLI tools go in `home-manager/common/cli/<toolname>/default.nix`
 - New GUI apps go in `home-manager/common/apps/<category>/<appname>/`
