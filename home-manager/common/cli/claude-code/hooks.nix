@@ -103,6 +103,16 @@ in
           }
         ];
       }
+      # A subagent runs hidden inside this session, while a herdr tab keeps the work visible and steerable from its own pane
+      {
+        matcher = "^Agent$";
+        hooks = [
+          {
+            type = "command";
+            command = whenAttended ''[ "''${HERDR_ENV:-}" != 1 ] || { echo 'Blocked: subagents are disabled in herdr sessions. Run the work in a herdr tab with `herdr tab create`, `herdr agent start` and `herdr agent prompt`.' >&2; exit 2; }'';
+          }
+        ];
+      }
     ];
   };
 
