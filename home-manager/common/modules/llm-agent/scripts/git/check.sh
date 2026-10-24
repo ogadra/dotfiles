@@ -26,7 +26,11 @@ while IFS= read -r SEG; do
       # `cd -` needs OLDPWD, which is untracked
       [ "$DIR" = "-" ] && continue
       # A failed cd keeps the old cwd, matching a `;` chain
-      NEXT=$(cd "$RUN_CWD" 2>/dev/null && cd "$DIR" 2>/dev/null && pwd) || continue
+      case "$DIR" in
+        # Going through RUN_CWD would drop an absolute path whenever the session cwd was deleted, such as a removed worktree
+        /*) NEXT=$(cd "$DIR" 2>/dev/null && pwd) || continue ;;
+        *) NEXT=$(cd "$RUN_CWD" 2>/dev/null && cd "$DIR" 2>/dev/null && pwd) || continue ;;
+      esac
       RUN_CWD=$NEXT
       GIT_SEGMENTS="${GIT_SEGMENTS}cd $RUN_CWD"$'\n'
       ;;

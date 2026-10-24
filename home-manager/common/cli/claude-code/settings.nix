@@ -233,5 +233,7 @@
   ## Environment variables
 
   # Environment variables set for a Claude Code session.
-  env = { };
+  env = {
+    CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR = "1";
+  };
 }
