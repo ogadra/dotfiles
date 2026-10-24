@@ -1,11 +1,6 @@
 { pkgs, config, ... }:
 let
   herdrBin = "${config.programs.herdr.package}/bin/herdr";
-  # A stopped session keeps its state on disk, so delete follows stop; one script keeps the pair off wezterm's GUI thread
-  dropSession = pkgs.writeShellScript "herdr-drop-session" ''
-    ${herdrBin} session stop "$1"
-    ${herdrBin} session delete "$1"
-  '';
   # Fork the focused pane's Claude session into a background tab; the script resolves the session from the pane's claude pid
   forkClaude = pkgs.writeShellApplication {
     name = "herdr-fork-claude";
@@ -17,6 +12,22 @@ let
   };
   isLinux = pkgs.stdenv.hostPlatform.isLinux;
   mod = if isLinux then "ALT" else "SUPER";
+  # Super sits where the macOS Option key does, so herdr's Alt chords keep the same physical keys on both platforms
+  option = if isLinux then "SUPER" else "ALT";
+  # macOS already sends Option+letter as Alt+letter; Linux turns Super+letter into kitty Alt reports: CSI codepoint ; 3 u
+  optionLetters =
+    if isLinux then
+      ''
+        for code = string.byte('a'), string.byte('z') do
+          table.insert(config.keys, {
+            key = string.char(code),
+            mods = 'SUPER',
+            action = act.SendString(string.format('\x1b[%d;3u', code)),
+          })
+        end
+      ''
+    else
+      "";
   altCompose =
     if isLinux then
       ""
@@ -52,13 +63,9 @@ in
         return payload.result.tabs
       end
 
-      -- A session belongs to one window, so it dies with the window instead of lingering detached
+      -- Every window attaches to the one shared session, so closing a window only detaches it and the session keeps running
       local function close_window(win, pane)
-        local session = pane:get_user_vars().herdr_session
         win:perform_action(act.CloseCurrentTab { confirm = false }, pane)
-        if session then
-          wezterm.background_child_process { '${dropSession}', session }
-        end
       end
 
       -- Closing the last tab leaves herdr with nothing to show, so the window goes with it
@@ -102,6 +109,9 @@ in
 
       -- Workspace Control (delegated to herdr); a capital N is how herdr's prefix+shift+n arrives over a pty
       { key = 'T', mods = 'SHIFT|${mod}', action = herdr('N') },
+      -- herdr binds these chords directly, so they go out as kitty key reports: CSI 9 ; 1 + modifier bits u
+      { key = 'Tab', mods = '${option}', action = act.SendString('\x1b[9;3u') },
+      { key = 'Tab', mods = 'SHIFT|${option}', action = act.SendString('\x1b[9;4u') },
 
       -- Copy & Paste
       { key = 'c', mods = '${mod}', action = act.CopyTo("Clipboard") },
@@ -123,6 +133,7 @@ in
       -- herdr prefix
       { key = 'q', mods = 'CTRL', action = act.SendString('\x11') },
     }
+    ${optionLetters}
 
     -- herdr captures plain clicks, so the binding needs the mouse_reporting=true variant
     config.mouse_bindings = {

@@ -100,6 +100,11 @@
         "nix-command"
         "flakes"
       ];
+      # CI pushes every profile build here, so patched packages are fetched instead of built locally
+      extra-substituters = [ "https://ogadra-dotfiles.cachix.org" ];
+      extra-trusted-public-keys = [
+        "ogadra-dotfiles.cachix.org-1:hgpwhjgHgG8SdvBvqUvkXf0nWeSanlmM6htTOX86x6U="
+      ];
     };
   };
 

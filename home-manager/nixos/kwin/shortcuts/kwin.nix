@@ -1,12 +1,12 @@
 { ... }:
 {
-  # KWin window management shortcuts
+  # KWin window management shortcuts; Meta+letter and Meta+Tab stay unbound so wezterm can hand Super, the macOS Option key's spot, to herdr
   programs.plasma.shortcuts.kwin = {
     "Activate Window Demanding Attention" = "Meta+Ctrl+A";
     "Cycle Overview" = [ ];
     "Cycle Overview Opposite" = [ ];
     "Decrease Opacity" = [ ];
-    "Edit Tiles" = "Meta+T";
+    "Edit Tiles" = [ ];
     "Expose" = "Ctrl+F9";
     "ExposeAll" = [
       "Ctrl+F10"
@@ -14,7 +14,7 @@
     ];
     "ExposeClass" = "Ctrl+F7";
     "ExposeClassCurrentDesktop" = [ ];
-    "Grid View" = "Meta+G";
+    "Grid View" = [ ];
     "Increase Opacity" = [ ];
     "Kill Window" = "Meta+Ctrl+Esc";
     "Move Tablet to Next Output" = [ ];
@@ -24,9 +24,9 @@
     "MoveZoomLeft" = [ ];
     "MoveZoomRight" = [ ];
     "MoveZoomUp" = [ ];
-    "Overview" = "Meta+W";
+    "Overview" = [ ];
     "Setup Window Shortcut" = [ ];
-    "Show Desktop" = "Meta+D";
+    "Show Desktop" = [ ];
     "Switch One Desktop Down" = "Meta+Ctrl+Down";
     "Switch One Desktop Up" = "Meta+Ctrl+Up";
     "Switch One Desktop to the Left" = "Meta+Ctrl+Left";
@@ -73,14 +73,8 @@
     "Switch to Screen to the Right" = [ ];
     "Toggle Night Color" = [ ];
     "Toggle Window Raise/Lower" = [ ];
-    "Walk Through Windows" = [
-      "Meta+Tab"
-      "Alt+Tab"
-    ];
-    "Walk Through Windows (Reverse)" = [
-      "Meta+Shift+Tab"
-      "Alt+Shift+Tab"
-    ];
+    "Walk Through Windows" = "Alt+Tab";
+    "Walk Through Windows (Reverse)" = "Alt+Shift+Tab";
     "Walk Through Windows Alternative" = [ ];
     "Walk Through Windows Alternative (Reverse)" = [ ];
     "Walk Through Windows of Current Application" = [

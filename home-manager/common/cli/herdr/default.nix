@@ -1,5 +1,6 @@
 {
   pkgs,
+  lib,
   config,
   profile,
   ...
@@ -9,13 +10,32 @@ let
 
   herdrBin = "${config.programs.herdr.package}/bin/herdr";
 
-  # Herdr strips escape sequences from command entries, so emit plain text
-  gitSegment = pkgs.writeShellScript "herdr-git-segment" ''
-    cd "$HERDR_ACTIVE_PANE_CWD" 2>/dev/null || exit 0
-    branch=$(${pkgs.git}/bin/git rev-parse --abbrev-ref HEAD 2>/dev/null) || exit 0
-    [ -n "$branch" ] || exit 0
-    printf '%s\n' "$branch"
-  '';
+  # Herdr strips escape sequences from command entries, so emit plain text; storage reads the home volume because the macOS root is the sealed system snapshot
+  loadSegment = pkgs.writeShellScript "herdr-load-segment" (
+    if pkgs.stdenv.hostPlatform.isLinux then
+      ''
+        # /proc/stat counts since boot, so CPU is the busy share of a one-second delta
+        read -r _ u1 n1 s1 i1 w1 q1 r1 _ </proc/stat
+        sleep 1
+        read -r _ u2 n2 s2 i2 w2 q2 r2 _ </proc/stat
+        busy=$(((u2 + n2 + s2 + q2 + r2) - (u1 + n1 + s1 + q1 + r1)))
+        idle=$(((i2 + w2) - (i1 + w1)))
+        cpu=$((busy * 100 / (busy + idle)))
+        mem=$(${pkgs.gawk}/bin/awk '/^MemTotal/ { t = $2 } /^MemAvailable/ { a = $2 } END { printf "%d", (t - a) * 100 / t }' /proc/meminfo)
+        disk=$(df -P "$HOME" | ${pkgs.gawk}/bin/awk 'NR == 2 { sub(/%/, "", $5); print $5 }')
+        printf 'CPU %s%%  MEM %s%%  DISK %s%%\n' "$cpu" "$mem" "$disk"
+      ''
+    else
+      ''
+        # ps reports decayed per-process averages, so summing them avoids top's multi-second sampling
+        ncpu=$(/usr/sbin/sysctl -n hw.ncpu)
+        cpu=$(/bin/ps -A -o %cpu= | /usr/bin/awk -v n="$ncpu" '{ s += $1 } END { printf "%d", s / n + 0.5 }')
+        # memory_pressure's free share matches what Activity Monitor's pressure gauge reads
+        mem=$(/usr/bin/memory_pressure | /usr/bin/awk '/free percentage/ { sub(/%/, "", $NF); print 100 - $NF }')
+        disk=$(/bin/df -P "$HOME" | /usr/bin/awk 'NR == 2 { sub(/%/, "", $5); print $5 }')
+        printf 'CPU %s%%  MEM %s%%  DISK %s%%\n' "$cpu" "$mem" "$disk"
+      ''
+  );
 
   # Publish the session name as a wezterm user var so its keybinds can drive this window's session; OSC 1337 takes a base64 value
   sessionExec = pkgs.writeShellScript "herdr-session-exec" ''
@@ -23,24 +43,14 @@ let
     exec ${herdrBin} --session "$1"
   '';
 
-  # One session per wezterm OS window: the git segment reads the session-wide active pane
-  windowSession = pkgs.writeShellScript "herdr-window-session" ''
-    set -u
-    lock_dir="''${XDG_RUNTIME_DIR:-''${TMPDIR:-/tmp}}/herdr-windows"
-    mkdir -p "$lock_dir"
-    slot=1
-    while :; do
-      ${pkgs.flock}/bin/flock -n -E 66 "$lock_dir/$slot" ${sessionExec} "window$slot"
-      status=$?
-      # 66 is flock's conflict code, so only a slot another window holds continues the search
-      [ "$status" -eq 66 ] || exit "$status"
-      slot=$((slot + 1))
-    done
-  '';
 in
 {
   programs.herdr = {
     enable = true;
+    # Patches the nixpkgs build instead of fetching our own release, so nixpkgs bumps carry the patch without a release workflow
+    package = pkgs.herdr.overrideAttrs (old: {
+      patches = (old.patches or [ ]) ++ [ ./patches/sidebar-tabs.patch ];
+    });
     settings = {
       onboarding = false;
 
@@ -60,6 +70,13 @@ in
         workspace_picker = "prefix+shift+w";
         rename_tab = "f2";
         rename_workspace = "shift+f2";
+        # wezterm reports these chords in kitty form, since a legacy Alt+Tab arrives as an ESC that herdr may read as its own key
+        next_workspace = "alt+tab";
+        previous_workspace = "alt+shift+tab";
+        # Needs patches/sidebar-tabs.patch, upstream accepts only 1..9; one keyboard row per list, and the sidebar shows each key under its row's status icon
+        switch_workspace = map (key: "alt+${key}") (lib.stringToCharacters "qwertyuiop");
+        switch_tab = map (key: "alt+${key}") (lib.stringToCharacters "asdfghjkl");
+        focus_agent = map (key: "alt+${key}") (lib.stringToCharacters "zxcvbnm");
 
         # prefix+% is what wezterm's split key sends
         split_vertical = [
@@ -81,6 +98,19 @@ in
         mouse_scroll_lines = 2;
         # wezterm's new-tab key expects a tab to appear without a name prompt
         prompt_new_tab_name = false;
+        # Lists tabs vertically in the sidebar; needs patches/sidebar-tabs.patch, upstream accepts only top and bottom
+        tab_bar_position = "sidebar";
+
+        # Needs patches/sidebar-tabs.patch; agent rows take the color of their space
+        sidebar.spaces.colors = nerv.spaceTints;
+        # Two rows like the patched tab list: the tab's name, then the pane's repo-relative path that the patch reports as $path
+        sidebar.agents.rows = [
+          [
+            "state_icon"
+            "tab"
+          ]
+          [ "$path" ]
+        ];
 
         tab_bar_right = [
           # Separators land only between segments, so literals at both ends close the strip
@@ -90,7 +120,10 @@ in
           }
           {
             type = "command";
-            command = "${gitSegment}";
+            command = "${loadSegment}";
+            # Linux samples /proc/stat for a second, so a 2-second timeout still leaves headroom
+            interval_seconds = 5;
+            timeout_seconds = 2;
           }
           {
             type = "text";
@@ -98,7 +131,7 @@ in
           }
           {
             type = "datetime";
-            format = "%H:%M:%S";
+            format = "%m.%d %a %H:%M:%S";
           }
           {
             type = "text";
@@ -147,32 +180,20 @@ in
   };
 
   programs.fish.interactiveShellInit = ''
-    # Name the herdr tab with the wezterm-style display path (repo-relative or ~-shortened)
-    function __herdr_rename_tab --on-variable PWD
-      set -q HERDR_TAB_ID; or return
-      set -l path "$PWD"
-      set -l git_root (command git rev-parse --show-toplevel 2>/dev/null)
-      set -l name
-      if test -n "$git_root"
-        set -l repo (basename "$git_root")
-        if test "$path" = "$git_root"
-          set name "$repo"
-        else
-          set name "$repo"/(string sub --start (math (string length "$git_root") + 2) -- "$path")
-        end
+    # The patched tab list falls back to the terminal title for unnamed tabs, so idle prompts keep showing the last command
+    function fish_title
+      if set -q argv[1]
+        echo -- $argv[1]
+      else if set -q history[1]
+        echo -- $history[1]
       else
-        set name (string replace --regex "^$HOME" "~" -- "$path")
+        prompt_pwd
       end
-      ${herdrBin} tab rename "$HERDR_TAB_ID" "$name" >/dev/null 2>&1
     end
 
-    # Give every wezterm OS window its own herdr session; skip inside herdr and Claude Code
+    # Every wezterm OS window attaches to herdr's default session, and each client views its own space and tab; skip inside herdr and Claude Code
     if not set -q HERDR_ENV; and not set -q CLAUDECODE
-      exec ${windowSession}
-    end
-
-    if set -q HERDR_ENV
-      __herdr_rename_tab
+      exec ${sessionExec} default
     end
   '';
 }

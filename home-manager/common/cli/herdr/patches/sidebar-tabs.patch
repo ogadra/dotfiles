@@ -1,0 +1,1460 @@
+Modified by ogadra: list tabs vertically in the sidebar with ui.tab_bar_position = "sidebar", each with its title and repo-relative path, size the spaces section to its rows, pin the agents to the bottom, color spaces and their agents with ui.sidebar.spaces.colors and brighten the focused space and agent rows, keep the focused branch yellow, bold only the focused agent, let the indexed switch keys take non-digit keys by list position and show each key under its row's status icon, and report that path to agent rows as $path. Applied to herdr v0.9.5 (Apache-2.0).
+
+diff --git a/src/client/shell/agent_sidebar.rs b/src/client/shell/agent_sidebar.rs
+index e43ab8cc..03446acc 100644
+--- a/src/client/shell/agent_sidebar.rs
++++ b/src/client/shell/agent_sidebar.rs
+@@ -15,6 +15,7 @@ pub(super) struct AgentRow {
+     pub(super) status: crate::api::schema::AgentStatus,
+     pub(super) focused: bool,
+     pub(super) rows: Vec<Vec<crate::ui::ResolvedToken>>,
++    pub(super) space_color: Option<ratatui::style::Color>,
+ }
+ 
+ pub(super) fn ordered_agent_pane_ids(
+@@ -68,6 +69,7 @@ pub(super) fn render_agent_panel(
+     }
+ 
+     let rows = agent_rows(snapshot, config, None);
++    let order = ordered_agent_pane_ids(snapshot, config.agent_panel_sort);
+     render_agent_list(
+         buffer,
+         area,
+@@ -83,6 +85,21 @@ pub(super) fn render_agent_panel(
+         |buffer, rect, row, hits| {
+             hits.agents.push((rect, row.pane_id.clone()));
+             render_agent_row(buffer, rect, row, config);
++            // Looked up by pane, not row position, because agent_rows drops agents it cannot place
++            if let Some(index) = order
++                .iter()
++                .position(|pane_id| *pane_id == row.pane_id)
++                .filter(|_| rect.height > 1)
++            {
++                put_key_hint(
++                    buffer,
++                    rect.x + 1,
++                    rect.y + 1,
++                    &config.keybinds.keybinds.focus_agent,
++                    index,
++                    config,
++                );
++            }
+         },
+     );
+ }
+@@ -315,9 +332,66 @@ pub(super) fn agent_row(
+         status: agent.agent_status,
+         focused: agent.focused,
+         rows,
++        space_color: space_color(snapshot, config, &agent.workspace_id),
+     })
+ }
+ 
++/// Background of a space's rows, from `ui.sidebar.spaces.colors` by the space's sidebar position.
++pub(super) fn space_color(
++    snapshot: &ClientShellSnapshot,
++    config: &ClientShellConfig,
++    workspace_id: &str,
++) -> Option<ratatui::style::Color> {
++    let colors = &config.spaces.colors;
++    if colors.is_empty() {
++        return None;
++    }
++    let index = snapshot
++        .workspaces
++        .iter()
++        .position(|workspace| workspace.workspace_id == workspace_id)?;
++    Some(crate::config::parse_color(&colors[index % colors.len()]))
++}
++
++/// Brightens a space color for the focused row. Scaling the channels keeps the hue, where mixing
++/// toward white would wash the dark tints out to grey.
++pub(super) fn focused_row_color(color: ratatui::style::Color) -> ratatui::style::Color {
++    match color {
++        ratatui::style::Color::Rgb(red, green, blue) => {
++            let brighten = |channel: u8| (u16::from(channel) * 9 / 5).min(255) as u8;
++            ratatui::style::Color::Rgb(brighten(red), brighten(green), brighten(blue))
++        }
++        other => other,
++    }
++}
++
++/// Draws the key that reaches list position `index`; a direct binding wins over one behind the prefix.
++pub(super) fn put_key_hint(
++    buffer: &mut Buffer,
++    x: u16,
++    y: u16,
++    bindings: &[crate::config::IndexedKeybind],
++    index: usize,
++    config: &ClientShellConfig,
++) {
++    let Some(binding) = bindings
++        .iter()
++        .filter(|binding| binding.index == index)
++        .min_by_key(|binding| !binding.trigger.is_direct())
++    else {
++        return;
++    };
++    let key = binding.label.rsplit('+').next().unwrap_or(&binding.label);
++    put_text(
++        buffer,
++        x,
++        y,
++        display_width(key) as u16,
++        key,
++        Style::default().fg(config.palette.overlay0),
++    );
++}
++
+ pub(super) fn render_agent_row(
+     buffer: &mut Buffer,
+     rect: Rect,
+@@ -325,22 +399,28 @@ pub(super) fn render_agent_row(
+     config: &ClientShellConfig,
+ ) {
+     let palette = &config.palette;
+-    let row_style = if row.focused {
+-        Style::default().bg(palette.active_row_bg)
+-    } else {
+-        Style::default()
++    let row_style = match (row.space_color, row.focused) {
++        (Some(color), true) => Style::default().bg(focused_row_color(color)),
++        (Some(color), false) => Style::default().bg(color),
++        (None, true) => Style::default().bg(palette.active_row_bg),
++        (None, false) => Style::default(),
+     };
++    // Bold marks only the focused agent, as the spaces and tabs lists do
+     let name_style = if row.focused {
+         Style::default()
+             .fg(palette.text)
+             .add_modifier(Modifier::BOLD)
+     } else {
++        Style::default().fg(palette.subtext0)
++    };
++    let status_style = Style::default().fg(status_color(row.status, palette));
++    let secondary = if row.focused {
+         Style::default()
+-            .fg(palette.subtext0)
++            .fg(palette.overlay0)
+             .add_modifier(Modifier::BOLD)
++    } else {
++        Style::default().fg(palette.overlay0)
+     };
+-    let status_style = Style::default().fg(status_color(row.status, palette));
+-    let secondary = Style::default().fg(palette.overlay0);
+     let icon = (
+         status_icon(row.status, config.status_indicators),
+         Style::default().fg(status_color(row.status, palette)),
+diff --git a/src/client/shell/config.rs b/src/client/shell/config.rs
+index 04a3ddb5..913ea3d5 100644
+--- a/src/client/shell/config.rs
++++ b/src/client/shell/config.rs
+@@ -418,7 +418,8 @@ impl ClientShellConfig {
+         let show_tab_bar = rows > 1 && !(self.hide_tab_bar_when_single_tab && tab_count == 1);
+         let tab_height = u16::from(show_tab_bar);
+         let (tab_bar, pane_surface) = match self.tab_bar_position {
+-            TabBarPositionConfig::Top => (
++            // The sidebar lists the tabs, so the top row only carries status entries.
++            TabBarPositionConfig::Top | TabBarPositionConfig::Sidebar => (
+                 Rect::new(main.x, 0, main.width, tab_height),
+                 Rect::new(
+                     main.x,
+diff --git a/src/client/shell/mouse.rs b/src/client/shell/mouse.rs
+index 8e873d68..ddc10945 100644
+--- a/src/client/shell/mouse.rs
++++ b/src/client/shell/mouse.rs
+@@ -451,6 +451,11 @@ impl ClientShellState {
+     }
+ 
+     fn tab_drop_index_at(&self, point: (u16, u16)) -> Option<usize> {
++        // The sidebar list keeps reordering on the move-tab keys instead of a y-based drop
++        // index, because the indicator and scroll buttons below assume one horizontal row.
++        if !self.hits.tab_list.is_empty() {
++            return None;
++        }
+         let snapshot = self.snapshot.as_deref()?;
+         let workspace_id = snapshot.focused_workspace_id.as_deref()?;
+         let tabs = snapshot
+diff --git a/src/client/shell/render.rs b/src/client/shell/render.rs
+index 248216c1..7ec0b2ac 100644
+--- a/src/client/shell/render.rs
++++ b/src/client/shell/render.rs
+@@ -4,6 +4,8 @@ use super::*;
+ mod overlays;
+ #[path = "../shell/sidebar.rs"]
+ pub(in crate::client::shell) mod sidebar;
++#[path = "../shell/sidebar_tabs.rs"]
++mod sidebar_tabs;
+ #[path = "../shell/tabs.rs"]
+ mod tabs;
+ 
+@@ -11,7 +13,7 @@ pub(super) use super::agent_sidebar::{ordered_agent_pane_ids, render_agent_panel
+ pub(super) use super::aggregate_navigation::navigator_rows as client_navigator_rows;
+ pub(super) use overlays::{render_client_overlay, render_context_menu, render_global_menu};
+ pub(super) use sidebar::{render_collapsed_sidebar, render_sidebar, workspace_entries};
+-pub(super) use tabs::{render_tab_bar, tab_bar_status_width};
++pub(super) use tabs::{render_tab_bar, render_tab_status_row, tab_bar_status_width};
+ 
+ pub(in crate::client::shell) fn render_sidebar_background(
+     buffer: &mut Buffer,
+@@ -258,6 +260,7 @@ pub(super) fn render_shell(
+     mut state: ShellRenderState<'_>,
+ ) -> ShellHitMap {
+     let mut hits = ShellHitMap::default();
++    let sidebar_lists_tabs = sidebar_tabs::sidebar_lists_tabs(layout, config, &state);
+     if layout.mobile_header.height > 0 {
+         super::mobile::render_mobile_header(
+             buffer,
+@@ -309,7 +312,9 @@ pub(super) fn render_shell(
+             );
+         }
+     }
+-    if layout.tab_bar.height > 0 {
++    if layout.tab_bar.height > 0 && sidebar_lists_tabs {
++        render_tab_status_row(buffer, layout.tab_bar, snapshot, config);
++    } else if layout.tab_bar.height > 0 {
+         render_tab_bar(
+             buffer,
+             layout.tab_bar,
+diff --git a/src/client/shell/sidebar.rs b/src/client/shell/sidebar.rs
+index 46c3a1a0..0f8d0872 100644
+--- a/src/client/shell/sidebar.rs
++++ b/src/client/shell/sidebar.rs
+@@ -211,31 +211,7 @@ pub(crate) fn render_sidebar(
+     } else {
+         Rect::new(area.right().saturating_sub(1), area.y, 1, area.height)
+     };
+-    let (workspace_area, detail_area) =
+-        crate::ui::expanded_sidebar_sections(area, state.sidebar_section_split);
+-    hits.sidebar_section_divider =
+-        crate::ui::sidebar_section_divider_rect(area, state.sidebar_section_split);
+-    put_text(
+-        buffer,
+-        workspace_area.x,
+-        workspace_area.y,
+-        workspace_area.width,
+-        " spaces",
+-        Style::default()
+-            .fg(palette.overlay0)
+-            .add_modifier(Modifier::BOLD),
+-    );
+-
+     let entries = workspace_entries(snapshot, state.collapsed_groups);
+-    let body = Rect::new(
+-        workspace_area.x,
+-        workspace_area.y.saturating_add(WORKSPACE_HEADER_ROWS),
+-        workspace_area.width,
+-        workspace_area
+-            .height
+-            .saturating_sub(WORKSPACE_HEADER_ROWS + 1),
+-    );
+-    hits.workspace_body = body;
+     let row_heights = entries
+         .iter()
+         .map(|entry| {
+@@ -265,6 +241,42 @@ pub(crate) fn render_sidebar(
+                 .map_or(0, |next| u16::from(!next.indented) * config.spaces.row_gap)
+         })
+         .collect::<Vec<_>>();
++    let split = if config.tab_bar_position == TabBarPositionConfig::Sidebar {
++        super::sidebar_tabs::content_sized_split(
++            area.height,
++            row_heights
++                .iter()
++                .chain(&gaps)
++                .fold(WORKSPACE_HEADER_ROWS + 1, |rows, height| {
++                    rows.saturating_add(*height)
++                }),
++            state.sidebar_section_split,
++        )
++    } else {
++        state.sidebar_section_split
++    };
++    let (workspace_area, detail_area) = crate::ui::expanded_sidebar_sections(area, split);
++    hits.sidebar_section_divider = crate::ui::sidebar_section_divider_rect(area, split);
++    put_text(
++        buffer,
++        workspace_area.x,
++        workspace_area.y,
++        workspace_area.width,
++        " spaces",
++        Style::default()
++            .fg(palette.overlay0)
++            .add_modifier(Modifier::BOLD),
++    );
++
++    let body = Rect::new(
++        workspace_area.x,
++        workspace_area.y.saturating_add(WORKSPACE_HEADER_ROWS),
++        workspace_area.width,
++        workspace_area
++            .height
++            .saturating_sub(WORKSPACE_HEADER_ROWS + 1),
++    );
++    hits.workspace_body = body;
+     let mut metrics = super::scroll::list_scroll_metrics(
+         &row_heights,
+         &gaps,
+@@ -334,6 +346,31 @@ pub(crate) fn render_sidebar(
+             dragged,
+             palette,
+         );
++        // Painted after the rows because they fill the focused row with the active background;
++        // the space color stays on the focused row too, so it keeps matching its agents
++        if let Some(color) =
++            super::agent_sidebar::space_color(snapshot, config, &workspace.workspace_id)
++                .filter(|_| !selected && !dragged)
++        {
++            let color = if workspace.focused {
++                super::agent_sidebar::focused_row_color(color)
++            } else {
++                color
++            };
++            buffer.set_style(rect, Style::default().bg(color));
++        }
++        if row_height > 1 {
++            // An indented worktree row draws its status icon after the 6-cell tree prefix
++            let icon_x = rect.x + if entry.indented { 6 } else { 1 };
++            super::agent_sidebar::put_key_hint(
++                buffer,
++                icon_x,
++                rect.y + 1,
++                &config.keybinds.keybinds.switch_workspace,
++                entry_position,
++                config,
++            );
++        }
+         let group_toggle = render_parent_group_toggle(
+             buffer,
+             rect,
+@@ -430,6 +467,14 @@ pub(crate) fn render_sidebar(
+         }
+     }
+ 
++    let detail_area = if config.tab_bar_position == TabBarPositionConfig::Sidebar {
++        let (tab_area, agent_area) =
++            super::sidebar_tabs::split_tab_list_area(detail_area, snapshot, config);
++        super::sidebar_tabs::render_tab_list(buffer, tab_area, snapshot, config, hits);
++        agent_area
++    } else {
++        detail_area
++    };
+     super::render_agent_panel(
+         buffer,
+         detail_area,
+@@ -745,8 +790,9 @@ pub(in crate::client::shell) fn render_workspace_rows(
+             } else {
+                 Modifier::empty()
+             });
++        // Yellow rather than upstream's mauve so the focused branch stays in the sidebar's orange family
+         let secondary_style = Style::default().fg(if focused {
+-            palette.mauve
++            palette.yellow
+         } else {
+             palette.overlay0
+         });
+diff --git a/src/client/shell/sidebar_tabs.rs b/src/client/shell/sidebar_tabs.rs
+new file mode 100644
+index 00000000..7b42e536
+--- /dev/null
++++ b/src/client/shell/sidebar_tabs.rs
+@@ -0,0 +1,229 @@
++use super::*;
++
++/// Rule row plus the " tabs" title row.
++const TAB_LIST_HEADER_ROWS: u16 = 2;
++
++/// Name row plus path row for each tab.
++const TAB_ROWS: u16 = 2;
++
++/// Whether this frame lists the tabs in the sidebar instead of on the horizontal row.
++/// A collapsed sidebar has no room for names and the machines sidebar has no tabs section, so
++/// both keep the horizontal row rather than leaving the tabs unreachable.
++pub(super) fn sidebar_lists_tabs(
++    layout: ClientShellLayout,
++    config: &ClientShellConfig,
++    state: &ShellRenderState<'_>,
++) -> bool {
++    config.tab_bar_position == TabBarPositionConfig::Sidebar
++        && layout.sidebar.width > 0
++        && !state.sidebar_collapsed
++        && state.endpoints.len() <= 1
++}
++
++/// Sizes the spaces section to its rows, so a few spaces leave the rest to the tabs and agents.
++/// The dragged split still caps it, because a long spaces list would otherwise push both out.
++pub(super) fn content_sized_split(total_height: u16, spaces_rows: u16, split: f32) -> f32 {
++    if total_height == 0 {
++        return split;
++    }
++    split.min(f32::from(spaces_rows) / f32::from(total_height))
++}
++
++/// Rule, title, and spacer rows above the agent list, matching `render_agent_list`.
++const AGENT_PANEL_HEADER_ROWS: u16 = 3;
++
++/// Splits the detail area into the tab list on top and the agents pinned to the bottom. The
++/// agents list every space's agents, so sizing them to their rows keeps them in place while the
++/// tab list, which follows the focused space, changes length; they take at most half the area.
++pub(super) fn split_tab_list_area(
++    area: Rect,
++    snapshot: &ClientShellSnapshot,
++    config: &ClientShellConfig,
++) -> (Rect, Rect) {
++    let agents = super::agent_sidebar::agent_rows(snapshot, config, None);
++    let agent_rows =
++        agents
++            .iter()
++            .enumerate()
++            .fold(AGENT_PANEL_HEADER_ROWS, |rows, (index, agent)| {
++                let gap = if index + 1 < agents.len() {
++                    config.agents.row_gap
++                } else {
++                    0
++                };
++                rows.saturating_add(agent.rows.len().max(1).min(u16::MAX as usize) as u16)
++                    .saturating_add(gap)
++            });
++    // The tab list is reserved for the space with the most tabs rather than the focused one, so
++    // switching spaces leaves the agents in place while they still take any room tabs never use
++    let busiest_space_tabs = snapshot
++        .workspaces
++        .iter()
++        .map(|workspace| {
++            snapshot
++                .tabs
++                .iter()
++                .filter(|tab| tab.workspace_id == workspace.workspace_id)
++                .count()
++        })
++        .max()
++        .unwrap_or(0);
++    let tab_rows = if busiest_space_tabs == 0
++        || (config.hide_tab_bar_when_single_tab && busiest_space_tabs == 1)
++    {
++        0
++    } else {
++        TAB_LIST_HEADER_ROWS.saturating_add(
++            (busiest_space_tabs.min(u16::MAX as usize) as u16).saturating_mul(TAB_ROWS),
++        )
++    };
++    // One row past the list keeps the last agent off the collapse toggle in the bottom corner;
++    // agents always keep half the area, so a space with many tabs cannot squeeze them out
++    let agent_room = area.height.saturating_sub(tab_rows).max(area.height / 2);
++    let agent_height = agent_rows.saturating_add(1).min(agent_room);
++    let tab_height = area.height.saturating_sub(agent_height);
++    let agent_area = Rect {
++        y: area.y.saturating_add(tab_height),
++        height: agent_height,
++        ..area
++    };
++    let tab_count = focused_workspace_tabs(snapshot).count();
++    if tab_count == 0 || (config.hide_tab_bar_when_single_tab && tab_count == 1) {
++        return (Rect::default(), agent_area);
++    }
++    (
++        Rect {
++            height: tab_height,
++            ..area
++        },
++        agent_area,
++    )
++}
++
++pub(super) fn render_tab_list(
++    buffer: &mut Buffer,
++    area: Rect,
++    snapshot: &ClientShellSnapshot,
++    config: &ClientShellConfig,
++    hits: &mut ShellHitMap,
++) {
++    let palette = &config.palette;
++    if area.height <= TAB_LIST_HEADER_ROWS {
++        return;
++    }
++    put_text(
++        buffer,
++        area.x,
++        area.y,
++        area.width,
++        &"─".repeat(area.width as usize),
++        Style::default().fg(palette.surface_dim),
++    );
++    put_text(
++        buffer,
++        area.x,
++        area.y + 1,
++        area.width,
++        " tabs",
++        Style::default()
++            .fg(palette.overlay0)
++            .add_modifier(Modifier::BOLD),
++    );
++    let body = Rect::new(
++        area.x,
++        area.y + TAB_LIST_HEADER_ROWS,
++        area.width,
++        area.height - TAB_LIST_HEADER_ROWS,
++    );
++    hits.tab_list = body;
++
++    let tabs = focused_workspace_tabs(snapshot).collect::<Vec<_>>();
++    // Scroll only as far as needed to keep the focused tab on screen; the wheel already moves
++    // between tabs, so a separate list offset would only fight it.
++    let visible = (body.height / TAB_ROWS).max(1) as usize;
++    let first = tabs
++        .iter()
++        .position(|tab| tab.focused)
++        .map_or(0, |focused| (focused + 1).saturating_sub(visible));
++    for (row, tab) in tabs.iter().skip(first).take(visible).enumerate() {
++        let rect = Rect::new(
++            body.x,
++            body.y + row as u16 * TAB_ROWS,
++            body.width,
++            TAB_ROWS.min(body.height),
++        );
++        render_tab_row(buffer, rect, tab, config);
++        if rect.height > 1 {
++            super::agent_sidebar::put_key_hint(
++                buffer,
++                rect.x + 1,
++                rect.y + 1,
++                &config.keybinds.keybinds.switch_tab,
++                first + row,
++                config,
++            );
++        }
++        hits.tabs.push((rect, tab.tab_id.clone()));
++    }
++}
++
++fn render_tab_row(
++    buffer: &mut Buffer,
++    rect: Rect,
++    tab: &ClientShellTab,
++    config: &ClientShellConfig,
++) {
++    let palette = &config.palette;
++    if tab.focused {
++        buffer.set_style(rect, Style::default().bg(palette.active_row_bg));
++    }
++    let name_style = if tab.focused {
++        Style::default()
++            .fg(palette.text)
++            .add_modifier(Modifier::BOLD)
++    } else if tab.custom_label {
++        Style::default().fg(palette.subtext0)
++    } else {
++        Style::default().fg(palette.overlay0)
++    };
++    let right = rect.right();
++    let x = put_segment(buffer, rect.x, rect.y, right, " ", Style::default());
++    let x = put_segment(
++        buffer,
++        x,
++        rect.y,
++        right,
++        status_icon(tab.agent_status, config.status_indicators),
++        Style::default().fg(status_color(tab.agent_status, palette)),
++    );
++    // An auto-named tab is only its number, so the shell's title (the running or last command)
++    // says more; a name the user or an agent gave the tab is kept as is.
++    let name = match (&tab.title, tab.custom_label) {
++        (Some(title), false) => title.as_str(),
++        _ => tab.label.as_str(),
++    };
++    let label = if tab.zoomed {
++        format!(" {name} Z")
++    } else {
++        format!(" {name}")
++    };
++    let name_x = x;
++    put_segment(buffer, x, rect.y, right, &label, name_style);
++    if let Some(path) = tab.path.as_deref().filter(|_| rect.height > 1) {
++        put_segment(
++            buffer,
++            name_x,
++            rect.y + 1,
++            right,
++            &format!(" {path}"),
++            Style::default().fg(palette.subtext0),
++        );
++    }
++}
++
++fn focused_workspace_tabs(snapshot: &ClientShellSnapshot) -> impl Iterator<Item = &ClientShellTab> {
++    snapshot
++        .tabs
++        .iter()
++        .filter(|tab| Some(tab.workspace_id.as_str()) == snapshot.focused_workspace_id.as_deref())
++}
+diff --git a/src/client/shell/state.rs b/src/client/shell/state.rs
+index 5a732920..a0680625 100644
+--- a/src/client/shell/state.rs
++++ b/src/client/shell/state.rs
+@@ -90,6 +90,8 @@ pub(super) struct ShellHitMap {
+     pub(super) workspace_scroll_metrics: Option<crate::pane::ScrollMetrics>,
+     pub(super) workspace_max_scroll: usize,
+     pub(super) tabs: Vec<(Rect, String)>,
++    /// Body of the sidebar tab list; empty when the tabs sit on the horizontal row.
++    pub(super) tab_list: Rect,
+     pub(super) panes: Vec<PaneHit>,
+     pub(super) popup: Option<PaneHit>,
+     pub(super) pane_splits: Vec<PaneSplitHit>,
+diff --git a/src/client/shell/tabs.rs b/src/client/shell/tabs.rs
+index 3fdcf7dc..36015169 100644
+--- a/src/client/shell/tabs.rs
++++ b/src/client/shell/tabs.rs
+@@ -220,7 +220,9 @@ pub(crate) fn render_tab_bar(
+             );
+         }
+     }
+-    render_tab_bar_status(buffer, area, snapshot, palette);
++    if let Some(status) = tab_bar_status_area(snapshot, area) {
++        render_tab_bar_status(buffer, status, snapshot, palette);
++    }
+ }
+ 
+ pub(crate) fn tab_bar_status_width(snapshot: &ClientShellSnapshot) -> u16 {
+@@ -254,15 +256,30 @@ fn tab_bar_content_area(snapshot: &ClientShellSnapshot, area: Rect) -> Rect {
+     }
+ }
+ 
+-fn render_tab_bar_status(
++/// Draws only the status entries, right-aligned, when the tabs are listed in the sidebar.
++/// Without tabs on the row there is no tab strip to keep room for, so the status may use the
++/// whole width.
++pub(crate) fn render_tab_status_row(
+     buffer: &mut Buffer,
+     area: Rect,
+     snapshot: &ClientShellSnapshot,
+-    palette: &Palette,
++    config: &ClientShellConfig,
+ ) {
+-    let Some(status) = tab_bar_status_area(snapshot, area) else {
++    buffer.set_style(area, Style::default().bg(config.palette.panel_bg));
++    let width = tab_bar_status_width(snapshot).min(area.width);
++    if width == 0 {
+         return;
+-    };
++    }
++    let status = Rect::new(area.right().saturating_sub(width), area.y, width, 1);
++    render_tab_bar_status(buffer, status, snapshot, &config.palette);
++}
++
++fn render_tab_bar_status(
++    buffer: &mut Buffer,
++    status: Rect,
++    snapshot: &ClientShellSnapshot,
++    palette: &Palette,
++) {
+     let separator_width = display_width(&snapshot.tab_bar_right_separator);
+     let mut x = status.x;
+     for (index, segment) in snapshot.tab_bar_right.iter().enumerate() {
+@@ -270,7 +287,7 @@ fn render_tab_bar_status(
+             put_text(
+                 buffer,
+                 x,
+-                area.y,
++                status.y,
+                 separator_width,
+                 &snapshot.tab_bar_right_separator,
+                 Style::default().fg(palette.overlay0).bg(palette.panel_bg),
+@@ -286,7 +303,7 @@ fn render_tab_bar_status(
+         } else {
+             Style::default().fg(palette.overlay1).bg(palette.panel_bg)
+         };
+-        put_text(buffer, x, area.y, width, &segment.text, style);
++        put_text(buffer, x, status.y, width, &segment.text, style);
+         x = x.saturating_add(width);
+     }
+ }
+diff --git a/src/client/shell/tests/chrome_context.rs b/src/client/shell/tests/chrome_context.rs
+index 1ef98798..d938c0f8 100644
+--- a/src/client/shell/tests/chrome_context.rs
++++ b/src/client/shell/tests/chrome_context.rs
+@@ -12,6 +12,8 @@ fn tab_overflow_controls_scroll_the_client_owned_tab_bar() {
+         zoomed: false,
+         focused: false,
+         agent_status: AgentStatus::Idle,
++        title: None,
++        path: None,
+     }));
+     let mut state = ClientShellState::new(ClientShellConfig::from_config(&Config::default()));
+     state.set_snapshot(Box::new(snapshot));
+@@ -71,6 +73,8 @@ fn focused_last_overflow_tab_shows_its_full_label() {
+             zoomed: false,
+             focused: index == 7,
+             agent_status: AgentStatus::Idle,
++            title: None,
++            path: None,
+         })
+         .collect();
+     let mut state = ClientShellState::new(ClientShellConfig::from_config(&Config::default()));
+diff --git a/src/client/shell/tests/keybindings_settings.rs b/src/client/shell/tests/keybindings_settings.rs
+index fd3301db..5c01e02c 100644
+--- a/src/client/shell/tests/keybindings_settings.rs
++++ b/src/client/shell/tests/keybindings_settings.rs
+@@ -263,6 +263,8 @@ fn tab_bar_renders_endpoint_status_ellipses_and_clamps_to_useful_scroll() {
+             zoomed: false,
+             focused: false,
+             agent_status: AgentStatus::Idle,
++            title: None,
++            path: None,
+         });
+     }
+     let mut config = ClientShellConfig::from_config(&Config::default());
+@@ -315,6 +317,8 @@ fn inactive_auto_named_tab_label_does_not_stack_terminal_faint() {
+         zoomed: false,
+         focused: false,
+         agent_status: AgentStatus::Idle,
++        title: None,
++        path: None,
+     });
+     let mut state = ClientShellState::new(ClientShellConfig::from_config(&Config::default()));
+     state.set_snapshot(Box::new(projected));
+diff --git a/src/client/shell/tests/mobile.rs b/src/client/shell/tests/mobile.rs
+index 4dac5490..c3ce5a89 100644
+--- a/src/client/shell/tests/mobile.rs
++++ b/src/client/shell/tests/mobile.rs
+@@ -358,6 +358,8 @@ fn mobile_background_workspace_uses_its_own_active_tab_status() {
+         zoomed: false,
+         focused: false,
+         agent_status: AgentStatus::Idle,
++        title: None,
++        path: None,
+     });
+     projected.workspaces.push(ClientShellWorkspace {
+         workspace_id: "ws_2".into(),
+@@ -383,6 +385,8 @@ fn mobile_background_workspace_uses_its_own_active_tab_status() {
+             zoomed: false,
+             focused: false,
+             agent_status: AgentStatus::Idle,
++            title: None,
++            path: None,
+         });
+     }
+     state.set_snapshot(Box::new(projected));
+diff --git a/src/client/shell/tests/mod.rs b/src/client/shell/tests/mod.rs
+index 05bfc263..23a3971a 100644
+--- a/src/client/shell/tests/mod.rs
++++ b/src/client/shell/tests/mod.rs
+@@ -50,6 +50,8 @@ pub(super) fn snapshot() -> ClientShellSnapshot {
+             zoomed: false,
+             focused: true,
+             agent_status: AgentStatus::Idle,
++            title: None,
++            path: None,
+         }],
+         panes: vec![ClientShellPane {
+             pane_id: "pane_1".into(),
+@@ -261,4 +263,5 @@ mod link_hover;
+ mod mobile;
+ mod mouse_selection;
+ mod popup_focus_projection;
++mod sidebar_tabs;
+ mod startup_overlays;
+diff --git a/src/client/shell/tests/sidebar_tabs.rs b/src/client/shell/tests/sidebar_tabs.rs
+new file mode 100644
+index 00000000..8e1b5a97
+--- /dev/null
++++ b/src/client/shell/tests/sidebar_tabs.rs
+@@ -0,0 +1,277 @@
++use super::*;
++
++fn sidebar_tabs_state(tab_count: usize, focused: usize) -> ClientShellState {
++    let mut projected = snapshot();
++    projected.tab_bar_right = vec![crate::protocol::ClientShellTabStatusSegment {
++        text: "host".into(),
++        accent: false,
++    }];
++    projected.tabs.clear();
++    for number in 1..=tab_count {
++        projected.tabs.push(ClientShellTab {
++            tab_id: format!("tab_{number}"),
++            workspace_id: "ws_1".into(),
++            number,
++            label: format!("name{number}"),
++            custom_label: true,
++            zoomed: false,
++            focused: number == focused,
++            agent_status: AgentStatus::Idle,
++            title: None,
++            path: None,
++        });
++    }
++    projected.focused_tab_id = Some(format!("tab_{focused}"));
++    let mut config = ClientShellConfig::from_config(&Config::default());
++    config.mobile_width_threshold = 0;
++    config.tab_bar_position = crate::config::TabBarPositionConfig::Sidebar;
++    let mut state = ClientShellState::new(config);
++    state.set_snapshot(Box::new(projected));
++    state.set_pane_surface(surface());
++    state
++}
++
++fn click(state: &mut ClientShellState, kind: MouseEventKind, rect: Rect) -> ClientShellInput {
++    state.handle_raw_events(vec![RawInputEvent::Mouse(MouseEvent {
++        kind,
++        column: rect.x + 1,
++        row: rect.y,
++        modifiers: KeyModifiers::empty(),
++    })])
++}
++
++#[test]
++fn sidebar_position_lists_tabs_in_sidebar_and_keeps_status_on_top_row() {
++    let mut state = sidebar_tabs_state(3, 2);
++    let frame = state.compose(106, 30).expect("sidebar tabs");
++    let layout = state.layout(106, 30);
++    let rows = frame_rows(&frame);
++
++    assert!(!state.hits.tab_list.is_empty());
++    assert_eq!(state.hits.tabs.len(), 3);
++    assert!(state
++        .hits
++        .tabs
++        .iter()
++        .all(|(rect, _)| rect.right() <= layout.sidebar.right() && rect.y > 0));
++    assert!(rows.iter().any(|row| row.contains(" tabs")));
++    let top = &rows[layout.tab_bar.y as usize];
++    assert!(top.ends_with("host"));
++    assert!(!top.contains("name1"));
++    let (column, row) = cell_symbol_position(&frame, layout.sidebar, "name2");
++    let buffer = frame.to_ratatui_buffer().expect("sidebar tabs buffer");
++    let focused = buffer.cell((column, row)).expect("focused tab cell");
++    assert_eq!(focused.bg, state.config.palette.active_row_bg);
++}
++
++#[test]
++fn collapsed_sidebar_falls_back_to_the_tab_row() {
++    let mut state = sidebar_tabs_state(3, 1);
++    state.sidebar_collapsed = true;
++    state.compose(106, 30).expect("collapsed sidebar");
++    let layout = state.layout(106, 30);
++
++    assert!(state.hits.tab_list.is_empty());
++    assert_eq!(state.hits.tabs.len(), 3);
++    assert!(state
++        .hits
++        .tabs
++        .iter()
++        .all(|(rect, _)| rect.y == layout.tab_bar.y));
++}
++
++#[test]
++fn sidebar_tab_click_focuses_and_dragging_does_not_reorder() {
++    let mut state = sidebar_tabs_state(3, 1);
++    state.compose(106, 30).expect("sidebar tabs");
++    let first = state.hits.tabs[0].0;
++    let third = state.hits.tabs[2].0;
++
++    click(&mut state, MouseEventKind::Down(MouseButton::Left), third);
++    click(&mut state, MouseEventKind::Drag(MouseButton::Left), first);
++    assert!(state.chrome_drag.is_none());
++    let release = click(&mut state, MouseEventKind::Up(MouseButton::Left), first);
++
++    assert!(matches!(
++        &release.actions[..],
++        [ClientShellAction::Endpoint { request, .. }]
++            if matches!(&request.method, crate::api::schema::Method::TabFocus(target) if target.tab_id == "tab_3")
++    ));
++}
++
++#[test]
++fn sidebar_tab_list_keeps_the_focused_tab_visible() {
++    let mut state = sidebar_tabs_state(30, 30);
++    state.compose(106, 30).expect("many sidebar tabs");
++
++    assert!(state.hits.tabs.len() < 30);
++    assert_eq!(
++        state.hits.tabs.last().map(|(_, tab_id)| tab_id.as_str()),
++        Some("tab_30")
++    );
++}
++
++#[test]
++fn single_tab_hides_the_sidebar_list_when_configured() {
++    let mut state = sidebar_tabs_state(1, 1);
++    state.config.hide_tab_bar_when_single_tab = true;
++    state.compose(106, 30).expect("single tab");
++
++    assert!(state.hits.tab_list.is_empty());
++    assert!(state.hits.tabs.is_empty());
++}
++
++#[test]
++fn auto_named_tab_shows_its_terminal_title_over_the_path() {
++    let mut state = sidebar_tabs_state(2, 1);
++    let snapshot = state.snapshot.as_mut().expect("snapshot");
++    snapshot.tabs[0].custom_label = false;
++    snapshot.tabs[0].title = Some("cargo test".into());
++    snapshot.tabs[0].path = Some("herdr/src".into());
++    snapshot.tabs[1].title = Some("vim".into());
++    let frame = state.compose(106, 30).expect("titled tabs");
++    let rows = frame_rows(&frame);
++
++    let (_, title_row) = cell_symbol_position(&frame, state.layout(106, 30).sidebar, "cargo test");
++    assert!(rows[title_row as usize + 1].contains("herdr/src"));
++    assert!(rows.iter().any(|row| row.contains("name2")));
++    assert!(!rows.iter().any(|row| row.contains("vim")));
++    assert_eq!(state.hits.tabs[0].0.height, 2);
++}
++
++#[test]
++fn spaces_section_shrinks_to_its_rows() {
++    let mut state = sidebar_tabs_state(2, 1);
++    state.compose(106, 30).expect("sidebar tabs");
++    let sidebar = state.layout(106, 30).sidebar;
++
++    assert!(state.hits.sidebar_section_divider.y < sidebar.y + sidebar.height / 2);
++    assert!(state.hits.tab_list.y < sidebar.y + sidebar.height / 2);
++}
++
++#[test]
++fn agents_stay_pinned_to_the_bottom_when_the_tab_count_changes() {
++    let mut few = sidebar_tabs_state(1, 1);
++    few.compose(106, 30).expect("one tab");
++    let mut many = sidebar_tabs_state(5, 1);
++    many.compose(106, 30).expect("five tabs");
++
++    assert_eq!(few.hits.agent_body, many.hits.agent_body);
++    assert!(many.hits.tab_list.bottom() <= many.hits.agent_body.y);
++}
++
++#[test]
++fn space_colors_paint_each_space_and_its_agents() {
++    let mut state = sidebar_tabs_state(1, 1);
++    let snapshot = state.snapshot.as_mut().expect("snapshot");
++    let mut second = snapshot.workspaces[0].clone();
++    second.workspace_id = "ws_2".into();
++    second.label = "other".into();
++    second.focused = false;
++    snapshot.workspaces.push(second);
++    snapshot.agents = vec![ClientShellAgent {
++        pane_id: "pane_1".into(),
++        workspace_id: "ws_2".into(),
++        tab_id: "tab_1".into(),
++        name: Some("claude".into()),
++        display_agent: None,
++        agent: None,
++        title: None,
++        terminal_title: None,
++        terminal_title_stripped: None,
++        agent_status: AgentStatus::Idle,
++        state_change_seq: 1,
++        state_labels: Vec::new(),
++        tokens: Vec::new(),
++        focused: false,
++    }];
++    state.config.spaces.colors = vec!["#112233".into(), "#445566".into()];
++    let frame = state.compose(106, 30).expect("colored spaces");
++    let buffer = frame.to_ratatui_buffer().expect("colored buffer");
++    let sidebar = state.layout(106, 30).sidebar;
++    let bg_at = |needle: &str| {
++        let (column, row) = cell_symbol_position(&frame, sidebar, needle);
++        buffer.cell((column, row)).expect("cell").bg
++    };
++
++    let second_space = crate::config::parse_color("#445566");
++    assert_eq!(bg_at("other"), second_space);
++    assert_eq!(bg_at("claude"), second_space);
++    // The focused space brightens its color; the others keep theirs
++    assert_eq!(
++        bg_at("client-shell"),
++        ratatui::style::Color::Rgb(30, 61, 91)
++    );
++}
++
++#[test]
++fn agents_take_the_rows_the_tab_list_never_needs() {
++    let mut state = sidebar_tabs_state(1, 1);
++    let snapshot = state.snapshot.as_mut().expect("snapshot");
++    snapshot.agents = (1..=20)
++        .map(|number| ClientShellAgent {
++            pane_id: format!("pane_{number}"),
++            workspace_id: "ws_1".into(),
++            tab_id: "tab_1".into(),
++            name: Some(format!("agent{number}")),
++            display_agent: None,
++            agent: None,
++            title: None,
++            terminal_title: None,
++            terminal_title_stripped: None,
++            agent_status: AgentStatus::Idle,
++            state_change_seq: number,
++            state_labels: Vec::new(),
++            tokens: Vec::new(),
++            focused: number == 1,
++        })
++        .collect();
++    state.compose(106, 40).expect("many agents");
++    let sidebar = state.layout(106, 40).sidebar;
++    let detail_top = state.hits.tab_list.y;
++    let detail_height = sidebar.bottom() - detail_top;
++
++    assert!(state.hits.agent_body.height > detail_height / 2);
++    assert!(state.hits.tab_list.height >= 2);
++}
++
++#[test]
++fn only_the_focused_agent_is_bold() {
++    let mut state = sidebar_tabs_state(1, 1);
++    let snapshot = state.snapshot.as_mut().expect("snapshot");
++    snapshot.agents = ["active", "other"]
++        .into_iter()
++        .enumerate()
++        .map(|(index, name)| ClientShellAgent {
++            pane_id: format!("pane_{index}"),
++            workspace_id: "ws_1".into(),
++            tab_id: "tab_1".into(),
++            name: Some(name.into()),
++            display_agent: None,
++            agent: None,
++            title: None,
++            terminal_title: None,
++            terminal_title_stripped: None,
++            agent_status: AgentStatus::Idle,
++            state_change_seq: index as u64,
++            state_labels: Vec::new(),
++            tokens: Vec::new(),
++            focused: index == 0,
++        })
++        .collect();
++    state.config.agents.rows = vec![vec![crate::config::AgentSidebarToken::Agent]];
++    let frame = state.compose(106, 30).expect("agents");
++    let buffer = frame.to_ratatui_buffer().expect("agents buffer");
++    let sidebar = state.layout(106, 30).sidebar;
++    let bold_at = |needle: &str| {
++        let (column, row) = cell_symbol_position(&frame, sidebar, needle);
++        buffer
++            .cell((column, row))
++            .expect("cell")
++            .modifier
++            .contains(ratatui::style::Modifier::BOLD)
++    };
++
++    assert!(bold_at("active"));
++    assert!(!bold_at("other"));
++}
+diff --git a/src/config/keybinds.rs b/src/config/keybinds.rs
+index 276764a6..1b3a0b42 100644
+--- a/src/config/keybinds.rs
++++ b/src/config/keybinds.rs
+@@ -305,6 +305,8 @@ impl ActionKeybinds {
+ pub struct IndexedKeybind {
+     pub trigger: BindingTrigger,
+     pub label: String,
++    /// Zero-based target: the digit minus one, or the entry's position among the non-digit keys.
++    pub index: usize,
+ }
+ 
+ impl IndexedKeybind {
+@@ -312,7 +314,7 @@ impl IndexedKeybind {
+         let combo = self.trigger.combo();
+         let (expected_code, _) = normalize_key_combo(combo);
+         let KeyCode::Char(key_number @ '1'..='9') = expected_code else {
+-            return None;
++            return terminal_key_matches_combo(key, combo).then_some(self.index);
+         };
+         let legacy_shifted_number = matches!(key.code, KeyCode::Char(c)
+             if shifted_number_symbol(c) == Some(key_number)
+@@ -937,6 +939,7 @@ fn parse_indexed_bindings(
+     source: BindingSource,
+ ) -> Vec<IndexedKeybind> {
+     let mut bindings = Vec::new();
++    let mut ordinal = 0;
+     for raw in config.values() {
+         let raw = raw.trim();
+         if raw.is_empty() {
+@@ -944,13 +947,22 @@ fn parse_indexed_bindings(
+         }
+         match parse_binding_string(raw) {
+             Some(ParsedBinding::Single(binding)) => {
+-                push_indexed_binding(field, binding, registry, diagnostics, source, &mut bindings);
++                push_indexed_binding(
++                    field,
++                    binding,
++                    &mut ordinal,
++                    registry,
++                    diagnostics,
++                    source,
++                    &mut bindings,
++                );
+             }
+             Some(ParsedBinding::Range(range)) => {
+                 for binding in range {
+                     push_indexed_binding(
+                         field,
+                         binding,
++                        &mut ordinal,
+                         registry,
+                         diagnostics,
+                         source,
+@@ -971,20 +983,20 @@ fn parse_indexed_bindings(
+ fn push_indexed_binding(
+     field: &str,
+     binding: ResolvedBinding,
++    ordinal: &mut usize,
+     registry: &mut BindingRegistry,
+     diagnostics: &mut Vec<String>,
+     source: BindingSource,
+     bindings: &mut Vec<IndexedKeybind>,
+ ) {
+-    if !matches!(binding.trigger.combo().0, KeyCode::Char('1'..='9')) {
+-        let diag = format!(
+-            "indexed keybinding must use 1..9: {field} = {:?}; disabling binding",
+-            binding.label
+-        );
+-        warn!(message = %diag, "config diagnostic");
+-        diagnostics.push(diag);
+-        return;
+-    }
++    // Counted before the conflict check so a rejected key does not shift the keys after it
++    let index = match binding.trigger.combo().0 {
++        KeyCode::Char(digit @ '1'..='9') => digit as usize - '1' as usize,
++        _ => {
++            *ordinal += 1;
++            *ordinal - 1
++        }
++    };
+     if reject_binding(field, &binding, registry, diagnostics, source) {
+         return;
+     }
+@@ -992,6 +1004,7 @@ fn push_indexed_binding(
+     bindings.push(IndexedKeybind {
+         trigger: binding.trigger,
+         label: binding.label,
++        index,
+     });
+ }
+ 
+@@ -1031,6 +1044,7 @@ fn append_legacy_indexed_bindings(
+         target.push(IndexedKeybind {
+             trigger: binding.trigger,
+             label: binding.label,
++            index: idx as usize - 1,
+         });
+     }
+ }
+@@ -2334,11 +2348,11 @@ tabs = "bogus"
+     }
+ 
+     #[test]
+-    fn invalid_indexed_binding_does_not_displace_default_binding() {
++    fn non_digit_indexed_bindings_take_their_list_position() {
+         let config: Config = toml::from_str(
+             r#"
+ [keys]
+-switch_tab = "prefix+?"
++switch_tab = ["alt+q", "alt+w", "prefix+1..9"]
+ "#,
+         )
+         .unwrap();
+@@ -2346,20 +2360,17 @@ switch_tab = "prefix+?"
+         let diagnostics = config.collect_diagnostics();
+         let kb = config.keybinds();
+ 
+-        assert!(kb.switch_tab.is_empty());
++        assert!(diagnostics.is_empty(), "{diagnostics:?}");
++        assert_eq!(kb.switch_tab.len(), 11);
+         assert_eq!(
+-            binding_triggers(&kb.help),
+-            vec![BindingTrigger::Prefix((
+-                KeyCode::Char('?'),
+-                KeyModifiers::empty()
+-            ))]
++            kb.switch_tab[1].matched_index(&TerminalKey::new(KeyCode::Char('w'), KeyModifiers::ALT)),
++            Some(1)
+         );
+-        assert!(diagnostics.iter().any(|diag| {
+-            diag.contains("indexed keybinding must use 1..9") && diag.contains("keys.switch_tab")
+-        }));
+-        assert!(!diagnostics.iter().any(|diag| {
+-            diag.contains("kept keys.switch_tab") && diag.contains("disabled keys.help")
+-        }));
++        assert_eq!(
++            kb.switch_tab[1].matched_index(&TerminalKey::new(KeyCode::Char('q'), KeyModifiers::ALT)),
++            None
++        );
++        assert_eq!(kb.switch_tab[3].index, 1);
+     }
+ 
+     #[test]
+diff --git a/src/config/model.rs b/src/config/model.rs
+index 29802fd9..08fbb774 100644
+--- a/src/config/model.rs
++++ b/src/config/model.rs
+@@ -878,6 +878,7 @@ pub enum TabBarPositionConfig {
+     #[default]
+     Top,
+     Bottom,
++    Sidebar,
+ }
+ 
+ #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+@@ -982,7 +983,7 @@ pub struct UiConfig {
+     pub show_agent_labels_on_pane_borders: bool,
+     /// Hide the tab row when the workspace has one tab. Default: false.
+     pub hide_tab_bar_when_single_tab: bool,
+-    /// Desktop tab row placement. Default: top.
++    /// Desktop tab placement: the top or bottom row, or a list in the expanded sidebar. Default: top.
+     pub tab_bar_position: TabBarPositionConfig,
+     /// Ordered entries shown at the right edge of the desktop tab row. Empty by default.
+     pub tab_bar_right: Vec<TabBarRightEntryConfig>,
+@@ -1517,6 +1518,12 @@ status_indicators = "symbols"
+         assert!(wrong_type.contains("\"auto\", \"always\", \"off\", or a legacy boolean"));
+     }
+ 
++    #[test]
++    fn tab_bar_position_parses_sidebar() {
++        let config: Config = toml::from_str("[ui]\ntab_bar_position = \"sidebar\"\n").unwrap();
++        assert_eq!(config.ui.tab_bar_position, TabBarPositionConfig::Sidebar);
++    }
++
+     #[test]
+     fn pane_appearance_defaults_and_parse() {
+         let default_config = Config::default();
+diff --git a/src/config/sidebar.rs b/src/config/sidebar.rs
+index 9a4cb5e0..9a178df4 100644
+--- a/src/config/sidebar.rs
++++ b/src/config/sidebar.rs
+@@ -461,6 +461,9 @@ pub struct SpacesSidebarConfig {
+     #[serde(deserialize_with = "deserialize_sidebar_rows")]
+     pub rows: SpaceSidebarRows,
+     pub row_gap: u16,
++    /// Row backgrounds assigned to spaces in sidebar order and cycled past the end; agent rows
++    /// take their space's color. Empty keeps the theme backgrounds.
++    pub colors: Vec<String>,
+ }
+ 
+ impl Default for SpacesSidebarConfig {
+@@ -471,6 +474,7 @@ impl Default for SpacesSidebarConfig {
+                 vec![SpaceSidebarToken::Branch, SpaceSidebarToken::GitStatus],
+             ],
+             row_gap: DEFAULT_SIDEBAR_ROW_GAP,
++            colors: Vec::new(),
+         }
+     }
+ }
+diff --git a/src/main.rs b/src/main.rs
+index f97e7e2b..651516dd 100644
+--- a/src/main.rs
++++ b/src/main.rs
+@@ -315,7 +315,9 @@ const DEFAULT_CONFIG: &str = r##"# herdr configuration
+ # New tabs can still be created with the configured keybinding.
+ # hide_tab_bar_when_single_tab = false
+ 
+-# Desktop tab row placement: "top" or "bottom".
++# Desktop tab placement: "top", "bottom", or "sidebar".
++# "sidebar" lists tabs in the expanded sidebar and keeps the top row for status
++# entries; a collapsed or hidden sidebar falls back to the top row.
+ # tab_bar_position = "top"
+ 
+ # Ordered status entries at the right edge of the desktop tab bar.
+@@ -364,6 +366,8 @@ const DEFAULT_CONFIG: &str = r##"# herdr configuration
+ # Blank rows between space entries. Set to 1 to restore the previous spacing.
+ # row_gap = 0
+ # rows = [["state_icon", "workspace"], ["branch", "git_status"]]
++# Row backgrounds for spaces in sidebar order, cycled past the end; agent rows take their space's color.
++# colors = ["#1e3a5f", "#3f1e5f", "#1e5f3a"]
+ 
+ # Background notification popup delivery
+ [ui.toast]
+diff --git a/src/protocol/wire.rs b/src/protocol/wire.rs
+index ead2ddd7..c11194ba 100644
+--- a/src/protocol/wire.rs
++++ b/src/protocol/wire.rs
+@@ -1052,6 +1052,12 @@ pub struct ClientShellTab {
+     pub focused: bool,
+     #[serde(deserialize_with = "deserialize_client_shell_agent_status")]
+     pub agent_status: crate::api::schema::AgentStatus,
++    /// Terminal title of the tab's focused pane, which shells set to the running or last command.
++    #[serde(default)]
++    pub title: Option<String>,
++    /// Working directory of the tab's focused pane, shown relative to its git repository.
++    #[serde(default)]
++    pub path: Option<String>,
+ }
+ 
+ #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+@@ -2840,6 +2846,8 @@ mod tests {
+                 zoomed: false,
+                 focused: true,
+                 agent_status: crate::api::schema::AgentStatus::Idle,
++                title: None,
++                path: None,
+             }],
+             panes: vec![ClientShellPane {
+                 pane_id: "w1:p1".into(),
+diff --git a/src/server/client_shell.rs b/src/server/client_shell.rs
+index 0a98da09..5a170f17 100644
+--- a/src/server/client_shell.rs
++++ b/src/server/client_shell.rs
+@@ -109,7 +109,20 @@ pub(super) fn snapshot_with_completions(
+         )
+         .map(|(tab, state)| {
+             let tab_id = tab.tab_id;
++            let pane_id = state.layout.focused();
++            let title = state
++                .terminal_id(pane_id)
++                .and_then(|terminal_id| app.state.terminals.get(terminal_id))
++                .and_then(|terminal| terminal.terminal_title_stripped());
++            let path = state
++                .foreground_cwd_for_pane(pane_id, &app.terminal_runtimes)
++                .or_else(|| {
++                    state.cwd_for_pane(pane_id, &app.state.terminals, &app.terminal_runtimes)
++                })
++                .map(|cwd| super::git_path::display_path(&cwd));
+             protocol::ClientShellTab {
++                title,
++                path,
+                 focused: focused_tab_id.as_deref() == Some(tab_id.as_str()),
+                 tab_id,
+                 workspace_id: tab.workspace_id,
+@@ -121,7 +134,7 @@ pub(super) fn snapshot_with_completions(
+             }
+         })
+         .collect();
+-    let panes = snapshot
++    let panes: Vec<protocol::ClientShellPane> = snapshot
+         .panes
+         .into_iter()
+         .map(|pane| {
+@@ -156,7 +169,18 @@ pub(super) fn snapshot_with_completions(
+             let focused = focused_pane_id.as_deref() == Some(pane_id.as_str());
+             let mut state_labels = agent.state_labels.into_iter().collect::<Vec<_>>();
+             state_labels.sort_by(|left, right| left.0.cmp(&right.0));
+-            let mut tokens = agent.tokens.into_iter().collect::<Vec<_>>();
++            let mut tokens = agent.tokens;
++            // A reported $path wins, so an agent that knows its project better keeps its own value
++            if let Some(cwd) = panes
++                .iter()
++                .find(|pane| pane.pane_id == pane_id)
++                .and_then(|pane| pane.foreground_cwd.as_ref().or(pane.cwd.as_ref()))
++            {
++                tokens
++                    .entry("path".to_owned())
++                    .or_insert_with(|| super::git_path::display_path(std::path::Path::new(cwd)));
++            }
++            let mut tokens = tokens.into_iter().collect::<Vec<_>>();
+             tokens.sort_by(|left, right| left.0.cmp(&right.0));
+             protocol::ClientShellAgent {
+                 pane_id,
+diff --git a/src/server/git_path.rs b/src/server/git_path.rs
+new file mode 100644
+index 00000000..c80c4642
+--- /dev/null
++++ b/src/server/git_path.rs
+@@ -0,0 +1,99 @@
++use std::collections::HashMap;
++use std::path::{Path, PathBuf};
++use std::sync::{Mutex, OnceLock};
++use std::time::{Duration, Instant};
++
++/// How long a looked-up repository root is trusted. Snapshots are rebuilt on every render, so
++/// walking the filesystem each time would stat every ancestor per pane per frame; a short expiry
++/// still picks up a `git init` or a removed repository within seconds.
++const ROOT_CACHE_TTL: Duration = Duration::from_secs(5);
++
++type RootCache = HashMap<PathBuf, (Instant, Option<PathBuf>)>;
++
++/// Shows a directory relative to its git repository as `repo/sub/dir`, or with the home
++/// directory abbreviated to `~` outside a repository.
++pub(crate) fn display_path(cwd: &Path) -> String {
++    if let Some(root) = cached_repo_root(cwd) {
++        let name = root.file_name().map_or_else(
++            || root.display().to_string(),
++            |name| name.to_string_lossy().into_owned(),
++        );
++        return match cwd.strip_prefix(&root) {
++            Ok(rest) if !rest.as_os_str().is_empty() => format!("{name}/{}", rest.display()),
++            _ => name,
++        };
++    }
++    match std::env::var_os("HOME").map(PathBuf::from) {
++        Some(home) if cwd == home => "~".to_owned(),
++        Some(home) => cwd.strip_prefix(&home).map_or_else(
++            |_| cwd.display().to_string(),
++            |rest| format!("~/{}", rest.display()),
++        ),
++        None => cwd.display().to_string(),
++    }
++}
++
++fn cached_repo_root(cwd: &Path) -> Option<PathBuf> {
++    static CACHE: OnceLock<Mutex<RootCache>> = OnceLock::new();
++    let now = Instant::now();
++    let mut cache = CACHE.get_or_init(Default::default).lock().ok()?;
++    if let Some((checked, root)) = cache.get(cwd) {
++        if now.duration_since(*checked) < ROOT_CACHE_TTL {
++            return root.clone();
++        }
++    }
++    let root = repo_root(cwd);
++    cache.retain(|_, (checked, _)| now.duration_since(*checked) < ROOT_CACHE_TTL);
++    cache.insert(cwd.to_path_buf(), (now, root.clone()));
++    root
++}
++
++/// `.git` is a directory in a clone and a file in a linked worktree, so either marks the root.
++fn repo_root(cwd: &Path) -> Option<PathBuf> {
++    cwd.ancestors()
++        .find(|dir| dir.join(".git").exists())
++        .map(Path::to_path_buf)
++}
++
++#[cfg(test)]
++mod tests {
++    use super::*;
++
++    fn temp_root(name: &str) -> PathBuf {
++        let stamp = std::time::SystemTime::now()
++            .duration_since(std::time::UNIX_EPOCH)
++            .expect("clock should be after unix epoch")
++            .as_nanos();
++        std::env::temp_dir().join(format!(
++            "herdr-git-path-{name}-{}-{stamp}",
++            std::process::id()
++        ))
++    }
++
++    #[test]
++    fn shows_the_repository_name_and_the_path_below_it() {
++        let repo = temp_root("repo").join("dotfiles");
++        std::fs::create_dir_all(repo.join(".git")).unwrap();
++        std::fs::create_dir_all(repo.join("home/cli")).unwrap();
++
++        assert_eq!(display_path(&repo), "dotfiles");
++        assert_eq!(display_path(&repo.join("home/cli")), "dotfiles/home/cli");
++    }
++
++    #[test]
++    fn treats_a_git_file_as_a_linked_worktree_root() {
++        let worktree = temp_root("worktree").join("feature");
++        std::fs::create_dir_all(&worktree).unwrap();
++        std::fs::write(worktree.join(".git"), "gitdir: /elsewhere\n").unwrap();
++
++        assert_eq!(display_path(&worktree), "feature");
++    }
++
++    #[test]
++    fn falls_back_to_the_full_path_outside_a_repository() {
++        let plain = temp_root("plain").join("plain");
++        std::fs::create_dir_all(&plain).unwrap();
++
++        assert!(display_path(&plain).ends_with("plain"));
++    }
++}
+diff --git a/src/server/mod.rs b/src/server/mod.rs
+index 481bdad4..4d5e7af7 100644
+--- a/src/server/mod.rs
++++ b/src/server/mod.rs
+@@ -9,6 +9,7 @@ pub(crate) mod client_shell_graphics;
+ pub(crate) mod client_transport;
+ pub(crate) mod clients;
+ pub(crate) mod clipboard_image;
++pub(crate) mod git_path;
+ #[cfg(unix)]
+ pub(crate) mod handoff;
+ pub mod headless;
