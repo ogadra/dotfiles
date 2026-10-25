@@ -48,4 +48,11 @@
 
 - When the user needs to run a command themselves, copy it to the clipboard with `@clipboardCommand@`.
 
+## Questions for the User
+
+- When you need answers from the user
+    - Put all the questions together at the end of your reply.
+    - List every unanswered question each time, including ones you asked in earlier replies.
+    - Do not point the user to earlier replies such as "the ... in my previous report"; give enough background, options, and your recommendation with its reason for the user to decide on the spot.
+
 @RTK.md
