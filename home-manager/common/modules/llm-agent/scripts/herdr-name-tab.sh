@@ -5,6 +5,24 @@ set -u
 [ -z "${HERDR_TAB_NAMING:-}" ] || exit 0
 command -v herdr >/dev/null 2>&1 || exit 0
 
+state_dir="${XDG_RUNTIME_DIR:-${TMPDIR:-/tmp}}/herdr-tab-names"
+state_file="$state_dir/${HERDR_SESSION:-default}_${HERDR_TAB_ID//[^[:alnum:]]/_}"
+
+current_label() {
+  herdr tab get "$HERDR_TAB_ID" 2>/dev/null | jq -r '.result.tab.label // ""'
+}
+
+# The summary outlives its agent, and a killed agent never reaches SessionEnd, so the shell runs this after every command instead of the agent running it on exit
+if [ "${1:-}" = --release ]; then
+  [ -f "$state_file" ] || exit 0
+  IFS=$'\t' read -r _ saved_label <"$state_file"
+  rm -f "$state_file"
+  # A name the user gave the tab over the summary stays
+  [ "$(current_label)" = "$saved_label" ] || exit 0
+  herdr tab rename "$HERDR_TAB_ID" "" >/dev/null 2>&1
+  exit 0
+fi
+
 # devin spawns hooks from its `devin acp` worker, so the -p flag sits several ancestors up; check the args of every agent layer, not just the first
 agent_args() {
   local pid=$PPID comm
@@ -33,9 +51,7 @@ PROMPT=$(printf '%s' "$INPUT" | jq -r '.prompt // ""')
 REPLY=$(printf '%s' "$INPUT" | jq -r '.last_assistant_message // ""')
 SESSION_ID=$(printf '%s' "$INPUT" | jq -r '.session_id // ""')
 
-state_dir="${XDG_RUNTIME_DIR:-${TMPDIR:-/tmp}}/herdr-tab-names"
 mkdir -p "$state_dir"
-state_file="$state_dir/${HERDR_SESSION:-default}_${HERDR_TAB_ID//[^[:alnum:]]/_}"
 history_file="$state_dir/history_${SESSION_ID//[^[:alnum:]-]/_}.jsonl"
 
 remember() {
@@ -53,10 +69,6 @@ conversation=$(
   printf 'ユーザー（最新）: %s\n' "${PROMPT:0:2000}"
 )
 remember user "$PROMPT"
-
-current_label() {
-  herdr tab get "$HERDR_TAB_ID" 2>/dev/null | jq -r '.result.tab.label // ""'
-}
 
 pinned() {
   [ -f "$state_file" ] || return 1

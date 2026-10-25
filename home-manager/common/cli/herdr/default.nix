@@ -301,6 +301,11 @@ in
       end
     end
 
+    # The tab list prefers a tab's name over that title, so drop the summary an agent's hooks named the tab after once the command that ran the agent returns
+    function __herdr_release_tab_name --on-event fish_postexec
+      set -q HERDR_TAB_ID; and ${../../modules/llm-agent/scripts/herdr-name-tab.sh} --release
+    end
+
     # Every wezterm OS window attaches to herdr's default session, and each client views its own space and tab; skip inside herdr, Claude Code, and SSH (the remote herdr would nest inside the local pane)
     if not set -q HERDR_ENV; and not set -q CLAUDECODE; and not set -q SSH_CONNECTION
       exec ${sessionExec} default
