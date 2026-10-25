@@ -26,7 +26,11 @@ while IFS= read -r SEG; do
       # `cd -` needs OLDPWD, which is untracked
       [ "$DIR" = "-" ] && continue
       # A failed cd keeps the old cwd, matching a `;` chain
-      NEXT=$(cd "$RUN_CWD" 2>/dev/null && cd "$DIR" 2>/dev/null && pwd) || continue
+      case "$DIR" in
+        # Going through RUN_CWD would drop an absolute path whenever the session cwd was deleted, such as a removed worktree
+        /*) NEXT=$(cd "$DIR" 2>/dev/null && pwd) || continue ;;
+        *) NEXT=$(cd "$RUN_CWD" 2>/dev/null && cd "$DIR" 2>/dev/null && pwd) || continue ;;
+      esac
       RUN_CWD=$NEXT
       GIT_SEGMENTS="${GIT_SEGMENTS}cd $RUN_CWD"$'\n'
       ;;
@@ -35,8 +39,9 @@ done
 
 [ -z "$GIT_SEGMENTS" ] && exit 0
 
-for child in block-default-commit.sh block-default-push.sh block-force-push.sh block-no-verify.sh block-rewrite-pushed.sh block-clone.sh; do
-  printf '%s' "$GIT_SEGMENTS" | "$SCRIPT_DIR/$child"
+# Run whichever guards the profile deployed
+for child in "$SCRIPT_DIR"/block-*.sh; do
+  printf '%s' "$GIT_SEGMENTS" | "$child"
   rc=$?
   [ "$rc" -ne 0 ] && exit "$rc"
 done

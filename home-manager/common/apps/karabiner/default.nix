@@ -37,6 +37,13 @@ let
           keyboard_type_v2 = "ansi";
         };
 
+        simple_modifications = [
+          {
+            from.key_code = "keypad_enter";
+            to = [ { key_code = "return_or_enter"; } ];
+          }
+        ];
+
         devices = [
           # Apple Internal Keyboard
           {

@@ -1,4 +1,4 @@
-{ hooksConfig }:
+{ hooksConfig, isucon }:
 {
   "$schema" = "https://json.schemastore.org/claude-code-settings.json";
 
@@ -28,7 +28,7 @@
   ## Permissions and hooks
 
   # Allow and deny rules.
-  permissions = import ./permissions.nix;
+  permissions = import ./permissions.nix { inherit isucon; };
   # Hook definitions.
   hooks = hooksConfig.hooks;
   # Kill switch for every hook and for statusLine.
@@ -216,7 +216,7 @@
     ];
   };
   # Treat the bypass permissions dialog as already read.
-  # skipDangerousModePermissionPrompt = null;
+  skipDangerousModePermissionPrompt = isucon;
   # Treat the auto mode opt-in dialog as already read; defaultMode already picks auto, so the dialog asks nothing new.
   skipAutoPermissionPrompt = true;
   # Disable auto mode, for managed settings.
@@ -233,5 +233,7 @@
   ## Environment variables
 
   # Environment variables set for a Claude Code session.
-  env = { };
+  env = {
+    CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR = "1";
+  };
 }

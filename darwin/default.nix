@@ -21,6 +21,7 @@ let
     ./settings/keyboard.nix
     ./settings/launchservices.nix
     ./settings/login.nix
+    ./settings/pki.nix
     ./settings/pointing
     ./settings/screensaver.nix
     ./settings/screenshot.nix
@@ -28,6 +29,7 @@ let
     ./settings/spaces.nix
     ./settings/universalaccess.nix
     ./settings/window-manager.nix
+    ../common/pki.nix
     ../profiles/${profile}
   ];
 
@@ -49,6 +51,7 @@ let
             nixLib
             profile
             ;
+          isucon = false;
         };
       };
     })

@@ -1,5 +1,7 @@
 HOST := $(shell hostname -s | tr '[:upper:]' '[:lower:]')
 UNAME := $(shell uname)
+FLAKE_SUFFIX := $(if $(filter isucon,$(MAKECMDGOALS)),-isucon,)
+FLAKE := .\#$(HOST)$(FLAKE_SUFFIX)
 
 .PHONY: ensure-nix build switch update clean
 
@@ -12,20 +14,20 @@ ensure-nix:
 	}
 	@command -v darwin-rebuild >/dev/null 2>&1 || { \
 		echo "darwin-rebuild not found. Bootstrapping nix-darwin..."; \
-		sudo nix --extra-experimental-features 'nix-command flakes' run nix-darwin -- switch --flake .#$(HOST); \
+		sudo nix --extra-experimental-features 'nix-command flakes' run nix-darwin -- switch --flake $(FLAKE); \
 	}
 
 ifeq ($(UNAME), Darwin)
 build: ensure-nix
-	darwin-rebuild build --flake .#$(HOST)
+	darwin-rebuild build --flake $(FLAKE)
 switch: ensure-nix
-	sudo darwin-rebuild switch --flake .#$(HOST)
+	sudo darwin-rebuild switch --flake $(FLAKE)
 else
 build:
-	nixos-rebuild build --flake .#$(HOST)
+	nixos-rebuild build --flake $(FLAKE)
 
 switch:
-	sudo nixos-rebuild switch --flake .#$(HOST)
+	sudo nixos-rebuild switch --flake $(FLAKE)
 endif
 
 clean:

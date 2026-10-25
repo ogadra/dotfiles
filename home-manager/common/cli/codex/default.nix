@@ -2,15 +2,18 @@
   inputs,
   lib,
   pkgs,
+  isucon ? false,
   ...
 }:
 let
   shared = ../../modules/llm-agent;
-  codex-unwrapped = inputs.llm-agents.packages.${pkgs.system}.codex.overrideAttrs (old: {
-    patches = (old.patches or [ ]) ++ [
-      ./patches/codex-status-line-used-limits.patch
-    ];
-  });
+  codex-unwrapped =
+    inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.codex.overrideAttrs
+      (old: {
+        patches = (old.patches or [ ]) ++ [
+          ./patches/codex-status-line-used-limits.patch
+        ];
+      });
   codex-wrapper = pkgs.writeShellScriptBin "codex" ''
     set -euo pipefail
 
@@ -20,7 +23,7 @@ let
         pkgs.git
         pkgs.jq
         pkgs.mpv
-        inputs.llm-agents.packages.${pkgs.system}.ccusage
+        inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.ccusage
       ]
     }:$PATH"
     export GIT_CONFIG_GLOBAL="''${GIT_CONFIG_GLOBAL:-$HOME/.codex/config/.gitconfig}"
@@ -76,7 +79,6 @@ in
 
   home.file = {
     ".codex/ogadra.config.toml".source = ./ogadra.config.toml;
-    ".codex/AGENTS.md".source = shared + "/AGENTS.md";
     ".codex/RTK.md".source = ../rtk/RTK.md;
     ".codex/hooks.json".text = hooksJson;
     ".codex/packages/standalone/current/codex".source = codex + "/bin/codex";
@@ -84,7 +86,11 @@ in
       source = ./default.rules;
       force = true;
     };
-    ".codex/config/.gitconfig".source = shared + "/.gitconfig";
+    ".codex/config/.gitconfig".source =
+      shared + (if isucon then "/isucon.gitconfig" else "/.gitconfig");
+  }
+  // lib.optionalAttrs (!isucon) {
+    ".codex/AGENTS.md".source = import (shared + "/agents-md.nix") { inherit pkgs; };
   };
 
   home.activation.enableCodexRemoteControl = lib.hm.dag.entryAfter [ "linkGeneration" ] ''

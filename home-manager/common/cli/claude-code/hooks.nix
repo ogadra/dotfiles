@@ -1,14 +1,20 @@
+{
+  isucon ? false,
+}:
 let
-  mkScript = src: {
-    source = src;
-    executable = true;
-  };
+  # executable = true makes home-manager copy the file to set its mode, so the exec bit lives in git and the file stays a symlink to the store
+  mkScript = src: { source = src; };
   shared = ../../modules/llm-agent;
 
   playSound =
     sound: "(mpv --no-terminal --volume=30 ~/.claude/sounds/${sound} </dev/null >/dev/null 2>&1 &)";
 
   whenAttended = command: ''if [ "$CLAUDE_CODE_SESSION_ATTENDED" = "1" ]; then ${command}; fi'';
+
+  orchestratorGate = {
+    type = "command";
+    command = "$HOME/.claude/scripts/orchestrator-gate.sh";
+  };
 in
 {
   hooks = {
@@ -63,7 +69,14 @@ in
             type = "command";
             command = "$HOME/.claude/scripts/herdr-name-tab.sh --model sonnet --no-session-persistence --tools '' --settings '{\"disableAllHooks\":true}'";
           }
+          orchestratorGate
         ];
+      }
+    ];
+    SessionEnd = [
+      {
+        matcher = "";
+        hooks = [ orchestratorGate ];
       }
     ];
     PostToolUse = [
@@ -92,6 +105,30 @@ in
           }
         ];
       }
+      # A "/" in the name nests the worktree below a direct child of .claude/worktrees
+      {
+        matcher = "^EnterWorktree$";
+        hooks = [
+          {
+            type = "command";
+            command = ''if jq -e '.tool_input.name // "" | contains("/")' >/dev/null; then echo 'Blocked: worktree names must not contain "/".' >&2; exit 2; fi'';
+          }
+        ];
+      }
+      # A subagent runs hidden inside this session, while a herdr tab keeps the work visible and steerable from its own pane
+      {
+        matcher = "^Agent$";
+        hooks = [
+          {
+            type = "command";
+            command = whenAttended ''[ "''${HERDR_ENV:-}" != 1 ] || { echo 'Blocked: subagents are disabled in herdr sessions. Run the work in a herdr tab with `herdr tab create`, `herdr agent start` and `herdr agent prompt`.' >&2; exit 2; }'';
+          }
+        ];
+      }
+      {
+        matcher = "";
+        hooks = [ orchestratorGate ];
+      }
     ];
   };
 
@@ -103,6 +140,7 @@ in
       shared + "/scripts/ensure-trailing-newline.sh"
     );
     ".claude/scripts/herdr-name-tab.sh" = mkScript (shared + "/scripts/herdr-name-tab.sh");
+    ".claude/scripts/orchestrator-gate.sh" = mkScript (shared + "/scripts/orchestrator-gate.sh");
     ".claude/scripts/statusline.sh" = mkScript ./scripts/statusline.sh;
     ".claude/scripts/git/check.sh" = mkScript (shared + "/scripts/git/check.sh");
     ".claude/scripts/git/block-default-commit.sh" = mkScript (
@@ -112,15 +150,34 @@ in
       shared + "/scripts/git/block-default-push.sh"
     );
     ".claude/scripts/git/block-force-push.sh" = mkScript (shared + "/scripts/git/block-force-push.sh");
-    ".claude/scripts/git/block-no-verify.sh" = mkScript (shared + "/scripts/git/block-no-verify.sh");
     ".claude/scripts/git/block-rewrite-pushed.sh" = mkScript (
       shared + "/scripts/git/block-rewrite-pushed.sh"
     );
     ".claude/scripts/git/block-clone.sh" = mkScript (shared + "/scripts/git/block-clone.sh");
+    ".claude/scripts/git/block-worktree-outside.sh" = mkScript (
+      shared + "/scripts/git/block-worktree-outside.sh"
+    );
     ".claude/scripts/gh/check.sh" = mkScript (shared + "/scripts/gh/check.sh");
     ".claude/scripts/gh/block-repo-clone.sh" = mkScript (shared + "/scripts/gh/block-repo-clone.sh");
-    ".claude/scripts/gh/block-pr-body.sh" = mkScript (shared + "/scripts/gh/block-pr-body.sh");
     ".claude/scripts/gh/block-pr-close.sh" = mkScript (shared + "/scripts/gh/block-pr-close.sh");
     ".claude/scripts/gh/pr-body.sh" = mkScript ./scripts/pr-body.sh;
-  };
+  }
+  // (
+    if isucon then
+      { }
+    else
+      {
+        ".claude/scripts/block-sudo.sh" = mkScript (shared + "/scripts/block-sudo.sh");
+        ".claude/scripts/git/block-no-verify.sh" = mkScript (shared + "/scripts/git/block-no-verify.sh");
+        ".claude/scripts/git/block-merge-non-base.sh" = mkScript (
+          shared + "/scripts/git/block-merge-non-base.sh"
+        );
+        ".claude/scripts/git/block-cherry-pick-stacked.sh" = mkScript (
+          shared + "/scripts/git/block-cherry-pick-stacked.sh"
+        );
+        ".claude/scripts/git/block-commit-all.sh" = mkScript (shared + "/scripts/git/block-commit-all.sh");
+        ".claude/scripts/git/block-bulk-add.sh" = mkScript (shared + "/scripts/git/block-bulk-add.sh");
+        ".claude/scripts/gh/block-pr-body.sh" = mkScript (shared + "/scripts/gh/block-pr-body.sh");
+      }
+  );
 }

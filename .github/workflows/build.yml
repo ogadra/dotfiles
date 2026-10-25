@@ -3,6 +3,7 @@ on:
   pull_request:
     paths:
       - "**/*.nix"
+      - "**/*.patch"
       - flake.lock
       - .github/workflows/build.yml
 permissions:
@@ -15,6 +16,9 @@ jobs:
       matrix:
         include:
           - host: bisharp
+            os: ubuntu-latest
+            cfg: nixosConfigurations
+          - host: bisharp-isucon
             os: ubuntu-latest
             cfg: nixosConfigurations
           - host: xurkitree

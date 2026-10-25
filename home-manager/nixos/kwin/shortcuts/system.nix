@@ -1,6 +1,6 @@
 { ... }:
 {
-  # Session management, power, and accessibility shortcuts
+  # Session management, power, and accessibility shortcuts; Meta+letter and Meta+Tab stay unbound so wezterm can hand Super, the macOS Option key's spot, to herdr
   programs.plasma.shortcuts = {
     "KDE Keyboard Layout Switcher" = {
       "Switch to Last-Used Keyboard Layout" = "Meta+Alt+L";
@@ -30,10 +30,7 @@
       "Sleep" = "Sleep";
       "Toggle Keyboard Backlight" = "Keyboard Light On/Off";
       "Turn Off Screen" = [ ];
-      "powerProfile" = [
-        "Battery"
-        "Meta+B"
-      ];
+      "powerProfile" = "Battery";
     };
   };
 }

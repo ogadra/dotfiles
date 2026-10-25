@@ -7,6 +7,7 @@ let
     ../../common/apps/dbeaver
     ../../common/apps/docker
     ../../common/apps/editor
+    ../../common/apps/espanso
     ../../common/apps/karabiner
     ../../common/apps/macskk
     ../../common/apps/mos

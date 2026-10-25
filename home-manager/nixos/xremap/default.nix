@@ -5,6 +5,11 @@
     enable = true;
     watch = true;
     withKDE = true;
+    # Grabbing espanso's injector device makes espanso read its own output back through xremap and expand forever; quoted because ExecStart is space-joined
+    extraArgs = [
+      "--ignore"
+      "'Espanso virtual device'"
+    ];
     config.keymap = [
       {
         name = "Emacs Like";

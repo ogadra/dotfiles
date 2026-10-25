@@ -4,13 +4,16 @@
 
 - User-facing replies
     - Default: Japanese
-    - When the user asks for another language: that language
+    - Another language the user asks for: that language
 
 ## Git
 
-- Before running `git add`, check the changes with `git status` and `git diff`.
+- Before running `git add`
+    - Check the changes with `git status`.
+    - Check the changes with `git diff`.
 - Use `git rm` instead of `rm` for files tracked by git.
-- Write commit messages in English with a conventional commit prefix.
+- Write commit messages in English.
+- Start each commit message with a conventional commit prefix.
     - `feat:`
     - `fix:`
     - `docs:`
@@ -22,19 +25,27 @@
 
 ## Pull Requests
 
-- Write only what you changed in the PR body, in three lines or fewer.
+- PR body
+    - Write only what you changed.
+    - Keep it to three lines or fewer.
 
 ## What Goes Where
 
 - Application code
     - Code: how it works
-    - Comments: why not, such as the alternative you rejected and the reason
+    - Comments: why not
+        - The alternative you rejected
+        - The reason you rejected it
 - Test code
     - Code: what behavior it checks
 
 ## Comments
 
-- When you modify a comment
+- Modifying a comment
     - Rewrite the whole comment so it does not read like revision history.
+
+## Commands for the User to Run
+
+- When the user needs to run a command themselves, copy it to the clipboard with `@clipboardCommand@`.
 
 @RTK.md

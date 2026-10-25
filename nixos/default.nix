@@ -3,12 +3,14 @@
   profile,
   system,
   username,
+  isucon ? false,
   ...
 }:
 let
   baseModules = [
     ./configuration.nix
     ./settings/security/sudo.nix
+    ../common/pki.nix
     ../profiles/${profile}
   ];
 
@@ -19,11 +21,21 @@ let
         profile
         username
         inputs
+        isucon
         ;
     })
   ];
 
-  allModules = baseModules ++ homeManagerModules;
+  allModules =
+    baseModules
+    ++ homeManagerModules
+    # Redirect SNS domains to loopback during the competition
+    ++ inputs.nixpkgs.lib.optional isucon {
+      networking.extraHosts = ''
+        127.0.0.1 twitter.com www.twitter.com x.com www.x.com
+        ::1 twitter.com www.twitter.com x.com www.x.com
+      '';
+    };
 in
 {
   inherit system;
@@ -33,6 +45,7 @@ in
       inputs
       profile
       username
+      isucon
       ;
   };
 

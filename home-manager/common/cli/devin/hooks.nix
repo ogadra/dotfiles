@@ -1,8 +1,9 @@
+{
+  isucon ? false,
+}:
 let
-  mkScript = src: {
-    source = src;
-    executable = true;
-  };
+  # executable = true makes home-manager copy the file to set its mode, so the exec bit lives in git and the file stays a symlink to the store
+  mkScript = src: { source = src; };
   shared = ../../modules/llm-agent;
 
   # The tab-naming summarizer runs devin with HERDR_TAB_NAMING set and must stay silent
@@ -100,18 +101,41 @@ in
     ".config/devin/scripts/git/block-force-push.sh" = mkScript (
       shared + "/scripts/git/block-force-push.sh"
     );
-    ".config/devin/scripts/git/block-no-verify.sh" = mkScript (
-      shared + "/scripts/git/block-no-verify.sh"
-    );
     ".config/devin/scripts/git/block-rewrite-pushed.sh" = mkScript (
       shared + "/scripts/git/block-rewrite-pushed.sh"
     );
     ".config/devin/scripts/git/block-clone.sh" = mkScript (shared + "/scripts/git/block-clone.sh");
+    ".config/devin/scripts/git/block-worktree-outside.sh" = mkScript (
+      shared + "/scripts/git/block-worktree-outside.sh"
+    );
     ".config/devin/scripts/gh/check.sh" = mkScript (shared + "/scripts/gh/check.sh");
     ".config/devin/scripts/gh/block-repo-clone.sh" = mkScript (
       shared + "/scripts/gh/block-repo-clone.sh"
     );
-    ".config/devin/scripts/gh/block-pr-body.sh" = mkScript (shared + "/scripts/gh/block-pr-body.sh");
     ".config/devin/scripts/gh/block-pr-close.sh" = mkScript (shared + "/scripts/gh/block-pr-close.sh");
-  };
+  }
+  // (
+    if isucon then
+      { }
+    else
+      {
+        ".config/devin/scripts/block-sudo.sh" = mkScript (shared + "/scripts/block-sudo.sh");
+        ".config/devin/scripts/git/block-no-verify.sh" = mkScript (
+          shared + "/scripts/git/block-no-verify.sh"
+        );
+        ".config/devin/scripts/git/block-merge-non-base.sh" = mkScript (
+          shared + "/scripts/git/block-merge-non-base.sh"
+        );
+        ".config/devin/scripts/git/block-cherry-pick-stacked.sh" = mkScript (
+          shared + "/scripts/git/block-cherry-pick-stacked.sh"
+        );
+        ".config/devin/scripts/git/block-commit-all.sh" = mkScript (
+          shared + "/scripts/git/block-commit-all.sh"
+        );
+        ".config/devin/scripts/git/block-bulk-add.sh" = mkScript (
+          shared + "/scripts/git/block-bulk-add.sh"
+        );
+        ".config/devin/scripts/gh/block-pr-body.sh" = mkScript (shared + "/scripts/gh/block-pr-body.sh");
+      }
+  );
 }

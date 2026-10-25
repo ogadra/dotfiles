@@ -1,6 +1,6 @@
 { ... }:
 {
-  # Plasma shell shortcuts (launcher, taskbar, clipboard, activities)
+  # Plasma shell shortcuts (launcher, taskbar, clipboard, activities); Meta+letter and Meta+Tab stay unbound so wezterm can hand Super, the macOS Option key's spot, to herdr
   programs.plasma.shortcuts.plasmashell = {
     "Slideshow Wallpaper Next Image" = [ ];
     "activate application launcher" = [
@@ -23,9 +23,9 @@
     "cycleNextAction" = [ ];
     "cyclePrevAction" = [ ];
     "edit_clipboard" = [ ];
-    "manage activities" = "Meta+Q";
-    "next activity" = "Meta+A";
-    "previous activity" = "Meta+Shift+A";
+    "manage activities" = [ ];
+    "next activity" = [ ];
+    "previous activity" = [ ];
     "repeat_action" = [ ];
     "show dashboard" = "Ctrl+F12";
     "show-barcode" = [ ];
