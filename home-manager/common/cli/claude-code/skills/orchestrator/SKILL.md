@@ -83,6 +83,12 @@ issue番号、自由文のタスク、計画のいずれかを読み、タスク
 
 ### 3. レーンを立てて起動する
 
+別のタスクを渡すときは、新しいレーン（タブとエージェント）を立てる。終わったレーンを使い回さない。
+
+- 別のタスク
+    - 別のissue
+    - 別の依頼
+
 同一リポジトリ内の並列作業はworktreeで分ける。
 
 ```bash
@@ -140,6 +146,13 @@ waitが返ったら `herdr agent read <pane> --source recent-unwrapped --lines 1
 
 指示ファイルを書いて `herdr agent prompt <pane> "$(cat <file>)"` で送る。send-keysは承認キーにだけ使う。誤って選択肢を確定したら、ワーカーがその結果をコミットする前に訂正指示を送る。
 
+同じタスクの続きは、そのタスクのレーンへ送ってよい。
+
+- 同じタスクの続き
+    - 修正指示
+    - そのタスクのPRのマージ
+    - そのタスクについての追加調査
+
 ### 7. 完了判定と後始末
 
 完了は差分の事実で判定する。
@@ -150,6 +163,8 @@ waitが返ったら `herdr agent read <pane> --source recent-unwrapped --lines 1
     - `git log`
 - PR
     - `gh pr list --head <branch>`
+
+タスクのPRをマージしたら、`herdr tab close <tab_id>` でそのレーンのタブを閉じる。
 
 全レーンが完了したら、`herdr workspace close <ws>` で自分が立てたworkspaceを閉じる。worktreeとブランチは、削除対象を列挙してユーザーの承認を取ってから消す。
 
