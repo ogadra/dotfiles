@@ -10,6 +10,11 @@ let
     sound: "(mpv --no-terminal --volume=30 ~/.claude/sounds/${sound} </dev/null >/dev/null 2>&1 &)";
 
   whenAttended = command: ''if [ "$CLAUDE_CODE_SESSION_ATTENDED" = "1" ]; then ${command}; fi'';
+
+  orchestratorGate = {
+    type = "command";
+    command = "$HOME/.claude/scripts/orchestrator-gate.sh";
+  };
 in
 {
   hooks = {
@@ -64,7 +69,14 @@ in
             type = "command";
             command = "$HOME/.claude/scripts/herdr-name-tab.sh --model sonnet --no-session-persistence --tools '' --settings '{\"disableAllHooks\":true}'";
           }
+          orchestratorGate
         ];
+      }
+    ];
+    SessionEnd = [
+      {
+        matcher = "";
+        hooks = [ orchestratorGate ];
       }
     ];
     PostToolUse = [
@@ -103,6 +115,20 @@ in
           }
         ];
       }
+      # A subagent runs hidden inside this session, while a herdr tab keeps the work visible and steerable from its own pane
+      {
+        matcher = "^Agent$";
+        hooks = [
+          {
+            type = "command";
+            command = whenAttended ''[ "''${HERDR_ENV:-}" != 1 ] || { echo 'Blocked: subagents are disabled in herdr sessions. Run the work in a herdr tab with `herdr tab create`, `herdr agent start` and `herdr agent prompt`.' >&2; exit 2; }'';
+          }
+        ];
+      }
+      {
+        matcher = "";
+        hooks = [ orchestratorGate ];
+      }
     ];
   };
 
@@ -114,6 +140,7 @@ in
       shared + "/scripts/ensure-trailing-newline.sh"
     );
     ".claude/scripts/herdr-name-tab.sh" = mkScript (shared + "/scripts/herdr-name-tab.sh");
+    ".claude/scripts/orchestrator-gate.sh" = mkScript (shared + "/scripts/orchestrator-gate.sh");
     ".claude/scripts/statusline.sh" = mkScript ./scripts/statusline.sh;
     ".claude/scripts/git/check.sh" = mkScript (shared + "/scripts/git/check.sh");
     ".claude/scripts/git/block-default-commit.sh" = mkScript (

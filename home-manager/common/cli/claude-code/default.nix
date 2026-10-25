@@ -42,6 +42,7 @@ in
     ".claude/skills/cascade-merge/SKILL.md".source = ./skills/cascade-merge/SKILL.md;
     ".claude/skills/grill-me".source = ./skills/grill-me;
     ".claude/skills/import-skill/SKILL.md".source = ./skills/import-skill/SKILL.md;
+    ".claude/skills/orchestrator/SKILL.md".source = ./skills/orchestrator/SKILL.md;
     ".claude/skills/pr-create/SKILL.md".source = ./skills/pr-create/SKILL.md;
     ".claude/skills/pr-review/SKILL.md".source = ./skills/pr-review/SKILL.md;
     ".claude/skills/pr-review/policies/absolute-rules.md".source =
