@@ -164,8 +164,6 @@ waitが返ったら `herdr agent read <pane> --source recent-unwrapped --lines 1
 - PR
     - `gh pr list --head <branch>`
 
-タスクのPRをマージしたら、`herdr tab close <tab_id>` でそのレーンのタブを閉じる。
-
 全レーンが完了したら、`herdr workspace close <ws>` で自分が立てたworkspaceを閉じる。worktreeとブランチは、削除対象を列挙してユーザーの承認を取ってから消す。
 
 ## ワーカーへ渡す指示文の雛形
