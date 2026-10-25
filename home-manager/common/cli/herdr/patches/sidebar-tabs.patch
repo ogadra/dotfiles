@@ -1,5 +1,66 @@
-Modified by ogadra: list tabs vertically in the sidebar with ui.tab_bar_position = "sidebar", each with its title and repo-relative path, size the spaces section to its rows, pin the agents to the bottom, color spaces and their agents with ui.sidebar.spaces.colors and brighten the focused space and agent rows, keep the focused branch yellow, bold only the focused agent, let the indexed switch keys take non-digit keys by list position and show each key under its row's status icon, report that path to agent rows as $path, name tabs whose focused pane runs ssh in red and turn the status text red while the viewed one does, report whether the viewed tab runs ssh to the host terminal as the herdr_ssh user var, pass the pid of an ssh the active pane runs to status commands as HERDR_ACTIVE_PANE_SSH_PID, and redraw the tab list when a tab's stripped terminal title changes. Applied to herdr v0.9.5 (Apache-2.0).
+Modified by ogadra: list tabs vertically in the sidebar with ui.tab_bar_position = "sidebar", each with its title and repo-relative path, size the spaces section to its rows, pin the agents to the bottom, color spaces and their agents with ui.sidebar.spaces.colors and brighten the focused space and agent rows, keep the focused branch yellow, bold only the focused agent, let the indexed switch keys take non-digit keys by list position and show each key under its row's status icon, report that path to agent rows as $path, name tabs whose focused pane runs ssh in red and turn the status text red while the viewed one does, report whether the viewed tab runs ssh to the host terminal as the herdr_ssh user var, pass the pid of an ssh the active pane runs to status commands as HERDR_ACTIVE_PANE_SSH_PID, redraw the tab list when a tab's stripped terminal title changes, and hand a tab renamed to an empty label back to its auto name. Applied to herdr v0.9.5 (Apache-2.0).
 
+diff --git a/src/app/api/tabs.rs b/src/app/api/tabs.rs
+index b0085859..5de60212 100644
+--- a/src/app/api/tabs.rs
++++ b/src/app/api/tabs.rs
+@@ -155,7 +155,13 @@
+         else {
+             return tab_not_found(id, &params.tab_id);
+         };
+-        tab.set_custom_name(params.label.clone());
++        // The rename overlay never sends an empty label, so it is free to hand the tab back to
++        // its auto name, which the API otherwise has no way to do once a tab is named.
++        if params.label.is_empty() {
++            tab.custom_name = None;
++        } else {
++            tab.set_custom_name(params.label.clone());
++        }
+         crate::logging::tab_renamed(&workspace_id, &tab_id);
+         self.schedule_session_save();
+         self.emit_event(EventEnvelope {
+@@ -431,6 +437,41 @@
+         }));
+     }
+ 
++    #[test]
++    fn api_tab_rename_with_an_empty_label_restores_the_auto_name() {
++        let event_hub = crate::api::EventHub::default();
++        let (_api_tx, api_rx) = tokio::sync::mpsc::unbounded_channel();
++        let mut app = App::new(
++            &Config::default(),
++            crate::app::AppPolicy::TEST,
++            None,
++            api_rx,
++            event_hub,
++        );
++        app.state.workspaces = vec![Workspace::test_new("tabs")];
++        app.state.active = Some(0);
++        app.state.selected = 0;
++        let tab_id = app.public_tab_id(0, 0).unwrap();
++
++        app.handle_tab_rename(
++            "req".into(),
++            TabRenameParams {
++                tab_id: tab_id.clone(),
++                label: "summary".into(),
++            },
++        );
++        assert!(!app.state.workspaces[0].tabs[0].is_auto_named());
++
++        app.handle_tab_rename(
++            "req".into(),
++            TabRenameParams {
++                tab_id,
++                label: String::new(),
++            },
++        );
++        assert!(app.state.workspaces[0].tabs[0].is_auto_named());
++    }
++
+     #[tokio::test]
+     async fn tab_create_follows_cached_focused_pane_cwd_without_runtime() {
+         let event_hub = crate::api::EventHub::default();
 diff --git a/src/app/custom_commands.rs b/src/app/custom_commands.rs
 index 6e8a6c01..f03f896e 100644
 --- a/src/app/custom_commands.rs
