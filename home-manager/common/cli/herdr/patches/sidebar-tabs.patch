@@ -1,5 +1,52 @@
-Modified by ogadra: list tabs vertically in the sidebar with ui.tab_bar_position = "sidebar", each with its title and repo-relative path, size the spaces section to its rows, pin the agents to the bottom, color spaces and their agents with ui.sidebar.spaces.colors and brighten the focused space and agent rows, keep the focused branch yellow, bold only the focused agent, let the indexed switch keys take non-digit keys by list position and show each key under its row's status icon, and report that path to agent rows as $path. Applied to herdr v0.9.5 (Apache-2.0).
+Modified by ogadra: list tabs vertically in the sidebar with ui.tab_bar_position = "sidebar", each with its title and repo-relative path, size the spaces section to its rows, pin the agents to the bottom, color spaces and their agents with ui.sidebar.spaces.colors and brighten the focused space and agent rows, keep the focused branch yellow, bold only the focused agent, let the indexed switch keys take non-digit keys by list position and show each key under its row's status icon, report that path to agent rows as $path, and redraw the tab list when a tab's stripped terminal title changes. Applied to herdr v0.9.5 (Apache-2.0).
 
+diff --git a/src/app/terminal_titles.rs b/src/app/terminal_titles.rs
+index 94932f4a..0b1d4998 100644
+--- a/src/app/terminal_titles.rs
++++ b/src/app/terminal_titles.rs
+@@ -11,6 +11,11 @@ pub(crate) struct TerminalTitleChanges {
+ 
+ impl App {
+     pub(crate) fn terminal_title_sidebar_changed(&self, changes: &TerminalTitleChanges) -> bool {
++        // The sidebar tab list names auto-named tabs by their stripped title, so it redraws
++        // whenever that changes, whatever the agent rows show.
++        if changes.stripped_changed {
++            return true;
++        }
+         let config = &self.state.sidebar_agents;
+         std::iter::once(&config.rows)
+             .chain(config.rows_by_agent.values())
+@@ -197,6 +202,30 @@ mod tests {
+         assert!(render_request.generic);
+     }
+ 
++    #[test]
++    fn sidebar_redraws_for_stripped_title_changes_without_title_rows() {
++        let event_hub = crate::api::EventHub::default();
++        let (_api_tx, api_rx) = tokio::sync::mpsc::unbounded_channel();
++        let mut app = App::new(
++            &Config::default(),
++            crate::app::AppPolicy::TEST,
++            None,
++            api_rx,
++            event_hub,
++        );
++        app.state.sidebar_agents.rows = vec![vec![crate::config::AgentSidebarToken::Agent]];
++        app.state.sidebar_agents.rows_by_agent.clear();
++
++        assert!(!app.terminal_title_sidebar_changed(&TerminalTitleChanges {
++            raw_changed: true,
++            ..TerminalTitleChanges::default()
++        }));
++        assert!(app.terminal_title_sidebar_changed(&TerminalTitleChanges {
++            stripped_changed: true,
++            ..TerminalTitleChanges::default()
++        }));
++    }
++
+     #[test]
+     fn sidebar_redraws_only_for_the_configured_title_form() {
+         let event_hub = crate::api::EventHub::default();
 diff --git a/src/client/shell/agent_sidebar.rs b/src/client/shell/agent_sidebar.rs
 index e43ab8cc..03446acc 100644
 --- a/src/client/shell/agent_sidebar.rs
