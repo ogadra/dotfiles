@@ -166,7 +166,7 @@
                             "x": 3200,
                             "y": 0
                         },
-                        "priority": 0,
+                        "priority": 1,
                         "replicationSource": ""
                     },
                     {
@@ -176,7 +176,7 @@
                             "x": 0,
                             "y": 0
                         },
-                        "priority": 2,
+                        "priority": 0,
                         "replicationSource": ""
                     },
                     {
@@ -186,7 +186,7 @@
                             "x": 6400,
                             "y": 0
                         },
-                        "priority": 1,
+                        "priority": 2,
                         "replicationSource": ""
                     }
                 ]
