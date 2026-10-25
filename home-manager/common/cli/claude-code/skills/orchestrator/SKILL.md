@@ -16,6 +16,8 @@ user-invocable: true
 親は入力待ちの状態を保ち、作業はすべて別タブのワーカーへすぐに渡す。単純なシェルスクリプトやコマンドの実行も渡す。
 
 - `herdr` コマンド
+- `ListAgents`
+    - 自分のセッション名の確認
 - タスク一覧の材料集め
     - `gh issue view`
 - ワーカーの報告の裏取り
@@ -35,8 +37,10 @@ user-invocable: true
 
 ## 道具の使い分け
 
-- 指示と報告
+- 指示
     - ファイルに書いて `herdr agent prompt` で送る
+- 報告
+    - ワーカーがClaude Codeの `SendMessage` で親のセッションへ送る
 - 画面の確認
     - `herdr agent read`
 - 生死の確認
@@ -49,15 +53,11 @@ user-invocable: true
 
 ## 流れ
 
-### 1. 親名を付ける
+### 1. 親のセッション名を控える
 
-ワーカーは報告をherdrのエージェント名宛てに送る。名前は一意で短いものにする。
+ワーカーは報告を親のClaude Codeセッション名宛てに `SendMessage` で送る。`ListAgents` を呼び、出力先頭の `This session is <名> [<ref>]` の `<名>` を控える。
 
-```bash
-herdr agent rename "$HERDR_PANE_ID" orc-<短い名>   # 例: orc-skills
-```
-
-セッションを再開したときとレーンを復旧したときは、同じ名前で付け直す。親がワーカーへ渡す報告規約にこの名前を書き込むので、一字でも違うと報告が届かない。
+親がワーカーへ渡す報告規約にこの名前を書き込むので、一字でも違うと報告が届かない。セッションを再開したときは `ListAgents` で名前を確かめ直し、変わっていたら稼働中の全レーンへ新しい名前を `herdr agent prompt` で伝える。
 
 ### 2. タスク一覧を作って承認を取る
 
@@ -121,7 +121,7 @@ herdr agent prompt <pane> "$(cat <指示ファイル>)"
 
 レーンごとにバックグラウンドBashで `herdr agent wait <pane>` を張る。waitは既定でidle、done、blockedのいずれかに達すると返り、その終了が起床通知になる。イベントを処理したらwaitを張り直し、直後に `herdr agent get <pane>` で現在状態を直接確認する。
 
-`[orchestrator:report ...]` 形式の報告が会話に届いたら、ワーカーの自己申告として扱う。`gh pr list --head <branch>` や `git status`、`git log` で裏を取ってから次の行動を決める。
+`<cross-session-message from="...">` に包まれた `[orchestrator:report ...]` 形式の報告が会話に届いたら、ワーカーの自己申告として扱う。`gh pr list --head <branch>` や `git status`、`git log` で裏を取ってから次の行動を決める。
 
 ### 5. blockedと承認待ちを捌く
 
@@ -173,7 +173,8 @@ waitが返ったら `herdr agent read <pane> --source recent-unwrapped --lines 1
 ```text
 作業レーンの規約:
 - 完了・ブロック・承認が要る判断に出くわしたら、止まる直前に
-  `herdr agent prompt orc-<名> "[orchestrator:report <task_id>] <状態>: <要約>"` で親へ報告する
+  SendMessageツールで to に "<親のセッション名>"、message に "[orchestrator:report <task_id>] <状態>: <要約>" を渡して親へ報告する
+- 親への報告に `herdr agent prompt` は使わない（親の入力欄に直接打ち込まれ、ユーザーの入力と混ざる）
 - 一時ファイルは消さない（削除の確認ダイアログがレーンを止める。名前の衝突は mktemp 等の一意名で避ける）
 - <push・PR 作成は承認済みの前提で進めてよい / push・PR 作成の前に「承認待ち」で報告して親の応答を待つ>
 ```
@@ -188,5 +189,7 @@ waitが返ったら `herdr agent read <pane> --source recent-unwrapped --lines 1
             - `env -u CLAUDE_CODE_CHILD_SESSION -u CLAUDE_CODE_SESSION_ID -u CLAUDE_CODE_BRIDGE_SESSION_ID -u CLAUDE_CODE_MESSAGING_SOCKET -u CLAUDE_CODE_MESSAGING_TOKEN -u CLAUDE_CODE_ENTRYPOINT claude --continue`
         - `env -u` を付けないと、起動したclaudeが親の `CLAUDE_CODE_*` を引き継いで自分を親の子プロセスとみなす
 - 親がAskUserQuestionなどで入力中に届いたワーカー報告
-    - herdrが `agent_blocked` で拒否するので、会話に現れない
-    - 対話から戻ったら `agent wait` を張り直して取りこぼしを拾う
+    - SendMessageの報告はキューに積まれ、親の次のツール呼び出しの区切りで会話に届く
+- ワーカーと親のpermission modeが異なる場合
+    - 報告はユーザーの承認待ちとして保留され、期限切れで消えることがある
+    - 報告が届かないときは `herdr agent read` で画面を見て状態を拾う
