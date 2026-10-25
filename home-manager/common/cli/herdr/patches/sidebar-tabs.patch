@@ -1,5 +1,22 @@
-Modified by ogadra: list tabs vertically in the sidebar with ui.tab_bar_position = "sidebar", each with its title and repo-relative path, size the spaces section to its rows, pin the agents to the bottom, color spaces and their agents with ui.sidebar.spaces.colors and brighten the focused space and agent rows, keep the focused branch yellow, bold only the focused agent, let the indexed switch keys take non-digit keys by list position and show each key under its row's status icon, report that path to agent rows as $path, and redraw the tab list when a tab's stripped terminal title changes. Applied to herdr v0.9.5 (Apache-2.0).
+Modified by ogadra: list tabs vertically in the sidebar with ui.tab_bar_position = "sidebar", each with its title and repo-relative path, size the spaces section to its rows, pin the agents to the bottom, color spaces and their agents with ui.sidebar.spaces.colors and brighten the focused space and agent rows, keep the focused branch yellow, bold only the focused agent, let the indexed switch keys take non-digit keys by list position and show each key under its row's status icon, report that path to agent rows as $path, name tabs whose focused pane runs ssh in red and turn the status text red while the viewed one does, report whether the viewed tab runs ssh to the host terminal as the herdr_ssh user var, pass the pid of an ssh the active pane runs to status commands as HERDR_ACTIVE_PANE_SSH_PID, and redraw the tab list when a tab's stripped terminal title changes. Applied to herdr v0.9.5 (Apache-2.0).
 
+diff --git a/src/app/custom_commands.rs b/src/app/custom_commands.rs
+index 6e8a6c01..f03f896e 100644
+--- a/src/app/custom_commands.rs
++++ b/src/app/custom_commands.rs
+@@ -268,6 +268,12 @@ impl App {
+                     if let Some(public_pane_id) = self.public_pane_id(ws_idx, pane_id) {
+                         env.push(("HERDR_ACTIVE_PANE_ID".to_string(), public_pane_id));
+                     }
++                    // Lets a status command read the ssh arguments and report on the remote host
++                    if let Some(ssh_pid) = workspace.active_tab().and_then(|tab| {
++                        tab.foreground_ssh_pid_for_pane(pane_id, &self.terminal_runtimes)
++                    }) {
++                        env.push(("HERDR_ACTIVE_PANE_SSH_PID".to_string(), ssh_pid.to_string()));
++                    }
+                     if let Some(pane_cwd) = workspace.active_tab().and_then(|tab| {
+                         tab.cwd_for_pane(pane_id, &self.state.terminals, &self.terminal_runtimes)
+                     }) {
 diff --git a/src/app/terminal_titles.rs b/src/app/terminal_titles.rs
 index 94932f4a..0b1d4998 100644
 --- a/src/app/terminal_titles.rs
@@ -47,6 +64,18 @@ index 94932f4a..0b1d4998 100644
      #[test]
      fn sidebar_redraws_only_for_the_configured_title_form() {
          let event_hub = crate::api::EventHub::default();
+diff --git a/src/client/mod.rs b/src/client/mod.rs
+index f55db195..196748e8 100644
+--- a/src/client/mod.rs
++++ b/src/client/mod.rs
+@@ -491,6 +491,7 @@ async fn run_client_loop(
+         draw_host_cursor,
+         detached_process_children: Vec::new(),
+         shell: config.shell_config.map(shell::ClientShellState::new),
++        host_ssh_reported: None,
+     };
+     let mut federated = endpoint_catalog.has_enabled_ssh();
+     if let Some(shell) = state.shell.as_mut() {
 diff --git a/src/client/shell/agent_sidebar.rs b/src/client/shell/agent_sidebar.rs
 index e43ab8cc..03446acc 100644
 --- a/src/client/shell/agent_sidebar.rs
@@ -206,6 +235,24 @@ index 04a3ddb5..913ea3d5 100644
                  Rect::new(main.x, 0, main.width, tab_height),
                  Rect::new(
                      main.x,
+diff --git a/src/client/shell/endpoints.rs b/src/client/shell/endpoints.rs
+index 9e71d00a..16cae9fe 100644
+--- a/src/client/shell/endpoints.rs
++++ b/src/client/shell/endpoints.rs
+@@ -498,6 +498,13 @@ impl ClientShellState {
+             .is_none_or(|methods| methods.contains(crate::api::api_method_name(method)))
+     }
+ 
++    /// Whether the tab this client views runs ssh in its focused pane.
++    pub(crate) fn focused_tab_ssh(&self) -> bool {
++        self.snapshot
++            .as_deref()
++            .is_some_and(|snapshot| snapshot.tabs.iter().any(|tab| tab.focused && tab.ssh))
++    }
++
+     pub(super) fn focused_tab_count(&self) -> usize {
+         let Some(snapshot) = self.snapshot.as_deref() else {
+             return 0;
 diff --git a/src/client/shell/mouse.rs b/src/client/shell/mouse.rs
 index 8e873d68..ddc10945 100644
 --- a/src/client/shell/mouse.rs
@@ -402,10 +449,10 @@ index 46c3a1a0..0f8d0872 100644
          });
 diff --git a/src/client/shell/sidebar_tabs.rs b/src/client/shell/sidebar_tabs.rs
 new file mode 100644
-index 00000000..7b42e536
+index 00000000..cd2827c3
 --- /dev/null
 +++ b/src/client/shell/sidebar_tabs.rs
-@@ -0,0 +1,229 @@
+@@ -0,0 +1,238 @@
 +use super::*;
 +
 +/// Rule row plus the " tabs" title row.
@@ -585,7 +632,16 @@ index 00000000..7b42e536
 +    if tab.focused {
 +        buffer.set_style(rect, Style::default().bg(palette.active_row_bg));
 +    }
-+    let name_style = if tab.focused {
++    // A tab in ssh takes the red name whether focused or not, so a remote shell stands out
++    // from local ones at a glance
++    let name_style = if tab.ssh {
++        let style = Style::default().fg(palette.red);
++        if tab.focused {
++            style.add_modifier(Modifier::BOLD)
++        } else {
++            style
++        }
++    } else if tab.focused {
 +        Style::default()
 +            .fg(palette.text)
 +            .add_modifier(Modifier::BOLD)
@@ -649,7 +705,7 @@ index 5a732920..a0680625 100644
      pub(super) popup: Option<PaneHit>,
      pub(super) pane_splits: Vec<PaneSplitHit>,
 diff --git a/src/client/shell/tabs.rs b/src/client/shell/tabs.rs
-index 3fdcf7dc..36015169 100644
+index 3fdcf7dc..eb9e1d40 100644
 --- a/src/client/shell/tabs.rs
 +++ b/src/client/shell/tabs.rs
 @@ -220,7 +220,9 @@ pub(crate) fn render_tab_bar(
@@ -663,7 +719,7 @@ index 3fdcf7dc..36015169 100644
  }
  
  pub(crate) fn tab_bar_status_width(snapshot: &ClientShellSnapshot) -> u16 {
-@@ -254,15 +256,30 @@ fn tab_bar_content_area(snapshot: &ClientShellSnapshot, area: Rect) -> Rect {
+@@ -254,23 +256,44 @@ fn tab_bar_content_area(snapshot: &ClientShellSnapshot, area: Rect) -> Rect {
      }
  }
  
@@ -696,9 +752,15 @@ index 3fdcf7dc..36015169 100644
 +    palette: &Palette,
 +) {
      let separator_width = display_width(&snapshot.tab_bar_right_separator);
++    // Follows the tab this client views, like the sidebar's red ssh names
++    let text_color = if snapshot.tabs.iter().any(|tab| tab.focused && tab.ssh) {
++        palette.red
++    } else {
++        palette.overlay1
++    };
      let mut x = status.x;
      for (index, segment) in snapshot.tab_bar_right.iter().enumerate() {
-@@ -270,7 +287,7 @@ fn render_tab_bar_status(
+         if index > 0 && separator_width > 0 {
              put_text(
                  buffer,
                  x,
@@ -707,9 +769,12 @@ index 3fdcf7dc..36015169 100644
                  separator_width,
                  &snapshot.tab_bar_right_separator,
                  Style::default().fg(palette.overlay0).bg(palette.panel_bg),
-@@ -286,7 +303,7 @@ fn render_tab_bar_status(
+@@ -284,9 +307,9 @@ fn render_tab_bar_status(
+                 .bg(palette.accent)
+                 .add_modifier(Modifier::BOLD)
          } else {
-             Style::default().fg(palette.overlay1).bg(palette.panel_bg)
+-            Style::default().fg(palette.overlay1).bg(palette.panel_bg)
++            Style::default().fg(text_color).bg(palette.panel_bg)
          };
 -        put_text(buffer, x, area.y, width, &segment.text, style);
 +        put_text(buffer, x, status.y, width, &segment.text, style);
@@ -717,85 +782,92 @@ index 3fdcf7dc..36015169 100644
      }
  }
 diff --git a/src/client/shell/tests/chrome_context.rs b/src/client/shell/tests/chrome_context.rs
-index 1ef98798..d938c0f8 100644
+index 1ef98798..1250d170 100644
 --- a/src/client/shell/tests/chrome_context.rs
 +++ b/src/client/shell/tests/chrome_context.rs
-@@ -12,6 +12,8 @@ fn tab_overflow_controls_scroll_the_client_owned_tab_bar() {
+@@ -12,6 +12,9 @@ fn tab_overflow_controls_scroll_the_client_owned_tab_bar() {
          zoomed: false,
          focused: false,
          agent_status: AgentStatus::Idle,
 +        title: None,
 +        path: None,
++        ssh: false,
      }));
      let mut state = ClientShellState::new(ClientShellConfig::from_config(&Config::default()));
      state.set_snapshot(Box::new(snapshot));
-@@ -71,6 +73,8 @@ fn focused_last_overflow_tab_shows_its_full_label() {
+@@ -71,6 +74,9 @@ fn focused_last_overflow_tab_shows_its_full_label() {
              zoomed: false,
              focused: index == 7,
              agent_status: AgentStatus::Idle,
 +            title: None,
 +            path: None,
++            ssh: false,
          })
          .collect();
      let mut state = ClientShellState::new(ClientShellConfig::from_config(&Config::default()));
 diff --git a/src/client/shell/tests/keybindings_settings.rs b/src/client/shell/tests/keybindings_settings.rs
-index fd3301db..5c01e02c 100644
+index fd3301db..0a5c90fb 100644
 --- a/src/client/shell/tests/keybindings_settings.rs
 +++ b/src/client/shell/tests/keybindings_settings.rs
-@@ -263,6 +263,8 @@ fn tab_bar_renders_endpoint_status_ellipses_and_clamps_to_useful_scroll() {
+@@ -263,6 +263,9 @@ fn tab_bar_renders_endpoint_status_ellipses_and_clamps_to_useful_scroll() {
              zoomed: false,
              focused: false,
              agent_status: AgentStatus::Idle,
 +            title: None,
 +            path: None,
++            ssh: false,
          });
      }
      let mut config = ClientShellConfig::from_config(&Config::default());
-@@ -315,6 +317,8 @@ fn inactive_auto_named_tab_label_does_not_stack_terminal_faint() {
+@@ -315,6 +318,9 @@ fn inactive_auto_named_tab_label_does_not_stack_terminal_faint() {
          zoomed: false,
          focused: false,
          agent_status: AgentStatus::Idle,
 +        title: None,
 +        path: None,
++        ssh: false,
      });
      let mut state = ClientShellState::new(ClientShellConfig::from_config(&Config::default()));
      state.set_snapshot(Box::new(projected));
 diff --git a/src/client/shell/tests/mobile.rs b/src/client/shell/tests/mobile.rs
-index 4dac5490..c3ce5a89 100644
+index 4dac5490..9a0ffc1c 100644
 --- a/src/client/shell/tests/mobile.rs
 +++ b/src/client/shell/tests/mobile.rs
-@@ -358,6 +358,8 @@ fn mobile_background_workspace_uses_its_own_active_tab_status() {
+@@ -358,6 +358,9 @@ fn mobile_background_workspace_uses_its_own_active_tab_status() {
          zoomed: false,
          focused: false,
          agent_status: AgentStatus::Idle,
 +        title: None,
 +        path: None,
++        ssh: false,
      });
      projected.workspaces.push(ClientShellWorkspace {
          workspace_id: "ws_2".into(),
-@@ -383,6 +385,8 @@ fn mobile_background_workspace_uses_its_own_active_tab_status() {
+@@ -383,6 +386,9 @@ fn mobile_background_workspace_uses_its_own_active_tab_status() {
              zoomed: false,
              focused: false,
              agent_status: AgentStatus::Idle,
 +            title: None,
 +            path: None,
++            ssh: false,
          });
      }
      state.set_snapshot(Box::new(projected));
 diff --git a/src/client/shell/tests/mod.rs b/src/client/shell/tests/mod.rs
-index 05bfc263..23a3971a 100644
+index 05bfc263..86766c0e 100644
 --- a/src/client/shell/tests/mod.rs
 +++ b/src/client/shell/tests/mod.rs
-@@ -50,6 +50,8 @@ pub(super) fn snapshot() -> ClientShellSnapshot {
+@@ -50,6 +50,9 @@ pub(super) fn snapshot() -> ClientShellSnapshot {
              zoomed: false,
              focused: true,
              agent_status: AgentStatus::Idle,
 +            title: None,
 +            path: None,
++            ssh: false,
          }],
          panes: vec![ClientShellPane {
              pane_id: "pane_1".into(),
-@@ -261,4 +263,5 @@ mod link_hover;
+@@ -261,4 +264,5 @@ mod link_hover;
  mod mobile;
  mod mouse_selection;
  mod popup_focus_projection;
@@ -803,10 +875,10 @@ index 05bfc263..23a3971a 100644
  mod startup_overlays;
 diff --git a/src/client/shell/tests/sidebar_tabs.rs b/src/client/shell/tests/sidebar_tabs.rs
 new file mode 100644
-index 00000000..8e1b5a97
+index 00000000..d1653e14
 --- /dev/null
 +++ b/src/client/shell/tests/sidebar_tabs.rs
-@@ -0,0 +1,277 @@
+@@ -0,0 +1,316 @@
 +use super::*;
 +
 +fn sidebar_tabs_state(tab_count: usize, focused: usize) -> ClientShellState {
@@ -828,6 +900,7 @@ index 00000000..8e1b5a97
 +            agent_status: AgentStatus::Idle,
 +            title: None,
 +            path: None,
++            ssh: false,
 +        });
 +    }
 +    projected.focused_tab_id = Some(format!("tab_{focused}"));
@@ -1084,6 +1157,86 @@ index 00000000..8e1b5a97
 +    assert!(bold_at("active"));
 +    assert!(!bold_at("other"));
 +}
++
++#[test]
++fn tab_running_ssh_names_itself_in_red() {
++    let mut state = sidebar_tabs_state(3, 2);
++    let mut projected = state.snapshot.as_deref().expect("snapshot").clone();
++    for tab in &mut projected.tabs {
++        tab.ssh = tab.number != 3;
++    }
++    state.set_snapshot(Box::new(projected));
++    let frame = state.compose(106, 30).expect("sidebar tabs");
++    let layout = state.layout(106, 30);
++    let buffer = frame.to_ratatui_buffer().expect("sidebar tabs buffer");
++    let fg = |name: &str| {
++        let (column, row) = cell_symbol_position(&frame, layout.sidebar, name);
++        buffer.cell((column, row)).expect("tab name cell").fg
++    };
++
++    assert_eq!(fg("name1"), state.config.palette.red);
++    assert_eq!(fg("name2"), state.config.palette.red);
++    assert_ne!(fg("name3"), state.config.palette.red);
++}
++
++#[test]
++fn status_text_turns_red_while_the_viewed_tab_runs_ssh() {
++    let mut state = sidebar_tabs_state(2, 1);
++    let mut projected = state.snapshot.as_deref().expect("snapshot").clone();
++    projected.tabs[0].ssh = true;
++    state.set_snapshot(Box::new(projected));
++    let frame = state.compose(106, 30).expect("sidebar tabs");
++    let layout = state.layout(106, 30);
++    let buffer = frame.to_ratatui_buffer().expect("sidebar tabs buffer");
++    let (column, row) = cell_symbol_position(&frame, layout.tab_bar, "host");
++
++    assert_eq!(
++        buffer.cell((column, row)).expect("status cell").fg,
++        state.config.palette.red
++    );
++}
+diff --git a/src/client/state.rs b/src/client/state.rs
+index 312c65ca..7144b537 100644
+--- a/src/client/state.rs
++++ b/src/client/state.rs
+@@ -80,6 +80,9 @@ pub(super) struct ClientState {
+     pub(super) draw_host_cursor: bool,
+     pub(super) detached_process_children: Vec<std::process::Child>,
+     pub(super) shell: Option<shell::ClientShellState>,
++    /// Last ssh state reported to the host terminal as the herdr_ssh user var; None before the
++    /// first frame, so the first one always reports it.
++    pub(super) host_ssh_reported: Option<bool>,
+ }
+ 
+ impl Drop for ClientState {
+@@ -143,6 +146,7 @@ impl ClientState {
+             shell: Some(shell::ClientShellState::new(
+                 shell::ClientShellConfig::from_config(&crate::config::Config::default()),
+             )),
++            host_ssh_reported: None,
+         }
+     }
+ 
+@@ -581,6 +585,19 @@ impl ClientState {
+         } else {
+             self.blit_encoder.encode(&frame_data, self.repaint_pending)
+         };
++        // Reported with the frame rather than on each snapshot, since the snapshot arrives on
++        // several paths and every one of them ends in a frame
++        let ssh = self
++            .shell
++            .as_ref()
++            .is_some_and(shell::ClientShellState::focused_tab_ssh);
++        if self.host_ssh_reported != Some(ssh) {
++            if let Err(error) = crate::terminal_effects::write_ssh_user_var(writer.by_ref(), ssh) {
++                tracing::warn!(%error, "failed to report ssh state");
++            } else {
++                self.host_ssh_reported = Some(ssh);
++            }
++        }
+         if let Err(error) = self.write_composed_output(writer, &encoded.bytes, graphics) {
+             tracing::warn!(%error, "failed to present client frame");
+             self.repaint_pending = true;
 diff --git a/src/config/keybinds.rs b/src/config/keybinds.rs
 index 276764a6..1b3a0b42 100644
 --- a/src/config/keybinds.rs
@@ -1309,10 +1462,10 @@ index f97e7e2b..651516dd 100644
  # Background notification popup delivery
  [ui.toast]
 diff --git a/src/protocol/wire.rs b/src/protocol/wire.rs
-index ead2ddd7..c11194ba 100644
+index ead2ddd7..ad78d0b9 100644
 --- a/src/protocol/wire.rs
 +++ b/src/protocol/wire.rs
-@@ -1052,6 +1052,12 @@ pub struct ClientShellTab {
+@@ -1052,6 +1052,15 @@ pub struct ClientShellTab {
      pub focused: bool,
      #[serde(deserialize_with = "deserialize_client_shell_agent_status")]
      pub agent_status: crate::api::schema::AgentStatus,
@@ -1322,23 +1475,27 @@ index ead2ddd7..c11194ba 100644
 +    /// Working directory of the tab's focused pane, shown relative to its git repository.
 +    #[serde(default)]
 +    pub path: Option<String>,
++    /// Whether the tab's focused pane runs ssh in the foreground.
++    #[serde(default)]
++    pub ssh: bool,
  }
  
  #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-@@ -2840,6 +2846,8 @@ mod tests {
+@@ -2840,6 +2849,9 @@ mod tests {
                  zoomed: false,
                  focused: true,
                  agent_status: crate::api::schema::AgentStatus::Idle,
 +                title: None,
 +                path: None,
++                ssh: false,
              }],
              panes: vec![ClientShellPane {
                  pane_id: "w1:p1".into(),
 diff --git a/src/server/client_shell.rs b/src/server/client_shell.rs
-index 0a98da09..5a170f17 100644
+index 0a98da09..8f0633e1 100644
 --- a/src/server/client_shell.rs
 +++ b/src/server/client_shell.rs
-@@ -109,7 +109,20 @@ pub(super) fn snapshot_with_completions(
+@@ -109,7 +109,24 @@ pub(super) fn snapshot_with_completions(
          )
          .map(|(tab, state)| {
              let tab_id = tab.tab_id;
@@ -1353,13 +1510,17 @@ index 0a98da09..5a170f17 100644
 +                    state.cwd_for_pane(pane_id, &app.state.terminals, &app.terminal_runtimes)
 +                })
 +                .map(|cwd| super::git_path::display_path(&cwd));
++            let ssh = state
++                .foreground_ssh_pid_for_pane(pane_id, &app.terminal_runtimes)
++                .is_some();
              protocol::ClientShellTab {
 +                title,
 +                path,
++                ssh,
                  focused: focused_tab_id.as_deref() == Some(tab_id.as_str()),
                  tab_id,
                  workspace_id: tab.workspace_id,
-@@ -121,7 +134,7 @@ pub(super) fn snapshot_with_completions(
+@@ -121,7 +138,7 @@ pub(super) fn snapshot_with_completions(
              }
          })
          .collect();
@@ -1368,7 +1529,7 @@ index 0a98da09..5a170f17 100644
          .panes
          .into_iter()
          .map(|pane| {
-@@ -156,7 +169,18 @@ pub(super) fn snapshot_with_completions(
+@@ -156,7 +173,18 @@ pub(super) fn snapshot_with_completions(
              let focused = focused_pane_id.as_deref() == Some(pane_id.as_str());
              let mut state_labels = agent.state_labels.into_iter().collect::<Vec<_>>();
              state_labels.sort_by(|left, right| left.0.cmp(&right.0));
@@ -1505,3 +1666,67 @@ index 481bdad4..4d5e7af7 100644
  #[cfg(unix)]
  pub(crate) mod handoff;
  pub mod headless;
+diff --git a/src/terminal_effects.rs b/src/terminal_effects.rs
+index 91d7b363..faa8a9bd 100644
+--- a/src/terminal_effects.rs
++++ b/src/terminal_effects.rs
+@@ -22,10 +22,31 @@ pub(crate) fn write_window_title<W: Write>(writer: &mut W, title: Option<&str>)
+     writer.flush()
+ }
+ 
++/// Publishes the ssh state as the herdr_ssh user var (OSC 1337 SetUserVar), so the host
++/// terminal can restyle itself; the value is base64 of "1" or "0", fixed so no encoder is needed.
++pub(crate) fn write_ssh_user_var<W: Write>(writer: &mut W, ssh: bool) -> io::Result<()> {
++    let value = if ssh { "MQ==" } else { "MA==" };
++    write!(writer, "\x1b]1337;SetUserVar=herdr_ssh={value}\x07")?;
++    writer.flush()
++}
++
+ #[cfg(test)]
+ mod tests {
+     use super::*;
+ 
++    #[test]
++    fn ssh_user_var_carries_base64_flag() {
++        let mut output = Vec::new();
++
++        write_ssh_user_var(&mut output, true).unwrap();
++        write_ssh_user_var(&mut output, false).unwrap();
++
++        assert_eq!(
++            output,
++            b"\x1b]1337;SetUserVar=herdr_ssh=MQ==\x07\x1b]1337;SetUserVar=herdr_ssh=MA==\x07"
++        );
++    }
++
+     #[test]
+     fn writes_exact_terminal_bell_count() {
+         let mut output = Vec::new();
+diff --git a/src/workspace/tab.rs b/src/workspace/tab.rs
+index 79d7f94d..90b6750e 100644
+--- a/src/workspace/tab.rs
++++ b/src/workspace/tab.rs
+@@ -556,4 +556,23 @@ impl Tab {
+             .get(terminal_id)
+             .and_then(|rt| rt.foreground_cwd())
+     }
++
++    /// Pid of the ssh process the pane runs in the foreground. Only the group leader is read,
++    /// since the shell makes ssh the leader of the job it runs.
++    pub fn foreground_ssh_pid_for_pane(
++        &self,
++        pane_id: PaneId,
++        terminal_runtimes: &TerminalRuntimeRegistry,
++    ) -> Option<u32> {
++        let terminal_id = self.terminal_id(pane_id)?;
++        let job = terminal_runtimes
++            .get(terminal_id)
++            .and_then(|rt| rt.child_pid())
++            .and_then(crate::detect::foreground_process_group_id)
++            .and_then(crate::detect::foreground_group_leader_job)?;
++        job.processes
++            .iter()
++            .find(|process| process.name == "ssh")
++            .map(|process| process.pid)
++    }
+ }

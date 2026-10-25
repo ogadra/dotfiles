@@ -97,20 +97,53 @@ in
 
       config.window_frame = frame(p.orange)
 
-      wezterm.on('window-focus-changed', function(window)
+      -- Copies a color table with every occurrence of one color swapped, so the SSH palettes track the base ones instead of listing each slot again
+      local function swap_color(colors, from, to)
+        local swapped = {}
+        for key, value in pairs(colors) do
+          if type(value) == 'table' then
+            swapped[key] = swap_color(value, from, to)
+          elseif value == from then
+            swapped[key] = to
+          else
+            swapped[key] = value
+          end
+        end
+        return swapped
+      end
+
+      local ssh_focused_colors = swap_color(config.colors, p.orange, p.red)
+      local ssh_unfocused_colors = swap_color(unfocused_colors, '${nerv.unfocused.orange}', '${nerv.unfocused.red}')
+
+      -- herdr (patches/sidebar-tabs.patch) sets herdr_ssh to "1" while the tab it shows runs ssh
+      local function in_ssh(window)
+        local pane = window:active_pane()
+        return pane ~= nil and pane:get_user_vars().herdr_ssh == '1'
+      end
+
+      local function apply(window)
         local overrides = window:get_config_overrides() or {}
+        local ssh = in_ssh(window)
         if window:is_focused() then
-          overrides.window_frame = nil
-          overrides.colors = nil
+          overrides.window_frame = ssh and frame(p.red) or nil
+          overrides.colors = ssh and ssh_focused_colors or nil
           overrides.window_background_opacity = nil
           overrides.foreground_text_hsb = nil
         else
           overrides.window_frame = frame(unfocused_border)
-          overrides.colors = unfocused_colors
+          overrides.colors = ssh and ssh_unfocused_colors or unfocused_colors
           overrides.window_background_opacity = unfocused_opacity
           overrides.foreground_text_hsb = unfocused_hsb
         end
         window:set_config_overrides(overrides)
+      end
+
+      wezterm.on('window-focus-changed', apply)
+
+      wezterm.on('user-var-changed', function(window, pane, name, value)
+        if name == 'herdr_ssh' then
+          apply(window)
+        end
       end)
     end
 
