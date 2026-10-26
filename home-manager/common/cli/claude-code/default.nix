@@ -9,7 +9,7 @@ let
   shared = ../../modules/llm-agent;
   system = pkgs.stdenv.hostPlatform.system;
   claude-code-unwrapped = inputs.llm-agents.packages.${system}.claude-code;
-  # Claude's bundled CA store fails on api.anthropic.com's GlobalSign-cross-signed GTS Root R4 chain, so trust the system bundle that holds GlobalSign Root CA.
+  # llm-agents defaults CLAUDE_CODE_CERT_STORE to system, which fails api.anthropic.com's chain on macOS; adding the bundle keeps keychain CAs unlike embedded.
   claude-code = pkgs.symlinkJoin {
     name = "claude-code-wrapped";
     paths = [ claude-code-unwrapped ];
