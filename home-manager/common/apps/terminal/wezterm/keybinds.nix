@@ -109,6 +109,7 @@ in
 
       -- Workspace Control (delegated to herdr); a capital N is how herdr's prefix+shift+n arrives over a pty
       { key = 'T', mods = 'SHIFT|${mod}', action = herdr('N') },
+      { key = 'T', mods = 'SHIFT|${option}', action = herdr('N') },
       -- herdr binds these chords directly, so they go out as kitty key reports: CSI 9 ; 1 + modifier bits u
       { key = 'Tab', mods = '${option}', action = act.SendString('\x1b[9;3u') },
       { key = 'Tab', mods = 'SHIFT|${option}', action = act.SendString('\x1b[9;4u') },
