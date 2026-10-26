@@ -9,6 +9,7 @@ let
   shared = ../../modules/llm-agent;
   system = pkgs.stdenv.hostPlatform.system;
   claude-code-unwrapped = inputs.llm-agents.packages.${system}.claude-code;
+  # Claude's bundled CA store fails on api.anthropic.com's GlobalSign-cross-signed GTS Root R4 chain, so trust the system bundle that holds GlobalSign Root CA.
   claude-code = pkgs.symlinkJoin {
     name = "claude-code-wrapped";
     paths = [ claude-code-unwrapped ];
@@ -17,6 +18,7 @@ let
       wrapProgram $out/bin/claude \
         --run 'export GIT_CONFIG_GLOBAL="''${GIT_CONFIG_GLOBAL:-$HOME/.claude/config/.gitconfig}"' \
         --set-default GIT_CONFIG_SYSTEM /dev/null \
+        --set-default NODE_EXTRA_CA_CERTS /etc/ssl/certs/ca-certificates.crt \
         --set CO_AUTHOR "Claude <noreply@anthropic.com>"
     '';
   };
