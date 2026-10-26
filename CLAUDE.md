@@ -1,50 +1,60 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+## 概要
 
-## Overview
+Nix Flakes + Home Managerで管理するdotfiles。これらのマシンで使うツールやアプリの設定は、このリポジトリに置く。
 
-Dotfiles managed by Nix Flakes + Home Manager.
+### マシンプロファイル
 
-Machine profiles:
-- `bisharp` (x86_64-linux, NixOS, KDE Plasma 6)
-- `xurkitree` (x86_64-linux, NixOS, KDE Plasma 6)
-- `latias` (x86_64-darwin, macOS)
-- `stakataka` (aarch64-darwin, macOS)
+| ホスト名 | アーキテクチャ | OS | デスクトップ環境 |
+|---|---|---|---|
+| `bisharp` | x86_64-linux | NixOS | KDE Plasma 6 |
+| `xurkitree` | x86_64-linux | NixOS | KDE Plasma 6 |
+| `latias` | x86_64-darwin | macOS | - |
+| `stakataka` | aarch64-darwin | macOS | - |
 
-## Verification
+## 検証
 
-- Linux (NixOS): `nix build .#nixosConfigurations.<hostname>.config.system.build.toplevel --no-link` evaluates and builds without switching
-- Scripts referenced by flakes must be tracked by git (`git add`) or `nix eval` fails
+- NixOSのプロファイル
+    - `nix build .#nixosConfigurations.<hostname>.config.system.build.toplevel --no-link` で、switchせずに評価とビルドを行う
+- flakeが参照するスクリプト
+    - `nix eval` の前に `git add` でgitに載せる
 
-## Dependency updates
+## 依存の更新
 
-- Do not adopt nixpkgs revs younger than 3 days; fresh revs can ship packages that fail to build before Hydra fixes land
+- nixpkgsのrevは、コミット日から3日以上経ったものを採用する
 
-## Key Patterns
+## ファイルの置き場所
 
-- Keep the settings of tools and apps on these machines in this repository
-- Machine profiles are in `profiles/<hostname>/` and `home-manager/profiles/<hostname>/`
-- New CLI tools go in `home-manager/common/cli/<toolname>/default.nix`
-- New GUI apps go in `home-manager/common/apps/<category>/<appname>/`
-- Platform-specific configs go in `home-manager/nixos/` (Linux)
-- Do not add informational/diagnostic `echo` to Nix scripts. Functional uses of `echo` (piping data to another command, appending a newline to a file) are fine.
+| 対象 | 置き場所 |
+|---|---|
+| マシンのシステム設定 | `profiles/<hostname>/` |
+| マシンのHome Manager設定 | `home-manager/profiles/<hostname>/` |
+| 新しいCLIツール | `home-manager/common/cli/<toolname>/default.nix` |
+| 新しいGUIアプリ | `home-manager/common/apps/<category>/<appname>/` |
+| Linux固有の設定 | `home-manager/nixos/` |
 
-## Code Style
+## Nixスクリプト
 
-- Adding to existing code
-    - Write it the same way as the existing code
-- Changing the style
-    - Rewrite the existing code in the new style too
+- `echo` を書いてよい場面
+    - 別のコマンドへのパイプ
+    - ファイル末尾への改行の追加
 
-## Comments
+## コードスタイル
 
-- Write comments in English
-- Keep a comment on one line
-- Write a comment for each of these
-    - The reason you chose a value
-    - The effect of a settings property
-    - Accepted values
-    - Units
-    - Ranges
-    - Version caveats
+- 既存のコードに足すとき
+    - 周りと同じ書き方にする
+- スタイルを変えるとき
+    - 既にあるコードも新しいスタイルに書き直す
+
+## コメント
+
+- 英語で書く
+- 1行に収める
+- 次のものを書く
+    - その値を選んだ理由
+    - 設定プロパティの効果
+    - 取りうる値
+    - 単位
+    - 範囲
+    - バージョンによる注意点

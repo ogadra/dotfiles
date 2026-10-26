@@ -1,8 +1,13 @@
-# Command output
+# コマンドの実行と出力
 
-Command output here is condensed to save tokens, keeping every signal and
-dropping costly noise. Treat it as the complete result: run commands
-normally, and batch related commands into one call to avoid extra turns.
-Truncated results state their recovery path in their own output. Re-run a
-command as `rtk proxy <cmd>` only when its result is unusable: empty when
-output was clearly expected, contradicting its exit code, or garbled.
+- 関連するコマンドは1回の呼び出しにまとめる
+- rtkが切り詰めた出力
+    - 出力に書かれた方法で続きを取る
+- 使えない出力
+    - 該当するもの
+        - 出力があるはずなのに空
+        - 終了コードと食い違う
+        - 文字化けしている
+    - `rtk proxy <cmd>` で実行し直す
+- それ以外の出力
+    - 完全な結果として扱う

@@ -1,58 +1,56 @@
 # AGENTS.md
 
-## Language
-
-- User-facing replies
-    - Default: Japanese
-    - Another language the user asks for: that language
-
 ## Git
 
-- Before running `git add`
-    - Check the changes with `git status`.
-    - Check the changes with `git diff`.
-- Use `git rm` instead of `rm` for files tracked by git.
-- Write commit messages in English.
-- Start each commit message with a conventional commit prefix.
-    - `feat:`
-    - `fix:`
-    - `docs:`
-    - `style:`
-    - `refactor:`
-    - `test:`
-    - `chore:`
-- Keep each commit small enough that one subject line describes the whole change.
+- `git add` を実行する前
+    - `git status` で変更を確かめる
+    - `git diff` で変更を確かめる
+- gitで管理しているファイルは `git rm` で消す
+- コミットメッセージ
+    - 英語で書く
+    - 先頭にConventional Commitsのprefixを付ける
+        - `feat:`
+        - `fix:`
+        - `docs:`
+        - `style:`
+        - `refactor:`
+        - `test:`
+        - `chore:`
+- 1コミットは、件名1行で変更の全体を言える大きさに収める
 
-## Pull Requests
+## Pull Request
 
-- PR body
-    - Write only what you changed.
-    - Keep it to three lines or fewer.
+- PRのbody
+    - 変更したことだけを書く
+    - 3行以内に収める
 
-## What Goes Where
+## 何をどこに書くか
 
-- Application code
-    - Code: how it works
-    - Comments: why not
-        - The alternative you rejected
-        - The reason you rejected it
-- Test code
-    - Code: what behavior it checks
+- アプリケーションコード
+    - コードにはどう動くかを書く
+    - コメントにはなぜ別の方法にしなかったかを書く
+        - 採らなかった案
+        - 採らなかった理由
+- テストコード
+    - コードには確かめる振る舞いを書く
 
-## Comments
+## コメント
 
-- Modifying a comment
-    - Rewrite the whole comment so it does not read like revision history.
+- コメントを書き換えるとき
+    - 修正履歴に読めないよう、コメント全体を書き直す
 
-## Commands for the User to Run
+## ユーザーに実行してもらうコマンド
 
-- When the user needs to run a command themselves, copy it to the clipboard with `@clipboardCommand@`.
+- `@clipboardCommand@` でクリップボードにコピーする
 
-## Questions for the User
+## ユーザーへの質問
 
-- When you need answers from the user
-    - Put all the questions together at the end of your reply.
-    - List every unanswered question each time, including ones you asked in earlier replies.
-    - Do not point the user to earlier replies such as "the ... in my previous report"; give enough background, options, and your recommendation with its reason for the user to decide on the spot.
+- 質問は返答の最後にまとめる
+- 未回答の質問を毎回すべて並べる
+- 各質問に、ユーザーがその場で判断できる材料を書く
+    - 背景
+    - 選択肢
+    - 推奨する選択肢
+    - 推奨する理由
 
 @RTK.md
