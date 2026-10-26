@@ -9,7 +9,6 @@ let
   shared = ../../modules/llm-agent;
   system = pkgs.stdenv.hostPlatform.system;
   claude-code-unwrapped = inputs.llm-agents.packages.${system}.claude-code;
-  # llm-agents defaults CLAUDE_CODE_CERT_STORE to system, which fails api.anthropic.com's chain on macOS; adding the bundle keeps keychain CAs unlike embedded.
   claude-code = pkgs.symlinkJoin {
     name = "claude-code-wrapped";
     paths = [ claude-code-unwrapped ];
