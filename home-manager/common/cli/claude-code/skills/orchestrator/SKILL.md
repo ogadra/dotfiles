@@ -137,13 +137,19 @@ worktreeは対象リポジトリの `.claude/worktrees/` 直下に置く。
     - 指示ファイルのパスを読ませる1行だけにする
         - 指示文そのものは複数行なので、herdrが `agent arguments cannot be encoded safely for the target shell` で拒否する
 - `herdr agent start` がtimeoutを返した場合
-    - `herdr agent get <pane>` でclaudeが起動したかを確かめてから進む
+    - `herdr agent get <pane>` でclaudeが起動したかを確かめる
+    - 起動していた場合
+        - 進む
+    - 起動していなかった場合
+        - そのレーンを進めずにユーザーへ報告する
 
 指示ファイルはWriteツールで `/tmp` 配下に書く。
 
 ### 4. ワーカーのセッション名を控える
 
 ワーカーは最初の報告に、`ListAgents` で調べた自分のセッション名を書く。親はそれをレーンごとに控え、以後の指示はその名前宛ての `SendMessage` で送る。
+
+最初の報告にセッション名が無いレーンは、進めずにユーザーへ報告する。親からそのレーンへ指示を送る宛先が無い。
 
 ### 5. 監視する
 
@@ -221,8 +227,3 @@ waitが返ったら `herdr agent read <pane> --source recent-unwrapped --lines 1
 - 親がAskUserQuestionなどで入力中にワーカーの報告が届いた場合
     - 入力が終わるまで報告を待たせてよい
         - 親のClaude Codeが報告をキューに積み、次のツール呼び出しの区切りで会話へ渡す
-- ワーカーと親のpermission modeが異なる場合
-    - 親のClaude Codeが、報告をユーザーの承認待ちとして保留する
-        - 承認されないまま期限が切れた報告を、親のClaude Codeは捨てる
-    - 報告が届かない場合
-        - `herdr agent read` で画面を見て状態を拾う
