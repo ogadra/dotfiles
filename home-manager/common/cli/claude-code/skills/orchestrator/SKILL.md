@@ -9,17 +9,17 @@ user-invocable: true
 親として、複数のワーカーレーンへのタスク割り振りと運用を一括で担う。
 ユーザーは親にだけ話せばよい。
 
-最初に `test "${HERDR_ENV:-}" = 1` を確認し、失敗したらherdr管理下でない旨を伝えて停止する。
+最初に `test "${HERDR_ENV:-}" = 1` を確認し、失敗したら、herdrのpane内で起動し直すようユーザーへ伝えて停止する。
 
 ## 親とワーカーの分担
 
 親は入力待ちの状態を保ち、作業はすべて別タブのワーカーへすぐに渡す。単純なシェルスクリプトやコマンドの実行も渡す。
 
-親が自分で実行するのは次のものだけにする。このスキルを起動したセッションでは、それ以外のツール呼び出しをhookが拒否する。
+親が自分で実行するのは次のものだけにする。このスキルを起動したセッションでは、hookが次のツール呼び出しだけを通す。
 
 - `herdr` コマンド
-    - `herdr agent prompt` を除く
-    - コマンド置換は使わない
+    - 「道具の使い分け」に挙げた操作
+    - 引数は展開済みの値を直書きする
 - `ListAgents`
     - 自分のセッション名の確認
 - `SendMessage`
@@ -44,7 +44,7 @@ user-invocable: true
 
 ## 道具の使い分け
 
-メッセージの受け渡しは、向きを問わずClaude Codeの `SendMessage` で行う。指示、報告、裁定、連絡をherdrで送ることは禁止する。`herdr agent prompt` は相手の入力欄に直接打ち込むので、ユーザーの入力と混ざる。
+メッセージの受け渡しは、向きを問わずClaude Codeの `SendMessage` で行う。
 
 - 親からワーカーへ送るもの
     - 初回の指示
@@ -57,7 +57,7 @@ user-invocable: true
     - 報告
         - 親のセッション名宛てに `SendMessage` で送る
 
-herdrはメッセージ以外の操作にだけ使う。
+herdrは次の操作に使う。
 
 - レーンの起動と終了
     - `herdr tab create`
@@ -132,7 +132,7 @@ worktreeは対象リポジトリの `.claude/worktrees/` 直下に置く。
 初回の指示は、`herdr agent start` の `--` 以降にclaudeの起動引数として渡す。
 
 - 起動引数で渡す理由
-    - 起動直後のワーカーはまだセッション名を親へ伝えておらず、`SendMessage` の宛先が無い
+    - 親がワーカーのセッション名を知るのは、ワーカーの最初の報告を受けたあとになる
 - 起動引数
     - 指示ファイルのパスを読ませる1行だけにする
         - 指示文そのものは複数行なので、herdrが `agent arguments cannot be encoded safely for the target shell` で拒否する
@@ -141,7 +141,7 @@ worktreeは対象リポジトリの `.claude/worktrees/` 直下に置く。
     - 起動していた場合
         - 進む
     - 起動していなかった場合
-        - そのレーンを進めずにユーザーへ報告する
+        - ユーザーへ報告し、そのレーンについてユーザーの判断を待つ
 
 指示ファイルはWriteツールで `/tmp` 配下に書く。
 
@@ -149,7 +149,7 @@ worktreeは対象リポジトリの `.claude/worktrees/` 直下に置く。
 
 ワーカーは最初の報告に、`ListAgents` で調べた自分のセッション名を書く。親はそれをレーンごとに控え、以後の指示はその名前宛ての `SendMessage` で送る。
 
-最初の報告にセッション名が無いレーンは、進めずにユーザーへ報告する。親からそのレーンへ指示を送る宛先が無い。
+最初の報告にセッション名が無いレーンは、ユーザーへ報告し、そのレーンについてユーザーの判断を待つ。
 
 ### 5. 監視する
 
@@ -210,8 +210,7 @@ waitが返ったら `herdr agent read <pane> --source recent-unwrapped --lines 1
 - 以後、親からの指示は SendMessage で届く
 - 完了・ブロック・承認が要る判断に出くわしたら、止まる直前に
   SendMessageツールで to に "<親のセッション名>"、message に "[orchestrator:report <task_id>] <状態>: <要約>" を渡して親へ報告する
-- 親への報告に herdr（`herdr agent prompt` など）は使わない（親の入力欄に直接打ち込まれ、ユーザーの入力と混ざる）
-- 一時ファイルは消さない（削除の確認ダイアログがレーンを止める。名前の衝突は mktemp 等の一意名で避ける）
+- 一時ファイルは mktemp 等で一意な名前を付けて作り、作業が終わっても残しておく（削除の確認ダイアログがレーンを止めるため）
 - <push・PR 作成は承認済みの前提で進めてよい / push・PR 作成の前に「承認待ち」で報告して親の応答を待つ>
 ```
 
@@ -223,7 +222,7 @@ waitが返ったら `herdr agent read <pane> --source recent-unwrapped --lines 1
         - `herdr pane process-info <pane>` でshellへ戻ったことを確かめる
         - 次のコマンドをpaneへ送って復旧する
             - `env -u CLAUDE_CODE_CHILD_SESSION -u CLAUDE_CODE_SESSION_ID -u CLAUDE_CODE_BRIDGE_SESSION_ID -u CLAUDE_CODE_MESSAGING_SOCKET -u CLAUDE_CODE_MESSAGING_TOKEN -u CLAUDE_CODE_ENTRYPOINT claude --continue`
-                - `env -u` を付けないと、起動したclaudeが親の `CLAUDE_CODE_*` を引き継いで自分を親の子プロセスとみなす
+                - `env -u` で親の `CLAUDE_CODE_*` を外し、起動したclaudeを親から独立したセッションにする
 - 親がAskUserQuestionなどで入力中にワーカーの報告が届いた場合
     - 入力が終わるまで報告を待たせてよい
         - 親のClaude Codeが報告をキューに積み、次のツール呼び出しの区切りで会話へ渡す
