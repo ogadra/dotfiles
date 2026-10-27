@@ -52,11 +52,14 @@ case "$TOOL" in
     CMD=$(printf '%s' "$INPUT" | jq -r '.tool_input.command // ""')
     while IFS= read -r SEG; do
       [ -n "$SEG" ] || continue
-      # "$(cat <file>)" is how an instruction file reaches `herdr agent prompt`; any other substitution could run work inline
-      REST=$(printf '%s' "$SEG" | sed -E 's/\$\(cat [^)`$]*\)//g')
+      # Instructions travel by SendMessage or as a file path in `herdr agent start` arguments, so no herdr command needs a substitution and any substitution could run work inline
       # shellcheck disable=SC2016
-      case "$REST" in
-        *'$('* | *'`'*) deny "command substitution other than \"\$(cat <file>)\" is not allowed." ;;
+      case "$SEG" in
+        *'$('* | *'`'*) deny "command substitution is not allowed." ;;
+      esac
+      case "$SEG" in
+        # A prompt is typed into the worker's input box and mixes with the user's typing there, so messages go through SendMessage instead
+        "herdr agent prompt"*) deny "herdr agent prompt is not allowed. Send instructions, rulings and notices to the worker's session with SendMessage." ;;
       esac
       case "$SEG" in
         # The parent reads issues to plan lanes and checks worker reports with git and gh; jq reads herdr's JSON output; normalize.sh turns `git -C <path>` into a cd line
