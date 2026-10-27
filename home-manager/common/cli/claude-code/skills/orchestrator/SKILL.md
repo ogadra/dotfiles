@@ -16,6 +16,8 @@ user-invocable: true
 親は入力待ちの状態を保ち、作業はすべて別タブのワーカーへすぐに渡す。単純なシェルスクリプトやコマンドの実行も渡す。
 
 - `herdr` コマンド
+    - `herdr agent prompt` を除く
+    - コマンド置換は使わない
 - `ListAgents`
     - 自分のセッション名の確認
 - `SendMessage`
