@@ -18,6 +18,8 @@ user-invocable: true
 - `herdr` コマンド
 - `ListAgents`
     - 自分のセッション名の確認
+- `SendMessage`
+    - ワーカーへの指示、裁定、連絡
 - タスク一覧の材料集め
     - `gh issue view`
 - ワーカーの報告の裏取り
@@ -37,14 +39,29 @@ user-invocable: true
 
 ## 道具の使い分け
 
-- 指示
-    - ファイルに書いて `herdr agent prompt` で送る
+メッセージの受け渡しは、向きを問わずClaude Codeの `SendMessage` で行う。指示、報告、裁定、連絡をherdrで送ることは禁止する。`herdr agent prompt` は相手の入力欄に直接打ち込むので、ユーザーの入力と混ざる。
+
+- 初回の指示
+    - `herdr agent start` の起動引数としてclaudeへ渡す
+- 2回目以降の指示、裁定、連絡
+    - 親がワーカーのセッション名宛てに `SendMessage` で送る
 - 報告
-    - ワーカーがClaude Codeの `SendMessage` で親のセッションへ送る
+    - ワーカーが親のセッション名宛てに `SendMessage` で送る
+
+herdrはメッセージ以外の操作にだけ使う。
+
+- レーンの起動と終了
+    - `herdr tab create`
+    - `herdr agent start`
+    - `herdr tab close`
+    - `herdr workspace close`
 - 画面の確認
     - `herdr agent read`
-- 生死の確認
+- 状態の確認
     - `herdr agent get`
+    - `herdr agent wait`
+- 承認キーの送信
+    - `herdr agent send-keys`
 - 事実の確認
     - `git`
     - `gh`
@@ -57,7 +74,7 @@ user-invocable: true
 
 ワーカーは報告を親のClaude Codeセッション名宛てに `SendMessage` で送る。`ListAgents` を呼び、出力先頭の `This session is <名> [<ref>]` の `<名>` を控える。
 
-親がワーカーへ渡す報告規約にこの名前を書き込むので、一字でも違うと報告が届かない。セッションを再開したときは `ListAgents` で名前を確かめ直し、変わっていたら稼働中の全レーンへ新しい名前を `herdr agent prompt` で伝える。
+親がワーカーへ渡す報告規約にこの名前を書き込むので、一字でも違うと報告が届かない。セッションを再開したときは `ListAgents` で名前を確かめ直し、変わっていたら稼働中の全レーンへ新しい名前を `SendMessage` で伝える。
 
 ### 2. タスク一覧を作って承認を取る
 
@@ -95,7 +112,7 @@ issue番号、自由文のタスク、計画のいずれかを読み、タスク
 git worktree add -b <branch> <repo>/.claude/worktrees/<task_id> <base>
 herdr tab create --workspace <ws> --cwd <repo>/.claude/worktrees/<task_id> --label <task_id> --no-focus
 # 出力の root_pane.pane_id を控える（監視・承認で使う）
-herdr agent start <task_id> --kind claude --pane <pane>
+herdr agent start <task_id> --kind claude --pane <pane> -- "<指示ファイルの絶対パス> を読んで従ってください"
 ```
 
 worktreeは対象リポジトリの `.claude/worktrees/` 直下に置く。
@@ -109,28 +126,35 @@ worktreeは対象リポジトリの `.claude/worktrees/` 直下に置く。
 
 レーンを別workspaceに分ける場合は、`herdr tab create` の代わりに `herdr workspace create --cwd <path> --label <task_id> --no-focus` を使う。
 
-指示文はファイルに書いてから、その中身を送る。
+初回の指示は、`herdr agent start` の `--` 以降にclaudeの起動引数として渡す。起動直後のワーカーはまだセッション名を親へ伝えておらず、`SendMessage` の宛先が無いため。
 
-```bash
-herdr agent prompt <pane> "$(cat <指示ファイル>)"
-```
+- 起動引数
+    - 指示ファイルのパスを読ませる1行だけにする
+    - 指示文そのものを渡すと、複数行のためherdrが `agent arguments cannot be encoded safely for the target shell` で拒否する
+- `herdr agent start` がtimeoutを返した場合
+    - claudeは起動していることがある
+    - `herdr agent get <pane>` で確かめてから進む
 
 指示ファイルはWriteツールで `/tmp` 配下に書く。
 
-### 4. 監視する
+### 4. ワーカーのセッション名を控える
+
+ワーカーは最初の報告に、`ListAgents` で調べた自分のセッション名を書く。親はそれをレーンごとに控え、以後の指示はその名前宛ての `SendMessage` で送る。
+
+### 5. 監視する
 
 レーンごとにバックグラウンドBashで `herdr agent wait <pane>` を張る。waitは既定でidle、done、blockedのいずれかに達すると返り、その終了が起床通知になる。イベントを処理したらwaitを張り直し、直後に `herdr agent get <pane>` で現在状態を直接確認する。
 
 `<cross-session-message from="...">` に包まれた `[orchestrator:report ...]` 形式の報告が会話に届いたら、ワーカーの自己申告として扱う。`gh pr list --head <branch>` や `git status`、`git log` で裏を取ってから次の行動を決める。
 
-### 5. blockedと承認待ちを捌く
+### 6. blockedと承認待ちを捌く
 
 waitが返ったら `herdr agent read <pane> --source recent-unwrapped --lines 120` で画面を見て判断する。
 
 - 提示された選択肢で足りる場合
     - `herdr agent send-keys <pane> enter` などの承認キーを送る
 - 自由記述の裁定が要る場合
-    - `send-keys <pane> esc` でダイアログを閉じてから、`agent prompt` で本文を送る
+    - `herdr agent send-keys <pane> esc` でダイアログを閉じてから、本文をワーカーのセッション名宛てに `SendMessage` で送る
 
 1回の呼び出しで送る承認は1件だけにする。次のダイアログを先読みして重ねて送ると、読んでいない選択肢を誤確定する。
 
@@ -142,9 +166,9 @@ waitが返ったら `herdr agent read <pane> --source recent-unwrapped --lines 1
 | 計画内だが選択肢がある確認 | 指示文やissueの記述から判断する。材料が無ければユーザーへ上げる |
 | スコープ拡大、前提との食い違い、未承認の外部影響 | ユーザーへ上げる |
 
-### 6. 軌道修正と追加指示
+### 7. 軌道修正と追加指示
 
-指示ファイルを書いて `herdr agent prompt <pane> "$(cat <file>)"` で送る。send-keysは承認キーにだけ使う。誤って選択肢を確定したら、ワーカーがその結果をコミットする前に訂正指示を送る。
+本文をワーカーのセッション名宛てに `SendMessage` で送る。send-keysは承認キーにだけ使う。誤って選択肢を確定したら、ワーカーがその結果をコミットする前に訂正指示を送る。
 
 同じタスクの続きは、そのタスクのレーンへ送ってよい。
 
@@ -153,7 +177,7 @@ waitが返ったら `herdr agent read <pane> --source recent-unwrapped --lines 1
     - そのタスクのPRのマージ
     - そのタスクについての追加調査
 
-### 7. 完了判定と後始末
+### 8. 完了判定と後始末
 
 完了は差分の事実で判定する。
 
@@ -172,9 +196,11 @@ waitが返ったら `herdr agent read <pane> --source recent-unwrapped --lines 1
 
 ```text
 作業レーンの規約:
+- 作業を始める前にまず ListAgents で自分のセッション名を調べ、SendMessage ツールで to に "<親のセッション名>"、message に "[orchestrator:report <task_id>] started: session=<自分のセッション名>" を渡して親へ報告する
+- 以後、親からの指示は SendMessage で届く
 - 完了・ブロック・承認が要る判断に出くわしたら、止まる直前に
   SendMessageツールで to に "<親のセッション名>"、message に "[orchestrator:report <task_id>] <状態>: <要約>" を渡して親へ報告する
-- 親への報告に `herdr agent prompt` は使わない（親の入力欄に直接打ち込まれ、ユーザーの入力と混ざる）
+- 親への報告に herdr（`herdr agent prompt` など）は使わない（親の入力欄に直接打ち込まれ、ユーザーの入力と混ざる）
 - 一時ファイルは消さない（削除の確認ダイアログがレーンを止める。名前の衝突は mktemp 等の一意名で避ける）
 - <push・PR 作成は承認済みの前提で進めてよい / push・PR 作成の前に「承認待ち」で報告して親の応答を待つ>
 ```
