@@ -62,9 +62,9 @@ case "$TOOL" in
         "herdr agent prompt"*) deny "herdr agent prompt is not allowed. Send instructions, rulings and notices to the worker's session with SendMessage." ;;
       esac
       case "$SEG" in
-        # The parent reads issues to plan lanes and checks worker reports with git and gh; jq reads herdr's JSON output; normalize.sh turns `git -C <path>` into a cd line
-        "herdr "* | "jq "* | "test "* | "cd "* | "git status"* | "git log"* | "gh pr list"* | "gh issue view"*) ;;
-        *) deny "only herdr commands, gh issue view and the git/gh checks of worker reports run here." ;;
+        # Issue reading and report checks run in lanes too, so the parent keeps only herdr and jq for herdr's JSON output
+        "herdr "* | "jq "*) ;;
+        *) deny "only herdr and jq run here." ;;
       esac
     done < <(printf '%s' "$CMD" | "$SCRIPT_DIR/normalize.sh")
     ;;
