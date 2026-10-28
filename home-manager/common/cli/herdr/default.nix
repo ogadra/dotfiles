@@ -146,9 +146,12 @@ in
 {
   programs.herdr = {
     enable = true;
-    # Patches the nixpkgs build instead of fetching our own release, so nixpkgs bumps carry the patch without a release workflow
+    # Patches the nixpkgs build instead of fetching our own release, so nixpkgs bumps carry both patches without a release workflow; copy-mode-emacs is a diff on top of sidebar-tabs
     package = pkgs.herdr.overrideAttrs (old: {
-      patches = (old.patches or [ ]) ++ [ ./patches/sidebar-tabs.patch ];
+      patches = (old.patches or [ ]) ++ [
+        ./patches/sidebar-tabs.patch
+        ./patches/copy-mode-emacs.patch
+      ];
     });
     settings = {
       onboarding = false;

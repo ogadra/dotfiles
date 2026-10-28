@@ -1,0 +1,1239 @@
+Modified by ogadra: replace the copy mode's vi keys with Emacs keys and start character, line, and rectangle selections with C-SPC, C-l, and C-k, switch the kind around the same anchor when another selection key is pressed and clear it when the same key is pressed again, show the selection kind as CHAR, LINE, or RECT in the mode bar, repeat the last search when C-s or C-r is pressed on an empty search prompt, and read a rectangle selection through the rectangle flag that pane.selection.read now accepts. Applied to herdr v0.9.5 (Apache-2.0).
+
+diff --git a/docs/next/api/herdr-api.schema.json b/docs/next/api/herdr-api.schema.json
+index e2553f7..cff74c4 100644
+--- a/docs/next/api/herdr-api.schema.json
++++ b/docs/next/api/herdr-api.schema.json
+@@ -3150,6 +3150,9 @@
+             },
+             "pane_id": {
+               "type": "string"
++            },
++            "rectangle": {
++              "type": "boolean"
+             }
+           },
+           "required": [
+diff --git a/src/api/schema/panes.rs b/src/api/schema/panes.rs
+index 9dbe022..dcc80c0 100644
+--- a/src/api/schema/panes.rs
++++ b/src/api/schema/panes.rs
+@@ -253,6 +253,8 @@ pub struct PaneSelectionReadParams {
+     pub cursor: PaneTextPoint,
+     #[serde(default, skip_serializing_if = "Option::is_none")]
+     pub content_revision: Option<u64>,
++    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
++    pub rectangle: bool,
+ }
+ 
+ #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, schemars::JsonSchema)]
+diff --git a/src/app/api/panes.rs b/src/app/api/panes.rs
+index b5f3baf..3cb4364 100644
+--- a/src/app/api/panes.rs
++++ b/src/app/api/panes.rs
+@@ -255,11 +255,13 @@ impl App {
+         {
+             return Err(("stale_content", "pane content changed".to_owned()));
+         }
+-        let selection = crate::selection::Selection::absolute_range(
+-            pane_id,
+-            (params.anchor.row, params.anchor.col),
+-            (params.cursor.row, params.cursor.col),
+-        );
++        let anchor = (params.anchor.row, params.anchor.col);
++        let cursor = (params.cursor.row, params.cursor.col);
++        let selection = if params.rectangle {
++            crate::selection::Selection::absolute_rectangle(pane_id, anchor, cursor)
++        } else {
++            crate::selection::Selection::absolute_range(pane_id, anchor, cursor)
++        };
+         let Some(text) = runtime.extract_selection(&selection) else {
+             return Err((
+                 "selection_unavailable",
+@@ -2573,6 +2575,7 @@ mod tests {
+             anchor: crate::api::schema::PaneTextPoint { row: 0, col: 0 },
+             cursor: crate::api::schema::PaneTextPoint { row: 0, col: 4 },
+             content_revision: Some(revision),
++            rectangle: false,
+         };
+         assert_eq!(
+             app.pane_selection_text(&params).unwrap_err().0,
+diff --git a/src/app/custom_commands.rs b/src/app/custom_commands.rs
+index f03f896..6ebb9f3 100644
+--- a/src/app/custom_commands.rs
++++ b/src/app/custom_commands.rs
+@@ -726,6 +726,7 @@ mod tests {
+                     anchor: crate::api::schema::PaneTextPoint { row: 0, col: 0 },
+                     cursor: crate::api::schema::PaneTextPoint { row: 0, col: 7 },
+                     content_revision: Some(u64::MAX),
++                    rectangle: false,
+                 }),
+             },
+         );
+diff --git a/src/client/shell/actions.rs b/src/client/shell/actions.rs
+index 83819b0..795aa61 100644
+--- a/src/client/shell/actions.rs
++++ b/src/client/shell/actions.rs
+@@ -238,6 +238,7 @@ impl ClientShellState {
+                                 col: cursor.1,
+                             },
+                             content_revision: Some(content_revision),
++                            rectangle: selection.is_rectangle(),
+                         })
+                     })
+                     .flatten();
+@@ -282,6 +283,7 @@ impl ClientShellState {
+             // between the displayed frame and this request must not reject the copy.
+             .filter(|_| !live);
+         let (anchor, cursor) = selection.ordered_cells();
++        let rectangle = selection.is_rectangle();
+         self.push_endpoint_method_with_kind(
+             crate::api::schema::Method::PaneSelectionRead(
+                 crate::api::schema::PaneSelectionReadParams {
+@@ -295,6 +297,7 @@ impl ClientShellState {
+                         col: cursor.1,
+                     },
+                     content_revision,
++                    rectangle,
+                 },
+             ),
+             PendingEndpointKind::SelectionCopy,
+diff --git a/src/client/shell/copy_mode.rs b/src/client/shell/copy_mode.rs
+index be5b63e..5db2595 100644
+--- a/src/client/shell/copy_mode.rs
++++ b/src/client/shell/copy_mode.rs
+@@ -111,29 +111,7 @@ impl ClientShellState {
+         }
+         match key.code {
+             KeyCode::Esc => {
+-                let should_clear = self.copy_mode.as_ref().is_some_and(|copy_mode| {
+-                    copy_mode.selection.is_some()
+-                        || !copy_mode.search_query.is_empty()
+-                        || !copy_mode.search_matches.is_empty()
+-                        || copy_mode.search_direction.is_some()
+-                });
+-                if should_clear {
+-                    if let Some(copy_mode) = self.copy_mode.as_mut() {
+-                        copy_mode.selection = None;
+-                        copy_mode.search_query.clear();
+-                        copy_mode.search_direction = None;
+-                        copy_mode.search_matches.clear();
+-                        copy_mode.search_total = 0;
+-                        copy_mode.search_current = None;
+-                        copy_mode.search_current_global = None;
+-                        copy_mode.search_generation = copy_mode.search_generation.saturating_add(1);
+-                        copy_mode.copy_after_search = false;
+-                    }
+-                    self.selection = None;
+-                } else {
+-                    self.exit_copy_mode(false, outcome);
+-                }
+-                outcome.repaint = true;
++                self.clear_or_exit_copy_mode(outcome);
+                 return;
+             }
+             KeyCode::Enter => {
+@@ -179,77 +157,58 @@ impl ClientShellState {
+             _ => {}
+         }
+ 
+-        match (key.code, key.modifiers) {
+-            (KeyCode::Char('b'), modifiers) if modifiers.contains(KeyModifiers::CONTROL) => {
+-                self.move_copy_page(-1, false, outcome);
+-                return;
+-            }
+-            (KeyCode::Char('f'), modifiers) if modifiers.contains(KeyModifiers::CONTROL) => {
+-                self.move_copy_page(1, false, outcome);
+-                return;
+-            }
+-            (KeyCode::Char('u'), modifiers) if modifiers.contains(KeyModifiers::CONTROL) => {
+-                self.move_copy_page(-1, true, outcome);
+-                return;
+-            }
+-            (KeyCode::Char('d'), modifiers) if modifiers.contains(KeyModifiers::CONTROL) => {
+-                self.move_copy_page(1, true, outcome);
++        if key.modifiers.contains(KeyModifiers::CONTROL) {
++            let KeyCode::Char(ch) = key.code else {
+                 return;
+-            }
+-            _ => {}
++            };
++            match ch {
++                'f' => self.move_copy_cursor(0, 1, outcome),
++                'b' => self.move_copy_cursor(0, -1, outcome),
++                'n' => self.move_copy_cursor(1, 0, outcome),
++                'p' => self.move_copy_cursor(-1, 0, outcome),
++                'a' => {
++                    self.set_copy_cursor_col(0);
++                    self.sync_copy_selection();
++                }
++                'e' => {
++                    self.request_copy_motion(crate::api::schema::PaneCopyMotion::LineEnd, outcome)
++                }
++                'v' => self.move_copy_page(1, false, outcome),
++                's' => self.open_copy_search(crate::api::schema::PaneCopySearchDirection::Forward),
++                'r' => self.open_copy_search(crate::api::schema::PaneCopySearchDirection::Backward),
++                // C-x SPC would need a pending-prefix state, and C-i/m/j/h/[ arrive as Tab, Enter, Backspace, or Esc
++                ' ' => self.begin_copy_selection(ClientCopySelection::Character),
++                'l' => self.begin_copy_selection(ClientCopySelection::Linewise),
++                'k' => self.begin_copy_selection(ClientCopySelection::Rectangle),
++                'g' => self.clear_or_exit_copy_mode(outcome),
++                _ => return,
++            }
++            outcome.repaint = true;
++            return;
+         }
+ 
+-        let Some(command) = crate::copy_mode::copy_mode_command_char(key.clone()) else {
++        let Some(command) = crate::copy_mode::copy_mode_meta_char(key.clone()) else {
+             return;
+         };
+         match command {
+-            'q' => self.exit_copy_mode(false, outcome),
+-            'y' => {
++            'w' => {
+                 if !self.defer_copy_until_search_result() {
+                     self.exit_copy_mode(true, outcome);
+                 }
+             }
+-            'v' | ' ' => self.begin_copy_selection(false),
+-            'V' => self.begin_copy_selection(true),
+-            'h' => self.move_copy_cursor(0, -1, outcome),
+-            'j' => self.move_copy_cursor(1, 0, outcome),
+-            'k' => self.move_copy_cursor(-1, 0, outcome),
+-            'l' => self.move_copy_cursor(0, 1, outcome),
+-            'g' => self.move_copy_history(true, outcome),
+-            'G' => self.move_copy_history(false, outcome),
+-            '0' => {
+-                self.set_copy_cursor_col(0);
+-                self.sync_copy_selection();
+-                outcome.repaint = true;
+-            }
+-            '$' => self.request_copy_motion(crate::api::schema::PaneCopyMotion::LineEnd, outcome),
+-            '^' => {
++            'v' => self.move_copy_page(-1, false, outcome),
++            '<' => self.move_copy_history(true, outcome),
++            '>' => self.move_copy_history(false, outcome),
++            'm' => {
+                 self.request_copy_motion(crate::api::schema::PaneCopyMotion::FirstNonBlank, outcome)
+             }
+-            '/' => self.open_copy_search(crate::api::schema::PaneCopySearchDirection::Forward),
+-            '?' => self.open_copy_search(crate::api::schema::PaneCopySearchDirection::Backward),
+-            'n' => self.repeat_copy_search(false, outcome),
+-            'N' => self.repeat_copy_search(true, outcome),
+-            'w' => {
+-                self.request_copy_motion(crate::api::schema::PaneCopyMotion::NextWordStart, outcome)
++            'f' => {
++                self.request_copy_motion(crate::api::schema::PaneCopyMotion::NextWordEnd, outcome)
+             }
+             'b' => self.request_copy_motion(
+                 crate::api::schema::PaneCopyMotion::PreviousWordStart,
+                 outcome,
+             ),
+-            'e' => {
+-                self.request_copy_motion(crate::api::schema::PaneCopyMotion::NextWordEnd, outcome)
+-            }
+-            'W' => self.request_copy_motion(
+-                crate::api::schema::PaneCopyMotion::NextBigWordStart,
+-                outcome,
+-            ),
+-            'B' => self.request_copy_motion(
+-                crate::api::schema::PaneCopyMotion::PreviousBigWordStart,
+-                outcome,
+-            ),
+-            'E' => self
+-                .request_copy_motion(crate::api::schema::PaneCopyMotion::NextBigWordEnd, outcome),
+             '{' => self.request_copy_motion(
+                 crate::api::schema::PaneCopyMotion::PreviousParagraph,
+                 outcome,
+@@ -262,6 +221,32 @@ impl ClientShellState {
+         outcome.repaint = true;
+     }
+ 
++    fn clear_or_exit_copy_mode(&mut self, outcome: &mut ClientShellInput) {
++        let should_clear = self.copy_mode.as_ref().is_some_and(|copy_mode| {
++            copy_mode.selection.is_some()
++                || !copy_mode.search_query.is_empty()
++                || !copy_mode.search_matches.is_empty()
++                || copy_mode.search_direction.is_some()
++        });
++        if should_clear {
++            if let Some(copy_mode) = self.copy_mode.as_mut() {
++                copy_mode.selection = None;
++                copy_mode.search_query.clear();
++                copy_mode.search_direction = None;
++                copy_mode.search_matches.clear();
++                copy_mode.search_total = 0;
++                copy_mode.search_current = None;
++                copy_mode.search_current_global = None;
++                copy_mode.search_generation = copy_mode.search_generation.saturating_add(1);
++                copy_mode.copy_after_search = false;
++            }
++            self.selection = None;
++        } else {
++            self.exit_copy_mode(false, outcome);
++        }
++        outcome.repaint = true;
++    }
++
+     fn route_copy_search_prompt_key(
+         &mut self,
+         key: &crate::input::TerminalKey,
+@@ -275,18 +260,42 @@ impl ClientShellState {
+             return false;
+         };
+         let mut submit = None;
+-        match key.code {
+-            KeyCode::Esc => {
++        let mut repeat = None;
++        match (key.code, key.modifiers) {
++            (KeyCode::Esc, _) => {
+                 if let Some(copy_mode) = self.copy_mode.as_mut() {
+                     copy_mode.search_prompt = None;
+                 }
+             }
+-            KeyCode::Enter => {
++            (KeyCode::Char('g'), modifiers) if modifiers.contains(KeyModifiers::CONTROL) => {
++                if let Some(copy_mode) = self.copy_mode.as_mut() {
++                    copy_mode.search_prompt = None;
++                }
++            }
++            (KeyCode::Enter, _) => {
+                 submit = Some((prompt.query.to_string(), prompt.direction));
+                 if let Some(copy_mode) = self.copy_mode.as_mut() {
+                     copy_mode.search_prompt = None;
+                 }
+             }
++            (KeyCode::Char(ch @ ('s' | 'r')), modifiers)
++                if modifiers.contains(KeyModifiers::CONTROL) =>
++            {
++                let direction = if ch == 's' {
++                    crate::api::schema::PaneCopySearchDirection::Forward
++                } else {
++                    crate::api::schema::PaneCopySearchDirection::Backward
++                };
++                let query = prompt.query.to_string();
++                if query.is_empty() {
++                    repeat = Some(direction);
++                } else {
++                    submit = Some((query, direction));
++                }
++                if let Some(copy_mode) = self.copy_mode.as_mut() {
++                    copy_mode.search_prompt = None;
++                }
++            }
+             _ => {
+                 if let Some(prompt) = self
+                     .copy_mode
+@@ -300,6 +309,9 @@ impl ClientShellState {
+         if let Some((query, direction)) = submit {
+             self.request_copy_search(query, direction, false, outcome);
+         }
++        if let Some(direction) = repeat {
++            self.repeat_copy_search(direction, outcome);
++        }
+         outcome.repaint = true;
+         true
+     }
+@@ -333,28 +345,17 @@ impl ClientShellState {
+         });
+     }
+ 
+-    fn repeat_copy_search(&mut self, reverse: bool, outcome: &mut ClientShellInput) {
++    fn repeat_copy_search(
++        &mut self,
++        direction: crate::api::schema::PaneCopySearchDirection,
++        outcome: &mut ClientShellInput,
++    ) {
+         let Some(copy_mode) = self.copy_mode.as_ref() else {
+             return;
+         };
+         if copy_mode.search_query.is_empty() {
+             return;
+         }
+-        let Some(direction) = copy_mode.search_direction else {
+-            return;
+-        };
+-        let direction = if reverse {
+-            match direction {
+-                crate::api::schema::PaneCopySearchDirection::Forward => {
+-                    crate::api::schema::PaneCopySearchDirection::Backward
+-                }
+-                crate::api::schema::PaneCopySearchDirection::Backward => {
+-                    crate::api::schema::PaneCopySearchDirection::Forward
+-                }
+-            }
+-        } else {
+-            direction
+-        };
+         self.request_copy_search(copy_mode.search_query.clone(), direction, true, outcome);
+     }
+ 
+@@ -640,31 +641,33 @@ impl ClientShellState {
+         }
+     }
+ 
+-    fn begin_copy_selection(&mut self, linewise: bool) {
+-        let width = self.copy_hit().map(|hit| hit.inner_rect.width);
++    fn begin_copy_selection(
++        &mut self,
++        selection: fn(crate::api::schema::PaneTextPoint) -> ClientCopySelection,
++    ) {
+         let Some(copy_mode) = self.copy_mode.as_mut() else {
+             return;
+         };
+-        let end_col = width.unwrap_or(copy_mode.geometry.0).saturating_sub(1);
+-        if linewise {
+-            copy_mode.selection = Some(ClientCopySelection::Linewise {
+-                anchor_row: copy_mode.cursor.row,
+-            });
+-            self.selection = Some(crate::selection::Selection::line_range(
+-                copy_mode.pane_id.clone(),
+-                copy_mode.cursor.row,
+-                copy_mode.cursor.row,
+-                end_col,
+-            ));
+-        } else {
+-            copy_mode.selection = Some(ClientCopySelection::Character {
+-                anchor: copy_mode.cursor,
+-            });
+-            self.selection = Some(crate::selection::Selection::absolute_anchor(
+-                copy_mode.pane_id.clone(),
+-                (copy_mode.cursor.row, copy_mode.cursor.col),
+-            ));
++        let requested = selection(copy_mode.cursor);
++        let Some(current) = copy_mode.selection else {
++            copy_mode.selection = Some(requested);
++            if let ClientCopySelection::Character(anchor) = requested {
++                self.selection = Some(crate::selection::Selection::absolute_anchor(
++                    copy_mode.pane_id.clone(),
++                    (anchor.row, anchor.col),
++                ));
++            } else {
++                self.sync_copy_selection();
++            }
++            return;
++        };
++        if std::mem::discriminant(&current) == std::mem::discriminant(&requested) {
++            copy_mode.selection = None;
++            self.selection = None;
++            return;
+         }
++        copy_mode.selection = Some(selection(current.anchor()));
++        self.sync_copy_selection();
+     }
+ 
+     pub(super) fn sync_copy_selection(&mut self) {
+@@ -675,23 +678,26 @@ impl ClientShellState {
+             return;
+         };
+         self.selection = Some(match selection {
+-            ClientCopySelection::Character { anchor } => {
+-                crate::selection::Selection::absolute_range(
++            ClientCopySelection::Character(anchor) => crate::selection::Selection::absolute_range(
++                copy_mode.pane_id.clone(),
++                (anchor.row, anchor.col),
++                (copy_mode.cursor.row, copy_mode.cursor.col),
++            ),
++            ClientCopySelection::Linewise(anchor) => crate::selection::Selection::line_range(
++                copy_mode.pane_id.clone(),
++                anchor.row,
++                copy_mode.cursor.row,
++                self.copy_hit()
++                    .map_or(copy_mode.geometry.0, |hit| hit.inner_rect.width)
++                    .saturating_sub(1),
++            ),
++            ClientCopySelection::Rectangle(anchor) => {
++                crate::selection::Selection::absolute_rectangle(
+                     copy_mode.pane_id.clone(),
+                     (anchor.row, anchor.col),
+                     (copy_mode.cursor.row, copy_mode.cursor.col),
+                 )
+             }
+-            ClientCopySelection::Linewise { anchor_row } => {
+-                crate::selection::Selection::line_range(
+-                    copy_mode.pane_id.clone(),
+-                    anchor_row,
+-                    copy_mode.cursor.row,
+-                    self.copy_hit()
+-                        .map_or(copy_mode.geometry.0, |hit| hit.inner_rect.width)
+-                        .saturating_sub(1),
+-                )
+-            }
+         });
+     }
+ 
+diff --git a/src/client/shell/render.rs b/src/client/shell/render.rs
+index 7ec0b2a..6a9b271 100644
+--- a/src/client/shell/render.rs
++++ b/src/client/shell/render.rs
+@@ -127,15 +127,15 @@ pub(super) fn render_mode_bar(
+                 let copy_mode = copy_mode?;
+                 if let Some(prompt) = copy_mode.search_prompt.as_ref() {
+                     let marker = match prompt.direction {
+-                        crate::api::schema::PaneCopySearchDirection::Forward => "/",
+-                        crate::api::schema::PaneCopySearchDirection::Backward => "?",
++                        crate::api::schema::PaneCopySearchDirection::Forward => "C-s",
++                        crate::api::schema::PaneCopySearchDirection::Backward => "C-r",
+                     };
+                     buffer.set_stringn(bar.x, bar.y, " COPY ", usize::from(bar.width), mode_style);
+-                    let prefix = 8.min(bar.width);
+-                    if bar.width >= 8 {
++                    let prefix = 11.min(bar.width);
++                    if bar.width >= 11 {
+                         buffer.set_string(bar.x + 7, bar.y, marker, key);
+                     }
+-                    let footer = "  enter search  esc cancel";
++                    let footer = "  enter search  C-g cancel";
+                     let footer_width = if bar.width >= 50 {
+                         footer.len() as u16
+                     } else {
+@@ -161,36 +161,51 @@ pub(super) fn render_mode_bar(
+                     }
+                     return Some(bar);
+                 } else {
+-                    let select = if copy_mode.selection.is_some() {
+-                        "selecting"
+-                    } else {
+-                        "select"
+-                    };
+                     let match_status = copy_mode
+                         .search_current_global
+                         .map(|current| format!(" {}/{}", current + 1, copy_mode.search_total))
+                         .or_else(|| (!copy_mode.search_query.is_empty()).then(|| " 0/0".to_owned()))
+                         .unwrap_or_default();
+-                    let (exit_keys, exit_label) =
++                    let exit_label =
+                         if copy_mode.search_query.is_empty() && copy_mode.selection.is_none() {
+-                            ("q/esc", " exit")
++                            " exit"
+                         } else {
+-                            ("esc", " clear  q exit")
++                            " clear"
+                         };
+                     segments.extend([
+                         (" COPY ".to_owned(), mode_style),
+                         (" ".to_owned(), base),
+-                        ("h/j/k/l w/b/e { }".to_owned(), key),
++                        ("C-f/b/n/p M-f/b M-{ M-}".to_owned(), key),
+                         (" move  ".to_owned(), base),
+-                        ("/ ?".to_owned(), key),
+-                        (" search  ".to_owned(), base),
+-                        ("n/N".to_owned(), key),
+-                        (format!(" repeat{match_status}  "), base),
+-                        ("v/space".to_owned(), key),
+-                        (format!(" {select}  "), base),
+-                        ("y/enter".to_owned(), key),
++                        ("C-s C-r".to_owned(), key),
++                        (format!(" search{match_status}  "), base),
++                    ]);
++                    match copy_mode.selection {
++                        Some(selection) => segments.extend([
++                            (
++                                match selection {
++                                    ClientCopySelection::Character(_) => " CHAR ",
++                                    ClientCopySelection::Linewise(_) => " LINE ",
++                                    ClientCopySelection::Rectangle(_) => " RECT ",
++                                }
++                                .to_owned(),
++                                mode_style,
++                            ),
++                            ("  ".to_owned(), base),
++                        ]),
++                        None => segments.extend([
++                            ("C-SPC".to_owned(), key),
++                            (" char  ".to_owned(), base),
++                            ("C-l".to_owned(), key),
++                            (" line  ".to_owned(), base),
++                            ("C-k".to_owned(), key),
++                            (" rect  ".to_owned(), base),
++                        ]),
++                    }
++                    segments.extend([
++                        ("M-w/enter".to_owned(), key),
+                         (" copy  ".to_owned(), base),
+-                        (exit_keys.to_owned(), key),
++                        ("C-g/esc".to_owned(), key),
+                         (exit_label.to_owned(), base),
+                     ]);
+                 }
+diff --git a/src/client/shell/state.rs b/src/client/shell/state.rs
+index a068062..508d85c 100644
+--- a/src/client/shell/state.rs
++++ b/src/client/shell/state.rs
+@@ -804,12 +804,17 @@ pub(super) struct ClientSelectionAutoscroll {
+ 
+ #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+ pub(super) enum ClientCopySelection {
+-    Character {
+-        anchor: crate::api::schema::PaneTextPoint,
+-    },
+-    Linewise {
+-        anchor_row: u32,
+-    },
++    Character(crate::api::schema::PaneTextPoint),
++    Linewise(crate::api::schema::PaneTextPoint),
++    Rectangle(crate::api::schema::PaneTextPoint),
++}
++
++impl ClientCopySelection {
++    pub(super) fn anchor(self) -> crate::api::schema::PaneTextPoint {
++        match self {
++            Self::Character(anchor) | Self::Linewise(anchor) | Self::Rectangle(anchor) => anchor,
++        }
++    }
+ }
+ 
+ #[derive(Clone, Debug, PartialEq, Eq)]
+diff --git a/src/client/shell/tests/copy.rs b/src/client/shell/tests/copy.rs
+index 317950c..ed0d2a3 100644
+--- a/src/client/shell/tests/copy.rs
++++ b/src/client/shell/tests/copy.rs
+@@ -462,8 +462,8 @@ fn keyboard_copy_mode_owns_cursor_selection_copy_and_scroll_restore() {
+     };
+ 
+     let top = state.handle_raw_events(vec![RawInputEvent::Key(crate::input::TerminalKey::new(
+-        KeyCode::Char('g'),
+-        KeyModifiers::empty(),
++        KeyCode::Char('<'),
++        KeyModifiers::ALT,
+     ))]);
+     assert!(top.actions.is_empty());
+     assert_eq!(
+@@ -484,12 +484,12 @@ fn keyboard_copy_mode_owns_cursor_selection_copy_and_scroll_restore() {
+     state.handle_endpoint_result("boot-1", &top_request_id, Ok(pane_scroll_result(20, 20, 2)));
+ 
+     state.handle_raw_events(vec![RawInputEvent::Key(crate::input::TerminalKey::new(
+-        KeyCode::Char('v'),
+-        KeyModifiers::empty(),
++        KeyCode::Char(' '),
++        KeyModifiers::CONTROL,
+     ))]);
+     state.handle_raw_events(vec![RawInputEvent::Key(crate::input::TerminalKey::new(
+-        KeyCode::Char('l'),
+-        KeyModifiers::empty(),
++        KeyCode::Char('f'),
++        KeyModifiers::CONTROL,
+     ))]);
+     assert!(state
+         .selection
+@@ -497,8 +497,8 @@ fn keyboard_copy_mode_owns_cursor_selection_copy_and_scroll_restore() {
+         .is_some_and(crate::selection::Selection::is_visible));
+ 
+     let copy = state.handle_raw_events(vec![RawInputEvent::Key(crate::input::TerminalKey::new(
+-        KeyCode::Char('y'),
+-        KeyModifiers::empty(),
++        KeyCode::Char('w'),
++        KeyModifiers::ALT,
+     ))]);
+     assert_eq!(state.mode, ClientShellMode::Terminal);
+     assert!(state.copy_mode.is_none());
+@@ -523,8 +523,8 @@ fn keyboard_copy_mode_owns_cursor_selection_copy_and_scroll_restore() {
+ 
+ #[test]
+ fn keyboard_selections_survive_output_and_copy_live_ranges() {
+-    // Character and linewise selections have distinct anchor/range projections.
+-    for selection_key in [b"v", b"V"] {
++    // Character, linewise, and rectangle selections have distinct anchor/range projections.
++    for selection_key in [b"\x00", b"\x0c", b"\x0b"] {
+         let mut state = ClientShellState::new(ClientShellConfig::from_config(&Config::default()));
+         state.set_snapshot(Box::new(snapshot()));
+         let mut pane_surface = surface();
+@@ -537,7 +537,7 @@ fn keyboard_selections_survive_output_and_copy_live_ranges() {
+         state.compose(106, 20).expect("composed frame");
+         state.handle_input_bytes(b"\x02[");
+         state.handle_input_bytes(selection_key);
+-        state.handle_input_bytes(b"k");
++        state.handle_input_bytes(b"\x10");
+         let range = state
+             .selection
+             .as_ref()
+@@ -559,7 +559,7 @@ fn keyboard_selections_survive_output_and_copy_live_ranges() {
+             range
+         );
+ 
+-        let copied = state.handle_input_bytes(b"y");
++        let copied = state.handle_input_bytes(b"\x1bw");
+         assert!(copied.actions.iter().any(|action| matches!(
+             action,
+             ClientShellAction::Endpoint { request, .. }
+@@ -574,6 +574,100 @@ fn keyboard_selections_survive_output_and_copy_live_ranges() {
+     }
+ }
+ 
++#[test]
++fn rectangle_selection_copies_through_a_rectangle_read() {
++    let mut state = ClientShellState::new(ClientShellConfig::from_config(&Config::default()));
++    state.set_snapshot(Box::new(snapshot()));
++    let mut pane_surface = surface();
++    pane_surface.panes[0].scroll = Some(crate::protocol::PaneSurfaceScrollMetrics {
++        offset_from_bottom: 0,
++        max_offset_from_bottom: 0,
++        viewport_rows: 2,
++    });
++    state.set_pane_surface(pane_surface);
++    state.compose(106, 20).expect("composed frame");
++    state.handle_input_bytes(b"\x02[");
++    let origin = state.copy_mode.as_ref().expect("copy mode").cursor;
++    assert!(origin.row > 0);
++
++    state.handle_input_bytes(b"\x0b");
++    state.handle_input_bytes(b"\x10");
++    state.handle_input_bytes(b"\x06");
++    let copied = state.handle_input_bytes(b"\x1bw");
++
++    assert!(copied.actions.iter().any(|action| matches!(
++        action,
++        ClientShellAction::Endpoint { request, .. }
++            if matches!(&request.method, crate::api::schema::Method::PaneSelectionRead(params)
++                if params.rectangle
++                    && params.anchor == crate::api::schema::PaneTextPoint {
++                        row: origin.row - 1,
++                        col: origin.col,
++                    }
++                    && params.cursor == crate::api::schema::PaneTextPoint {
++                        row: origin.row,
++                        col: origin.col + 1,
++                    })
++    )));
++    assert_eq!(state.mode, ClientShellMode::Terminal);
++}
++
++#[test]
++fn selection_keys_switch_kind_around_the_same_anchor_and_toggle_off() {
++    let mut state = ClientShellState::new(ClientShellConfig::from_config(&Config::default()));
++    state.set_snapshot(Box::new(snapshot()));
++    let mut pane_surface = surface();
++    pane_surface.panes[0].scroll = Some(crate::protocol::PaneSurfaceScrollMetrics {
++        offset_from_bottom: 0,
++        max_offset_from_bottom: 0,
++        viewport_rows: 2,
++    });
++    state.set_pane_surface(pane_surface);
++    state.compose(106, 20).expect("composed frame");
++    state.handle_input_bytes(b"\x02[");
++    let origin = state.copy_mode.as_ref().expect("copy mode").cursor;
++    let end_col = state.copy_mode.as_ref().expect("copy mode").geometry.0 - 1;
++
++    state.handle_input_bytes(b"\x00");
++    state.handle_input_bytes(b"\x10");
++    state.handle_input_bytes(b"\x06");
++    let cursor = state.copy_mode.as_ref().expect("copy mode").cursor;
++    assert_eq!(
++        state.copy_mode.as_ref().unwrap().selection,
++        Some(ClientCopySelection::Character(origin))
++    );
++
++    state.handle_input_bytes(b"\x0c");
++    assert_eq!(
++        state.copy_mode.as_ref().unwrap().selection,
++        Some(ClientCopySelection::Linewise(origin))
++    );
++    assert_eq!(
++        state.selection.as_ref().expect("linewise").ordered_cells(),
++        ((cursor.row, 0), (origin.row, end_col))
++    );
++
++    state.handle_input_bytes(b"\x0b");
++    assert_eq!(
++        state.copy_mode.as_ref().unwrap().selection,
++        Some(ClientCopySelection::Rectangle(origin))
++    );
++    let rectangle = state.selection.as_ref().expect("rectangle");
++    assert!(rectangle.is_rectangle());
++    assert_eq!(
++        rectangle.ordered_cells(),
++        (
++            (cursor.row, origin.col.min(cursor.col)),
++            (origin.row, origin.col.max(cursor.col))
++        )
++    );
++
++    state.handle_input_bytes(b"\x0b");
++    assert_eq!(state.copy_mode.as_ref().unwrap().selection, None);
++    assert!(state.selection.is_none());
++    assert_eq!(state.mode, ClientShellMode::Copy);
++}
++
+ #[test]
+ fn empty_keyboard_anchor_keeps_search_fallback_revision_guard() {
+     let mut state = ClientShellState::new(ClientShellConfig::from_config(&Config::default()));
+@@ -587,7 +681,7 @@ fn empty_keyboard_anchor_keeps_search_fallback_revision_guard() {
+     state.set_pane_surface(pane_surface);
+     state.compose(106, 20).expect("composed frame");
+     state.handle_input_bytes(b"\x02[");
+-    let search = state.handle_input_bytes(b"/LIVE\r");
++    let search = state.handle_input_bytes(b"\x13LIVE\r");
+     let [ClientShellAction::Endpoint { request, .. }] = &search.actions[..] else {
+         panic!("search request");
+     };
+@@ -600,9 +694,9 @@ fn empty_keyboard_anchor_keeps_search_fallback_revision_guard() {
+         &request.id,
+         Ok(copy_search_result(vec![found], Some(0))),
+     );
+-    state.handle_input_bytes(b"v");
++    state.handle_input_bytes(b"\x00");
+     assert!(!state.selection.as_ref().unwrap().is_visible());
+-    let copy = state.handle_input_bytes(b"y");
++    let copy = state.handle_input_bytes(b"\x1bw");
+     assert!(copy.actions.iter().any(|action| matches!(
+         action,
+         ClientShellAction::Endpoint { request, .. }
+@@ -627,7 +721,7 @@ fn keyboard_selection_does_not_return_after_resize_or_screen_switch() {
+         state.set_pane_surface(pane_surface.clone());
+         state.compose(106, 20).expect("composed frame");
+         state.handle_input_bytes(b"\x02[");
+-        state.handle_input_bytes(b"vk");
++        state.handle_input_bytes(b"\x00\x10");
+         assert!(state.selection.is_some());
+         pane_surface.surface_revision += 1;
+         pane_surface.panes[0].content_revision += 2;
+@@ -640,7 +734,7 @@ fn keyboard_selection_does_not_return_after_resize_or_screen_switch() {
+         assert!(state.selection.is_none());
+         assert!(state.copy_mode.as_ref().unwrap().selection.is_none());
+         state.compose(106, 20).expect("changed frame");
+-        state.handle_input_bytes(b"l");
++        state.handle_input_bytes(b"\x06");
+         assert!(
+             state.selection.is_none(),
+             "movement must not resurrect the old anchor"
+@@ -668,8 +762,8 @@ fn keyboard_copy_mode_content_motion_is_endpoint_backed_and_stale_safe() {
+     let origin = state.copy_mode.as_ref().expect("copy mode").cursor;
+ 
+     let motion = state.handle_raw_events(vec![RawInputEvent::Key(crate::input::TerminalKey::new(
+-        KeyCode::Char('w'),
+-        KeyModifiers::empty(),
++        KeyCode::Char('f'),
++        KeyModifiers::ALT,
+     ))]);
+     let [ClientShellAction::Endpoint { request, .. }] = &motion.actions[..] else {
+         panic!("word motion should use endpoint semantics");
+@@ -679,7 +773,7 @@ fn keyboard_copy_mode_content_motion_is_endpoint_backed_and_stale_safe() {
+         &request.method,
+         crate::api::schema::Method::PaneCopyMotion(params)
+             if params.cursor == origin
+-                && params.motion == crate::api::schema::PaneCopyMotion::NextWordStart
++                && params.motion == crate::api::schema::PaneCopyMotion::NextWordEnd
+     ));
+     let (repaint, actions) = state.handle_endpoint_result(
+         "boot-1",
+@@ -721,8 +815,8 @@ fn copy_search_owns_prompt_repeat_highlights_selection_and_restore() {
+     let origin = state.copy_mode.as_ref().expect("copy mode").cursor;
+ 
+     state.handle_raw_events(vec![RawInputEvent::Key(crate::input::TerminalKey::new(
+-        KeyCode::Char('?'),
+-        KeyModifiers::SHIFT,
++        KeyCode::Char('r'),
++        KeyModifiers::CONTROL,
+     ))]);
+     assert!(state.copy_mode.as_ref().is_some_and(|mode| {
+         mode.search_prompt.as_ref().is_some_and(|prompt| {
+@@ -739,8 +833,8 @@ fn copy_search_owns_prompt_repeat_highlights_selection_and_restore() {
+         .is_some_and(|mode| mode.search_prompt.is_none()));
+ 
+     state.handle_raw_events(vec![RawInputEvent::Key(crate::input::TerminalKey::new(
+-        KeyCode::Char('/'),
+-        KeyModifiers::empty(),
++        KeyCode::Char('s'),
++        KeyModifiers::CONTROL,
+     ))]);
+     state.handle_raw_events(vec![RawInputEvent::Text(crate::input::TextCommit::new(
+         "junk",
+@@ -845,12 +939,16 @@ fn copy_search_owns_prompt_repeat_highlights_selection_and_restore() {
+     assert_eq!(highlighted.bg, state.config.palette.accent);
+ 
+     state.handle_raw_events(vec![RawInputEvent::Key(crate::input::TerminalKey::new(
+-        KeyCode::Char('v'),
+-        KeyModifiers::empty(),
++        KeyCode::Char(' '),
++        KeyModifiers::CONTROL,
++    ))]);
++    state.handle_raw_events(vec![RawInputEvent::Key(crate::input::TerminalKey::new(
++        KeyCode::Char('s'),
++        KeyModifiers::CONTROL,
+     ))]);
+     let repeat = state.handle_raw_events(vec![RawInputEvent::Key(crate::input::TerminalKey::new(
+-        KeyCode::Char('n'),
+-        KeyModifiers::empty(),
++        KeyCode::Char('s'),
++        KeyModifiers::CONTROL,
+     ))]);
+     let [ClientShellAction::Endpoint { request, .. }] = &repeat.actions[..] else {
+         panic!("repeat should use endpoint search");
+@@ -886,8 +984,12 @@ fn copy_search_owns_prompt_repeat_highlights_selection_and_restore() {
+         .as_ref()
+         .is_some_and(crate::selection::Selection::is_visible));
+ 
++    state.handle_raw_events(vec![RawInputEvent::Key(crate::input::TerminalKey::new(
++        KeyCode::Char('r'),
++        KeyModifiers::CONTROL,
++    ))]);
+     let reverse = state.handle_raw_events(vec![RawInputEvent::Key(
+-        crate::input::TerminalKey::new(KeyCode::Char('N'), KeyModifiers::SHIFT),
++        crate::input::TerminalKey::new(KeyCode::Char('r'), KeyModifiers::CONTROL),
+     )]);
+     let [ClientShellAction::Endpoint { request, .. }] = &reverse.actions[..] else {
+         panic!("reverse search should use endpoint search");
+@@ -1830,7 +1932,7 @@ fn copy_mode_survives_mouse_motion_and_parks_across_focus_changes() {
+     assert_eq!(state.mode, ClientShellMode::Copy);
+     assert!(state.copy_mode.is_some());
+ 
+-    state.handle_input_bytes(b"v");
++    state.handle_input_bytes(b"\x00");
+     assert!(state
+         .copy_mode
+         .as_ref()
+@@ -1986,8 +2088,8 @@ fn rapid_copy_motions_are_chained_from_the_previous_result() {
+     );
+     let origin = state.copy_mode.as_ref().expect("copy mode").cursor;
+ 
+-    let first = state.handle_input_bytes(b"w");
+-    let second = state.handle_input_bytes(b"w");
++    let first = state.handle_input_bytes(b"\x1bf");
++    let second = state.handle_input_bytes(b"\x1bf");
+     assert_eq!(first.actions.len(), 1);
+     assert!(second.actions.is_empty());
+     let first_id = match &first.actions[0] {
+@@ -2036,8 +2138,8 @@ fn queued_copy_keys_preserve_prefix_order() {
+         &mut enter,
+     );
+     let origin = state.copy_mode.as_ref().expect("copy mode").cursor;
+-    let motion = state.handle_input_bytes(b"w");
+-    state.handle_input_bytes(b"l");
++    let motion = state.handle_input_bytes(b"\x1bf");
++    state.handle_input_bytes(b"\x06");
+     let (prefix_key, prefix_modifiers) = state.config.keybinds.prefix[0];
+     state.handle_raw_events(vec![RawInputEvent::Key(crate::input::TerminalKey::new(
+         prefix_key,
+@@ -2114,10 +2216,10 @@ fn copy_waits_for_endpoint_motion_before_copying_selection() {
+         crate::input::KeybindMatch::Action(crate::input::KeybindAction::CopyMode),
+         &mut enter,
+     );
+-    state.handle_input_bytes(b"v");
++    state.handle_input_bytes(b"\x00");
+     let origin = state.copy_mode.as_ref().expect("copy mode").cursor;
+-    let motion = state.handle_input_bytes(b"w");
+-    let queued_copy = state.handle_input_bytes(b"y");
++    let motion = state.handle_input_bytes(b"\x1bf");
++    let queued_copy = state.handle_input_bytes(b"\x1bw");
+     assert!(queued_copy.actions.is_empty());
+     let motion_id = match &motion.actions[0] {
+         ClientShellAction::Endpoint { request, .. } => request.id.clone(),
+@@ -2236,11 +2338,11 @@ fn copy_mode_repeat_during_projection_gap_stays_active() {
+             &mut enter,
+         );
+         if selection_before_gap == Some(true) {
+-            state.handle_input_bytes(b"V");
++            state.handle_input_bytes(b"\x0c");
+         }
+         state.handle_raw_events(vec![RawInputEvent::Key(crate::input::TerminalKey::new(
+-            KeyCode::Char('k'),
+-            KeyModifiers::empty(),
++            KeyCode::Char('p'),
++            KeyModifiers::CONTROL,
+         ))]);
+ 
+         let end_col = state.copy_mode.as_ref().expect("copy mode").geometry.0 - 1;
+@@ -2250,7 +2352,7 @@ fn copy_mode_repeat_during_projection_gap_stays_active() {
+         assert!(state.hits.panes.is_empty());
+         assert_eq!(state.mode, ClientShellMode::Copy);
+         if selection_before_gap == Some(false) {
+-            state.handle_input_bytes(b"V");
++            state.handle_input_bytes(b"\x0c");
+             assert_eq!(
+                 state
+                     .selection
+@@ -2267,7 +2369,7 @@ fn copy_mode_repeat_during_projection_gap_stays_active() {
+             crossterm::event::KeyEventKind::Repeat
+         };
+         let moved = state.handle_raw_events(vec![RawInputEvent::Key(
+-            crate::input::TerminalKey::new(KeyCode::Char('k'), KeyModifiers::empty())
++            crate::input::TerminalKey::new(KeyCode::Char('p'), KeyModifiers::CONTROL)
+                 .with_kind(kind),
+         )]);
+         assert!(moved.actions.iter().any(|action| matches!(
+diff --git a/src/client/shell/tests/input.rs b/src/client/shell/tests/input.rs
+index 8b817d0..ed5065e 100644
+--- a/src/client/shell/tests/input.rs
++++ b/src/client/shell/tests/input.rs
+@@ -585,8 +585,8 @@ fn highlighted_search_match_copies_after_in_flight_repeat() {
+     ];
+ 
+     state.handle_raw_events(vec![RawInputEvent::Key(crate::input::TerminalKey::new(
+-        KeyCode::Char('/'),
+-        KeyModifiers::empty(),
++        KeyCode::Char('s'),
++        KeyModifiers::CONTROL,
+     ))]);
+     state.handle_raw_events(vec![RawInputEvent::Text(crate::input::TextCommit::new(
+         "needle",
+@@ -602,9 +602,13 @@ fn highlighted_search_match_copies_after_in_flight_repeat() {
+         &request.id,
+         Ok(copy_search_result(matches.clone(), Some(0))),
+     );
++    state.handle_raw_events(vec![RawInputEvent::Key(crate::input::TerminalKey::new(
++        KeyCode::Char('s'),
++        KeyModifiers::CONTROL,
++    ))]);
+     let repeat = state.handle_raw_events(vec![RawInputEvent::Key(crate::input::TerminalKey::new(
+-        KeyCode::Char('n'),
+-        KeyModifiers::empty(),
++        KeyCode::Char('s'),
++        KeyModifiers::CONTROL,
+     ))]);
+     let [ClientShellAction::Endpoint { request, .. }] = &repeat.actions[..] else {
+         panic!("repeat search request");
+@@ -612,7 +616,7 @@ fn highlighted_search_match_copies_after_in_flight_repeat() {
+     let repeat_id = request.id.clone();
+ 
+     let early_copy = state.handle_raw_events(vec![RawInputEvent::Key(
+-        crate::input::TerminalKey::new(KeyCode::Char('y'), KeyModifiers::empty()),
++        crate::input::TerminalKey::new(KeyCode::Char('w'), KeyModifiers::ALT),
+     )]);
+     assert!(early_copy.actions.is_empty());
+     assert_eq!(state.mode, ClientShellMode::Copy);
+diff --git a/src/client/shell/tests/keybindings_settings.rs b/src/client/shell/tests/keybindings_settings.rs
+index 0a5c90f..7a5753a 100644
+--- a/src/client/shell/tests/keybindings_settings.rs
++++ b/src/client/shell/tests/keybindings_settings.rs
+@@ -633,6 +633,7 @@ fn plugin_command_carries_client_owned_selection_coordinates() {
+             anchor: crate::api::schema::PaneTextPoint { row: 2, col: 3 },
+             cursor: crate::api::schema::PaneTextPoint { row: 4, col: 5 },
+             content_revision: Some(42),
++            rectangle: false,
+         })
+     );
+ }
+diff --git a/src/client/shell/tests/text_editing.rs b/src/client/shell/tests/text_editing.rs
+index f3db057..66f1469 100644
+--- a/src/client/shell/tests/text_editing.rs
++++ b/src/client/shell/tests/text_editing.rs
+@@ -53,7 +53,7 @@ fn shell(field: usize) -> ClientShellState {
+                 KeybindMatch::Action(KeybindAction::CopyMode),
+                 &mut ClientShellInput::default(),
+             );
+-            state.handle_input_bytes(b"/");
++            state.handle_input_bytes(b"\x13");
+         }
+         _ => unreachable!(),
+     }
+diff --git a/src/client/shell/word_selection.rs b/src/client/shell/word_selection.rs
+index f4329ce..b794c08 100644
+--- a/src/client/shell/word_selection.rs
++++ b/src/client/shell/word_selection.rs
+@@ -76,6 +76,7 @@ impl ClientShellState {
+                 col: gesture.end_col,
+             },
+             content_revision: gesture.content_revision,
++            rectangle: false,
+         };
+         if !self.push_endpoint_method_with_kind(
+             crate::api::schema::Method::PaneSelectionRead(params),
+diff --git a/src/copy_mode.rs b/src/copy_mode.rs
+index 8f84b9a..5e17424 100644
+--- a/src/copy_mode.rs
++++ b/src/copy_mode.rs
+@@ -57,6 +57,15 @@ pub(crate) fn copy_mode_command_char(key: TerminalKey) -> Option<char> {
+     }
+ }
+ 
++pub(crate) fn copy_mode_meta_char(key: TerminalKey) -> Option<char> {
++    if !key.modifiers.contains(KeyModifiers::ALT) {
++        return None;
++    }
++    let mut key = key;
++    key.modifiers.remove(KeyModifiers::ALT);
++    copy_mode_command_char(key)
++}
++
+ fn shifted_ascii_char(ch: char) -> Option<char> {
+     match ch {
+         'a'..='z' => Some(ch.to_ascii_uppercase()),
+diff --git a/src/pane/terminal.rs b/src/pane/terminal.rs
+index d4b7ef5..db540d5 100644
+--- a/src/pane/terminal.rs
++++ b/src/pane/terminal.rs
+@@ -3096,8 +3096,11 @@ fn ghostty_extract_selection(
+     selection: &crate::selection::Selection,
+ ) -> Result<String, crate::ghostty::Error> {
+     let ((start_row, start_col), (end_row, end_col)) = selection.ordered_cells();
+-    core.terminal
+-        .read_text_screen((start_col, start_row), (end_col, end_row), false)
++    core.terminal.read_text_screen(
++        (start_col, start_row),
++        (end_col, end_row),
++        selection.is_rectangle(),
++    )
+ }
+ 
+ fn ghostty_screen_row(
+@@ -5901,6 +5904,22 @@ mod tests {
+         assert_eq!(text, "000003\n000004\n000005");
+     }
+ 
++    #[test]
++    fn extract_rectangle_selection_reads_only_its_columns() {
++        let (tx, _rx) = mpsc::channel(4);
++        let mut terminal = crate::ghostty::Terminal::new(8, 3, 1024).unwrap();
++        write_numbered_lines(&mut terminal, 8);
++        let pane = GhosttyPaneTerminal::new(terminal, tx).unwrap();
++
++        let selection =
++            crate::selection::Selection::absolute_rectangle(PaneId::from_raw(1), (5, 5), (3, 4));
++
++        let text = pane
++            .extract_selection(&selection)
++            .expect("selection should extract text");
++        assert_eq!(text, "03\n04\n05");
++    }
++
+     #[test]
+     fn recent_reads_include_viewport_before_scrollback_exists() {
+         let (tx, _rx) = mpsc::channel(4);
+diff --git a/src/selection.rs b/src/selection.rs
+index 9b47b2e..be0c6a0 100644
+--- a/src/selection.rs
++++ b/src/selection.rs
+@@ -41,6 +41,8 @@ pub struct Selection<P = PaneId> {
+     cursor: (u32, u16),
+     /// Selection phase.
+     phase: Phase,
++    /// Whether the selection covers the block between anchor and cursor instead of the text between them.
++    rectangle: bool,
+ }
+ 
+ impl<P> Selection<P> {
+@@ -53,6 +55,7 @@ impl<P> Selection<P> {
+             anchor,
+             cursor: anchor,
+             phase: Phase::Anchored,
++            rectangle: false,
+         }
+     }
+ 
+@@ -62,6 +65,7 @@ impl<P> Selection<P> {
+             anchor,
+             cursor: anchor,
+             phase: Phase::Anchored,
++            rectangle: false,
+         }
+     }
+ 
+@@ -71,6 +75,17 @@ impl<P> Selection<P> {
+             anchor,
+             cursor,
+             phase: Phase::Dragging,
++            rectangle: false,
++        }
++    }
++
++    pub(crate) fn absolute_rectangle(pane_id: P, anchor: (u32, u16), cursor: (u32, u16)) -> Self {
++        Self {
++            pane_id,
++            anchor,
++            cursor,
++            phase: Phase::Dragging,
++            rectangle: true,
+         }
+     }
+ 
+@@ -85,6 +100,7 @@ impl<P> Selection<P> {
+             anchor: (anchor_row, anchor_col),
+             cursor: (cursor_row, cursor_col),
+             phase: Phase::Dragging,
++            rectangle: false,
+         }
+     }
+ 
+@@ -173,11 +189,17 @@ impl<P> Selection<P> {
+         self.phase == Phase::Dragging
+     }
+ 
++    pub(crate) fn is_rectangle(&self) -> bool {
++        self.rectangle
++    }
++
+     /// Returns (start, end) in reading order (top-left to bottom-right).
+     fn ordered(&self) -> ((u32, u16), (u32, u16)) {
+         let (ar, ac) = self.anchor;
+         let (cr, cc) = self.cursor;
+-        if ar < cr || (ar == cr && ac <= cc) {
++        if self.rectangle {
++            ((ar.min(cr), ac.min(cc)), (ar.max(cr), ac.max(cc)))
++        } else if ar < cr || (ar == cr && ac <= cc) {
+             ((ar, ac), (cr, cc))
+         } else {
+             ((cr, cc), (ar, ac))
+@@ -212,10 +234,10 @@ impl<P> Selection<P> {
+                 )
+             }
+         };
+-        if start_row == end_row {
++        if self.rectangle || start_row == end_row {
+             rects[0] = rect(
+                 start_row,
+-                start_row.saturating_add(1),
++                end_row.saturating_add(1),
+                 start_col,
+                 end_col.saturating_add(1),
+             );
+@@ -247,7 +269,7 @@ impl<P> Selection<P> {
+         if row < sr || row > er {
+             return false;
+         }
+-        if sr == er {
++        if self.rectangle || sr == er {
+             col >= sc && col <= ec
+         } else if row == sr {
+             col >= sc
+@@ -421,6 +443,29 @@ mod tests {
+         sel
+     }
+ 
++    #[test]
++    fn rectangle_covers_the_block_between_anchor_and_cursor() {
++        let inner = Rect::new(10, 5, 8, 6);
++        for (anchor, cursor) in [((1, 5), (4, 2)), ((4, 2), (1, 5)), ((1, 2), (4, 5))] {
++            let selection = Selection::absolute_rectangle((), anchor, cursor);
++            assert_eq!(selection.ordered_cells(), ((1, 2), (4, 5)));
++            let rects = selection.visible_rects(inner, None);
++            assert_eq!(rects[0], Rect::new(12, 6, 4, 4));
++            assert_eq!(rects[1], Rect::default());
++            assert_eq!(rects[2], Rect::default());
++            for row in 0..inner.height {
++                for col in 0..inner.width {
++                    let inside = (1..=4).contains(&row) && (2..=5).contains(&col);
++                    assert_eq!(
++                        selection.contains(row, col, None),
++                        inside,
++                        "anchor={anchor:?} cursor={cursor:?} row={row} col={col}",
++                    );
++                }
++            }
++        }
++    }
++
+     #[test]
+     fn osc52_sequence_uses_bel_terminator() {
+         assert_eq!(osc52_sequence(b"hello"), "\x1b]52;c;aGVsbG8=\x07");
+diff --git a/tests/fixtures/endpoint-method-shapes-v1.json b/tests/fixtures/endpoint-method-shapes-v1.json
+index f8ea644..71af4e8 100644
+--- a/tests/fixtures/endpoint-method-shapes-v1.json
++++ b/tests/fixtures/endpoint-method-shapes-v1.json
+@@ -1,6 +1,6 @@
+ {
+   "client_shell.surface.set": "919df2ba99fe7d5df003a051dbbaf9929998387c53ccb652b6262bd8e4650330",
+-  "command.invoke": "b16817652442b1ea2405e60a0443826a55baca461e938f524e79b16a675c5899",
++  "command.invoke": "45c7b626c8e099995f633737b4abdb038dfb6ab74d7663736a8e9d5964c89392",
+   "integration.install": "913055b838166650fee6713332c1cc436efd4f8fae9a2064d8f9b6616a7a66f8",
+   "integration.list": "60c57189adf9c281958062f0e11680bda0ece83307c506fa18bff8b01ebfb4e8",
+   "layout.set_split_ratio": "13ef71d865f49c4f512fdfa8de64e1bdc0d4299675f78daf61bd5cdc10174d2f",
+@@ -15,7 +15,7 @@
+   "pane.rename": "cc3df3226f618ec4b9a175eca3450a66a9f2bea9fa39843e1a5900a1b45918c3",
+   "pane.resize": "9fbcc70b8908c43f47b0ff85d0a9040ce18c9179a029ed7d8f2616a05d8c301d",
+   "pane.scroll": "3229d55230b89730e5231a43d87cefa98cfda24acaaf6365f7c6a3548cc42db1",
+-  "pane.selection.read": "2f7b0fdf4f0fc1f1fe9ab4d962c833dd39a1e9bd866d77bbf0031f8b2c485534",
++  "pane.selection.read": "1bd32dd6d161cac206e24815a71dd9199850dfc117cd89448f3320e431ed464a",
+   "pane.split": "5d740322cac5287070194fb522c8135795a6f877b44652ea4959c63b4c67cefd",
+   "pane.swap": "3146d499d8174d73cfdfa3b6ca44f5d5d0951ab1cdd1808f94a3cf8846dc8057",
+   "pane.zoom": "0521e444ea892abb1f73d16dc0e10a5667c8a752284eae4cbc0961cd6d96bbfe",
