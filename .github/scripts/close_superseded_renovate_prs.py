@@ -9,7 +9,8 @@ from typing import Any
 
 from lib.commands import capture
 
-DATE_PREFIX = re.compile(r"^\d{4}-\d{2}-\d{2}-")
+# The hour is optional so pre-slot date-only branches share a group.
+DATE_PREFIX = re.compile(r"^\d{4}-\d{2}-\d{2}-(?:\d{2}-)?")
 VERSION_SUFFIX = re.compile(r"-v?\d+(?:\.\d+)*$")
 FIELDS = "number,headRefName,createdAt,isDraft,mergeable,statusCheckRollup,state"
 
