@@ -21,6 +21,7 @@ let
   };
 
   hooksConfig = import ./hooks.nix { inherit isucon; };
+  skills = import ../claude-code/skills.nix { inherit lib isucon; };
 
   mergedConfig = pkgs.writeText "devin-config-fragment.json" (
     builtins.toJSON {
@@ -28,6 +29,8 @@ let
       permissions = import ./permissions.nix { inherit isucon; };
       skip_workspace_trust = isucon;
       deny_replace = isucon;
+      # Reading ~/.claude/CLAUDE.md would add Claude Code's question rules beside Devin's, and the switch also covers skills, so those are installed below instead
+      read_config_from.claude = false;
     }
   );
 in
@@ -40,6 +43,16 @@ in
     ".config/devin/sounds/notification.mp3".source = ../../sounds/notification.mp3;
     ".config/devin/sounds/stop.mp3".source = ../../sounds/stop.mp3;
   }
+  // lib.optionalAttrs (!isucon) {
+    ".config/devin/AGENTS.md".source = import (shared + "/agents-md.nix") {
+      inherit pkgs;
+      questions = ./questions.md;
+    };
+    ".config/devin/RTK.md".source = ../rtk/RTK.md;
+  }
+  // lib.mapAttrs' (
+    path: source: lib.nameValuePair ".config/devin/skills/${path}" { inherit source; }
+  ) skills
   // hooksConfig.scripts;
 
   # devin itself rewrites config.json (model, org), so merge the managed keys instead of replacing the file
@@ -55,6 +68,7 @@ in
         | .permissions.allow = (((.permissions.allow // []) + $fragment[0].permissions.allow) | unique)
         | .permissions.deny = (if $fragment[0].deny_replace then $fragment[0].permissions.deny else (((.permissions.deny // []) + $fragment[0].permissions.deny) | unique) end)
         | .skip_workspace_trust = $fragment[0].skip_workspace_trust
+        | .read_config_from.claude = $fragment[0].read_config_from.claude
       ' "$config" > "$tmp" && cat "$tmp" > "$config"
     fi
     rm -f "$tmp"
