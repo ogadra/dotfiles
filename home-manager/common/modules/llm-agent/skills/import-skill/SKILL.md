@@ -104,7 +104,7 @@ READMEには次を書く。
 
 ### 7. Nixに繋ぐ
 
-`home-manager/common/modules/llm-agent/skills.nix` に1行足す。Claude CodeとDevinの両方がこの一覧からスキルを配置する。
+`home-manager/common/modules/llm-agent/skills.nix` に1行足す。この一覧のスキルは、Claude Code用に `~/.claude/skills` へ、CodexとDevin用に `~/.agents/skills` へ配置される。
 
 ```nix
 "<name>" = ./skills/<name>;

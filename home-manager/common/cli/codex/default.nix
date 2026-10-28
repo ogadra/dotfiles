@@ -75,6 +75,8 @@ let
   };
 in
 {
+  imports = [ (shared + "/agents-skills.nix") ];
+
   home.packages = [ codex ];
 
   home.file = {

@@ -21,7 +21,6 @@ let
   };
 
   hooksConfig = import ./hooks.nix { inherit isucon; };
-  skills = import (shared + "/skills.nix") { inherit lib isucon; };
 
   mergedConfig = pkgs.writeText "devin-config-fragment.json" (
     builtins.toJSON {
@@ -29,12 +28,14 @@ let
       permissions = import ./permissions.nix { inherit isucon; };
       skip_workspace_trust = isucon;
       deny_replace = isucon;
-      # Reading ~/.claude/CLAUDE.md would add Claude Code's question rules beside Devin's, and the switch also covers skills, so those are installed below instead
+      # Reading ~/.claude would add Claude Code's question rules beside Devin's, so the rules come from ~/.config/devin and the skills from ~/.agents/skills
       read_config_from.claude = false;
     }
   );
 in
 {
+  imports = [ (shared + "/agents-skills.nix") ];
+
   home.packages = [ devin-cli ];
 
   home.file = {
@@ -50,9 +51,6 @@ in
     };
     ".config/devin/RTK.md".source = ../rtk/RTK.md;
   }
-  // lib.mapAttrs' (
-    path: source: lib.nameValuePair ".config/devin/skills/${path}" { inherit source; }
-  ) skills
   // hooksConfig.scripts;
 
   # devin itself rewrites config.json (model, org), so merge the managed keys instead of replacing the file
