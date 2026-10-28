@@ -90,7 +90,10 @@ in
       shared + (if isucon then "/isucon.gitconfig" else "/.gitconfig");
   }
   // lib.optionalAttrs (!isucon) {
-    ".codex/AGENTS.md".source = import (shared + "/agents-md.nix") { inherit pkgs; };
+    ".codex/AGENTS.md".source = import (shared + "/agents-md.nix") {
+      inherit pkgs;
+      questions = ./questions.md;
+    };
   };
 
   home.activation.enableCodexRemoteControl = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
