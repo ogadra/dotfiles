@@ -27,6 +27,7 @@ let
     ./settings/screenshot.nix
     ./settings/softwareupdate.nix
     ./settings/spaces.nix
+    ./settings/symbolichotkeys.nix
     ./settings/universalaccess.nix
     ./settings/window-manager.nix
     ../common/pki.nix
