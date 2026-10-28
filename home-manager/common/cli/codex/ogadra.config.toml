@@ -11,9 +11,13 @@ hide_agent_reasoning = true
 check_for_update_on_startup = false
 project_doc_fallback_filenames = ["CLAUDE.md"]
 developer_instructions = "Use Japanese for user-facing replies unless the user asks for another language."
+# default_mode_request_user_input is under development, so Codex warns about it on every launch
+suppress_unstable_features_warning = true
 
 [features]
 hooks = true
+# request_user_input is otherwise limited to Plan mode
+default_mode_request_user_input = true
 fast_mode = false
 memories = false
 
