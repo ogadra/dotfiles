@@ -2,9 +2,21 @@
   lib,
   isucon ? false,
 }:
+let
+  orchestrator = builtins.readFile ./skills/orchestrator/SKILL.md;
+  noPrPointer = "\n\nユーザーがPRを作らないよう指示したタスクは、末尾の「PRを作らないタスク」に従う。";
+  orchestratorParts = lib.splitString "\n## PRを作らないタスク\n" orchestrator;
+  # ISUCON lanes always open a PR, so its build cuts the no-PR parts out of the one skill file instead of keeping a second copy that would drift
+  isuconOrchestrator =
+    assert lib.hasInfix noPrPointer orchestrator;
+    assert builtins.length orchestratorParts == 2;
+    builtins.toFile "SKILL.md" (
+      lib.replaceStrings [ noPrPointer ] [ "" ] (builtins.head orchestratorParts)
+    );
+in
 {
   "absolute-rules/SKILL.md" = ./skills/absolute-rules/SKILL.md;
-  "orchestrator/SKILL.md" = ./skills/orchestrator/SKILL.md;
+  "orchestrator/SKILL.md" = if isucon then isuconOrchestrator else ./skills/orchestrator/SKILL.md;
   "ponytail" = ./skills/ponytail;
 }
 // lib.optionalAttrs (!isucon) {
