@@ -24,6 +24,7 @@ let
   hooksConfig = import ./hooks.nix { inherit isucon; };
 
   settingsJson = builtins.toJSON (import ./settings.nix { inherit hooksConfig isucon; });
+  skills = import (shared + "/skills.nix") { inherit lib isucon; };
 in
 {
   home.packages = [ claude-code ];
@@ -35,30 +36,16 @@ in
     ".claude/themes/nerv.json".source = ./themes/nerv.json;
     ".claude/config/.gitconfig".source =
       shared + (if isucon then "/isucon.gitconfig" else "/.gitconfig");
-    ".claude/skills/absolute-rules/SKILL.md".source = ./skills/absolute-rules/SKILL.md;
-    ".claude/skills/orchestrator/SKILL.md".source = ./skills/orchestrator/SKILL.md;
-    ".claude/skills/ponytail".source = ./skills/ponytail;
   }
   // lib.optionalAttrs (!isucon) {
-    ".claude/CLAUDE.md".source = import (shared + "/agents-md.nix") { inherit pkgs; };
-    ".claude/skills/cascade-merge/SKILL.md".source = ./skills/cascade-merge/SKILL.md;
-    ".claude/skills/grill-me".source = ./skills/grill-me;
-    ".claude/skills/import-skill/SKILL.md".source = ./skills/import-skill/SKILL.md;
-    ".claude/skills/pr-create/SKILL.md".source = ./skills/pr-create/SKILL.md;
-    ".claude/skills/pr-review/SKILL.md".source = ./skills/pr-review/SKILL.md;
-    ".claude/skills/pr-review/policies/absolute-rules.md".source =
-      ./skills/pr-review/policies/absolute-rules.md;
-    ".claude/skills/pr-review/policies/ai-antipattern.md".source =
-      ./skills/pr-review/policies/ai-antipattern.md;
-    ".claude/skills/pr-review/policies/architecture.md".source =
-      ./skills/pr-review/policies/architecture.md;
-    ".claude/skills/pr-review/policies/code-quality.md".source =
-      ./skills/pr-review/policies/code-quality.md;
-    ".claude/skills/pr-review/policies/security.md".source = ./skills/pr-review/policies/security.md;
-    ".claude/skills/pr-review/policies/stop-slop.md".source = ./skills/pr-review/policies/stop-slop.md;
-    ".claude/skills/pr-review/policies/testing.md".source = ./skills/pr-review/policies/testing.md;
-    ".claude/skills/readable-writing".source = ./skills/readable-writing;
+    ".claude/CLAUDE.md".source = import (shared + "/agents-md.nix") {
+      inherit pkgs;
+      questions = ./questions.md;
+    };
   }
+  // lib.mapAttrs' (
+    path: source: lib.nameValuePair ".claude/skills/${path}" { inherit source; }
+  ) skills
   // hooksConfig.scripts;
 
   # Claude has no setting to disable the workspace trust dialog; accepted trust propagates to subdirectories, so seed it for the home and ghq roots.

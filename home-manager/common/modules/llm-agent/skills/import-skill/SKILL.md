@@ -6,7 +6,7 @@ allowed-tools: Bash(curl:*), Bash(tar:*), Bash(mkdir:*), Bash(cp:*), Bash(ls:*),
 
 # Import Skill
 
-上流のスキルを `home-manager/common/cli/claude-code/skills/<name>/` にコピーし、PRまで出す。
+上流のスキルを `home-manager/common/modules/llm-agent/skills/<name>/` にコピーし、PRまで出す。
 
 ## 手順
 
@@ -80,7 +80,7 @@ gh api repos/<owner>/<repo>/commits/<branch> --jq '.sha[0:7] + " " + .commit.com
 ### 6. 配置する
 
 ```
-home-manager/common/cli/claude-code/skills/<name>/
+home-manager/common/modules/llm-agent/skills/<name>/
 ├── SKILL.md
 ├── LICENSE     上流のまま置く。著作権行を書き換えない
 └── README.md
@@ -104,10 +104,10 @@ READMEには次を書く。
 
 ### 7. Nixに繋ぐ
 
-`home-manager/common/cli/claude-code/default.nix` の `home.file` に1行足す。
+`home-manager/common/modules/llm-agent/skills.nix` に1行足す。この一覧のスキルは、Claude Code用に `~/.claude/skills` へ、CodexとDevin用に `~/.agents/skills` へ配置される。
 
 ```nix
-".claude/skills/<name>".source = ./skills/<name>;
+"<name>" = ./skills/<name>;
 ```
 
 - アルファベット順の位置に入れる

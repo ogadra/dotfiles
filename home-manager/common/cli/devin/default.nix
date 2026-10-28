@@ -28,10 +28,14 @@ let
       permissions = import ./permissions.nix { inherit isucon; };
       skip_workspace_trust = isucon;
       deny_replace = isucon;
+      # Reading ~/.claude would add Claude Code's question rules beside Devin's, so the rules come from ~/.config/devin and the skills from ~/.agents/skills
+      read_config_from.claude = false;
     }
   );
 in
 {
+  imports = [ (shared + "/agents-skills.nix") ];
+
   home.packages = [ devin-cli ];
 
   home.file = {
@@ -39,6 +43,13 @@ in
       shared + (if isucon then "/isucon.gitconfig" else "/.gitconfig");
     ".config/devin/sounds/notification.mp3".source = ../../sounds/notification.mp3;
     ".config/devin/sounds/stop.mp3".source = ../../sounds/stop.mp3;
+  }
+  // lib.optionalAttrs (!isucon) {
+    ".config/devin/AGENTS.md".source = import (shared + "/agents-md.nix") {
+      inherit pkgs;
+      questions = ./questions.md;
+    };
+    ".config/devin/RTK.md".source = ../rtk/RTK.md;
   }
   // hooksConfig.scripts;
 
@@ -55,6 +66,7 @@ in
         | .permissions.allow = (((.permissions.allow // []) + $fragment[0].permissions.allow) | unique)
         | .permissions.deny = (if $fragment[0].deny_replace then $fragment[0].permissions.deny else (((.permissions.deny // []) + $fragment[0].permissions.deny) | unique) end)
         | .skip_workspace_trust = $fragment[0].skip_workspace_trust
+        | .read_config_from.claude = $fragment[0].read_config_from.claude
       ' "$config" > "$tmp" && cat "$tmp" > "$config"
     fi
     rm -f "$tmp"
