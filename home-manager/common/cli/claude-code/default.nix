@@ -24,7 +24,7 @@ let
   hooksConfig = import ./hooks.nix { inherit isucon; };
 
   settingsJson = builtins.toJSON (import ./settings.nix { inherit hooksConfig isucon; });
-  skills = import ./skills.nix { inherit lib isucon; };
+  skills = import (shared + "/skills.nix") { inherit lib isucon; };
 in
 {
   home.packages = [ claude-code ];

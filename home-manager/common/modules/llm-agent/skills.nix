@@ -2,7 +2,6 @@
   lib,
   isucon ? false,
 }:
-# Kept apart from default.nix so Devin installs the same set under its own skills directory
 {
   "absolute-rules/SKILL.md" = ./skills/absolute-rules/SKILL.md;
   "orchestrator/SKILL.md" = ./skills/orchestrator/SKILL.md;

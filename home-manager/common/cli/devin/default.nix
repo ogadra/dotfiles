@@ -21,7 +21,7 @@ let
   };
 
   hooksConfig = import ./hooks.nix { inherit isucon; };
-  skills = import ../claude-code/skills.nix { inherit lib isucon; };
+  skills = import (shared + "/skills.nix") { inherit lib isucon; };
 
   mergedConfig = pkgs.writeText "devin-config-fragment.json" (
     builtins.toJSON {
