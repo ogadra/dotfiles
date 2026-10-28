@@ -1,6 +1,6 @@
 { ... }:
 {
-  # Distrusts the root chaining the eMudhra intermediates whose private keys leaked in Oct 2026; NSS 3.131.1 still ships it, and cacert fails on names it no longer has
+  # Distrusts the root cross-signing the leaked eMudhra intermediates, which NSS 3.131.1 still ships: https://emudhra.we-have-a-problem.com/#linux
   security.pki.caCertificateBlacklist = [
     "Comodo AAA Services root"
   ];
