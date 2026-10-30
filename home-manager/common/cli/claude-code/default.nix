@@ -36,10 +36,8 @@ in
     ".claude/themes/nerv.json".source = ./themes/nerv.json;
     ".claude/config/.gitconfig".source =
       shared + (if isucon then "/isucon.gitconfig" else "/.gitconfig");
-  }
-  // lib.optionalAttrs (!isucon) {
     ".claude/CLAUDE.md".source = import (shared + "/agents-md.nix") {
-      inherit pkgs;
+      inherit pkgs isucon;
       questions = ./questions.md;
     };
   }
