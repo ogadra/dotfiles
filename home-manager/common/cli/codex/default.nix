@@ -90,10 +90,8 @@ in
     };
     ".codex/config/.gitconfig".source =
       shared + (if isucon then "/isucon.gitconfig" else "/.gitconfig");
-  }
-  // lib.optionalAttrs (!isucon) {
     ".codex/AGENTS.md".source = import (shared + "/agents-md.nix") {
-      inherit pkgs;
+      inherit pkgs isucon;
       questions = ./questions.md;
     };
   };
