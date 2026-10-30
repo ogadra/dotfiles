@@ -1,8 +1,41 @@
-# Routes `agent` calls to whichever agent CLI spawned the caller (CLAUDECODE marks Claude Code, CHISEL_SESSION_DB marks Devin, CLAUDECODE wins when nested).
+# Routes `agent` calls to whichever agent CLI spawned the caller (CLAUDECODE marks Claude Code, CODEX_THREAD_ID marks Codex, CHISEL_SESSION_DB marks Devin, earlier ones win when nested).
 agent() {
-    if [[ -z $CHISEL_SESSION_DB || -n $CLAUDECODE ]]; then
+    if [[ -n $CLAUDECODE || (-z $CODEX_THREAD_ID && -z $CHISEL_SESSION_DB) ]]; then
         command claude "$@"
         return
+    fi
+    if [[ -n $CODEX_THREAD_ID ]]; then
+        # `codex exec` is the print mode and reads the schema from a file, so -p/--print become the subcommand and --json-schema a temp file
+        local -a args
+        local schema_file print_mode=0
+        while (($#)); do
+            case $1 in
+                -p | --print)
+                    print_mode=1
+                    shift
+                    ;;
+                --json-schema)
+                    schema_file=$(mktemp)
+                    print -r -- "$2" >"$schema_file"
+                    args+=(--output-schema "$schema_file")
+                    shift
+                    (($#)) && shift
+                    ;;
+                *)
+                    args+=("$1")
+                    shift
+                    ;;
+            esac
+        done
+        if ((print_mode)); then
+            # --ephemeral keeps print sessions out of `codex resume`, the counterpart of the Devin hidden flag below
+            command codex exec --ephemeral --skip-git-repo-check "${args[@]}"
+        else
+            command codex "${args[@]}"
+        fi
+        local ret=$?
+        [[ -n $schema_file ]] && command rm -f -- "$schema_file"
+        return $ret
     fi
     # `devin -p` has no --json-schema flag, so the schema is folded into the -p prompt
     local -a args
