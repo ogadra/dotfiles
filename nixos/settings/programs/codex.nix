@@ -1,4 +1,4 @@
-{ isucon, ... }:
+{ isucon, pkgs, ... }:
 let
   shared = ../../../home-manager/common/modules/llm-agent;
 in
@@ -8,6 +8,12 @@ in
     "codex/hooks/pre-bash.sh" = {
       source = shared + "/scripts/pre-bash.sh";
     };
+    "codex/hooks/rtk-hook.sh".source = pkgs.writeShellScript "codex-managed-rtk-hook" ''
+      set -euo pipefail
+      # Codex requires an explicit allow decision to apply updatedInput.
+      ${pkgs.bash}/bin/bash ${shared + "/scripts/rtk-hook.sh"} \
+        | ${pkgs.jq}/bin/jq -c 'if .hookSpecificOutput.updatedInput then .hookSpecificOutput.permissionDecision = "allow" else . end'
+    '';
     "codex/hooks/normalize.sh" = {
       source = shared + "/scripts/normalize.sh";
     };
