@@ -142,11 +142,11 @@ let
     exec ${herdrBin} --session "$1"
   '';
 
-  # Herdr's players take no volume flag, so the gain is baked into the file; mpv applies volume cubically, so 0.3^3 matches the hooks' former --volume=30
+  # Herdr's players take no volume flag, so the gain is baked into the file; 0.3 is a linear amplitude factor, about -10dB
   quietSound =
     src:
     pkgs.runCommand "quiet-${baseNameOf src}" { nativeBuildInputs = [ pkgs.ffmpeg-headless ]; } ''
-      ffmpeg -loglevel error -i ${src} -filter:a volume=0.027 $out.mp3
+      ffmpeg -loglevel error -i ${src} -filter:a volume=0.3 $out.mp3
       mv $out.mp3 $out
     '';
 
