@@ -253,6 +253,14 @@ in
         ];
         # A slanted line: herdr draws the separator in one color, so a filled glyph reads as a wedge
         tab_bar_right_separator = "  ";
+
+        # Herdr plays these for every detected agent in place of per-agent hooks; mp3 only, and absolute store paths skip config-relative resolution
+        sound = {
+          # Finished turns; herdr skips it when the agent's tab is active and the terminal has focus
+          done_path = "${../../sounds/stop.mp3}";
+          # Permission prompts and other blocked-on-input states
+          request_path = "${../../sounds/notification.mp3}";
+        };
       };
 
       theme = {

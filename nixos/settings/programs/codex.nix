@@ -17,9 +17,6 @@ in
     "codex/hooks/normalize.sh" = {
       source = shared + "/scripts/normalize.sh";
     };
-    "codex/hooks/play-sound.sh" = {
-      source = shared + "/scripts/play-sound.sh";
-    };
     "codex/hooks/git/check.sh" = {
       source = shared + "/scripts/git/check.sh";
     };
@@ -50,8 +47,6 @@ in
     "codex/hooks/gh/block-pr-close.sh" = {
       source = shared + "/scripts/gh/block-pr-close.sh";
     };
-    "codex/sounds/notification.mp3".source = ../../../home-manager/common/sounds/notification.mp3;
-    "codex/sounds/stop.mp3".source = ../../../home-manager/common/sounds/stop.mp3;
   }
   // (
     if isucon then
