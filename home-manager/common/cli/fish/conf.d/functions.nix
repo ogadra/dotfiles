@@ -49,5 +49,8 @@
         if pkgs.stdenv.hostPlatform.isLinux then "wl-copy" else "pbcopy"
       }
     end
+
+    # Alt chords switch herdr tabs, and ctrl-o is the one Ctrl letter left free by fish, wezterm, and herdr; the repaint redraws a prompt that an error message overwrote
+    bind \co 'copy-last; commandline -f repaint'
   '';
 }
