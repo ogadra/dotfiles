@@ -66,7 +66,7 @@
           addons.skk.globalSection.EggLikeNewLine = "True";
           # Starts in ASCII the moment the IME is switched on
           addons.skk.globalSection.InitialInputMode = "Latin";
-          # Picks candidates with a,s,d,f,... so the fingers stay on the home row; other values are "Digit (0,1,2,...)" and "ABC (a,b,c,...)"
+          # Picks candidates with a,s,d,f,... so the fingers stay on the home row
           addons.skk.globalSection.CandidateChooseKey = "Qwerty Center Row (a,s,d,...)";
         };
       };
