@@ -142,11 +142,11 @@ let
     exec ${herdrBin} --session "$1"
   '';
 
-  # Herdr's players take no volume flag, so the gain is baked into the file; 0.1 is a linear amplitude factor, about -20dB
+  # Herdr's players take no volume flag, so the gain is baked into the file; 0.2 is a linear amplitude factor, about -14dB
   quietSound =
     src:
     pkgs.runCommand "quiet-${baseNameOf src}" { nativeBuildInputs = [ pkgs.ffmpeg-headless ]; } ''
-      ffmpeg -loglevel error -i ${src} -filter:a volume=0.1 $out.mp3
+      ffmpeg -loglevel error -i ${src} -filter:a volume=0.2 $out.mp3
       mv $out.mp3 $out
     '';
 
