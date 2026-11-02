@@ -142,6 +142,14 @@ let
     exec ${herdrBin} --session "$1"
   '';
 
+  # Herdr's players take no volume flag, so the gain is baked into the file; mpv applies volume cubically, so 0.3^3 matches the hooks' former --volume=30
+  quietSound =
+    src:
+    pkgs.runCommand "quiet-${baseNameOf src}" { nativeBuildInputs = [ pkgs.ffmpeg-headless ]; } ''
+      ffmpeg -loglevel error -i ${src} -filter:a volume=0.027 $out.mp3
+      mv $out.mp3 $out
+    '';
+
 in
 {
   programs.herdr = {
@@ -257,9 +265,9 @@ in
         # Herdr plays these for every detected agent in place of per-agent hooks; mp3 only, and absolute store paths skip config-relative resolution
         sound = {
           # Finished turns; herdr skips it when the agent's tab is active and the terminal has focus
-          done_path = "${../../sounds/stop.mp3}";
+          done_path = "${quietSound ../../sounds/stop.mp3}";
           # Permission prompts and other blocked-on-input states
-          request_path = "${../../sounds/notification.mp3}";
+          request_path = "${quietSound ../../sounds/notification.mp3}";
         };
       };
 
