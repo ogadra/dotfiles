@@ -81,9 +81,40 @@ let
       }
     } $out/strata-engine-${engineFolder}.tar.gz
   '';
+
+  # Revision and per-file SHA-256 pinned by setup.py of control 0.1.55, so the app recognises the files as its own IQ3_S
+  modelUrl = "https://huggingface.co/ISTA-DASLab/Qwen3.8-Flash-Next-GSQ-RCO-GGUF/resolve/ed59f92082b1e93c0e96d60a8b11aab089b52f09";
+
+  # Symlinks rather than copies: setup reads an existing model folder in place and only warns when it is read-only
+  strataModel = pkgs.linkFarm "strata-qwen3.8-flash-next-iq3_s" [
+    {
+      name = "Qwen3.8-Flash-Next-GSQ-RCO-IQ3_S-00001-of-00002.gguf";
+      path = pkgs.fetchurl {
+        url = "${modelUrl}/IQ3_S/Qwen3.8-Flash-Next-GSQ-RCO-IQ3_S-00001-of-00002.gguf";
+        sha256 = "4c1eb2ceb4915e1192f4f386021897bde56a97f40a0bb78bb86465e0f7d2aca3";
+      };
+    }
+    {
+      name = "Qwen3.8-Flash-Next-GSQ-RCO-IQ3_S-00002-of-00002.gguf";
+      path = pkgs.fetchurl {
+        url = "${modelUrl}/IQ3_S/Qwen3.8-Flash-Next-GSQ-RCO-IQ3_S-00002-of-00002.gguf";
+        sha256 = "316b46f3a2dbd68c900f43136ab9449f9dcc3725dfd8c794847c204bc161e113";
+      };
+    }
+    {
+      name = "mmproj-Qwen3.8-Flash-Next-BF16.gguf";
+      path = pkgs.fetchurl {
+        url = "${modelUrl}/mmproj-Qwen3.8-Flash-Next-BF16.gguf";
+        sha256 = "b1a82259702816a5330d7bd7607cd9676b11780e79ff7348c21103ff3ce49bd0";
+      };
+    }
+  ];
 in
 {
   home.packages = [ strata ];
+
+  # Beside the app's default library so its folder picker opens next to it
+  home.file."Documents/Strata/Models/Qwen3.8-Flash-Next-IQ3_S".source = strataModel;
 
   # Hand the pinned feed to the app's own updater rather than unpacking into components/, and only while no engine exists since the app takes over updates and refuses older feeds
   home.activation.installStrataEngine = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
