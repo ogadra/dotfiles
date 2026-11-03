@@ -96,16 +96,28 @@ let
   # Loopback only: Open WebUI in nixos/settings/programs/strata.nix is the one client and the LAN entry point
   servePort = 8792;
 
-  # A foreground command instead of a service, because the model holds ~15 GB of VRAM and ~50 GB of RAM only while wanted
+  # IQ3_S wants ~60 GB of RAM on this 62 GB PC, which froze the desktop; the cap leaves ~14 GB for everything else
+  memoryMax = "48G";
+  # Reclaim starts here, a little below the hard cap, so the page cache shrinks before anything is killed
+  memoryHigh = "46G";
+
+  strataServeInner = pkgs.writeShellScript "strata-serve-inner" ''
+    set -euo pipefail
+    # Idempotent prepare; --low-ram mmap reads experts via the page cache the cgroup cap can reclaim, and 1536 MiB VRAM stays free for the display
+    ${strataCli}/bin/strata install --family qwen --model IQ3_S --context 65536 --vram-reserve-mib 1536 \
+      --low-ram mmap --data-dir "$HOME/${dataDir}" --yes --no-start
+    # Setup writes the run config under the install folder, named after the model
+    exec ${strataCli}/bin/strata serve --profile "$HOME/.local/share/strata/install/strata-iq3_s.json" \
+      --host 127.0.0.1 --port ${toString servePort}
+  '';
+
+  # A foreground command in a transient scope: no service keeps the model resident, and unlike ulimit a cgroup counts the mmap'd page cache
   strataServe = pkgs.writeShellApplication {
     name = "strata-serve";
+    runtimeInputs = [ pkgs.systemd ];
     text = ''
-      # Idempotent prepare (first run fetches the ~5 GB MTP layer); 1536 MiB VRAM is reserved for the display this card drives
-      ${strataCli}/bin/strata install --family qwen --model IQ3_S --context 65536 --vram-reserve-mib 1536 \
-        --data-dir "$HOME/${dataDir}" --yes --no-start
-      # Setup writes the run config under the install folder, named after the model
-      exec ${strataCli}/bin/strata serve --profile "$HOME/.local/share/strata/install/strata-iq3_s.json" \
-        --host 127.0.0.1 --port ${toString servePort}
+      exec systemd-run --user --scope --quiet --unit=strata-serve \
+        -p MemoryHigh=${memoryHigh} -p MemoryMax=${memoryMax} ${strataServeInner}
     '';
   };
 in
