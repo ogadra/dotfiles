@@ -34,6 +34,11 @@ let
         gmp
       ];
 
+    # The share defaults to the host port + 1 and the host port can move, so pin it to the port nixos/settings/programs/strata.nix opens
+    profile = ''
+      export STRATA_SHARE_PORT=8792
+    '';
+
     # wrapType2 installs only the binary, so copy the desktop entry and icon out of the AppImage
     extraInstallCommands = ''
       install -Dm444 ${appimageContents}/Strata.desktop $out/share/applications/strata-desktop.desktop
