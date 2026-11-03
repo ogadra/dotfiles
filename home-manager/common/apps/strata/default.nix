@@ -1,4 +1,9 @@
-{ lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 let
   # The binary name matches Exec= in the AppImage's Strata.desktop, so the desktop entry launches it unchanged
   pname = "strata-desktop";
@@ -129,6 +134,12 @@ in
     "${modelLibrary}/IQ3_S".source = strataShards;
     "${modelLibrary}/${mmprojName}".source = strataMmproj;
     "${modelLibrary}/${mmprojName}.done".source = doneMark;
+
+    # The installer reads <data>/models while the app lists Models; force replaces the identical alias the app makes on first start
+    "Documents/Strata/models" = {
+      source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/${modelLibrary}";
+      force = true;
+    };
   };
 
   # Hand the pinned feed to the app's own updater rather than unpacking into components/, and only while no engine exists since the app takes over updates and refuses older feeds
