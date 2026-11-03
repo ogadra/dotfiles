@@ -8,7 +8,6 @@ let
     ../../common/apps/espanso
     ../../common/apps/obs
     ../../common/apps/spotify
-    ../../common/apps/strata
     ../../common/apps/terminal
   ];
 
@@ -33,6 +32,7 @@ let
     ../../common/cli/mpv
     ../../common/cli/rtk
     ../../common/cli/starship
+    ../../common/cli/strata
     ../../common/cli/takt
     ../../common/cli/tree
     ../../common/cli/unzip

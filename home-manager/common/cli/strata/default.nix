@@ -1,12 +1,5 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}:
+{ lib, pkgs, ... }:
 let
-  # The binary name matches Exec= in the AppImage's Strata.desktop, so the desktop entry launches it unchanged
-  pname = "strata-desktop";
   # v0.2.10 was released less than 3 days ago
   version = "0.2.9";
   # Control and engine versions shipped in the v0.2.9 release
@@ -14,38 +7,6 @@ let
   engineFolder = "${componentVersion}-linux-x86_64-cuda-cuda13";
 
   releaseUrl = "https://github.com/Niko1221/Strata/releases/download/v${version}";
-
-  src = pkgs.fetchurl {
-    url = "${releaseUrl}/Strata-${version}-linux-x86_64.AppImage";
-    hash = "sha256-xSgxE8Mg5Ve/eWjZreYm3WHOowD8sbi2LvTV435tLak=";
-  };
-
-  appimageContents = pkgs.appimageTools.extract { inherit pname version src; };
-
-  # The upstream flake only offers a devShell for building the engine from source, so wrap the release AppImage instead
-  strata = pkgs.appimageTools.wrapType2 {
-    inherit pname version src;
-
-    # Libraries the bundled GTK/GStreamer stack links against but neither the AppImage nor the default FHS env ships
-    extraPkgs =
-      pkgs: with pkgs; [
-        libgpg-error
-        e2fsprogs
-        gmp
-      ];
-
-    # The share defaults to the host port + 1 and the host port can move, so pin it to the port nixos/settings/programs/strata.nix opens
-    profile = ''
-      export STRATA_SHARE_PORT=8792
-    '';
-
-    # wrapType2 installs only the binary, so copy the desktop entry and icon out of the AppImage
-    extraInstallCommands = ''
-      install -Dm444 ${appimageContents}/Strata.desktop $out/share/applications/strata-desktop.desktop
-      install -Dm444 ${appimageContents}/usr/share/icons/hicolor/512x512/apps/strata-desktop.png \
-        $out/share/icons/hicolor/512x512/apps/strata-desktop.png
-    '';
-  };
 
   # runCommand skips fixup, which would otherwise patchelf and strip the bundled relocatable CPython
   strataControl = pkgs.runCommand "strata-control-${componentVersion}" { } ''
@@ -58,7 +19,7 @@ let
     } -C $out
   '';
 
-  # An FHS env instead of nix-ld, because the home-manager activation service does not get NIX_LD
+  # An FHS env instead of nix-ld, because the home-manager activation service and user units do not get NIX_LD
   strataCli = pkgs.buildFHSEnv {
     name = "strata";
     targetPkgs =
@@ -92,7 +53,7 @@ let
     } $out/strata-engine-${engineFolder}.tar.gz
   '';
 
-  # Revision and per-file SHA-256 pinned by setup.py of control 0.1.55, so the app recognises the files as its own IQ3_S
+  # Revision and per-file SHA-256 pinned by setup.py of control 0.1.55, so setup recognises the files as its own IQ3_S
   modelUrl = "https://huggingface.co/ISTA-DASLab/Qwen3.8-Flash-Next-GSQ-RCO-GGUF/resolve/ed59f92082b1e93c0e96d60a8b11aab089b52f09";
 
   # Setup re-downloads any file without a <name>.done beside it and cannot write one into the store, so ship the marks too
@@ -104,7 +65,7 @@ let
     "316b46f3a2dbd68c900f43136ab9449f9dcc3725dfd8c794847c204bc161e113"
   ];
 
-  # Symlinks rather than copies: setup only reads the shards, and writes its prepared pack under data/packs/
+  # Symlinks rather than copies: setup only reads the shards, and writes its prepared pack under <data>/packs/
   strataShards = pkgs.linkFarm "strata-qwen3.8-flash-next-iq3_s" (
     lib.concatLists (
       lib.imap1 (i: sha256: [
@@ -129,25 +90,25 @@ let
     sha256 = "b1a82259702816a5330d7bd7607cd9676b11780e79ff7348c21103ff3ce49bd0";
   };
 
-  # The app's default model library, whose layout is <library>/<quant>/ for shards and <library>/ for the picture reader
-  modelLibrary = "Documents/Strata/Models";
+  # Setup's data folder holds models/<quant>/ for shards, models/ for the picture reader, and the packs/ and mtp/ it prepares
+  dataDir = "Documents/Strata";
+
+  # Setup writes the run config here, named after the model
+  runConfig = "%h/.local/share/strata/install/strata-iq3_s.json";
+
+  # Loopback only: Open WebUI in nixos/settings/programs/strata.nix is the one client and the LAN entry point
+  servePort = 8792;
 in
 {
-  home.packages = [ strata ];
+  home.packages = [ strataCli ];
 
   home.file = {
-    "${modelLibrary}/IQ3_S".source = strataShards;
-    "${modelLibrary}/${mmprojName}".source = strataMmproj;
-    "${modelLibrary}/${mmprojName}.done".source = doneMark;
-
-    # The installer reads <data>/models while the app lists Models; force replaces the identical alias the app makes on first start
-    "Documents/Strata/models" = {
-      source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/${modelLibrary}";
-      force = true;
-    };
+    "${dataDir}/models/IQ3_S".source = strataShards;
+    "${dataDir}/models/${mmprojName}".source = strataMmproj;
+    "${dataDir}/models/${mmprojName}.done".source = doneMark;
   };
 
-  # Hand the pinned feed to the app's own updater rather than unpacking into components/, and only while no engine exists since the app takes over updates and refuses older feeds
+  # Hand the pinned feed to Strata's own updater rather than unpacking into components/, and only while no engine exists since a newer accepted feed refuses this one
   home.activation.installStrataEngine = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     _components="''${XDG_DATA_HOME:-$HOME/.local/share}/strata/components"
     if [ -z "$(ls -A "$_components/engine" 2>/dev/null)" ]; then
@@ -155,4 +116,28 @@ in
       run ${strataCli}/bin/strata update --no-control --feed ${strataFeed} --components-dir "$_components" --output json
     fi
   '';
+
+  # A unit rather than activation, because preparing the model downloads the ~5 GB MTP layer and packs experts on first run
+  systemd.user.services.strata-prepare = {
+    Unit.Description = "Prepare Strata's Qwen3.8-Flash-Next IQ3_S";
+    Service = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+      # 1536 MiB VRAM reserve because this card also drives the display; the context is in tokens
+      ExecStart = "${strataCli}/bin/strata install --family qwen --model IQ3_S --context 65536 --vram-reserve-mib 1536 --data-dir %h/${dataDir} --yes --no-start";
+    };
+  };
+
+  systemd.user.services.strata = {
+    Unit = {
+      Description = "Strata inference server";
+      Requires = [ "strata-prepare.service" ];
+      After = [ "strata-prepare.service" ];
+    };
+    Service = {
+      ExecStart = "${strataCli}/bin/strata serve --profile ${runConfig} --host 127.0.0.1 --port ${toString servePort}";
+      Restart = "on-failure";
+    };
+    Install.WantedBy = [ "default.target" ];
+  };
 }
