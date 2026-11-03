@@ -8,6 +8,7 @@ let
     ../../common/apps/espanso
     ../../common/apps/obs
     ../../common/apps/spotify
+    ../../common/apps/strata
     ../../common/apps/terminal
   ];
 
