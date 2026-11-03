@@ -23,6 +23,11 @@ Nix Flakes + Home Managerで管理するdotfiles。これらのマシンで使�
 ## 依存の更新
 
 - nixpkgsのrevは、コミット日から3日以上経ったものを採用する
+- `merge-freeze`
+    - `.github/workflows/merge-freeze.yml` が各PRに付けるstatus
+    - Renovateのブランチ(`renovate/*`)では、PRを作ってから3日間 `pending` になり、その後 `success` になる
+    - それ以外のブランチでは、最初から `success` になる
+- `merge-freeze` が `success` になっていないPRはマージしない
 
 ## ファイルの置き場所
 
