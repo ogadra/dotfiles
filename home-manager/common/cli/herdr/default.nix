@@ -142,6 +142,14 @@ let
     exec ${herdrBin} --session "$1"
   '';
 
+  # Herdr's players take no volume flag, so the gain is baked into the file; 0.267 is a linear amplitude factor, about -11.5dB
+  quietSound =
+    src:
+    pkgs.runCommand "quiet-${baseNameOf src}" { nativeBuildInputs = [ pkgs.ffmpeg-headless ]; } ''
+      ffmpeg -loglevel error -i ${src} -filter:a volume=0.267 $out.mp3
+      mv $out.mp3 $out
+    '';
+
 in
 {
   programs.herdr = {
@@ -253,6 +261,14 @@ in
         ];
         # A slanted line: herdr draws the separator in one color, so a filled glyph reads as a wedge
         tab_bar_right_separator = "  ";
+
+        # Herdr plays these for every detected agent in place of per-agent hooks; mp3 only, and absolute store paths skip config-relative resolution
+        sound = {
+          # Finished turns; herdr skips it when the agent's tab is active and the terminal has focus
+          done_path = "${quietSound ../../sounds/stop.mp3}";
+          # Permission prompts and other blocked-on-input states
+          request_path = "${quietSound ../../sounds/notification.mp3}";
+        };
       };
 
       theme = {

@@ -41,8 +41,6 @@ in
   home.file = {
     ".config/devin/config/.gitconfig".source =
       shared + (if isucon then "/isucon.gitconfig" else "/.gitconfig");
-    ".config/devin/sounds/notification.mp3".source = ../../sounds/notification.mp3;
-    ".config/devin/sounds/stop.mp3".source = ../../sounds/stop.mp3;
     ".config/devin/AGENTS.md".source = import (shared + "/agents-md.nix") {
       inherit pkgs isucon;
       questions = ./questions.md;

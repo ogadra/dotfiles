@@ -6,9 +6,6 @@ let
   mkScript = src: { source = src; };
   shared = ../../modules/llm-agent;
 
-  playSound =
-    sound: "(mpv --no-terminal --volume=30 ~/.claude/sounds/${sound} </dev/null >/dev/null 2>&1 &)";
-
   whenAttended = command: ''if [ "$CLAUDE_CODE_SESSION_ATTENDED" = "1" ]; then ${command}; fi'';
 
   orchestratorGate = {
@@ -18,37 +15,10 @@ let
 in
 {
   hooks = {
-    PermissionRequest = [
-      {
-        matcher = "";
-        hooks = [
-          {
-            type = "command";
-            command = whenAttended (playSound "notification.mp3");
-          }
-        ];
-      }
-    ];
-    # Stop drops a flag file that mutes the idle_prompt sound until the next UserPromptSubmit
-    Notification = [
-      {
-        matcher = "idle_prompt";
-        hooks = [
-          {
-            type = "command";
-            command = whenAttended "[ -f /tmp/claude_task_stopped_$PPID ] || ${playSound "notification.mp3"}";
-          }
-        ];
-      }
-    ];
     Stop = [
       {
         matcher = "";
         hooks = [
-          {
-            type = "command";
-            command = whenAttended "touch /tmp/claude_task_stopped_$PPID; ${playSound "stop.mp3"}";
-          }
           {
             type = "command";
             command = "$HOME/.claude/scripts/herdr-name-tab.sh";
@@ -60,11 +30,7 @@ in
       {
         matcher = "";
         hooks = [
-          {
-            type = "command";
-            command = "rm -f /tmp/claude_task_stopped_$PPID";
-          }
-          # Hooks are disabled in the summarizer so its Stop does not play the stop sound
+          # Hooks are disabled in the summarizer so its own prompt does not re-enter these hooks
           {
             type = "command";
             command = "$HOME/.claude/scripts/herdr-name-tab.sh --model sonnet --no-session-persistence --tools '' --settings '{\"disableAllHooks\":true}'";
