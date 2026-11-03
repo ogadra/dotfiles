@@ -53,6 +53,7 @@ in
 
   imports = [
     ./hardware-configuration.nix
+    ./nix-archive.nix
   ]
   ++ desktopSettings
   ++ hardwareSettings
