@@ -16,6 +16,14 @@ let
   strata = pkgs.appimageTools.wrapType2 {
     inherit pname version src;
 
+    # Libraries the bundled GTK/GStreamer stack links against but neither the AppImage nor the default FHS env ships
+    extraPkgs =
+      pkgs: with pkgs; [
+        libgpg-error
+        e2fsprogs
+        gmp
+      ];
+
     # wrapType2 installs only the binary, so copy the desktop entry and icon out of the AppImage
     extraInstallCommands = ''
       install -Dm444 ${appimageContents}/Strata.desktop $out/share/applications/strata-desktop.desktop
