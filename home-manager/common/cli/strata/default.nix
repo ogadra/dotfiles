@@ -93,14 +93,27 @@ let
   # Setup's data folder holds models/<quant>/ for shards, models/ for the picture reader, and the packs/ and mtp/ it prepares
   dataDir = "Documents/Strata";
 
-  # Setup writes the run config here, named after the model
-  runConfig = "%h/.local/share/strata/install/strata-iq3_s.json";
-
   # Loopback only: Open WebUI in nixos/settings/programs/strata.nix is the one client and the LAN entry point
   servePort = 8792;
+
+  # A foreground command instead of a service, because the model holds ~15 GB of VRAM and ~50 GB of RAM only while wanted
+  strataServe = pkgs.writeShellApplication {
+    name = "strata-serve";
+    text = ''
+      # Idempotent prepare (first run fetches the ~5 GB MTP layer); 1536 MiB VRAM is reserved for the display this card drives
+      ${strataCli}/bin/strata install --family qwen --model IQ3_S --context 65536 --vram-reserve-mib 1536 \
+        --data-dir "$HOME/${dataDir}" --yes --no-start
+      # Setup writes the run config under the install folder, named after the model
+      exec ${strataCli}/bin/strata serve --profile "$HOME/.local/share/strata/install/strata-iq3_s.json" \
+        --host 127.0.0.1 --port ${toString servePort}
+    '';
+  };
 in
 {
-  home.packages = [ strataCli ];
+  home.packages = [
+    strataCli
+    strataServe
+  ];
 
   home.file = {
     "${dataDir}/models/IQ3_S".source = strataShards;
@@ -116,28 +129,4 @@ in
       run ${strataCli}/bin/strata update --no-control --feed ${strataFeed} --components-dir "$_components" --output json
     fi
   '';
-
-  # A unit rather than activation, because preparing the model downloads the ~5 GB MTP layer and packs experts on first run
-  systemd.user.services.strata-prepare = {
-    Unit.Description = "Prepare Strata's Qwen3.8-Flash-Next IQ3_S";
-    Service = {
-      Type = "oneshot";
-      RemainAfterExit = true;
-      # 1536 MiB VRAM reserve because this card also drives the display; the context is in tokens
-      ExecStart = "${strataCli}/bin/strata install --family qwen --model IQ3_S --context 65536 --vram-reserve-mib 1536 --data-dir %h/${dataDir} --yes --no-start";
-    };
-  };
-
-  systemd.user.services.strata = {
-    Unit = {
-      Description = "Strata inference server";
-      Requires = [ "strata-prepare.service" ];
-      After = [ "strata-prepare.service" ];
-    };
-    Service = {
-      ExecStart = "${strataCli}/bin/strata serve --profile ${runConfig} --host 127.0.0.1 --port ${toString servePort}";
-      Restart = "on-failure";
-    };
-    Install.WantedBy = [ "default.target" ];
-  };
 }
