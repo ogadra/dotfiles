@@ -111,6 +111,12 @@
           profile = "xurkitree";
           username = "ogadra";
         });
+        xurkitree-isucon = nixosSystem (nixosSystemArgs {
+          system = "x86_64-linux";
+          profile = "xurkitree";
+          username = "ogadra";
+          isucon = true;
+        });
       };
 
       darwinConfigurations = {

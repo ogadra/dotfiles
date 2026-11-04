@@ -24,6 +24,9 @@ jobs:
           - host: xurkitree
             os: ubuntu-latest
             cfg: nixosConfigurations
+          - host: xurkitree-isucon
+            os: ubuntu-latest
+            cfg: nixosConfigurations
           - host: stakataka
             os: macos-latest
             cfg: darwinConfigurations
