@@ -32,6 +32,7 @@ let
     ../../common/cli/mpv
     ../../common/cli/rtk
     ../../common/cli/starship
+    ../../common/cli/strata
     ../../common/cli/takt
     ../../common/cli/tree
     ../../common/cli/unzip
