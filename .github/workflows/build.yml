@@ -18,10 +18,10 @@ jobs:
           - host: bisharp
             os: ubuntu-latest
             cfg: nixosConfigurations
-          - host: bisharp-isucon
+          - host: xurkitree
             os: ubuntu-latest
             cfg: nixosConfigurations
-          - host: xurkitree
+          - host: xurkitree-isucon
             os: ubuntu-latest
             cfg: nixosConfigurations
           - host: stakataka
