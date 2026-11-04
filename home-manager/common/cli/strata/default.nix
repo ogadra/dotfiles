@@ -96,10 +96,10 @@ let
   # Loopback only: Open WebUI in nixos/settings/programs/strata.nix is the one client and the LAN entry point
   servePort = 8792;
 
-  # IQ3_S wants ~60 GB of RAM on this 62 GB PC, which froze the desktop; the cap leaves ~14 GB for everything else
-  memoryMax = "48G";
+  # IQ3_S wants ~60 GiB of RAM on this swapless 62 GiB PC, which froze the desktop; 44 GiB leaves ~7 GiB above the desktop's usual ~11 GiB
+  memoryMax = "44G";
   # Reclaim starts here, a little below the hard cap, so the page cache shrinks before anything is killed
-  memoryHigh = "46G";
+  memoryHigh = "42G";
 
   strataServeInner = pkgs.writeShellScript "strata-serve-inner" ''
     set -euo pipefail
