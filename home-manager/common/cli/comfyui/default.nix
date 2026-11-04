@@ -21,11 +21,11 @@ let
     text = ''
       data="$HOME/${dataDir}"
       mkdir -p "$data"/{cache,config,local,custom_nodes,models,user-checkpoints,hf-hub,torch-hub,input,output,user,user-scripts}
-      # Loopback only: Open WebUI runs on the host network and is the LAN entry point
+      # IPv4 only for phones on the LAN: a bare -p would also bind this PC's global IPv6 address, and ComfyUI has no login
       exec docker run -it --rm --name comfyui \
         --device nvidia.com/gpu=all \
         --memory=${memoryMax} \
-        -p 127.0.0.1:8188:8188 \
+        -p 0.0.0.0:8188:8188 \
         -v "$data/cache:/root/.cache" \
         -v "$data/config:/root/.config" \
         -v "$data/local:/root/.local" \
