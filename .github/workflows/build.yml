@@ -18,9 +18,6 @@ jobs:
           - host: bisharp
             os: ubuntu-latest
             cfg: nixosConfigurations
-          - host: bisharp-isucon
-            os: ubuntu-latest
-            cfg: nixosConfigurations
           - host: xurkitree
             os: ubuntu-latest
             cfg: nixosConfigurations
