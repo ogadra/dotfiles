@@ -15,17 +15,17 @@ let
       checkpoints: /root/user-checkpoints
   '';
 
-  # A foreground command instead of a service, because the GPU has room for only one of ComfyUI and strata-serve
+  # A foreground command instead of a service, so ComfyUI only holds RAM while wanted; it shares the GPU with strata-serve through strata_gate.py
   comfyuiServe = pkgs.writeShellApplication {
     name = "comfyui-serve";
     text = ''
       data="$HOME/${dataDir}"
       mkdir -p "$data"/{cache,config,local,custom_nodes,models,user-checkpoints,hf-hub,torch-hub,input,output,user,user-scripts}
-      # IPv4 only for phones on the LAN: a bare -p would also bind this PC's global IPv6 address, and ComfyUI has no login
+      # Host network so strata_gate.py reaches Strata on loopback; --listen 0.0.0.0 replaces the image's bare --listen, which would also bind this PC's global IPv6 address
       exec docker run -it --rm --name comfyui \
         --device nvidia.com/gpu=all \
         --memory=${memoryMax} \
-        -p 0.0.0.0:8188:8188 \
+        --network=host \
         -v "$data/cache:/root/.cache" \
         -v "$data/config:/root/.config" \
         -v "$data/local:/root/.local" \
@@ -33,13 +33,14 @@ let
         -v "$data/models:/root/ComfyUI/models" \
         -v "$data/user-checkpoints:/root/user-checkpoints" \
         -v ${extraModelPaths}:/root/extra_model_paths.yaml:ro \
+        -v ${./strata_gate.py}:/root/ComfyUI/custom_nodes/strata_gate.py:ro \
         -v "$data/hf-hub:/root/.cache/huggingface/hub" \
         -v "$data/torch-hub:/root/.cache/torch/hub" \
         -v "$data/input:/root/ComfyUI/input" \
         -v "$data/output:/root/ComfyUI/output" \
         -v "$data/user:/root/ComfyUI/user" \
         -v "$data/user-scripts:/root/user-scripts" \
-        -e CLI_ARGS="--fast --extra-model-paths-config /root/extra_model_paths.yaml" \
+        -e CLI_ARGS="--fast --listen 0.0.0.0 --extra-model-paths-config /root/extra_model_paths.yaml" \
         ${image}
     '';
   };
