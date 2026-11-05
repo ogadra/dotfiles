@@ -33,7 +33,9 @@ in
     "36" = disabled;
     # Dock hiding on/off, Option+Command+D
     "52" = disabled;
-    # Ctrl+Space selects the character selection in herdr's copy mode instead of the next input source
+    # Ctrl+Space selects the character selection in herdr's copy mode instead of the previous input source
+    "60" = disabled;
+    # Next input source, Control+Option+Space
     "61" = disabled;
     # Spotlight search, Command+Space
     "64" = disabled;
