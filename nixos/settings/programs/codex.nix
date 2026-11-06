@@ -47,6 +47,9 @@ in
     "codex/hooks/gh/block-pr-close.sh" = {
       source = shared + "/scripts/gh/block-pr-close.sh";
     };
+    "codex/hooks/gh/block-reply.sh" = {
+      source = shared + "/scripts/gh/block-reply.sh";
+    };
   }
   // (
     if isucon then
