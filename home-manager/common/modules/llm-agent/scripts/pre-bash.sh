@@ -14,6 +14,9 @@ fi
 
 SEGMENTS=$(printf '%s' "$CMD" | "$SCRIPT_DIR/normalize.sh")
 
+# normalize.sh splits quoted multi-line arguments apart, so guards that read such an argument need the command as written
+export AGENT_RAW_COMMAND="$CMD"
+
 deny() {
   printf 'Blocked: %s\n' "$1" >&2
   exit 2

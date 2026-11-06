@@ -90,6 +90,7 @@ in
       shared + "/scripts/gh/block-repo-clone.sh"
     );
     ".config/devin/scripts/gh/block-pr-close.sh" = mkScript (shared + "/scripts/gh/block-pr-close.sh");
+    ".config/devin/scripts/gh/block-reply.sh" = mkScript (shared + "/scripts/gh/block-reply.sh");
   }
   // (
     if isucon then
