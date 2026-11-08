@@ -7,7 +7,13 @@ import logging
 import os
 import uuid
 
-from aiohttp import ClientConnectorError, ClientSession, ClientTimeout, web
+from aiohttp import (
+    ClientConnectionResetError,
+    ClientConnectorError,
+    ClientSession,
+    ClientTimeout,
+    web,
+)
 
 LISTEN_PORT = int(os.environ["GATEWAY_PORT"])
 STRATA_URL = os.environ["STRATA_URL"]
@@ -28,6 +34,8 @@ STRATA_ITEM_TYPES = {
     "custom_tool_call",
     "custom_tool_call_output",
 }
+# Strata seals its own reasoning as "strata.r1:<base64>"; OpenAI's is opaque without this prefix
+STRATA_REASONING_PREFIX = "strata."
 # Marks a compaction item this gateway wrote, so its summary can be read back
 SUMMARY_MARKER = "strata-summary:"
 SUMMARY_PREFIX = "Summary of the earlier conversation, written when the context was compacted:\n\n"
@@ -116,6 +124,12 @@ def summary_message(text):
     }
 
 
+def is_strata_reasoning(item):
+    return (item.get("encrypted_content") or STRATA_REASONING_PREFIX).startswith(
+        STRATA_REASONING_PREFIX
+    )
+
+
 def for_strata(items):
     """Keep what Strata accepts, and turn this gateway's compaction items into their summary."""
     kept = []
@@ -128,7 +142,7 @@ def for_strata(items):
                 kept.append(summary_message(text))
         elif kind == "reasoning":
             # OpenAI's reasoning is encrypted and useless to Strata
-            if not item.get("encrypted_content"):
+            if is_strata_reasoning(item):
                 kept.append(item)
         elif kind in STRATA_ITEM_TYPES:
             kept.append(item)
@@ -144,8 +158,8 @@ def for_openai(items):
         if kind == "compaction" and (text := decode_summary(item)) is not None:
             kept.append(summary_message(text))
             changed = True
-        elif kind == "reasoning" and not item.get("encrypted_content"):
-            # Strata's plain reasoning; OpenAI only takes back its own encrypted reasoning
+        elif kind == "reasoning" and is_strata_reasoning(item):
+            # OpenAI only takes back its own encrypted reasoning
             changed = True
         else:
             kept.append(item)
@@ -172,9 +186,13 @@ async def relay(request, response):
         headers={k: v for k, v in response.headers.items() if k.lower() not in HOP_BY_HOP},
     )
     await out.prepare(request)
-    async for chunk in response.content.iter_any():
-        await out.write(chunk)
-    await out.write_eof()
+    try:
+        async for chunk in response.content.iter_any():
+            await out.write(chunk)
+        await out.write_eof()
+    except ClientConnectionResetError:
+        # codex hangs up once it reads response.completed, before the stream ends
+        pass
     return out
 
 
@@ -277,8 +295,9 @@ async def handle(request):
             raw = json.dumps(body).encode()
 
     if path == "models":
-        # The catalog is rewritten below, so ask for it uncompressed
+        # Rewritten below, so fetched uncompressed; with no header aiohttp would ask for gzip
         headers = {k: v for k, v in headers.items() if k.lower() != "accept-encoding"}
+        headers["Accept-Encoding"] = "identity"
 
     url = f"{upstream_base(request)}/{path}"
     async with session.request(
