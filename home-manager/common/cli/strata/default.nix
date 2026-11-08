@@ -56,11 +56,8 @@ let
   # Setup downloads the model into this data folder at its own pinned revision and SHA-256, because 84.5 GB in the closure overflows CI runners and cachix
   dataDir = "Documents/Strata";
 
-  # Loopback only: Open WebUI in nixos/settings/programs/strata.nix is the LAN entry point, and strata-codex is the local CLI client
+  # Loopback only: Open WebUI in nixos/settings/programs/strata.nix is the one client and the LAN entry point
   servePort = 8792;
-
-  # Tokens; shared by setup and the codex profile so codex compacts before the server runs out of context
-  contextTokens = 65536;
 
   # IQ3_S wants ~60 GiB of RAM on this swapless 62 GiB PC, which froze the desktop; 44 GiB leaves ~7 GiB above the desktop's usual ~11 GiB
   memoryMax = "44G";
@@ -95,7 +92,7 @@ let
   strataServeInner = pkgs.writeShellScript "strata-serve-inner" ''
     set -euo pipefail
     # Idempotent prepare; --low-ram mmap reads experts via the page cache the cgroup cap can reclaim, and 1536 MiB VRAM stays free for the display
-    ${strataCli}/bin/strata install --family qwen --model IQ3_S --context ${toString contextTokens} --vram-reserve-mib 1536 \
+    ${strataCli}/bin/strata install --family qwen --model IQ3_S --context 65536 --vram-reserve-mib 1536 \
       --low-ram mmap --data-dir "$HOME/${dataDir}" --yes --no-start
     # Setup writes the run config under the install folder, named after the model, and rewrites it on every install, so add the GPU sharing keys afterwards
     config="$HOME/.local/share/strata/install/strata-iq3_s.json"
@@ -115,46 +112,12 @@ let
         -p MemoryHigh=${memoryHigh} -p MemoryMax=${memoryMax} ${strataServeInner}
     '';
   };
-
-  # Settings from `strata connect codex --context 65536`, as a profile so the usual codex config stays untouched
-  codexProfile = (pkgs.formats.toml { }).generate "strata.config.toml" {
-    model = "strata";
-    model_provider = "strata";
-    model_context_window = contextTokens;
-    # Tokens; Strata's suggestion for a 64K window, leaving room for codex's ~8.6K system prompt and tools
-    model_auto_compact_token_limit = 32142;
-    model_reasoning_summary = "auto";
-    approval_policy = "never";
-    sandbox_mode = "workspace-write";
-    check_for_update_on_startup = false;
-    model_providers.strata = {
-      name = "Strata (local)";
-      base_url = "http://127.0.0.1:${toString servePort}/v1";
-      wire_api = "responses";
-      env_key = "STRATA_API_KEY";
-      # Milliseconds; loading the model and waiting for ComfyUI can keep the stream silent for minutes
-      stream_idle_timeout_ms = 600000;
-    };
-  };
-
-  # Runs the codex from home-manager/common/cli/codex, whose wrapper adds no ogadra profile when the first argument is an option
-  strataCodex = pkgs.writeShellApplication {
-    name = "strata-codex";
-    text = ''
-      # strata serve has no key, but codex refuses to send without env_key set
-      export STRATA_API_KEY=strata-local
-      exec codex --profile strata "$@"
-    '';
-  };
 in
 {
   home.packages = [
     strataCli
     strataServe
-    strataCodex
   ];
-
-  home.file.".codex/strata.config.toml".source = codexProfile;
 
   # Hand the pinned feed to Strata's own updater rather than unpacking into components/, and only while no engine exists since a newer accepted feed refuses this one
   home.activation.installStrataEngine = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
