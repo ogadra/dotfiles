@@ -22,7 +22,8 @@ while IFS= read -r SEG; do
       esac
       # An empty -C is a no-op
       [ -z "$DIR" ] && DIR=.
-      case "$DIR" in "~"|"~/"*) DIR=$HOME${DIR#~} ;; esac
+      # Slice off the tilde by offset because bash tilde-expands a bare ~ inside ${DIR#~}, so that prefix never matches
+      case "$DIR" in "~"|"~/"*) DIR=$HOME${DIR:1} ;; esac
       # `cd -` needs OLDPWD, which is untracked
       [ "$DIR" = "-" ] && continue
       # A failed cd keeps the old cwd, matching a `;` chain
