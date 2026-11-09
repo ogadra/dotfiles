@@ -1,0 +1,606 @@
+Modified by ogadra: mark each sidebar tab and space whose panes run no agent with a square icon for its shells' command state, read from whether a shell's foreground process group is its own: running while a command holds the terminal, unread once one finishes while no client views the tab until a client does, and idle otherwise, colored like the agent states they mirror; a space takes the state of the tab that most needs attention. Applied to herdr v0.9.5 (Apache-2.0).
+
+diff --git a/src/client/shell/endpoint_sidebar.rs b/src/client/shell/endpoint_sidebar.rs
+index 9698248..2628799 100644
+--- a/src/client/shell/endpoint_sidebar.rs
++++ b/src/client/shell/endpoint_sidebar.rs
+@@ -471,8 +471,12 @@ pub(super) fn render_expanded(
+                 super::sidebar::render_workspace_rows(
+                     buffer,
+                     nested,
+-                    status,
+-                    config.status_indicators,
++                    super::sidebar::space_status_icon(
++                        snapshot,
++                        &workspace.workspace_id,
++                        status,
++                        config,
++                    ),
+                     entry,
+                     tokens,
+                     endpoint_active && workspace.focused,
+diff --git a/src/client/shell/sidebar.rs b/src/client/shell/sidebar.rs
+index 0f8d087..eac653e 100644
+--- a/src/client/shell/sidebar.rs
++++ b/src/client/shell/sidebar.rs
+@@ -92,14 +92,19 @@ pub(crate) fn render_collapsed_sidebar(
+             &format!("{:<2}", index + 1),
+             number_style,
+         );
+-        let status = workspace.agent_status;
++        let (icon, color) = space_status_icon(
++            snapshot,
++            &workspace.workspace_id,
++            workspace.agent_status,
++            config,
++        );
+         put_text(
+             buffer,
+             rect.x.saturating_add(2),
+             rect.y,
+             rect.width.saturating_sub(2),
+-            status_icon(status, config.status_indicators),
+-            Style::default().fg(status_color(status, palette)),
++            icon,
++            Style::default().fg(color),
+         );
+         hits.workspaces.push(WorkspaceHit {
+             rect,
+@@ -336,8 +341,12 @@ pub(crate) fn render_sidebar(
+         render_workspace_rows(
+             buffer,
+             rect,
+-            status,
+-            config.status_indicators,
++            space_status_icon(
++                snapshot,
++                &workspace.workspace_id,
++                status,
++                config,
++            ),
+             entry,
+             rows,
+             workspace.focused,
+@@ -675,6 +684,24 @@ pub(in crate::client::shell) fn render_parent_group_toggle(
+     Some((toggle, key))
+ }
+ 
++/// The space's icon by the same rule as its tabs, with its shells' state taken from the tab
++/// that most needs attention.
++pub(in crate::client::shell) fn space_status_icon(
++    snapshot: &ClientShellSnapshot,
++    workspace_id: &str,
++    status: crate::api::schema::AgentStatus,
++    config: &ClientShellConfig,
++) -> (&'static str, ratatui::style::Color) {
++    let activity = snapshot
++        .tabs
++        .iter()
++        .filter(|tab| tab.workspace_id == workspace_id)
++        .map(|tab| tab.activity)
++        .max_by_key(|activity| activity.priority())
++        .unwrap_or_default();
++    super::sidebar_tabs::status_or_activity_icon(status, activity, config)
++}
++
+ pub(in crate::client::shell) fn displayed_workspace_status(
+     snapshot: &ClientShellSnapshot,
+     workspace: &ClientShellWorkspace,
+@@ -737,8 +764,7 @@ pub(in crate::client::shell) fn workspace_rows(
+ pub(in crate::client::shell) fn render_workspace_rows(
+     buffer: &mut Buffer,
+     area: Rect,
+-    status: crate::api::schema::AgentStatus,
+-    indicators: crate::config::StatusIndicatorStyle,
++    (icon, icon_color): (&str, ratatui::style::Color),
+     entry: &WorkspaceEntry,
+     rows: Vec<Vec<crate::ui::ResolvedToken>>,
+     focused: bool,
+@@ -798,11 +824,8 @@ pub(in crate::client::shell) fn render_workspace_rows(
+         });
+         let spans = crate::ui::resolved_token_spans(
+             row,
+-            (
+-                status_icon(status, indicators),
+-                Style::default().fg(status_color(status, palette)),
+-            ),
+-            Style::default().fg(status_color(status, palette)),
++            (icon, Style::default().fg(icon_color)),
++            Style::default().fg(icon_color),
+             workspace_style,
+             secondary_style,
+             Style::default().fg(palette.overlay1),
+diff --git a/src/client/shell/sidebar_tabs.rs b/src/client/shell/sidebar_tabs.rs
+index cd2827c..8357900 100644
+--- a/src/client/shell/sidebar_tabs.rs
++++ b/src/client/shell/sidebar_tabs.rs
+@@ -197,14 +197,8 @@ fn render_tab_row(
+     };
+     let right = rect.right();
+     let x = put_segment(buffer, rect.x, rect.y, right, " ", Style::default());
+-    let x = put_segment(
+-        buffer,
+-        x,
+-        rect.y,
+-        right,
+-        status_icon(tab.agent_status, config.status_indicators),
+-        Style::default().fg(status_color(tab.agent_status, palette)),
+-    );
++    let (icon, color) = tab_status_icon(tab, config);
++    let x = put_segment(buffer, x, rect.y, right, icon, Style::default().fg(color));
+     // An auto-named tab is only its number, so the shell's title (the running or last command)
+     // says more; a name the user or an agent gave the tab is kept as is.
+     let name = match (&tab.title, tab.custom_label) {
+@@ -230,6 +224,38 @@ fn render_tab_row(
+     }
+ }
+ 
++fn tab_status_icon(
++    tab: &ClientShellTab,
++    config: &ClientShellConfig,
++) -> (&'static str, ratatui::style::Color) {
++    status_or_activity_icon(tab.agent_status, tab.activity, config)
++}
++
++/// A row with an agent keeps the round agent icon. One without reports no agent status, so it
++/// takes a square icon for its shells' command state instead; the shape tells the two kinds
++/// apart, and each state borrows the color of its agent counterpart.
++pub(super) fn status_or_activity_icon(
++    status: crate::api::schema::AgentStatus,
++    activity: crate::protocol::ClientShellTabActivity,
++    config: &ClientShellConfig,
++) -> (&'static str, ratatui::style::Color) {
++    use crate::api::schema::AgentStatus;
++    use crate::protocol::ClientShellTabActivity;
++
++    if status != AgentStatus::Unknown {
++        return (
++            status_icon(status, config.status_indicators),
++            status_color(status, &config.palette),
++        );
++    }
++    let (icon, status) = match activity {
++        ClientShellTabActivity::Running => ("■", AgentStatus::Working),
++        ClientShellTabActivity::Unread => ("■", AgentStatus::Done),
++        ClientShellTabActivity::Idle => ("□", AgentStatus::Idle),
++    };
++    (icon, status_color(status, &config.palette))
++}
++
+ fn focused_workspace_tabs(snapshot: &ClientShellSnapshot) -> impl Iterator<Item = &ClientShellTab> {
+     snapshot
+         .tabs
+diff --git a/src/client/shell/tests/chrome_context.rs b/src/client/shell/tests/chrome_context.rs
+index 1250d17..7e9f4e7 100644
+--- a/src/client/shell/tests/chrome_context.rs
++++ b/src/client/shell/tests/chrome_context.rs
+@@ -15,6 +15,7 @@ fn tab_overflow_controls_scroll_the_client_owned_tab_bar() {
+         title: None,
+         path: None,
+         ssh: false,
++        activity: Default::default(),
+     }));
+     let mut state = ClientShellState::new(ClientShellConfig::from_config(&Config::default()));
+     state.set_snapshot(Box::new(snapshot));
+@@ -77,6 +78,7 @@ fn focused_last_overflow_tab_shows_its_full_label() {
+             title: None,
+             path: None,
+             ssh: false,
++            activity: Default::default(),
+         })
+         .collect();
+     let mut state = ClientShellState::new(ClientShellConfig::from_config(&Config::default()));
+diff --git a/src/client/shell/tests/keybindings_settings.rs b/src/client/shell/tests/keybindings_settings.rs
+index 7a5753a..28931d6 100644
+--- a/src/client/shell/tests/keybindings_settings.rs
++++ b/src/client/shell/tests/keybindings_settings.rs
+@@ -266,6 +266,7 @@ fn tab_bar_renders_endpoint_status_ellipses_and_clamps_to_useful_scroll() {
+             title: None,
+             path: None,
+             ssh: false,
++            activity: Default::default(),
+         });
+     }
+     let mut config = ClientShellConfig::from_config(&Config::default());
+@@ -321,6 +322,7 @@ fn inactive_auto_named_tab_label_does_not_stack_terminal_faint() {
+         title: None,
+         path: None,
+         ssh: false,
++        activity: Default::default(),
+     });
+     let mut state = ClientShellState::new(ClientShellConfig::from_config(&Config::default()));
+     state.set_snapshot(Box::new(projected));
+diff --git a/src/client/shell/tests/mobile.rs b/src/client/shell/tests/mobile.rs
+index 9a0ffc1..455da54 100644
+--- a/src/client/shell/tests/mobile.rs
++++ b/src/client/shell/tests/mobile.rs
+@@ -361,6 +361,7 @@ fn mobile_background_workspace_uses_its_own_active_tab_status() {
+         title: None,
+         path: None,
+         ssh: false,
++        activity: Default::default(),
+     });
+     projected.workspaces.push(ClientShellWorkspace {
+         workspace_id: "ws_2".into(),
+@@ -389,6 +390,7 @@ fn mobile_background_workspace_uses_its_own_active_tab_status() {
+             title: None,
+             path: None,
+             ssh: false,
++            activity: Default::default(),
+         });
+     }
+     state.set_snapshot(Box::new(projected));
+diff --git a/src/client/shell/tests/mod.rs b/src/client/shell/tests/mod.rs
+index 86766c0..bf70b3a 100644
+--- a/src/client/shell/tests/mod.rs
++++ b/src/client/shell/tests/mod.rs
+@@ -53,6 +53,7 @@ pub(super) fn snapshot() -> ClientShellSnapshot {
+             title: None,
+             path: None,
+             ssh: false,
++            activity: Default::default(),
+         }],
+         panes: vec![ClientShellPane {
+             pane_id: "pane_1".into(),
+diff --git a/src/client/shell/tests/sidebar_tabs.rs b/src/client/shell/tests/sidebar_tabs.rs
+index d1653e1..76ded33 100644
+--- a/src/client/shell/tests/sidebar_tabs.rs
++++ b/src/client/shell/tests/sidebar_tabs.rs
+@@ -20,6 +20,7 @@ fn sidebar_tabs_state(tab_count: usize, focused: usize) -> ClientShellState {
+             title: None,
+             path: None,
+             ssh: false,
++            activity: Default::default(),
+         });
+     }
+     projected.focused_tab_id = Some(format!("tab_{focused}"));
+@@ -314,3 +315,69 @@ fn status_text_turns_red_while_the_viewed_tab_runs_ssh() {
+         state.config.palette.red
+     );
+ }
++
++#[test]
++fn tabs_without_an_agent_show_their_command_state_as_a_square() {
++    let mut state = sidebar_tabs_state(4, 1);
++    let mut projected = state.snapshot.as_deref().expect("snapshot").clone();
++    projected.tabs[0].agent_status = AgentStatus::Working;
++    projected.tabs[0].activity = crate::protocol::ClientShellTabActivity::Running;
++    for (tab, activity) in projected.tabs[1..].iter_mut().zip([
++        crate::protocol::ClientShellTabActivity::Running,
++        crate::protocol::ClientShellTabActivity::Unread,
++        crate::protocol::ClientShellTabActivity::Idle,
++    ]) {
++        tab.agent_status = AgentStatus::Unknown;
++        tab.activity = activity;
++    }
++    state.set_snapshot(Box::new(projected));
++    let frame = state.compose(106, 30).expect("sidebar tabs");
++    let layout = state.layout(106, 30);
++    let buffer = frame.to_ratatui_buffer().expect("sidebar tabs buffer");
++    let icon = |name: &str| {
++        let (column, row) = cell_symbol_position(&frame, layout.sidebar, name);
++        let cell = buffer.cell((column - 2, row)).expect("tab icon cell");
++        (cell.symbol().to_owned(), cell.fg)
++    };
++    let palette = &state.config.palette;
++
++    assert_eq!(icon("name1"), ("●".to_owned(), palette.yellow));
++    assert_eq!(icon("name2"), ("■".to_owned(), palette.yellow));
++    assert_eq!(icon("name3"), ("■".to_owned(), palette.teal));
++    assert_eq!(icon("name4"), ("□".to_owned(), palette.green));
++}
++
++#[test]
++fn a_space_without_an_agent_shows_the_command_state_its_tabs_most_need_attention_for() {
++    let mut state = sidebar_tabs_state(3, 1);
++    let mut projected = state.snapshot.as_deref().expect("snapshot").clone();
++    projected.workspaces[0].agent_status = AgentStatus::Unknown;
++    for (tab, activity) in projected.tabs.iter_mut().zip([
++        crate::protocol::ClientShellTabActivity::Idle,
++        crate::protocol::ClientShellTabActivity::Unread,
++        crate::protocol::ClientShellTabActivity::Idle,
++    ]) {
++        tab.agent_status = AgentStatus::Unknown;
++        tab.activity = activity;
++    }
++    state.set_snapshot(Box::new(projected.clone()));
++    let space_icon = |state: &mut ClientShellState| {
++        let frame = state.compose(106, 30).expect("sidebar tabs");
++        let layout = state.layout(106, 30);
++        let buffer = frame.to_ratatui_buffer().expect("sidebar tabs buffer");
++        let (column, row) = cell_symbol_position(&frame, layout.sidebar, "client-shell");
++        let cell = buffer.cell((column - 2, row)).expect("space icon cell");
++        (cell.symbol().to_owned(), cell.fg)
++    };
++    let palette = state.config.palette.clone();
++
++    assert_eq!(space_icon(&mut state), ("■".to_owned(), palette.teal));
++
++    projected.tabs[2].activity = crate::protocol::ClientShellTabActivity::Running;
++    state.set_snapshot(Box::new(projected.clone()));
++    assert_eq!(space_icon(&mut state), ("■".to_owned(), palette.yellow));
++
++    projected.workspaces[0].agent_status = AgentStatus::Done;
++    state.set_snapshot(Box::new(projected));
++    assert_eq!(space_icon(&mut state), ("●".to_owned(), palette.teal));
++}
+diff --git a/src/protocol/wire.rs b/src/protocol/wire.rs
+index ad78d0b..80af86a 100644
+--- a/src/protocol/wire.rs
++++ b/src/protocol/wire.rs
+@@ -1061,6 +1061,34 @@ pub struct ClientShellTab {
+     /// Whether the tab's focused pane runs ssh in the foreground.
+     #[serde(default)]
+     pub ssh: bool,
++    /// Whether a shell in the tab runs a command, or finished one the client has not viewed.
++    #[serde(default)]
++    pub activity: ClientShellTabActivity,
++}
++
++/// Command state of the shells in a tab, tracked from their foreground process group rather
++/// than from agent detection, so it covers plain shells that report no agent status.
++#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]
++pub enum ClientShellTabActivity {
++    /// Every shell is at its prompt and its last command was viewed.
++    #[default]
++    Idle,
++    /// A shell runs a command in the foreground.
++    Running,
++    /// A command finished while the tab was not viewed.
++    Unread,
++}
++
++impl ClientShellTabActivity {
++    /// Rank for showing several shells as one icon: a running command outranks an unread one,
++    /// which outranks an idle prompt.
++    pub fn priority(self) -> u8 {
++        match self {
++            Self::Running => 2,
++            Self::Unread => 1,
++            Self::Idle => 0,
++        }
++    }
+ }
+ 
+ #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+@@ -2852,6 +2880,7 @@ mod tests {
+                 title: None,
+                 path: None,
+                 ssh: false,
++                activity: ClientShellTabActivity::Idle,
+             }],
+             panes: vec![ClientShellPane {
+                 pane_id: "w1:p1".into(),
+diff --git a/src/server/client_shell.rs b/src/server/client_shell.rs
+index 8f0633e..fb62115 100644
+--- a/src/server/client_shell.rs
++++ b/src/server/client_shell.rs
+@@ -123,11 +123,27 @@ pub(super) fn snapshot_with_completions(
+             let ssh = state
+                 .foreground_ssh_pid_for_pane(pane_id, &app.terminal_runtimes)
+                 .is_some();
++            let focused = focused_tab_id.as_deref() == Some(tab_id.as_str());
++            // Every pane is observed, not just the focused one, so a command that finishes in a
++            // split the client is not looking at still marks the tab
++            let activity = state
++                .panes
++                .iter()
++                .map(|(pane_id, pane)| {
++                    super::shell_activity::observe(
++                        &pane.attached_terminal_id,
++                        state.foreground_command_running_for_pane(*pane_id, &app.terminal_runtimes),
++                        focused,
++                    )
++                })
++                .max_by_key(|activity| activity.priority())
++                .unwrap_or_default();
+             protocol::ClientShellTab {
+                 title,
+                 path,
+                 ssh,
+-                focused: focused_tab_id.as_deref() == Some(tab_id.as_str()),
++                activity,
++                focused,
+                 tab_id,
+                 workspace_id: tab.workspace_id,
+                 number: tab.number,
+@@ -138,6 +154,7 @@ pub(super) fn snapshot_with_completions(
+             }
+         })
+         .collect();
++    super::shell_activity::retain(|terminal_id| app.state.terminals.contains_key(terminal_id));
+     let panes: Vec<protocol::ClientShellPane> = snapshot
+         .panes
+         .into_iter()
+diff --git a/src/server/mod.rs b/src/server/mod.rs
+index 4d5e7af..2c87c6d 100644
+--- a/src/server/mod.rs
++++ b/src/server/mod.rs
+@@ -19,6 +19,7 @@ pub(crate) mod pane_input;
+ #[cfg(test)]
+ mod render_scale_benchmark;
+ pub(crate) mod render_stream;
++pub(crate) mod shell_activity;
+ pub(crate) mod shutdown;
+ pub mod socket_paths;
+ pub(crate) mod terminal_attach;
+diff --git a/src/server/shell_activity.rs b/src/server/shell_activity.rs
+new file mode 100644
+index 0000000..5923b42
+--- /dev/null
++++ b/src/server/shell_activity.rs
+@@ -0,0 +1,146 @@
++use std::collections::HashMap;
++use std::sync::{Mutex, OnceLock};
++
++use crate::protocol::ClientShellTabActivity;
++use crate::terminal::TerminalId;
++
++/// What the last snapshot saw of a terminal's shell.
++#[derive(Debug, Clone, Copy, Default)]
++struct Observed {
++    running: bool,
++    unread: bool,
++}
++
++/// Per-terminal command history behind the sidebar's shell tab icons.
++#[derive(Debug, Default)]
++struct ShellActivity {
++    observed: HashMap<TerminalId, Observed>,
++}
++
++impl ShellActivity {
++    /// A command seen running and gone by a snapshot of a client that is not viewing the tab
++    /// leaves the terminal unread until a client views it or the shell starts another command.
++    fn observe(
++        &mut self,
++        terminal_id: &TerminalId,
++        running: bool,
++        viewed: bool,
++    ) -> ClientShellTabActivity {
++        let entry = self.observed.entry(terminal_id.clone()).or_default();
++        let finished = entry.running && !running;
++        entry.running = running;
++        entry.unread = !running && !viewed && (entry.unread || finished);
++        if running {
++            ClientShellTabActivity::Running
++        } else if entry.unread {
++            ClientShellTabActivity::Unread
++        } else {
++            ClientShellTabActivity::Idle
++        }
++    }
++
++    fn retain(&mut self, live: impl Fn(&TerminalId) -> bool) {
++        self.observed.retain(|terminal_id, _| live(terminal_id));
++    }
++}
++
++/// Snapshots are built from a shared `&App`, so the history lives here rather than on
++/// `TerminalState`, which every snapshot caller would then have to borrow mutably.
++fn shared() -> &'static Mutex<ShellActivity> {
++    static SHARED: OnceLock<Mutex<ShellActivity>> = OnceLock::new();
++    SHARED.get_or_init(Default::default)
++}
++
++/// Records whether the terminal's shell runs a command now and returns what its tab shows.
++pub(crate) fn observe(
++    terminal_id: &TerminalId,
++    running: bool,
++    viewed: bool,
++) -> ClientShellTabActivity {
++    match shared().lock() {
++        Ok(mut activity) => activity.observe(terminal_id, running, viewed),
++        Err(_) => ClientShellTabActivity::Idle,
++    }
++}
++
++/// Drops terminals that no longer exist, so closed panes do not accumulate.
++pub(crate) fn retain(live: impl Fn(&TerminalId) -> bool) {
++    if let Ok(mut activity) = shared().lock() {
++        activity.retain(live);
++    }
++}
++
++#[cfg(test)]
++mod tests {
++    use super::*;
++
++    #[test]
++    fn a_command_that_finishes_unviewed_stays_unread_until_viewed() {
++        let mut activity = ShellActivity::default();
++        let terminal = TerminalId::alloc();
++
++        assert_eq!(
++            activity.observe(&terminal, true, false),
++            ClientShellTabActivity::Running
++        );
++        assert_eq!(
++            activity.observe(&terminal, false, false),
++            ClientShellTabActivity::Unread
++        );
++        assert_eq!(
++            activity.observe(&terminal, false, false),
++            ClientShellTabActivity::Unread
++        );
++        assert_eq!(
++            activity.observe(&terminal, false, true),
++            ClientShellTabActivity::Idle
++        );
++        assert_eq!(
++            activity.observe(&terminal, false, false),
++            ClientShellTabActivity::Idle
++        );
++    }
++
++    #[test]
++    fn a_command_that_finishes_while_viewed_is_read() {
++        let mut activity = ShellActivity::default();
++        let terminal = TerminalId::alloc();
++        activity.observe(&terminal, true, true);
++
++        assert_eq!(
++            activity.observe(&terminal, false, true),
++            ClientShellTabActivity::Idle
++        );
++        assert_eq!(
++            activity.observe(&terminal, false, false),
++            ClientShellTabActivity::Idle
++        );
++    }
++
++    #[test]
++    fn a_new_command_clears_the_unread_mark() {
++        let mut activity = ShellActivity::default();
++        let terminal = TerminalId::alloc();
++        activity.observe(&terminal, true, false);
++        activity.observe(&terminal, false, false);
++
++        assert_eq!(
++            activity.observe(&terminal, true, false),
++            ClientShellTabActivity::Running
++        );
++    }
++
++    #[test]
++    fn retain_forgets_closed_terminals() {
++        let mut activity = ShellActivity::default();
++        let closed = TerminalId::alloc();
++        activity.observe(&closed, true, false);
++
++        activity.retain(|terminal_id| terminal_id != &closed);
++
++        assert_eq!(
++            activity.observe(&closed, false, false),
++            ClientShellTabActivity::Idle
++        );
++    }
++}
+diff --git a/src/workspace/tab.rs b/src/workspace/tab.rs
+index 90b6750..c926062 100644
+--- a/src/workspace/tab.rs
++++ b/src/workspace/tab.rs
+@@ -575,4 +575,23 @@ impl Tab {
+             .find(|process| process.name == "ssh")
+             .map(|process| process.pid)
+     }
++
++    /// Whether the pane's shell has handed the terminal to a command. The shell leads its own
++    /// process group, so any other foreground group is a job it runs; `pane_shell_is_idle` is
++    /// not used because it also counts the prompt's helpers, which stay in the shell's group.
++    pub fn foreground_command_running_for_pane(
++        &self,
++        pane_id: PaneId,
++        terminal_runtimes: &TerminalRuntimeRegistry,
++    ) -> bool {
++        let Some(shell_pid) = self
++            .terminal_id(pane_id)
++            .and_then(|terminal_id| terminal_runtimes.get(terminal_id))
++            .and_then(|rt| rt.child_pid())
++        else {
++            return false;
++        };
++        crate::detect::foreground_process_group_id(shell_pid)
++            .is_some_and(|group| group != shell_pid)
++    }
+ }
