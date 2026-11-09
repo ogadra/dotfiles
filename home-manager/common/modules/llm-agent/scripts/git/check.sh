@@ -22,7 +22,7 @@ while IFS= read -r SEG; do
       esac
       # An empty -C is a no-op
       [ -z "$DIR" ] && DIR=.
-      # Slice off the tilde by offset because bash tilde-expands a bare ~ inside ${DIR#~}, so that prefix never matches
+      # ${DIR#~} would tilde-expand its own pattern
       case "$DIR" in "~"|"~/"*) DIR=$HOME${DIR:1} ;; esac
       # `cd -` needs OLDPWD, which is untracked
       [ "$DIR" = "-" ] && continue
