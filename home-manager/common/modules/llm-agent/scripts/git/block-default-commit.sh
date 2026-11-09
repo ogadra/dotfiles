@@ -21,7 +21,9 @@ while IFS= read -r SEG; do
 
   for D in $DEFAULTS; do
     if [ "$BRANCH" = "$D" ]; then
-      printf 'Blocked: committing on the default branch "%s" is not allowed. Cut a branch first.\n' "$BRANCH" >&2
+      # Name the repository because RUN_CWD can differ from the session cwd after `cd` or `git -C`
+      REPO=$(git -C "$RUN_CWD" rev-parse --show-toplevel 2>/dev/null) || REPO=$RUN_CWD
+      printf 'Blocked: %s is on default branch "%s". Cut a branch first.\n' "$REPO" "$BRANCH" >&2
       exit 2
     fi
   done
