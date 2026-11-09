@@ -38,8 +38,26 @@ def is_ready(pull_request: dict[str, Any]) -> bool:
     )
 
 
-def newest_ready(group: list[dict[str, Any]]) -> dict[str, Any] | None:
-    return next((pull_request for pull_request in reversed(group) if is_ready(pull_request)), None)
+def is_thawed(pull_request: dict[str, Any]) -> bool:
+    # Waiting for green checks would keep every thawed PR open while a build stays broken.
+    checks: list[dict[str, Any]] = pull_request["statusCheckRollup"]
+    return any(
+        check["__typename"] == "StatusContext"
+        and check["context"] == "merge-freeze"
+        and check["state"] == "SUCCESS"
+        for check in checks
+    )
+
+
+def newest_winner(group: list[dict[str, Any]]) -> dict[str, Any] | None:
+    return next(
+        (
+            pull_request
+            for pull_request in reversed(group)
+            if is_ready(pull_request) or is_thawed(pull_request)
+        ),
+        None,
+    )
 
 
 def close(pull_request: dict[str, Any], winner: dict[str, Any]) -> None:
@@ -70,7 +88,7 @@ def main() -> None:
     closed: list[int] = []
     for group in groups.values():
         group.sort(key=lambda pull_request: pull_request["createdAt"])
-        winner = newest_ready(group)
+        winner = newest_winner(group)
         if winner is None:
             continue
         for pull_request in group:
