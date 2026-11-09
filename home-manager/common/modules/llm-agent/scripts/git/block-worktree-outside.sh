@@ -50,7 +50,8 @@ while IFS= read -r SEG; do
     \"*\") TARGET=${TARGET#\"}; TARGET=${TARGET%\"} ;;
     \'*\') TARGET=${TARGET#\'}; TARGET=${TARGET%\'} ;;
   esac
-  case "$TARGET" in "~"|"~/"*) TARGET=$HOME${TARGET#~} ;; esac
+  # ${TARGET#~} would tilde-expand its own pattern
+  case "$TARGET" in "~"|"~/"*) TARGET=$HOME${TARGET:1} ;; esac
 
   # The common dir points at the main repository even from inside a linked worktree, so nested worktrees land beside their siblings
   if ! COMMON=$(git -C "$RUN_CWD" rev-parse --path-format=absolute --git-common-dir 2>/dev/null); then

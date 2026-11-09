@@ -3,7 +3,8 @@
 set -u
 
 deny() {
-  printf 'Blocked: pushing to "%s" on "%s" is not allowed. Open a PR instead.\n' "$1" "$2" >&2
+  REPO=$(git -C "$RUN_CWD" rev-parse --show-toplevel 2>/dev/null) || REPO=$RUN_CWD
+  printf 'Blocked: %s would push to default branch "%s" on "%s". Open a PR instead.\n' "$REPO" "$1" "$2" >&2
   exit 2
 }
 
