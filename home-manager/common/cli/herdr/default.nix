@@ -154,7 +154,7 @@ in
 {
   programs.herdr = {
     enable = true;
-    # Patches the nixpkgs build instead of fetching our own release, so nixpkgs bumps carry the patches without a release workflow; each patch is a diff on top of the ones listed before it
+    # Patches the nixpkgs build instead of fetching our own release, so nixpkgs bumps carry the patches without a release workflow
     package = pkgs.herdr.overrideAttrs (old: {
       patches = (old.patches or [ ]) ++ [
         ./patches/sidebar-tabs.patch

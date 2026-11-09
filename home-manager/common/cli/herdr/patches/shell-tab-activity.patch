@@ -20,7 +20,7 @@ index 9698248..2628799 100644
                      tokens,
                      endpoint_active && workspace.focused,
 diff --git a/src/client/shell/sidebar.rs b/src/client/shell/sidebar.rs
-index 0f8d087..eac653e 100644
+index 0f8d087..aabd956 100644
 --- a/src/client/shell/sidebar.rs
 +++ b/src/client/shell/sidebar.rs
 @@ -92,14 +92,19 @@ pub(crate) fn render_collapsed_sidebar(
@@ -61,12 +61,11 @@ index 0f8d087..eac653e 100644
              entry,
              rows,
              workspace.focused,
-@@ -675,6 +684,24 @@ pub(in crate::client::shell) fn render_parent_group_toggle(
+@@ -675,6 +684,23 @@ pub(in crate::client::shell) fn render_parent_group_toggle(
      Some((toggle, key))
  }
  
-+/// The space's icon by the same rule as its tabs, with its shells' state taken from the tab
-+/// that most needs attention.
++/// The space's icon, taking its shells' state from the tab that most needs attention.
 +pub(in crate::client::shell) fn space_status_icon(
 +    snapshot: &ClientShellSnapshot,
 +    workspace_id: &str,
@@ -86,7 +85,7 @@ index 0f8d087..eac653e 100644
  pub(in crate::client::shell) fn displayed_workspace_status(
      snapshot: &ClientShellSnapshot,
      workspace: &ClientShellWorkspace,
-@@ -737,8 +764,7 @@ pub(in crate::client::shell) fn workspace_rows(
+@@ -737,8 +763,7 @@ pub(in crate::client::shell) fn workspace_rows(
  pub(in crate::client::shell) fn render_workspace_rows(
      buffer: &mut Buffer,
      area: Rect,
@@ -96,7 +95,7 @@ index 0f8d087..eac653e 100644
      entry: &WorkspaceEntry,
      rows: Vec<Vec<crate::ui::ResolvedToken>>,
      focused: bool,
-@@ -798,11 +824,8 @@ pub(in crate::client::shell) fn render_workspace_rows(
+@@ -798,11 +823,8 @@ pub(in crate::client::shell) fn render_workspace_rows(
          });
          let spans = crate::ui::resolved_token_spans(
              row,
@@ -111,7 +110,7 @@ index 0f8d087..eac653e 100644
              secondary_style,
              Style::default().fg(palette.overlay1),
 diff --git a/src/client/shell/sidebar_tabs.rs b/src/client/shell/sidebar_tabs.rs
-index cd2827c..8357900 100644
+index cd2827c..f7942ef 100644
 --- a/src/client/shell/sidebar_tabs.rs
 +++ b/src/client/shell/sidebar_tabs.rs
 @@ -197,14 +197,8 @@ fn render_tab_row(
@@ -131,7 +130,7 @@ index cd2827c..8357900 100644
      // An auto-named tab is only its number, so the shell's title (the running or last command)
      // says more; a name the user or an agent gave the tab is kept as is.
      let name = match (&tab.title, tab.custom_label) {
-@@ -230,6 +224,38 @@ fn render_tab_row(
+@@ -230,6 +224,36 @@ fn render_tab_row(
      }
  }
  
@@ -142,9 +141,7 @@ index cd2827c..8357900 100644
 +    status_or_activity_icon(tab.agent_status, tab.activity, config)
 +}
 +
-+/// A row with an agent keeps the round agent icon. One without reports no agent status, so it
-+/// takes a square icon for its shells' command state instead; the shape tells the two kinds
-+/// apart, and each state borrows the color of its agent counterpart.
++/// Round agent icon if the row has an agent, else a square shell icon colored like its agent twin.
 +pub(super) fn status_or_activity_icon(
 +    status: crate::api::schema::AgentStatus,
 +    activity: crate::protocol::ClientShellTabActivity,
@@ -325,10 +322,10 @@ index d1653e1..76ded33 100644
 +    assert_eq!(space_icon(&mut state), ("●".to_owned(), palette.teal));
 +}
 diff --git a/src/protocol/wire.rs b/src/protocol/wire.rs
-index ad78d0b..80af86a 100644
+index ad78d0b..85290f5 100644
 --- a/src/protocol/wire.rs
 +++ b/src/protocol/wire.rs
-@@ -1061,6 +1061,34 @@ pub struct ClientShellTab {
+@@ -1061,6 +1061,32 @@ pub struct ClientShellTab {
      /// Whether the tab's focused pane runs ssh in the foreground.
      #[serde(default)]
      pub ssh: bool,
@@ -337,8 +334,7 @@ index ad78d0b..80af86a 100644
 +    pub activity: ClientShellTabActivity,
 +}
 +
-+/// Command state of the shells in a tab, tracked from their foreground process group rather
-+/// than from agent detection, so it covers plain shells that report no agent status.
++/// Shell command state of a tab, read from the foreground process group, not agent detection.
 +#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]
 +pub enum ClientShellTabActivity {
 +    /// Every shell is at its prompt and its last command was viewed.
@@ -351,8 +347,7 @@ index ad78d0b..80af86a 100644
 +}
 +
 +impl ClientShellTabActivity {
-+    /// Rank for showing several shells as one icon: a running command outranks an unread one,
-+    /// which outranks an idle prompt.
++    /// Running outranks unread, which outranks idle, when several shells share one icon.
 +    pub fn priority(self) -> u8 {
 +        match self {
 +            Self::Running => 2,
@@ -363,7 +358,7 @@ index ad78d0b..80af86a 100644
  }
  
  #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-@@ -2852,6 +2880,7 @@ mod tests {
+@@ -2852,6 +2878,7 @@ mod tests {
                  title: None,
                  path: None,
                  ssh: false,
@@ -372,16 +367,15 @@ index ad78d0b..80af86a 100644
              panes: vec![ClientShellPane {
                  pane_id: "w1:p1".into(),
 diff --git a/src/server/client_shell.rs b/src/server/client_shell.rs
-index 8f0633e..fb62115 100644
+index 8f0633e..73e5f33 100644
 --- a/src/server/client_shell.rs
 +++ b/src/server/client_shell.rs
-@@ -123,11 +123,27 @@ pub(super) fn snapshot_with_completions(
+@@ -123,11 +123,26 @@ pub(super) fn snapshot_with_completions(
              let ssh = state
                  .foreground_ssh_pid_for_pane(pane_id, &app.terminal_runtimes)
                  .is_some();
 +            let focused = focused_tab_id.as_deref() == Some(tab_id.as_str());
-+            // Every pane is observed, not just the focused one, so a command that finishes in a
-+            // split the client is not looking at still marks the tab
++            // Every pane counts, so a command finishing in an unfocused split still marks the tab
 +            let activity = state
 +                .panes
 +                .iter()
@@ -404,7 +398,7 @@ index 8f0633e..fb62115 100644
                  tab_id,
                  workspace_id: tab.workspace_id,
                  number: tab.number,
-@@ -138,6 +154,7 @@ pub(super) fn snapshot_with_completions(
+@@ -138,6 +153,7 @@ pub(super) fn snapshot_with_completions(
              }
          })
          .collect();
@@ -426,10 +420,10 @@ index 4d5e7af..2c87c6d 100644
  pub(crate) mod terminal_attach;
 diff --git a/src/server/shell_activity.rs b/src/server/shell_activity.rs
 new file mode 100644
-index 0000000..5923b42
+index 0000000..bceb354
 --- /dev/null
 +++ b/src/server/shell_activity.rs
-@@ -0,0 +1,146 @@
+@@ -0,0 +1,144 @@
 +use std::collections::HashMap;
 +use std::sync::{Mutex, OnceLock};
 +
@@ -450,8 +444,7 @@ index 0000000..5923b42
 +}
 +
 +impl ShellActivity {
-+    /// A command seen running and gone by a snapshot of a client that is not viewing the tab
-+    /// leaves the terminal unread until a client views it or the shell starts another command.
++    /// A command that ends while the tab is unviewed stays unread until viewed or a new one starts.
 +    fn observe(
 +        &mut self,
 +        terminal_id: &TerminalId,
@@ -476,8 +469,7 @@ index 0000000..5923b42
 +    }
 +}
 +
-+/// Snapshots are built from a shared `&App`, so the history lives here rather than on
-+/// `TerminalState`, which every snapshot caller would then have to borrow mutably.
++/// Lives outside `TerminalState` because snapshots only get a shared `&App`.
 +fn shared() -> &'static Mutex<ShellActivity> {
 +    static SHARED: OnceLock<Mutex<ShellActivity>> = OnceLock::new();
 +    SHARED.get_or_init(Default::default)
@@ -577,17 +569,15 @@ index 0000000..5923b42
 +    }
 +}
 diff --git a/src/workspace/tab.rs b/src/workspace/tab.rs
-index 90b6750..c926062 100644
+index 90b6750..233276b 100644
 --- a/src/workspace/tab.rs
 +++ b/src/workspace/tab.rs
-@@ -575,4 +575,23 @@ impl Tab {
+@@ -575,4 +575,21 @@ impl Tab {
              .find(|process| process.name == "ssh")
              .map(|process| process.pid)
      }
 +
-+    /// Whether the pane's shell has handed the terminal to a command. The shell leads its own
-+    /// process group, so any other foreground group is a job it runs; `pane_shell_is_idle` is
-+    /// not used because it also counts the prompt's helpers, which stay in the shell's group.
++    /// Compares process groups, since `pane_shell_is_idle` also counts the prompt's helpers.
 +    pub fn foreground_command_running_for_pane(
 +        &self,
 +        pane_id: PaneId,
