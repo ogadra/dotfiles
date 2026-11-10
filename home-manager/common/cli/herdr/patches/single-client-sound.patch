@@ -1,0 +1,46 @@
+Modified by ogadra: send a semantic notification's sound only to the foreground client shell, or to the latest active one when the foreground client is not a shell, and send the others the same notification without it, so attaching several windows to one session plays each sound once. Applied to herdr v0.9.5 (Apache-2.0).
+
+diff --git a/src/server/headless.rs b/src/server/headless.rs
+--- a/src/server/headless.rs
++++ b/src/server/headless.rs
+@@ -1628,6 +1628,27 @@
+                 matches!(client.mode, ClientConnectionMode::ClientShell).then_some(client_id)
+             })
+             .collect::<Vec<_>>();
++        // Each client plays the sounds it receives; muting on the client by outer focus would silence every window while the user is in another app
++        let sound_client_id = self
++            .foreground_client_id
++            .filter(|client_id| client_ids.contains(client_id))
++            .or_else(|| latest_shell_client(&self.clients));
++        let muted = match &msg {
++            ServerMessage::SemanticNotification(event) if event.sound.is_some() => {
++                let muted = ServerMessage::SemanticNotification(protocol::SemanticNotification {
++                    sound: None,
++                    ..event.clone()
++                });
++                match Self::frame_server_message(&muted) {
++                    Ok(framed) => Some(framed),
++                    Err(err) => {
++                        warn!(err = %err, "failed to serialize muted message for client shells");
++                        return false;
++                    }
++                }
++            }
++            _ => None,
++        };
+         let mut sent = false;
+         for client_id in client_ids {
+             let Some(client) = self.clients.get(&client_id) else {
+@@ -1636,7 +1657,11 @@
+             let Some(writer) = &client.writer else {
+                 continue;
+             };
+-            if writer.control.send(serialized.clone()).is_ok() {
++            let framed = match &muted {
++                Some(muted) if Some(client_id) != sound_client_id => muted.clone(),
++                _ => serialized.clone(),
++            };
++            if writer.control.send(framed).is_ok() {
+                 sent = true;
+             } else {
+                 self.remove_client_and_resize_if_needed(client_id);

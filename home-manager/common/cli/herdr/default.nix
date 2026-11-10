@@ -160,6 +160,7 @@ in
         ./patches/sidebar-tabs.patch
         ./patches/copy-mode-emacs.patch
         ./patches/shell-tab-activity.patch
+        ./patches/single-client-sound.patch
       ];
     });
     settings = {
