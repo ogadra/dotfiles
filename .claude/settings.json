@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "deny": [
+      "Bash(make build*)",
+      "Bash(nix build *)"
+    ]
+  }
+}

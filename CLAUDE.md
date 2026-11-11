@@ -15,8 +15,9 @@ Nix Flakes + Home Managerで管理するdotfiles。これらのマシンで使�
 
 ## 検証
 
-- NixOSのプロファイル
-    - `nix build .#nixosConfigurations.<hostname>.config.system.build.toplevel --no-link` で、switchせずに評価とビルドを行う
+- ビルド
+    - AIは `make build` と `nix build` を実行しない
+    - PRを出し、CI(`.github/workflows/build.yml`)の結果を `gh pr checks` で確かめる
 - flakeが参照するスクリプト
     - `nix eval` の前に `git add` でgitに載せる
 
