@@ -15,6 +15,10 @@ let
       replace = "continue";
     }
     {
+      trigger = ";d";
+      replace = "<details>\n</details>";
+    }
+    {
       trigger = ":+1:";
       replace = "👍";
     }
