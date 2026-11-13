@@ -10,19 +10,9 @@ let
       "ls -F -1 -A --color=always"
     else
       "ls -GF -1 -A --color=always";
-  # gomi has no retention setting, and a systemd timer or launchd agent misses runs while the laptop is off, so prune from `rm` instead
-  gomiRm = pkgs.writeShellScriptBin "gomi-rm" ''
-    ${pkgs.gomi}/bin/gomi "$@"
-    status=$?
-    ${pkgs.gomi}/bin/gomi --prune=7d -f >/dev/null 2>&1
-    exit "$status"
-  '';
 in
 {
-  home.packages = [
-    pkgs.gomi
-    gomiRm
-  ];
+  home.packages = [ pkgs.gomi ];
 
   xdg.configFile."gomi/config.yaml".text = ''
     core:

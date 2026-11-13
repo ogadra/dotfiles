@@ -11,7 +11,8 @@
     + builtins.readFile ./agent.zsh;
 
     initContent = ''
-      rm() { gomi-rm "$@"; }
+      # gomi has no retention setting, and a systemd timer or launchd agent misses runs while the laptop is off, so prune on every rm
+      rm() { ${pkgs.gomi}/bin/gomi --prune=7d -f >/dev/null 2>&1; ${pkgs.gomi}/bin/gomi "$@"; }
       copy() { ${if pkgs.stdenv.hostPlatform.isLinux then "wl-copy" else "pbcopy"} "$@"; }
 
       if [[ $options[zle] = on ]]; then
