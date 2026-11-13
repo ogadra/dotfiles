@@ -1,5 +1,6 @@
 {
   config,
+  lib,
   pkgs,
   ...
 }:
@@ -10,9 +11,47 @@ let
       "ls -F -1 -A --color=always"
     else
       "ls -GF -1 -A --color=always";
+  # `-f` skips the confirmation prompt, which would block an unattended run
+  pruneCommand = [
+    "${pkgs.gomi}/bin/gomi"
+    "--prune=7d"
+    "-f"
+  ];
 in
 {
   home.packages = [ pkgs.gomi ];
+
+  # A Persistent timer catches up on a run missed while the machine was off
+  systemd.user.services.gomi-prune = lib.mkIf pkgs.stdenv.hostPlatform.isLinux {
+    Unit.Description = "Remove gomi trash older than 7 days";
+    Service = {
+      Type = "oneshot";
+      ExecStart = lib.escapeShellArgs pruneCommand;
+    };
+  };
+  systemd.user.timers.gomi-prune = lib.mkIf pkgs.stdenv.hostPlatform.isLinux {
+    Unit.Description = "Remove gomi trash older than 7 days daily";
+    Timer = {
+      OnCalendar = "daily";
+      Persistent = true;
+    };
+    Install.WantedBy = [ "timers.target" ];
+  };
+
+  # launchd runs a calendar job missed during sleep on wake, but not one missed while powered off, so also run at login
+  launchd.agents.gomi-prune = lib.mkIf (!pkgs.stdenv.hostPlatform.isLinux) {
+    enable = true;
+    config = {
+      ProgramArguments = pruneCommand;
+      RunAtLoad = true;
+      StartCalendarInterval = [
+        {
+          Hour = 12;
+          Minute = 0;
+        }
+      ];
+    };
+  };
 
   xdg.configFile."gomi/config.yaml".text = ''
     core:
