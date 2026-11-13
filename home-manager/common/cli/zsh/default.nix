@@ -11,7 +11,7 @@
     + builtins.readFile ./agent.zsh;
 
     initContent = ''
-      rm() { ${pkgs.gomi}/bin/gomi "$@"; }
+      rm() { gomi-rm "$@"; }
       copy() { ${if pkgs.stdenv.hostPlatform.isLinux then "wl-copy" else "pbcopy"} "$@"; }
 
       if [[ $options[zle] = on ]]; then
