@@ -58,6 +58,9 @@ herdrは次の操作に使う。
 - 状態の確認
     - `herdr agent get`
     - `herdr agent wait`
+- タブ名の確認
+    - `herdr pane get`
+    - `herdr tab get`
 - 承認キーの送信
     - `herdr agent send-keys`
 
@@ -146,6 +149,18 @@ waitが返ったら `herdr agent read <pane> --source recent-unwrapped --lines 1
     2. 本文をレーンのセッション名宛てに `SendMessage` で送る
 
 1回の呼び出しで送る承認は1件だけにする。次のダイアログは `herdr agent read` で読んでから応答する。
+
+#### ユーザーにレーンでの操作を頼む
+
+コマンドの実行やダイアログへの応答をユーザーに頼むときは、対象のレーンをタブ名で示す。
+
+- タブ名
+    - サイドバーに出ているタブのラベル
+    - hookがプロンプトのたびに書き換えるので、頼む直前に取り直す
+        1. `herdr pane get <pane>` の `.result.pane.tab_id` を読む
+        2. `herdr tab get <tab_id>` の `.result.tab.label` を読む
+- 示し方
+    - `task_id` やpane IDではなく、取り直したタブ名を書く
 
 #### 承認代行の判定
 
