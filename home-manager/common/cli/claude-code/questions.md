@@ -9,10 +9,12 @@
 - 各質問に、ユーザーがその場で判断できる材料を書く
     - 背景
         - `question` に書く
-        - `question` に書ききれないときは、ツールを呼ぶ前の返答に書く
+        - `question` に書ききれないとき
+            - ツールを呼ぶ前の返答に書く
     - 選択肢
         - `options` に書く
     - 推奨する選択肢
-        - `options` の先頭に置き、`label` の末尾に `(Recommended)` を付ける
+        - `options` の先頭に置く
+        - `label` の末尾に `(Recommended)` を付ける
     - 推奨する理由
         - 推奨する選択肢の `description` に書く
