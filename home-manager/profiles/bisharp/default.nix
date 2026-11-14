@@ -41,6 +41,7 @@ let
     ../../nixos/kwin
     ../../nixos/mouse
     ../../nixos/klipper
+    ../../nixos/mime-apps
     ../../nixos/wl-clipboard
     ../../nixos/wofi
     ../../nixos/cliphist
