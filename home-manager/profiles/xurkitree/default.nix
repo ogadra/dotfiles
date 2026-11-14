@@ -15,6 +15,7 @@ let
     ../../common/cli/ccusage
     ../../common/cli/claude-code
     ../../common/cli/codex
+    ../../common/cli/comfyui
     ../../common/cli/devin
     ../../common/cli/direnv
     ../../common/cli/fish

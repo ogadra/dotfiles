@@ -64,13 +64,42 @@ let
   # Reclaim starts here, a little below the hard cap, so the page cache shrinks before anything is killed
   memoryHigh = "42G";
 
+  # Run by Strata before it loads the model: wait for ComfyUI's jobs, then make it give the VRAM back; a stopped ComfyUI holds nothing, so curl failing just ends the wait
+  comfyuiYield = pkgs.writeShellApplication {
+    name = "strata-comfyui-yield";
+    runtimeInputs = [
+      pkgs.curl
+      pkgs.jq
+    ];
+    text = ''
+      comfyui=http://127.0.0.1:8188
+      while queue=$(curl -fsS --max-time 5 "$comfyui/queue"); do
+        if [ "$(jq '(.queue_running | length) + (.queue_pending | length)' <<<"$queue")" -eq 0 ]; then
+          break
+        fi
+        sleep 3
+      done
+      curl -fsS --max-time 5 -H "Content-Type: application/json" \
+        -d '{"unload_models":true,"free_memory":true}' "$comfyui/free" || true
+    '';
+  };
+
+  # Seconds a ComfyUI job may keep Strata waiting before the request gets a 503
+  yieldTimeoutS = 600;
+  # MiB free before loading; below what the model needs at start, so ComfyUI's leftovers refuse the load instead of running it out of memory
+  minFreeVramMib = 12000;
+
   strataServeInner = pkgs.writeShellScript "strata-serve-inner" ''
     set -euo pipefail
     # Idempotent prepare; --low-ram mmap reads experts via the page cache the cgroup cap can reclaim, and 1536 MiB VRAM stays free for the display
     ${strataCli}/bin/strata install --family qwen --model IQ3_S --context 65536 --vram-reserve-mib 1536 \
       --low-ram mmap --data-dir "$HOME/${dataDir}" --yes --no-start
-    # Setup writes the run config under the install folder, named after the model
-    exec ${strataCli}/bin/strata serve --profile "$HOME/.local/share/strata/install/strata-iq3_s.json" \
+    # Setup writes the run config under the install folder, named after the model, and rewrites it on every install, so add the GPU sharing keys afterwards
+    config="$HOME/.local/share/strata/install/strata-iq3_s.json"
+    ${pkgs.jq}/bin/jq '. + {lazy_load: true, before_load: ["${comfyuiYield}/bin/strata-comfyui-yield"], before_load_timeout_s: ${toString yieldTimeoutS}, min_free_vram_mib: ${toString minFreeVramMib}}' \
+      "$config" > "$config.tmp"
+    mv "$config.tmp" "$config"
+    exec ${strataCli}/bin/strata serve --profile "$config" \
       --host 127.0.0.1 --port ${toString servePort}
   '';
 
