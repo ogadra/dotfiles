@@ -29,15 +29,23 @@ rest_method() {
   fi
 }
 
-# gh reads `--input <file>` and `-F key=@<file>` itself, so the text can sit in a file the command line never shows; stdin (`-`) is already in the raw command as a heredoc or pipe
+# gh reads `--input <file>`, `-F key=@<file>` and `--body-file <file>` itself, so the text can sit in a file the command line never shows; stdin (`-`) is already in the raw command as a heredoc or pipe
 attached_files() {
   # shellcheck disable=SC2086
   set -- $1
   while [ $# -gt 0 ]; do
     case "$1" in
-      --input) printf '%s\n' "${2:-}"; shift ;;
-      --input=*) printf '%s\n' "${1#--input=}" ;;
-      -F|--field) case "${2:-}" in *=@*) printf '%s\n' "${2#*=@}" ;; esac; shift ;;
+      --input|--body-file) printf '%s\n' "${2:-}"; shift ;;
+      --input=*|--body-file=*) printf '%s\n' "${1#*=}" ;;
+      # gh api takes `-F key=@file`, while gh pr comment, gh issue comment and gh pr review take `-F file` as the body file
+      -F|--field)
+        case "${2:-}" in
+          *=@*) printf '%s\n' "${2#*=@}" ;;
+          *=*) ;;
+          *) printf '%s\n' "${2:-}" ;;
+        esac
+        shift
+        ;;
       -F*=@*|--field=*=@*) printf '%s\n' "${1#*=@}" ;;
     esac
     shift
