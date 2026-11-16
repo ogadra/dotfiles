@@ -12,6 +12,29 @@ deny() {
   exit 2
 }
 
+# gh reads `--input <file>` and `-F key=@<file>` itself, so the reply fields can sit in a file the command line never shows; stdin (`-`) is already in the raw command as a heredoc or pipe
+attached_files() {
+  # shellcheck disable=SC2086
+  set -- $1
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      --input) printf '%s\n' "${2:-}"; shift ;;
+      --input=*) printf '%s\n' "${1#--input=}" ;;
+      -F|--field) case "${2:-}" in *=@*) printf '%s\n' "${2#*=@}" ;; esac; shift ;;
+      -F*=@*|--field=*=@*) printf '%s\n' "${1#*=@}" ;;
+    esac
+    shift
+  done | tr -d "\"'" | grep -vx -- '-'
+}
+
+# Text to search: the segment, the raw command, and the files gh would read; relative paths resolve against the session cwd pre-bash.sh moved into
+haystack() {
+  printf '%s\n' "$1" "$RAW_COMMAND"
+  attached_files "$1" | while IFS= read -r f; do
+    [ -f "$f" ] && cat -- "$f"
+  done
+}
+
 # gh api sends a POST once a field or --input is given
 rest_method() {
   # shellcheck disable=SC2086
@@ -42,14 +65,15 @@ while IFS= read -r SEG; do
   case "$SEG" in
     # GraphQL always sends a POST, so only a mutation writes
     "gh api graphql"|"gh api graphql "*)
-      if printf '%s\n' "$SEG" "$RAW_COMMAND" | grep -q 'mutation' \
-        && printf '%s\n' "$SEG" "$RAW_COMMAND" | grep -Eq "$GRAPHQL_REPLY_RE"; then
+      HAY=$(haystack "$SEG")
+      if printf '%s\n' "$HAY" | grep -q 'mutation' \
+        && printf '%s\n' "$HAY" | grep -Eq "$GRAPHQL_REPLY_RE"; then
         deny
       fi
       ;;
     "gh api "*)
       [ "$(rest_method "$SEG")" = "GET" ] && continue
-      if printf '%s\n' "$SEG" "$RAW_COMMAND" | grep -Eq "$REST_REPLY_RE"; then
+      if haystack "$SEG" | grep -Eq "$REST_REPLY_RE"; then
         deny
       fi
       ;;
