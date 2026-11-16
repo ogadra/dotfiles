@@ -1,4 +1,5 @@
 {
+  config,
   inputs,
   pkgs,
   username,
@@ -11,12 +12,7 @@
 
   networking.hostName = "stakataka";
 
-  nix.gc = {
-    automatic = true;
-    interval = {
-      Hour = 3;
-      Minute = 15;
-    };
-    options = "--delete-older-than 1d";
-  };
+  system.activationScripts.postActivation.text = ''
+    ${config.nix.package}/bin/nix-collect-garbage --delete-older-than 1d
+  '';
 }

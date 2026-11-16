@@ -1,4 +1,5 @@
 {
+  config,
   inputs,
   pkgs,
   username,
@@ -47,11 +48,9 @@ in
 {
   networking.hostName = "bisharp";
 
-  nix.gc = {
-    automatic = true;
-    dates = "daily";
-    options = "--delete-older-than 3d";
-  };
+  system.activationScripts.nix-gc.text = ''
+    ${config.nix.package}/bin/nix-collect-garbage --delete-older-than 3d
+  '';
 
   imports = [
     ./hardware-configuration.nix
