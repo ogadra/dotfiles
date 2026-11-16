@@ -124,9 +124,11 @@ in
       shared + "/scripts/git/block-worktree-outside.sh"
     );
     ".claude/scripts/gh/check.sh" = mkScript (shared + "/scripts/gh/check.sh");
+    ".claude/scripts/gh/lib.sh" = mkScript (shared + "/scripts/gh/lib.sh");
     ".claude/scripts/gh/block-repo-clone.sh" = mkScript (shared + "/scripts/gh/block-repo-clone.sh");
     ".claude/scripts/gh/block-pr-close.sh" = mkScript (shared + "/scripts/gh/block-pr-close.sh");
     ".claude/scripts/gh/block-reply.sh" = mkScript (shared + "/scripts/gh/block-reply.sh");
+    ".claude/scripts/gh/block-mention.sh" = mkScript (shared + "/scripts/gh/block-mention.sh");
     ".claude/scripts/gh/pr-body.sh" = mkScript ./scripts/pr-body.sh;
   }
   // (
