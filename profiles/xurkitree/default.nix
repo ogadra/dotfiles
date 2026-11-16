@@ -47,7 +47,6 @@ in
 {
   networking.hostName = "xurkitree";
 
-  # Deletes generations older than 7 days; dates takes a systemd OnCalendar value
   nix.gc = {
     automatic = true;
     dates = "daily";
