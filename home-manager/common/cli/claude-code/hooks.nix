@@ -1,4 +1,5 @@
 {
+  pkgs,
   isucon ? false,
 }:
 let
@@ -106,7 +107,14 @@ in
       shared + "/scripts/ensure-trailing-newline.sh"
     );
     ".claude/scripts/herdr-name-tab.sh" = mkScript (shared + "/scripts/herdr-name-tab.sh");
-    ".claude/scripts/orchestrator-gate.sh" = mkScript (shared + "/scripts/orchestrator-gate.sh");
+    ".claude/scripts/orchestrator-gate.sh" = mkScript (
+      pkgs.replaceVarsWith {
+        src = shared + "/scripts/orchestrator-gate.sh";
+        # replaceVars drops the exec bit that mkScript relies on
+        isExecutable = true;
+        replacements.clipboardCommand = if pkgs.stdenv.hostPlatform.isLinux then "wl-copy" else "pbcopy";
+      }
+    );
     ".claude/scripts/statusline.sh" = mkScript ./scripts/statusline.sh;
     ".claude/scripts/git/check.sh" = mkScript (shared + "/scripts/git/check.sh");
     ".claude/scripts/git/block-default-commit.sh" = mkScript (
