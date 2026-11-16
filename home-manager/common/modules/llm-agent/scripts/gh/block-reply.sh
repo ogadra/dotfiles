@@ -8,7 +8,7 @@ REST_REPLY_RE='/replies([?[:space:]]|$)|in_reply_to'
 GRAPHQL_REPLY_RE='addPullRequestReviewThreadReply|inReplyTo|replyToId'
 
 deny() {
-  printf 'Blocked: replying to GitHub comments is not allowed in agent sessions; show the draft reply to the user and let them post it.\n' >&2
+  printf 'Blocked: replying to GitHub review threads or other comment threads is not allowed in agent sessions; a normal comment with `gh pr comment` is still allowed.\n' >&2
   exit 2
 }
 
