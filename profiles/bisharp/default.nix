@@ -1,4 +1,5 @@
 {
+  config,
   inputs,
   pkgs,
   username,
@@ -46,6 +47,10 @@ let
 in
 {
   networking.hostName = "bisharp";
+
+  system.activationScripts.nix-gc.text = ''
+    ${config.nix.package}/bin/nix-collect-garbage --delete-older-than 3d
+  '';
 
   imports = [
     ./hardware-configuration.nix
