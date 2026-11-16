@@ -47,6 +47,13 @@ in
 {
   networking.hostName = "bisharp";
 
+  # Deletes generations older than 3 days; dates takes a systemd OnCalendar value
+  nix.gc = {
+    automatic = true;
+    dates = "daily";
+    options = "--delete-older-than 3d";
+  };
+
   imports = [
     ./hardware-configuration.nix
   ]
