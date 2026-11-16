@@ -64,6 +64,13 @@ while IFS= read -r SEG; do
       SEG="${BASH_REMATCH[4]}"
     elif [[ "$SEG" =~ ^\\(.*)$ ]]; then
       SEG="${BASH_REMATCH[1]}"
+    # A command inside a function, loop or if body starts after these words, and matching only the first word would let it pass every guard
+    elif [[ "$SEG" =~ ^(if|then|else|elif|do|while|until)[[:space:]]+(.*)$ ]]; then
+      SEG="${BASH_REMATCH[2]}"
+    elif [[ "$SEG" =~ ^(function[[:space:]]+)?[A-Za-z_][A-Za-z0-9_-]*[[:space:]]*\(\)[[:space:]]*(.*)$ ]]; then
+      SEG="${BASH_REMATCH[2]}"
+    elif [[ "$SEG" =~ ^function[[:space:]]+[A-Za-z_][A-Za-z0-9_-]*[[:space:]]+(.*)$ ]]; then
+      SEG="${BASH_REMATCH[1]}"
     else
       break
     fi
