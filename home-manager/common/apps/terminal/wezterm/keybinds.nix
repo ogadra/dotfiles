@@ -125,7 +125,7 @@ in
       -- Pane Split (delegated to herdr)
       { key = 'd', mods = '${mod}', action = herdr('%') },
 
-      -- CopyMode (delegated to herdr); not Ctrl+Shift+X, since the ThinkPad keyboard drops X under CapsLock-position Ctrl plus Shift
+      -- CopyMode (delegated to herdr)
       { key = 'X', mods = 'SHIFT|${mod}', action = herdr('[') },
 
       -- Claude Code fork (delegated to herdr)
