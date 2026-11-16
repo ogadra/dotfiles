@@ -40,10 +40,6 @@ Nix Flakes + Home Managerで管理するdotfiles。これらのマシンで使�
 | 新しいGUIアプリ | `home-manager/common/apps/<category>/<appname>/` |
 | Linux固有の設定 | `home-manager/nixos/` |
 
-## キーバインド
-
-- どのマシンでも、どのキーボードでも、同じキーバインドで同じ操作ができるようにする
-
 ## Nixスクリプト
 
 - `echo` を書いてよい場面
