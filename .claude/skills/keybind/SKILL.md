@@ -45,7 +45,7 @@ description: キーバインドを足す、変える、消す。ユーザーが�
     - bisharpで実測する
         - `scripts/keylog.py` でxremapの出力デバイスを記録する
             ```bash
-            python3 -I ~/.claude/skills/keybind/scripts/keylog.py 60
+            python3 -I .claude/skills/keybind/scripts/keylog.py 60
             ```
         - 記録を始めてから、ユーザーに押してもらう
             - デスクトップの壁紙をクリックしてフォーカスを外してから押す

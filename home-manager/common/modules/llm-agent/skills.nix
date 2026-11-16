@@ -23,8 +23,6 @@ in
   "cascade-merge/SKILL.md" = ./skills/cascade-merge/SKILL.md;
   "grill-me" = ./skills/grill-me;
   "import-skill/SKILL.md" = ./skills/import-skill/SKILL.md;
-  "keybind/SKILL.md" = ./skills/keybind/SKILL.md;
-  "keybind/scripts/keylog.py" = ./skills/keybind/scripts/keylog.py;
   "pr-create/SKILL.md" = ./skills/pr-create/SKILL.md;
   "pr-review/SKILL.md" = ./skills/pr-review/SKILL.md;
   "pr-review/policies/absolute-rules.md" = ./skills/pr-review/policies/absolute-rules.md;
