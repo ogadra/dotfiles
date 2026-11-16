@@ -29,31 +29,14 @@ description: キーバインドを足す、変える、消す。ユーザーが�
         - macOS: `home-manager/common/apps/karabiner/default.nix`
 - 候補は2〜4個出す
 
-### 2. 押せるかを確かめる
+### 2. 押せないキーを避ける
 
-- 分かっている制限
-    - bisharpの内蔵キーボード（ThinkPad P14s Gen 6、`AT Translated Set 2 keyboard`）
-        - CapsLock位置のCtrl + Shift + X
-            - Xが届かない
-            - キーボードのコントローラがXの代わりに `0xFF`（key detection error）を返す
-            - 設定でもファームウェアでも直せない
-        - CapsLock位置のCtrl + Shift + ほかの英字・`Space`・`[`
-            - 届く
-        - Alt + Shift + X、Super + Shift + X
-            - 届く
-- 制限が分かっていない組み合わせ
-    - bisharpで実測する
-        - `scripts/keylog.py` でxremapの出力デバイスを記録する
-            ```bash
-            python3 -I .claude/skills/keybind/scripts/keylog.py 60
-            ```
-        - 記録を始めてから、ユーザーに押してもらう
-            - デスクトップの壁紙をクリックしてフォーカスを外してから押す
-                - weztermやブラウザでは `Ctrl+C` などが効いてしまう
-            - xremapはwezterm以外でEmacs風の置き換えをする
-                - 記録に別のキーが出ても、キーボードから届いたものとして読む
-    - macOSでは実測していない
-        - 実測できないことをユーザーに伝える
+- bisharpの内蔵キーボード（ThinkPad P14s Gen 6）では、一部のキーの組み合わせが使えない
+    - キーボードがその組み合わせを検出できず、設定では直せない
+- 実測で使えなかった組み合わせ
+    - CapsLock位置のCtrl + Shift + X
+- 候補が使えない組み合わせに当たるとき
+    - 候補から外す
 
 ### 3. ほかの割り当てと衝突しないかを確かめる
 
