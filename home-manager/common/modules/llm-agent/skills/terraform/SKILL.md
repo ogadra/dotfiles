@@ -98,7 +98,7 @@ export TF_CLI_ARGS_init="-backend-config=bucket=${TF_BACKEND_BUCKET}"
 
 ```hcl
 provider "aws" {
-  alias  = "use1"
+  alias  = "secondary"
   region = "us-east-1"
 }
 ```
@@ -222,4 +222,4 @@ GitHub ActionsのワークフローをCIとして `.github/workflows/` に置き
 
 - `terraform fmt -check`
 - `terraform init -backend=false` のあとの `terraform validate`
-- `checkov --external-checks-dir terraform/checkov`
+- `checkov -d . --external-checks-dir terraform/checkov`
