@@ -179,5 +179,12 @@ lib.mkMerge [
         rm -f "$_dmg"
       fi
     '';
+
+    # Let espanso write its own LaunchAgent instead of launchd.agents, since two agents would start it twice
+    home.activation.registerEspanso = lib.hm.dag.entryAfter [ "installEspanso" ] ''
+      if [ ! -f "$HOME/Library/LaunchAgents/com.federicoterzi.espanso.plist" ]; then
+        /Applications/Espanso.app/Contents/MacOS/espanso service register
+      fi
+    '';
   })
 ]
