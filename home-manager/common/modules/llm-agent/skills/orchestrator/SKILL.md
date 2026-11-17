@@ -113,7 +113,30 @@ herdr agent start <task_id> --kind claude --pane <pane> -- "<指示ファイル�
     - 起動していた場合
         - 進む
     - 起動していなかった場合
-        - `AskUserQuestion` でそのレーンの扱いを聞く
+        - 「レーンを起動しなおす」の手順に従う
+
+#### レーンを起動しなおす
+
+`herdr pane process-info <pane>` で、paneがshellへ戻っていることを確かめてから進める。
+
+1. 指示ファイルのパスを渡したセッションを、対象リポジトリの履歴から探す
+    - セッションIDは次の `jq` で引く
+    - 履歴のディレクトリ名は、対象リポジトリの絶対パスの英数字以外を `-` に替えたもの
+
+    ```bash
+    jq -rn --arg p "<指示ファイルの絶対パス>" '[inputs | select(.type == "user" and (.message.content | tostring | contains($p))) | {s: .sessionId, t: .timestamp}] | max_by(.t) | .s // empty' ~/.claude/projects/<履歴のディレクトリ名>/*.jsonl
+    ```
+
+2. 起動する
+    - セッションIDが出た場合
+        - 同じpaneでそのセッションを再開する
+
+        ```bash
+        herdr agent start <task_id> --kind claude --pane <pane> -- --resume <セッションID>
+        ```
+
+    - 何も出なかった場合
+        - 同じpaneで、「3. 作業レーンを立てる」と同じ `herdr agent start` を実行する
 
 ### 4. 裏取りレーンを立てる
 
@@ -123,7 +146,7 @@ herdr agent start <task_id> --kind claude --pane <pane> -- "<指示ファイル�
 
 レーンは最初の報告に、`ListAgents` で調べた自分のセッション名を書く。作業レーンは、ブランチ名とworktreeの絶対パスも書く。親はこれらをレーンごとに控え、以後の指示はその名前宛ての `SendMessage` で送る。
 
-最初の報告にセッション名が無いレーンがあれば、親は `AskUserQuestion` を呼び、そのレーンの扱いをユーザーに決めてもらう。
+最初の報告にセッション名が無いレーンがあれば、親は「レーンを起動しなおす」の手順でそのレーンを起動しなおす。
 
 ### 6. 監視と裏取り
 
