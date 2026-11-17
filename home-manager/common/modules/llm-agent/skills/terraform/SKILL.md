@@ -41,9 +41,10 @@ terraform {
 }
 ```
 
-- `= x.y.z` で書くもの
-    - `required_version`
-    - `required_providers` の `version`
+- `required_version`
+    - `= x.y.z` で書く
+- `required_providers` の `version`
+    - `= x.y.z` で書く
 - `.terraform.lock.hcl`
     - コミットする
 - Terraformから使う外部の依存
@@ -121,7 +122,7 @@ provider "aws" {
 
 ## output
 
-outputは、ほかのプログラムが参照するときだけ書く。
+outputは、ほかのプログラムが参照するときだけ書く。参照するコードを書く変更で、そのoutputも一緒に足す。
 
 - ほかのプログラム
     - justfile
@@ -144,10 +145,11 @@ output "asn_bucket" {
     - `local.common_tags`
     - `local.common_labels`
 - 各リソースに書くもの
-    - タグやラベルを受け付けるリソース
+    - タグを受け付けるリソース
         - `tags = local.common_tags`
+    - ラベルを受け付けるリソース
         - `labels = local.common_labels`
-    - 受け付けないリソース
+    - どちらも受け付けないリソース
         - `checkov:skip` に理由を1行で書く
 - 付け忘れ
     - checkovのカスタムルールで落とす
