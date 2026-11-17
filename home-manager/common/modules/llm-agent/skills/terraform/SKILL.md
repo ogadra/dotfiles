@@ -18,11 +18,11 @@ description: Terraformのコードを書く・直すときの書き方のルー�
 | `data.tf` | `data` ブロック |
 | `iam.tf` | IAMのポリシーと `aws_iam_policy_document` |
 | `output.tf` | `output` ブロック |
-| `<まとまり>.tf` | それ以外のリソース。`alb.tf`、`budget.tf` のように、まとまりごとに分ける |
+| `<まとまり>.tf` | それ以外のリソース。`network.tf`、`database.tf` のように、まとまりごとに分ける |
 
 - ファイル名
     - 単語をアンダースコアでつなぐ
-        - `global_accelerator.tf`
+        - `vpc_endpoint.tf`
 
 ## 版の固定
 
@@ -50,7 +50,10 @@ terraform {
 - Terraformから使う外部の依存
     - 版とダイジェストで固定する
         - Dockerのベースイメージの例
-            - `FROM golang:1.27.4@sha256:<digest> AS build`
+            - `FROM <image>:<version>@sha256:<digest>`
+- CIのワークフローで使うaction
+    - コミットのSHAで固定する
+        - `uses: actions/checkout@<commit-sha> # vX.Y.Z`
 
 ## backend
 
@@ -59,7 +62,7 @@ terraform {
 ```hcl
 terraform {
   backend "s3" {
-    key          = "<project>/aws/terraform.tfstate"
+    key          = "my-app/terraform.tfstate"
     region       = "ap-northeast-1"
     encrypt      = true
     use_lockfile = true
@@ -89,7 +92,9 @@ export TF_CLI_ARGS_init="-backend-config=bucket=${TF_BACKEND_BUCKET}"
         - `GOOGLE_CLOUD_PROJECT`
 - リージョンの違い
     - aliasのproviderで分ける
-    - aliasのproviderはコメントを付けずに書く
+    - aliasのproviderに書く引数
+        - `alias`
+        - `region`
 
 ```hcl
 provider "aws" {
@@ -132,9 +137,9 @@ outputは、ほかのプログラムが参照するときだけ書く。参照�
     - 参照する側の名前を書く
 
 ```hcl
-output "asn_bucket" {
-  description = "Read by just update-asn"
-  value       = aws_s3_bucket.asn.bucket
+output "app_bucket" {
+  description = "Read by just deploy"
+  value       = aws_s3_bucket.app.bucket
 }
 ```
 
@@ -155,11 +160,11 @@ output "asn_bucket" {
     - ルールは `terraform/checkov/` に置く
 
 ```hcl
-resource "aws_iam_role_policy" "result_api" {
+resource "aws_iam_role_policy" "app" {
   # checkov:skip=CKV_EXAMPLE_1:Resource does not support tags
-  name   = "read-results"
-  role   = aws_iam_role.result_api.id
-  policy = data.aws_iam_policy_document.result_api.json
+  name   = "my-app"
+  role   = aws_iam_role.app.id
+  policy = data.aws_iam_policy_document.app.json
 }
 ```
 
@@ -168,18 +173,14 @@ resource "aws_iam_role_policy" "result_api" {
 S3のバケットはaccount regional namespaceで作り、名前の末尾を `-<アカウントID>-<リージョン>-an` にする。
 
 ```hcl
-resource "aws_s3_bucket" "asn" {
-  provider = aws.use1
-
-  bucket           = format("<project>-asn-%s-%s-an", data.aws_caller_identity.current.account_id, data.aws_region.use1.region)
+resource "aws_s3_bucket" "app" {
+  bucket           = format("my-app-%s-%s-an", data.aws_caller_identity.current.account_id, data.aws_region.current.region)
   bucket_namespace = "account-regional"
 
   tags = local.common_tags
 }
 ```
 
-- アカウントID
-    - `data.aws_caller_identity` から取る
 - リージョン
     - バケットを作るproviderの `data "aws_region"` から取る
 
@@ -188,11 +189,11 @@ resource "aws_s3_bucket" "asn" {
 - ローカル名
     - snake_caseで書く
     - 役割で名付ける
-        - `result_api`
-        - `budget_topic`
+        - `app_bucket`
+        - `deploy_role`
 - クラウド上の名前
     - 先頭にプロジェクト名を付ける
-        - `name = "<project>-result-api"`
+        - `name = "my-app-api"`
 - 繰り返し
     - `for_each` を使う
 - IAMのポリシー
@@ -203,13 +204,9 @@ resource "aws_s3_bucket" "asn" {
 
 コード内のコメントには、コードから読み取れない理由を書く。英語で1行に収める。
 
-```hcl
-# A wildcard instead of the budget's ARN keeps the policy free of a dependency on the budget it serves.
-```
+## アカウントの詳細と別のプロジェクト
 
-## 公開リポジトリ
-
-公開リポジトリでは、アカウントの詳細と別のプロジェクトに触れない。
+コード、コメント、PR、issue、コミットメッセージでは、アカウントの詳細と別のプロジェクトに触れない。
 
 - アカウントの詳細
     - アカウントID
@@ -221,10 +218,8 @@ resource "aws_s3_bucket" "asn" {
 
 ## 検査
 
-書いたら、ルートのディレクトリごとに次を通す。
+GitHub ActionsのワークフローをCIとして `.github/workflows/` に置き、ルートのディレクトリごとに次を走らせる。
 
-```bash
-terraform -chdir=<dir> fmt -check
-terraform -chdir=<dir> validate
-checkov -d . --quiet --compact --external-checks-dir terraform/checkov
-```
+- `terraform fmt -check`
+- `terraform init -backend=false` のあとの `terraform validate`
+- `checkov --external-checks-dir terraform/checkov`
