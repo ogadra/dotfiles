@@ -24,6 +24,10 @@ in
             type = "command";
             command = "$HOME/.claude/scripts/herdr-name-tab.sh";
           }
+          {
+            type = "command";
+            command = "$HOME/.claude/scripts/ask-gate.sh";
+          }
         ];
       }
     ];
@@ -107,6 +111,7 @@ in
       shared + "/scripts/ensure-trailing-newline.sh"
     );
     ".claude/scripts/herdr-name-tab.sh" = mkScript (shared + "/scripts/herdr-name-tab.sh");
+    ".claude/scripts/ask-gate.sh" = mkScript (shared + "/scripts/ask-gate.sh");
     ".claude/scripts/orchestrator-gate.sh" = mkScript (
       pkgs.replaceVarsWith {
         src = shared + "/scripts/orchestrator-gate.sh";
