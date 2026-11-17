@@ -179,5 +179,11 @@ lib.mkMerge [
         rm -f "$_dmg"
       fi
     '';
+
+    home.activation.registerEspanso = lib.hm.dag.entryAfter [ "installEspanso" ] ''
+      if [ ! -f "$HOME/Library/LaunchAgents/com.federicoterzi.espanso.plist" ]; then
+        /Applications/Espanso.app/Contents/MacOS/espanso service register
+      fi
+    '';
   })
 ]
