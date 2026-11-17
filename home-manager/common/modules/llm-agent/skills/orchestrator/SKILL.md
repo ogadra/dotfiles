@@ -92,7 +92,7 @@ herdrは次の操作に使う。
     - 完了条件
     - 報告規約
 
-依存や担当範囲が曖昧なら、ユーザーへ問う。
+依存や担当範囲が曖昧なら、`AskUserQuestion` で分け方を聞く。
 
 この承認をpushとPR作成の承認とする。
 
@@ -113,8 +113,30 @@ herdr agent start <task_id> --kind claude --pane <pane> -- "<指示ファイル�
     - 起動していた場合
         - 進む
     - 起動していなかった場合
-        1. ユーザーへ報告する
-        2. そのレーンについてユーザーの判断を待つ
+        - 「レーンを起動しなおす」の手順に従う
+
+#### レーンを起動しなおす
+
+`herdr pane process-info <pane>` で、paneがshellへ戻っていることを確かめてから進める。
+
+1. 指示ファイルのパスを渡したセッションを、対象リポジトリの履歴から探す
+    - セッションIDは次の `jq` で引く
+    - 履歴のディレクトリ名は、対象リポジトリの絶対パスの英数字以外を `-` に替えたもの
+
+    ```bash
+    jq -rn --arg p "<指示ファイルの絶対パス>" '[inputs | select(.type == "user" and (.message.content | tostring | contains($p))) | {s: .sessionId, t: .timestamp}] | max_by(.t) | .s // empty' ~/.claude/projects/<履歴のディレクトリ名>/*.jsonl
+    ```
+
+2. 起動する
+    - セッションIDが出た場合
+        - 同じpaneでそのセッションを再開する
+
+        ```bash
+        herdr agent start <task_id> --kind claude --pane <pane> -- --resume <セッションID>
+        ```
+
+    - 何も出なかった場合
+        - 同じpaneで、「3. 作業レーンを立てる」と同じ `herdr agent start` を実行する
 
 ### 4. 裏取りレーンを立てる
 
@@ -124,7 +146,7 @@ herdr agent start <task_id> --kind claude --pane <pane> -- "<指示ファイル�
 
 レーンは最初の報告に、`ListAgents` で調べた自分のセッション名を書く。作業レーンは、ブランチ名とworktreeの絶対パスも書く。親はこれらをレーンごとに控え、以後の指示はその名前宛ての `SendMessage` で送る。
 
-最初の報告にセッション名が無いレーンがあれば、親はユーザーへ報告し、そのレーンについてユーザーの判断を待つ。
+最初の報告にセッション名が無いレーンがあれば、親は「レーンを起動しなおす」の手順でそのレーンを起動しなおす。
 
 ### 6. 監視と裏取り
 
@@ -137,6 +159,16 @@ herdr agent start <task_id> --kind claude --pane <pane> -- "<指示ファイル�
 - worktreeの絶対パス
 - ブランチ名
 - 報告の本文
+
+#### 報告をユーザーへ中継する
+
+`[orchestrator:verify ...]` の結果を受けたら、報告と裏取りの結果をまとめてユーザーへ書く。
+
+- ユーザーが決めることがある場合
+    - まとめを書いた同じ返答の中で `AskUserQuestion` を呼ぶ
+    - 1件を1問にする
+- 決めることが無い場合
+    - まとめだけで返答を終える
 
 ### 7. blockedと承認待ちを捌く
 
@@ -175,8 +207,8 @@ waitが返ったら `herdr agent read <pane> --source recent-unwrapped --lines 1
     - 指示文やissueに判断の材料がある場合
         - 親が選ぶ
     - 材料が無い場合
-        - ユーザーへ上げる
-- ユーザーへ上げる確認
+        - `AskUserQuestion` でユーザーに選んでもらう
+- `AskUserQuestion` でユーザーに聞く確認
     - スコープ拡大
     - 前提との食い違い
     - 未承認の外部影響
@@ -256,7 +288,7 @@ waitが返ったら `herdr agent read <pane> --source recent-unwrapped --lines 1
         - `herdr pane process-info <pane>` でshellへ戻ったことを確かめる
         - 次のコマンドをpaneへ送って復旧する
             - `env -u CLAUDE_CODE_CHILD_SESSION -u CLAUDE_CODE_SESSION_ID -u CLAUDE_CODE_BRIDGE_SESSION_ID -u CLAUDE_CODE_MESSAGING_SOCKET -u CLAUDE_CODE_MESSAGING_TOKEN -u CLAUDE_CODE_ENTRYPOINT claude --continue`
-- 親がAskUserQuestionなどで入力中にレーンの報告が届いた場合
+- 親が `AskUserQuestion` などで入力中にレーンの報告が届いた場合
     - 入力が終わってから報告を処理する
 
 ## PRを作らないタスク
