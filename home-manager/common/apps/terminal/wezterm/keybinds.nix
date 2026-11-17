@@ -126,7 +126,7 @@ in
       { key = 'd', mods = '${mod}', action = herdr('%') },
 
       -- CopyMode (delegated to herdr)
-      { key = "X", mods = "CTRL", action = herdr('[') },
+      { key = 'X', mods = 'SHIFT|${mod}', action = herdr('[') },
 
       -- Claude Code fork (delegated to herdr)
       { key = 'd', mods = 'CTRL|ALT', action = fork_claude },
