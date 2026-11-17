@@ -7,7 +7,7 @@ description: Terraformのコードを書く・直すときの書き方のルー�
 
 ## ファイルの分け方
 
-ルートのディレクトリでは、ブロックの種類ごとに次の名前のファイルへ書く。
+ルートのディレクトリでは、次の名前のファイルへ書く。
 
 | ファイル | 書くもの |
 |---|---|
@@ -18,11 +18,24 @@ description: Terraformのコードを書く・直すときの書き方のルー�
 | `data.tf` | `data` ブロック |
 | `iam.tf` | IAMのポリシーと `aws_iam_policy_document` |
 | `output.tf` | `output` ブロック |
-| `<まとまり>.tf` | それ以外のリソース。`network.tf`、`database.tf` のように、まとまりごとに分ける |
+| `<サービス名>.tf` | それ以外のリソース。`route53.tf`、`lambda.tf`、`ecr.tf`、`s3.tf` のように、サービスごとに分ける |
 
 - ファイル名
     - 単語をアンダースコアでつなぐ
-        - `vpc_endpoint.tf`
+        - `api_gateway.tf`
+- 属するサービスが名前から分かりにくいリソースのファイル
+    - VPCとサブネットなどのネットワークのリソース
+        - `vpc.tf` に書く
+    - セキュリティグループとそのルール
+        - `vpc.tf` に書く
+    - `aws_lb` で始まるロードバランサーのリソース
+        - `elb.tf` に書く
+    - コスト配分タグ
+        - 予算と一緒に `budgets.tf` に書く
+    - Google CloudのAPIを有効にする `google_project_service`
+        - そのAPIを使うリソースのファイルに書く
+    - Google Cloudの予算などの請求のリソース
+        - `billing.tf` に書く
 
 ## 版の固定
 
@@ -92,9 +105,9 @@ export TF_CLI_ARGS_init="-backend-config=bucket=${TF_BACKEND_BUCKET}"
         - `GOOGLE_CLOUD_PROJECT`
 - リージョンの違い
     - aliasのproviderで分ける
-    - aliasのproviderに書く引数
-        - `alias`
-        - `region`
+        - 書く引数
+            - `alias`
+            - `region`
 
 ```hcl
 provider "aws" {
@@ -157,7 +170,8 @@ output "app_bucket" {
         - `checkov:skip` に理由を1行で書く
 - 付け忘れ
     - checkovのカスタムルールで落とす
-    - ルールは `terraform/checkov/` に置く
+- checkovのカスタムルールの置き場所
+    - `terraform/checkov/`
 
 ```hcl
 resource "aws_iam_role_policy" "app" {
