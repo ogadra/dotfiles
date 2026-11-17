@@ -33,4 +33,5 @@ in
   "pr-review/policies/stop-slop.md" = ./skills/pr-review/policies/stop-slop.md;
   "pr-review/policies/testing.md" = ./skills/pr-review/policies/testing.md;
   "readable-writing" = ./skills/readable-writing;
+  "terraform/SKILL.md" = ./skills/terraform/SKILL.md;
 }
