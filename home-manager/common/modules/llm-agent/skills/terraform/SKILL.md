@@ -89,10 +89,9 @@ export TF_CLI_ARGS_init="-backend-config=bucket=${TF_BACKEND_BUCKET}"
         - `GOOGLE_CLOUD_PROJECT`
 - リージョンの違い
     - aliasのproviderで分ける
-    - aliasが要る理由をコメントで1行書く
+    - aliasのproviderはコメントを付けずに書く
 
 ```hcl
-# Route53 query logs can only be delivered to CloudWatch Logs in us-east-1.
 provider "aws" {
   alias  = "use1"
   region = "us-east-1"
