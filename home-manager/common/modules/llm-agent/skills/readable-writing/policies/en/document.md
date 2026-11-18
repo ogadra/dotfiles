@@ -62,9 +62,15 @@ Rewrite each as a plain description.
 - READMEs
 ```
 
-### 太字のラベルで区切った節
+### Sections split by bold labels
 
-`scripts/mechanical.pl` catches the bold in a label such as `**Goal**:`, and its `fix` only strips the `**`. The `fix` leaves the label line and the section contents as they are.
+| Bold label form | `scripts/mechanical.pl` finding | `fix` |
+|---|---|---|
+| `**Goal**: text` | `本文中の強調` | Strips the `**` |
+| `**Out of scope**:` | `本文中の強調` | Strips the `**` |
+| `**Out of scope**:` | `見出しの代用` | None |
+| `**Goal**` | `見出しの代用` | None |
+| `- **Goal**: text` | `平坦な箇条書き` | None |
 
 #### Before
 
@@ -97,10 +103,7 @@ Stop losing compound words in search. A query for "machine learning" splits into
 
 #### How to fix
 
-- A label line
-    - Turn it into a `##` heading
-- A goal section that describes the means
-    - Write what hurts under the goal
-    - Move the means into its own section
-- An out-of-scope section
-    - Delete it
+1. Delete each out-of-scope bold label with its contents
+2. Turn the remaining bold labels into `##` headings
+3. Move the means under the goal heading into their own section
+4. Write what hurts under the goal heading
