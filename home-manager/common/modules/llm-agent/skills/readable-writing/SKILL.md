@@ -54,6 +54,7 @@ metadata:
     - 裏を取らない伝聞
     - ヘッジ
     - 儀式化した免責
+    - 実施と予定の取り違え
     - Praising everything
 - 主体
     - false agency

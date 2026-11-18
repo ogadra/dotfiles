@@ -241,6 +241,40 @@ We retry up to three times. I picked that from a workload of a hundred thousand 
 - 必要な保留
     - 1つの文書に1回か2回まで
 
+### 実施と予定の取り違え
+
+変更を報告する文で、済んだことと予定、確かめたことと確かめていないことを区別せずに書く。
+
+- 済んだ変更を予定の形で書く
+- 前からある動作を、今回変えたことのように書く
+- 動かしていない確認を、確かめたことのように書く
+
+#### AI版
+
+```
+リトライ回数を5回に変更します。タイムアウト時は例外を返します。テストで動作を確認しました。
+
+This PR will change the retry count to five. On timeout it returns an exception. Verified with tests.
+```
+
+#### 修正版
+
+```
+リトライ回数を3回から5回に変えた。タイムアウトしたときに例外を返す動作は変えていない。ユニットテストは通したが、ステージングでは試していない。
+
+Changed the retry count from three to five. Timeouts still return an exception, as before. Unit tests pass; I haven't tried it on staging.
+```
+
+#### 修正の型
+
+- 済んだ変更
+    - 過去形で書く
+- 前からある動作
+    - 今の状態として書き、今回の変更と分ける
+- 確認
+    - 実際に動かしたものだけを書く
+    - 動かしていないものは、動かしていないと書く
+
 ## 検出手順
 
 1. 断定を含む文を集める
@@ -257,3 +291,6 @@ We retry up to three times. I picked that from a workload of a hundred thousand 
 7. 伝聞の語を含む文を集める
     - 述べた事実の出典を探す
     - 出典に当たれるものを指摘する
+8. 変更を報告する文を集める
+    - 済んだ変更を予定の形で書いていないか確かめる
+    - 確認したと書いた文に、何で確かめたかがあるか確かめる
