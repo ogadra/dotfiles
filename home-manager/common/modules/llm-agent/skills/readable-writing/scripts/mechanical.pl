@@ -202,19 +202,15 @@ for my $i (0 .. $#lines) {
             next unless $body =~ $re;
             my $fix;
             if ($rule->{cut}) {
-                my ($cut, $segment) = (0, 0);
+                my $cut = 0;
                 $fix = outside_masked($line, sub {
                     my $s = shift;
-                    # outside_masked hands over the text before the first code span or URL first, so only that part touches the line start
-                    my $at_line_start = $segment++ == 0;
                     return $s if $cut;
                     # The comma that closed the cut phrase would otherwise start the remaining sentence
                     return $s unless $s =~ /$re(?:\s*[、，,])?[ \t　]*/;
-                    my $before = substr($s, 0, $-[0]);
-                    my $rest = substr($s, $+[0]);
-                    my $sentence_start = ($at_line_start && $before =~ /^\s*(?:[-*+]\s+|\d+\.\s+|>\s*)?$/)
-                        || $before =~ /[.!?]\s+$/;
-                    $rest =~ s/^([a-z])/\u$1/ if $sentence_start;
+                    my ($before, $removed, $rest) = (substr($s, 0, $-[0]), substr($s, $-[0], $+[0] - $-[0]), substr($s, $+[0]));
+                    # A capital on the cut word shows the writer started a sentence there; guessing from a preceding period misreads e.g. and Mr., and an all-lowercase name such as npm still gets capitalized
+                    $rest =~ s/^([a-z])/\u$1/ if $removed =~ /^[A-Z]/ && $rest !~ /^[a-z]+[A-Z]/;
                     $cut = 1;
                     return $before . $rest;
                 });
