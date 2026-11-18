@@ -277,12 +277,13 @@ if ($lang{ja}) {
             next if $skip[$i];
             my $body = masked($lines[$i]);
             for my $form (keys %$group) {
-                $first{$form} //= $i + 1 if $body =~ /$group->{$form}/;
+                next if $first{$form};
+                $first{$form} = [$i + 1, $-[0]] if $body =~ /$group->{$form}/;
             }
         }
         next unless keys %first >= 2;
-        my @forms = sort { $first{$a} <=> $first{$b} } keys %first;
-        my $line = $first{ $forms[1] };
+        my @forms = sort { $first{$a}[0] <=> $first{$b}[0] || $first{$a}[1] <=> $first{$b}[1] } keys %first;
+        my $line = $first{ $forms[1] }[0];
         add('語彙', $line, $lines[$line - 1], '表記ゆれ',
             '同じ語を2通り以上に書いている。（' . join('、', @forms) . '）', undef);
     }
