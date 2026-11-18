@@ -294,6 +294,38 @@ This skill reviews from seven perspectives. It works in Japanese and English, an
 
 繰り返している語を含む文を、別の語から始まる形に書き直す。
 
+### 同じものの呼び替え
+
+同じ語の繰り返しを避けて、1つのものを文ごとに別の名前で呼ぶ。読み手は別のものが出てきたと受け取る。
+
+#### AI版
+
+```
+`review.sh` は観点ごとにレビュアーを起動する。本スクリプトは結果をJSONで返す。当該ツールの出力は、同ツールのログにも残る。
+
+`review.sh` starts one reviewer per perspective. The script returns JSON. The tool also writes its output to the utility's log.
+```
+
+#### 修正版
+
+```
+`review.sh` は観点ごとにレビュアーを起動し、結果をJSONで返す。結果は `review.sh` のログにも残る。
+
+`review.sh` starts one reviewer per perspective and returns JSON. `review.sh` also writes the results to its log.
+```
+
+#### 修正の型
+
+- 最初に出した名前で最後まで呼ぶ
+- 前の文と主語が同じ場合
+    - 1文にまとめる
+- 呼び替えに使われやすい語
+    - `本〜`
+    - `当該`
+    - `同〜`
+    - `the tool`
+    - `the utility`
+
 ## 検出手順
 
 1. 否定のあとに肯定が続く形を集める
@@ -319,3 +351,5 @@ This skill reviews from seven perspectives. It works in Japanese and English, an
         - 地名
         - 肩書き
         - 評価
+9. 文書に出てくるもの1つごとに、呼び名を集める
+    - 2つ以上の名前で呼んでいるものを指摘する
