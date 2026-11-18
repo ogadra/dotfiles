@@ -62,7 +62,9 @@ Rewrite each as a plain description.
 - READMEs
 ```
 
-### Bold pseudo-headings and out-of-scope sections
+### 太字のラベルで区切った節
+
+`scripts/mechanical.pl` catches the bold in a label such as `**Goal**:`, and its `fix` only strips the `**`. The `fix` leaves the label line and the section contents as they are.
 
 #### Before
 
@@ -95,7 +97,10 @@ Stop losing compound words in search. A query for "machine learning" splits into
 
 #### How to fix
 
-- Turn the bold labels into headings
-- Delete the out-of-scope section
-- Write what hurts under "Goal"
-- Move the means into its own section
+- A label line
+    - Turn it into a `##` heading
+- A goal section that describes the means
+    - Write what hurts under the goal
+    - Move the means into its own section
+- An out-of-scope section
+    - Delete it
