@@ -188,7 +188,7 @@ for my $i (0 .. $#lines) {
         }
         check_ja_commas($no, $line, $body) unless $body =~ /^\s*\|/;
         if ($body =~ /[０-９Ａ-Ｚａ-ｚ]/) {
-            (my $fix = $line) =~ tr/０-９Ａ-Ｚａ-ｚ/0-9A-Za-z/;
+            my $fix = outside_masked($line, sub { (my $s = shift) =~ tr/０-９Ａ-Ｚａ-ｚ/0-9A-Za-z/; return $s });
             add('記号', $no, $line, '全角の英数字', '和文の中の英数字を全角で書いている。', $fix);
         }
     }
@@ -323,7 +323,8 @@ sub check_ja_commas {
         my $objects = () = $core =~ /を、/g;
         if ($objects == 1) {
             my $fix;
-            ($fix = $line) =~ s/を、/を/ if (() = $line =~ /を、/g) == 1;
+            $fix = outside_masked($line, sub { (my $s = shift) =~ s/を、/を/; return $s })
+                if (() = $body =~ /を、/g) == 1;
             add('記号', $no, $line, '間を作る読点', '`を` のあとに読点を打っている。', $fix);
             next;
         }
@@ -338,8 +339,12 @@ sub check_ja_commas {
         # A second subject right after the comma, or a parallel topic, needs the comma to stay readable
         next if $after =~ /^[^、。]{1,10}が/;
         next if $after =~ /^[^、。]{1,12}(?:は|も)/ && substr($before, 0, -1) =~ /(?:は|も)/;
-        my $fix;
-        ($fix = $line) =~ s/\Q$head\E、/$head/ if index($line, "$head、") >= 0;
+        my $cut = 0;
+        my $fix = outside_masked($line, sub {
+            my $s = shift;
+            $cut = 1 if !$cut && $s =~ s/\Q$head\E、/$head/;
+            return $s;
+        });
         add('記号', $no, $line, '間を作る読点', "文頭の短い主題のあとに読点で間を作っている。（`$head、`）", $fix);
     }
 }
