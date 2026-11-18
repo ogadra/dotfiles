@@ -1,6 +1,6 @@
 # readable-writing
 
-AIが書いた文章特有の読みにくさを、エージェントが直すSkill。
+AIが書いた文章特有の読みにくさをエージェントが直すスキル。
 
 対象は次の文書。
 
@@ -11,7 +11,7 @@ AIが書いた文章特有の読みにくさを、エージェントが直すSki
 - コード内コメント
 - 実装計画書
 
-観点ごとに、`scripts/review.sh` が `agent -p` を並列で起動する。スキルを呼んだエージェントは出た指摘を同じセッションで直し、修正後の文章だけを返す。ポリシー全文はレビュアーだけが持ち、直すエージェントは `SKILL.md` の検出対象の一覧から必要な節だけを開く。
+`scripts/review.sh` は観点ごとのレビュアーを `agent -p` で並列に起動する。スキルを呼んだエージェントはレビュアーの指摘を同じセッションで直し、修正後の文章だけを返す。ポリシー全文はレビュアーだけが持ち、スキルを呼んだエージェントは `SKILL.md` の検出対象の一覧から必要な節だけを開く。
 
 ## 由来
 
@@ -21,7 +21,7 @@ AIが書いた文章特有の読みにくさを、エージェントが直すSki
 - 英語のパターン
     - [hardikpandya/stop-slop](https://github.com/hardikpandya/stop-slop)
     - MIT
-- 日本語の読点、語彙、構文の一部
+- 日本語に後から足した規則
     - [AnIT012/nihongo](https://github.com/AnIT012/nihongo)
     - [nanaism/yomiyasu](https://github.com/nanaism/yomiyasu)
     - MIT
@@ -76,11 +76,11 @@ policies/
 
 ## 指摘のログ
 
-出した指摘を、`review.sh` が `${XDG_STATE_HOME:-~/.local/state}/readable-writing/findings.tsv` に追記する。
+`review.sh` は出した指摘を `${XDG_STATE_HOME:-~/.local/state}/readable-writing/findings.tsv` に追記する。
 
 1指摘1行のTSV。ヘッダ行はない。列は `review.sh` の `log_findings` にある。
 
-肥大したら自分で切る。
+ファイルは自動では消えない。大きくなったら古い行を手で消す。
 
 ## ルールの追加と修正
 
@@ -89,7 +89,7 @@ policies/
 | 禁止する語 | `scripts/rules/<lang>.pl` の `@LITERAL` |
 | 系統ごとの出現回数で見る語 | `scripts/rules/ja.pl` の `@FAMILY` |
 | 何を指摘し何を見送るか | `prompts/judgement.md` |
-| findingsの各フィールドの中身 | `prompts/fields.md` |
+| 指摘の各フィールドの中身 | `prompts/fields.md` |
 | 文と文の並べ方 | `policies/common/rhetoric.md` |
 | その言語だけの言い回し | `policies/<lang>/<観点>.md` |
 | 箇条書きの書き方 | `policies/common/lists.md` |
