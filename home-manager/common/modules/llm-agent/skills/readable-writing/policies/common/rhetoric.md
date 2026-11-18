@@ -24,13 +24,13 @@ This skill keeps what the writer saw and got stuck on in the text.
 
 #### 修正の型
 
-否定を消して、落ちた分は肯定文の側を広げて埋める。
+否定を消し、否定で伝えていた違いを肯定文の中に書く。
 
 - 元の文
     - 「3本まとめて採点するのではなく、2本で採点する」
     - "We don't grade all three, we grade two."
 - 書き換え
-    - 「採点は該当する2本で行う」
+    - 「該当する2本を採点する」
     - "Grade the two that apply."
 - 比較を書き換える場合
     - 軸を名指して違いを具体的に書く
@@ -39,7 +39,7 @@ This skill keeps what the writer saw and got stuck on in the text.
 
 ### 否定的列挙
 
-示したいものの前に、何でないかを並べる。
+言いたいものの前に何でないかを並べる。
 
 #### AI版
 
@@ -110,13 +110,13 @@ Bauer was born in New York in 1958. He was an early cognitive science researcher
 文を分ける。断定するかどうかは事実の出どころで決める。
 
 - 調べただけの事実
-    - 出所が伝わる書き方を選ぶ
+    - 出どころが伝わる書き方を選ぶ
 - 自分で検証した事実
     - 断定で書く
 
 ### 3項目並列
 
-`3つのポイント` のような見出しに出る。
+項目を3つ並べ、`3つのポイント` のような見出しを付ける。
 
 #### AI版
 
@@ -188,8 +188,6 @@ The waiting was the problem. At nine minutes I would switch branches and start s
 
 #### 修正の型
 
-ムラを残す。
-
 - 長さのムラ
     - 段落と文の長さをバラバラにする
     - 1行で終わる段落と10行続く段落を混ぜる
@@ -239,7 +237,7 @@ The waiting changed the most.
 
 #### 修正の型
 
-段落の終わり方をバラけさせる。途中で文を切ったり、結論を出さずに次へ行ったりを混ぜる。
+途中で文を切る段落や、結論を出さずに次へ進む段落を混ぜる。
 
 ### pull-quote調
 
@@ -272,7 +270,7 @@ At nine minutes I start something else while I wait. At three I can just watch t
 
 ### 文頭のクセ
 
-同じ語で文が始まり続ける。
+書き手が同じ語で文を書き始め続ける。
 
 #### AI版
 
@@ -292,7 +290,7 @@ This skill reviews from seven perspectives. It works in Japanese and English, an
 
 #### 修正の型
 
-繰り返している語を含む文を、別の語から始まる形に書き直す。
+繰り返している語を含む文を別の語から始まる形に書き直す。
 
 ### 同じものの呼び替え
 
@@ -316,15 +314,10 @@ This skill reviews from seven perspectives. It works in Japanese and English, an
 
 #### 修正の型
 
-- 最初に出した名前で最後まで呼ぶ
+- 呼び替えた箇所
+    - 最初に出した名前に戻す
 - 前の文と主語が同じ場合
     - 1文にまとめる
-- 呼び替えに使われやすい語
-    - `本〜`
-    - `当該`
-    - `同〜`
-    - `the tool`
-    - `the utility`
 
 ## 検出手順
 
@@ -336,8 +329,8 @@ This skill reviews from seven perspectives. It works in Japanese and English, an
         - `3つの`
         - `three`
     - 項目数が3の箇条書きを集める
-        - 見出しに項目数を書いたもの
-        - 中身の重なる項目があるものを残す
+        - 見出しに項目数を書いたものも集める
+        - 中身の重なる項目があるものに絞る
 5. 段落ごとに文字数を数える
     - 分散が小さい箇所を集める
 6. 各段落の最終文を集める
@@ -351,5 +344,11 @@ This skill reviews from seven perspectives. It works in Japanese and English, an
         - 地名
         - 肩書き
         - 評価
-9. 文書に出てくるもの1つごとに、呼び名を集める
+9. 文書に出てくるもの1つごとに呼び名を集める
+    - 探す語
+        - `本〜`
+        - `当該`
+        - `同〜`
+        - `the tool`
+        - `the utility`
     - 2つ以上の名前で呼んでいるものを指摘する

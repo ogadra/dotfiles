@@ -33,7 +33,7 @@ Since we moved to this architecture, adding a feature touches one file instead o
         - `設計者`
         - `コア開発者`
         - `運用チーム`
-- 文書やコードに何が書いてあるかを述べる文
+- 文書やコードに何が書いてあるかを述べる文の場合
     - 主語はそのままにする
     - 状態を表す動詞にする
         - `` `common/lists.md` にこの形の規則がある ``
@@ -90,8 +90,8 @@ Load testing put this endpoint over 500ms, so I put a cache in front of it.
 
 - 行為者が分かる場合
     - 能動態にする
-    - 文脈で行為者が一つに決まる場合
-        - 主語を省いてよい
+- 文脈で行為者が一つに決まる場合
+    - 主語を省いてよい
 - 行為者がいない場合
     - 状態を表す文に書き換える
 
@@ -115,9 +115,15 @@ If your build takes nine minutes and you run it six times a day, you're waiting 
 
 #### 修正の型
 
-- 集団を指す語を `自分` か `あなた` に書き換える
-    - `現代の開発者`
-    - `我々`
+- 書き換える語
+    - 集団を指す語
+        - `現代の開発者`
+        - `我々`
+- 書き換え先
+    - 書き手自身を指す場合
+        - `自分`
+    - 読み手を指す場合
+        - `あなた`
 
 ### 一般論だけの段落
 
@@ -139,13 +145,11 @@ In this repository, adding `actions/cache` took the first build from nine minute
 
 #### 修正の型
 
-- 入れるもの
-    - 具体的な話題
-        - 人
-        - エピソード
-        - 失敗
-    - 数値
-    - 固有名詞
+- 入れられる場合
+    - 次のどれかを入れる
+        - 書き手が関わった出来事
+        - 数値
+        - 固有名詞
 - 入れられない場合
     - その段落を消す
 
