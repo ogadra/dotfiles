@@ -162,7 +162,7 @@ In this repository, adding `actions/cache` took the first build from nine minute
     - 行為者が本文に出てくるか確かめる
 3. 集団を指す語
     - 具体的な誰かに置き換えられるか確かめる
-4. 一般論だけで進む段落
+4. 一般論だけの段落
     - 固有名詞が入っているか確かめる
     - 数値が入っているか確かめる
 5. 実装判断を主語にした文
