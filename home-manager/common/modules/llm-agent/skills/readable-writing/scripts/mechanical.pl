@@ -214,7 +214,8 @@ for my $i (0 .. $#lines) {
                     $cut = 1;
                     return $before . $rest;
                 });
-                $fix =~ s/\s{2,}/ /g;
+                $fix = outside_masked($fix, sub { (my $s = shift) =~ s/\s{2,}/ /g; return $s });
+                # Code spans and URLs never begin or end with whitespace, so trimming the line ends leaves them intact
                 $fix =~ s/^\s+|\s+$//g;
                 undef $fix if $fix eq '' || !$cut;
             }
