@@ -89,13 +89,14 @@ sub term_re {
 
 # Word lists live in per-language files, so bake the language that was read into every rule
 my $rules_dir = File::Spec->catdir(dirname(__FILE__), 'rules');
-my (@LITERAL, @FAMILY, @JA_ADVERBS, %LY_STOP);
+my (@LITERAL, @FAMILY, @VARIANTS, @JA_ADVERBS, %LY_STOP);
 for my $l (sort keys %lang) {
     my $path = File::Spec->catfile($rules_dir, "$l.pl");
     my $rules = do($path)
         or die "mechanical.pl: cannot load $path: $@$!\n";
     push @LITERAL, map { { %$_, l => $l } } @{ $rules->{literal} // [] };
     push @FAMILY,  map { { %$_, l => $l } } @{ $rules->{family}  // [] };
+    push @VARIANTS, @{ $rules->{variants} // [] };
     push @JA_ADVERBS, @{ $rules->{adverbs} // [] };
     $LY_STOP{$_} = 1 for keys %{ $rules->{ly_stop} // {} };
 }
@@ -176,6 +177,10 @@ for my $i (0 .. $#lines) {
             add('記号', $no, $line, '不要な半角スペース', '全角文字との境界に半角スペースが入っている。', $fix);
         }
         check_ja_commas($no, $line, $body) unless $body =~ /^\s*\|/;
+        if ($body =~ /[０-９Ａ-Ｚａ-ｚ]/) {
+            (my $fix = $line) =~ tr/０-９Ａ-Ｚａ-ｚ/0-9A-Za-z/;
+            add('記号', $no, $line, '全角の英数字', '和文の中の英数字を全角で書いている。', $fix);
+        }
     }
 
     add('記号', $no, $line, 'Em dashes', 'em dashで文を繋いでいる。', undef)
@@ -249,6 +254,22 @@ if ($lang{ja}) {
                 : "同じ語が3回以上出ている（$fam: " . join('、', @over) . '）';
             add('語彙', $line, $lines[$line - 1], $c, $why, undef);
         }
+    }
+
+    for my $group (@VARIANTS) {
+        my %first;
+        for my $i (0 .. $#lines) {
+            next if $skip[$i];
+            my $body = masked($lines[$i]);
+            for my $form (keys %$group) {
+                $first{$form} //= $i + 1 if $body =~ /$group->{$form}/;
+            }
+        }
+        next unless keys %first >= 2;
+        my @forms = sort { $first{$a} <=> $first{$b} } keys %first;
+        my $line = $first{ $forms[1] };
+        add('語彙', $line, $lines[$line - 1], '表記ゆれ',
+            '同じ語を2通り以上に書いている。（' . join('、', @forms) . '）', undef);
     }
 
     my @para;
