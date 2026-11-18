@@ -50,6 +50,13 @@ sub masked {
     return $line;
 }
 
+# Rewrites only the parts masked() leaves visible, so a fix never touches inline code or URLs
+sub outside_masked {
+    my ($line, $edit) = @_;
+    return join '', map { /^(?:`[^`]*`|https?:\/\/\S+)$/ ? $_ : $edit->($_) }
+        split /(`[^`]*`|https?:\/\/\S+)/, $line, -1;
+}
+
 sub is_structural {
     my $line = shift;
     return 1 if $line =~ /^\s*$/;
@@ -135,13 +142,16 @@ for my $i (0 .. $#lines) {
     my $bold_only = $body =~ /^\s*\*\*[^*]+\*\*\s*$/;
     my $bold_item = $body =~ /^\s*[-*+]\s+\*\*/;
     if ($body =~ /\*\*/ && !$bold_only && !$bold_item) {
-        (my $fix = $line) =~ s/\*\*//g;
-        $fix =~ s/$spaced//g if $lang{ja};
+        my $fix = outside_masked($line, sub {
+            (my $s = shift) =~ s/\*\*//g;
+            $s =~ s/$spaced//g if $lang{ja};
+            return $s;
+        });
         add('記号', $no, $line, '本文中の強調', '地の文の一部を太字にしている。', $fix);
     }
 
     if ($body =~ $emoji) {
-        (my $fix = $line) =~ s/\s*$emoji//g;
+        my $fix = outside_masked($line, sub { (my $s = shift) =~ s/\s*$emoji//g; return $s });
         add('記号', $no, $line, '装飾絵文字', '装飾の絵文字が入っている。', $fix);
     }
 
@@ -173,7 +183,7 @@ for my $i (0 .. $#lines) {
         add('記号', $no, $line, '地の文のコロン', '前を予告して後ろで受ける英語のコロンを地の文に持ち込んでいる。', undef)
             if $body =~ /[\p{Hiragana}\p{Katakana}\p{Han}][：:]/ && $body !~ /[：:]\s*$/;
         if ($body =~ $spaced) {
-            (my $fix = $line) =~ s/$spaced//g;
+            my $fix = outside_masked($line, sub { (my $s = shift) =~ s/$spaced//g; return $s });
             add('記号', $no, $line, '不要な半角スペース', '全角文字との境界に半角スペースが入っている。', $fix);
         }
         check_ja_commas($no, $line, $body) unless $body =~ /^\s*\|/;
@@ -192,7 +202,12 @@ for my $i (0 .. $#lines) {
             next unless $body =~ $re;
             my $fix;
             if ($rule->{cut}) {
-                ($fix = $line) =~ s/$re//;
+                my $cut = 0;
+                $fix = outside_masked($line, sub {
+                    my $s = shift;
+                    $cut = 1 if !$cut && $s =~ s/$re//;
+                    return $s;
+                });
                 $fix =~ s/\s{2,}/ /g;
                 $fix =~ s/^\s+|\s+$//g;
                 undef $fix if $fix eq '';
