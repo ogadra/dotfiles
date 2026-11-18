@@ -1,6 +1,7 @@
 import json
 import re
 from pathlib import Path
+from typing import Any
 
 from .commands import capture, capture_text, exit_code, try_run
 from .errors import CommandError, ConflictError, LockRegressionError, RebaseStalledError
@@ -33,21 +34,56 @@ def keep_newer_version(path: str) -> None:
     file.write_text(HUNK.sub(keep_newer, file.read_text(encoding="utf-8")), encoding="utf-8")
 
 
-def stamps(content: bytes | str) -> dict[str, int]:
-    nodes = json.loads(content)["nodes"]
-    return {
-        name: node["locked"]["lastModified"]
-        for name, node in nodes.items()
-        if "lastModified" in node.get("locked", {})
-    }
+def last_modified(node: dict[str, Any]) -> int | None:
+    stamp: int | None = node.get("locked", {}).get("lastModified")
+    return stamp
+
+
+def check_lock(main_lock: bytes | str, branch_lock: bytes | str) -> None:
+    on_main: dict[str, Any] = json.loads(main_lock)["nodes"]
+    on_branch: dict[str, Any] = json.loads(branch_lock)["nodes"]
+
+    def parents(name: str) -> list[str]:
+        # A list value is a follows path, not an edge, so only string values name a child node.
+        return [
+            parent for parent, node in on_main.items() if name in node.get("inputs", {}).values()
+        ]
+
+    def moved_forward(name: str, seen: frozenset[str]) -> bool:
+        if name in seen:
+            return False
+        main_stamp = last_modified(on_main[name])
+        if main_stamp is None:
+            return False
+        if name not in on_branch:
+            return dropped_by_newer_parent(name, seen)
+        branch_stamp = last_modified(on_branch[name])
+        return branch_stamp is not None and branch_stamp > main_stamp
+
+    def dropped_by_newer_parent(name: str, seen: frozenset[str]) -> bool:
+        # A node can vanish only because an upstream release stopped depending on it.
+        found = parents(name)
+        return bool(found) and all(moved_forward(parent, seen | {name}) for parent in found)
+
+    older = []
+    for name, node in on_main.items():
+        stamp = last_modified(node)
+        if stamp is None:
+            continue
+        if name in on_branch:
+            if (last_modified(on_branch[name]) or 0) < stamp:
+                older.append(name)
+        elif not dropped_by_newer_parent(name, frozenset()):
+            older.append(name)
+    if older:
+        raise LockRegressionError(sorted(older))
 
 
 def verify_lock() -> None:
-    on_main = stamps(capture("git", "show", "origin/main:flake.lock"))
-    on_branch = stamps(Path("flake.lock").read_text(encoding="utf-8"))
-    older = sorted(name for name, stamp in on_main.items() if on_branch.get(name, 0) < stamp)
-    if older:
-        raise LockRegressionError(older)
+    check_lock(
+        capture("git", "show", "origin/main:flake.lock"),
+        Path("flake.lock").read_text(encoding="utf-8"),
+    )
 
 
 def resolve(path: str) -> None:
