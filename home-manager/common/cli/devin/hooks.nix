@@ -98,6 +98,7 @@ in
     else
       {
         ".config/devin/scripts/block-sudo.sh" = mkScript (shared + "/scripts/block-sudo.sh");
+        ".config/devin/scripts/block-non-nix.sh" = mkScript (shared + "/scripts/block-non-nix.sh");
         ".config/devin/scripts/git/block-no-verify.sh" = mkScript (
           shared + "/scripts/git/block-no-verify.sh"
         );

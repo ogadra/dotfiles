@@ -59,6 +59,9 @@ in
         "codex/hooks/block-sudo.sh" = {
           source = shared + "/scripts/block-sudo.sh";
         };
+        "codex/hooks/block-non-nix.sh" = {
+          source = shared + "/scripts/block-non-nix.sh";
+        };
         "codex/hooks/git/block-no-verify.sh" = {
           source = shared + "/scripts/git/block-no-verify.sh";
         };
