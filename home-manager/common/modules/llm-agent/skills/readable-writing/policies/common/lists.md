@@ -201,6 +201,42 @@ First, make ownership explicit. Second, review on a schedule. Third, build a way
 - 順序に意味がある場合
     - 番号を振る
 
+### 形のそろわない並列
+
+並べた項目の文法の形がそろっていない。名詞の項目と動詞の項目が混ざると、読み手は項目どうしの関係を読み違える。
+
+#### AI版
+
+```
+- キャッシュの導入
+- テストを並列で回す
+- ログの出力先が変わった
+
+- Cache introduction
+- Run tests in parallel
+- The log destination changed
+```
+
+#### 修正版
+
+```
+- キャッシュを入れる
+- テストを並列で回す
+- ログの出力先を変える
+
+- Add a cache
+- Run tests in parallel
+- Change the log destination
+```
+
+#### 修正の型
+
+- 並べた項目を同じ形にそろえる
+    - 手順と変更点
+        - 動詞の形
+    - 項目名
+        - 名詞の形
+
 ## 検出手順
 
 1. 並列を1行に詰め込んだ項目を集める
@@ -230,6 +266,8 @@ First, make ownership explicit. Second, review on a schedule. Third, build a way
     - 段落が並列の項目になっていないか確かめる
 5. 第1階層と子項目を突き合わせる
     - 第1階層に値や条件を置き、項目名を1段下げていないか確かめる
+6. 同じ階層に並んだ項目の終わり方を並べる
+    - 名詞で終わる項目と動詞で終わる項目が混ざっていないか確かめる
 
 ## 平坦な箇条書きと詰め込みが同時に出る例
 
