@@ -21,7 +21,7 @@ let
         --set CO_AUTHOR "Claude <noreply@anthropic.com>"
     '';
   };
-  hooksConfig = import ./hooks.nix { inherit isucon; };
+  hooksConfig = import ./hooks.nix { inherit pkgs isucon; };
 
   settingsJson = builtins.toJSON (import ./settings.nix { inherit hooksConfig isucon; });
   skills = import (shared + "/skills.nix") { inherit lib isucon; };

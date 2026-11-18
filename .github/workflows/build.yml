@@ -36,4 +36,17 @@ jobs:
         with:
           name: ogadra-dotfiles
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
-      - run: nix build --print-out-paths '.#${{ matrix.cfg }}."${{ matrix.host }}".config.system.build.toplevel' --no-link
+      - env:
+          ATTR: ${{ matrix.cfg }}."${{ matrix.host }}".config.system.build.toplevel
+        run: |
+          # Up to 3 retries waiting 30s, 60s, then 120s; only network failures retry, since a build error would fail the same way again
+          set -o pipefail
+          for attempt in 0 1 2 3; do
+            if nix build --print-out-paths ".#$ATTR" --no-link 2>&1 | tee build.log; then
+              exit 0
+            fi
+            if [ "$attempt" -eq 3 ] || ! grep -q -E 'unable to download|curl error|networking issues' build.log; then
+              exit 1
+            fi
+            sleep $(( 30 * 2 ** attempt ))
+          done

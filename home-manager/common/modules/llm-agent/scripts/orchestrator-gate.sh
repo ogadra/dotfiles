@@ -62,9 +62,9 @@ case "$TOOL" in
         "herdr agent prompt"*) deny "herdr agent prompt is not allowed. Send instructions, rulings and notices to the worker's session with SendMessage." ;;
       esac
       case "$SEG" in
-        # Issue reading and report checks run in lanes too, so the parent keeps only herdr and jq for herdr's JSON output
-        "herdr "* | "jq "*) ;;
-        *) deny "only herdr and jq run here." ;;
+        # Issue reading and report checks run in lanes too, so the parent keeps only what driving lanes and handing commands to the user need
+        "herdr "* | "jq "* | @clipboardCommand@ | "@clipboardCommand@ "*) ;;
+        *) deny "only herdr, jq and @clipboardCommand@ run here." ;;
       esac
     done < <(printf '%s' "$CMD" | "$SCRIPT_DIR/normalize.sh")
     ;;

@@ -1,4 +1,5 @@
 {
+  pkgs,
   isucon ? false,
 }:
 let
@@ -22,6 +23,10 @@ in
           {
             type = "command";
             command = "$HOME/.claude/scripts/herdr-name-tab.sh";
+          }
+          {
+            type = "command";
+            command = "$HOME/.claude/scripts/ask-gate.sh";
           }
         ];
       }
@@ -106,7 +111,15 @@ in
       shared + "/scripts/ensure-trailing-newline.sh"
     );
     ".claude/scripts/herdr-name-tab.sh" = mkScript (shared + "/scripts/herdr-name-tab.sh");
-    ".claude/scripts/orchestrator-gate.sh" = mkScript (shared + "/scripts/orchestrator-gate.sh");
+    ".claude/scripts/ask-gate.sh" = mkScript (shared + "/scripts/ask-gate.sh");
+    ".claude/scripts/orchestrator-gate.sh" = mkScript (
+      pkgs.replaceVarsWith {
+        src = shared + "/scripts/orchestrator-gate.sh";
+        # replaceVars drops the exec bit that mkScript relies on
+        isExecutable = true;
+        replacements.clipboardCommand = if pkgs.stdenv.hostPlatform.isLinux then "wl-copy" else "pbcopy";
+      }
+    );
     ".claude/scripts/statusline.sh" = mkScript ./scripts/statusline.sh;
     ".claude/scripts/git/check.sh" = mkScript (shared + "/scripts/git/check.sh");
     ".claude/scripts/git/block-default-commit.sh" = mkScript (
@@ -124,9 +137,11 @@ in
       shared + "/scripts/git/block-worktree-outside.sh"
     );
     ".claude/scripts/gh/check.sh" = mkScript (shared + "/scripts/gh/check.sh");
+    ".claude/scripts/gh/lib.sh" = mkScript (shared + "/scripts/gh/lib.sh");
     ".claude/scripts/gh/block-repo-clone.sh" = mkScript (shared + "/scripts/gh/block-repo-clone.sh");
     ".claude/scripts/gh/block-pr-close.sh" = mkScript (shared + "/scripts/gh/block-pr-close.sh");
     ".claude/scripts/gh/block-reply.sh" = mkScript (shared + "/scripts/gh/block-reply.sh");
+    ".claude/scripts/gh/block-mention.sh" = mkScript (shared + "/scripts/gh/block-mention.sh");
     ".claude/scripts/gh/pr-body.sh" = mkScript ./scripts/pr-body.sh;
   }
   // (

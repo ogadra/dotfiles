@@ -4,7 +4,7 @@
 }:
 let
   orchestrator = builtins.readFile ./skills/orchestrator/SKILL.md;
-  noPrPointer = "\n\nユーザーがPRを作らないよう指示したタスクは、末尾の「PRを作らないタスク」に従う。";
+  noPrPointer = "\n\nユーザーがPRを作らないよう指示したタスクでは、親とワーカーは末尾の「PRを作らないタスク」に従う。";
   orchestratorParts = lib.splitString "\n## PRを作らないタスク\n" orchestrator;
   # ISUCON lanes always open a PR, so its build cuts the no-PR parts out of the one skill file instead of keeping a second copy that would drift
   isuconOrchestrator =
@@ -33,4 +33,5 @@ in
   "pr-review/policies/stop-slop.md" = ./skills/pr-review/policies/stop-slop.md;
   "pr-review/policies/testing.md" = ./skills/pr-review/policies/testing.md;
   "readable-writing" = ./skills/readable-writing;
+  "terraform/SKILL.md" = ./skills/terraform/SKILL.md;
 }
