@@ -181,8 +181,10 @@ lib.mkMerge [
     '';
 
     home.activation.registerEspanso = lib.hm.dag.entryAfter [ "installEspanso" ] ''
-      if [ ! -f "$HOME/Library/LaunchAgents/com.federicoterzi.espanso.plist" ]; then
-        /Applications/Espanso.app/Contents/MacOS/espanso service register
+      _plist="$HOME/Library/LaunchAgents/com.federicoterzi.espanso.plist"
+      if [ ! -f "$_plist" ]; then
+        /Applications/Espanso.app/Contents/MacOS/espanso service register \
+          || /bin/launchctl bootstrap "gui/$(/usr/bin/id -u)" "$_plist"
       fi
     '';
   })
