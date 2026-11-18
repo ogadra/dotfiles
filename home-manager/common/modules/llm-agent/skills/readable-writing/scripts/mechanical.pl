@@ -205,7 +205,8 @@ for my $i (0 .. $#lines) {
                 my $cut = 0;
                 $fix = outside_masked($line, sub {
                     my $s = shift;
-                    $cut = 1 if !$cut && $s =~ s/$re//;
+                    # The comma that closed the cut phrase would otherwise start the remaining sentence
+                    $cut = 1 if !$cut && $s =~ s/$re(?:\s*[、，,])?[ \t　]*//;
                     return $s;
                 });
                 $fix =~ s/\s{2,}/ /g;
