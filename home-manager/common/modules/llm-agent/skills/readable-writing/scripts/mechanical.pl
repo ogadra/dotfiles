@@ -210,7 +210,7 @@ for my $i (0 .. $#lines) {
                 });
                 $fix =~ s/\s{2,}/ /g;
                 $fix =~ s/^\s+|\s+$//g;
-                undef $fix if $fix eq '';
+                undef $fix if $fix eq '' || !$cut;
             }
             add($rule->{p}, $no, $line, $rule->{c}, "$rule->{problem}（`$term`）", $fix);
             last;
@@ -347,6 +347,7 @@ sub check_ja_commas {
             $cut = 1 if !$cut && $s =~ s/\Q$head\E、/$head/;
             return $s;
         });
+        undef $fix unless $cut;
         add('記号', $no, $line, '間を作る読点', "文頭の短い主題のあとに読点で間を作っている。（`$head、`）", $fix);
     }
 }
