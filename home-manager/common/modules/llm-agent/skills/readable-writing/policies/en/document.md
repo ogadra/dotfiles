@@ -62,7 +62,7 @@ Rewrite each as a plain description.
 - READMEs
 ```
 
-### The head of a design document
+### Bold pseudo-headings and out-of-scope sections
 
 #### Before
 
@@ -92,6 +92,8 @@ Stop losing compound words in search. A query for "machine learning" splits into
 - Move Elasticsearch from 7.x to 8.x
 - Swap the Japanese tokenizer from Kuromoji to Sudachi
 ```
+
+#### How to fix
 
 - Turn the bold labels into headings
 - Delete the out-of-scope section

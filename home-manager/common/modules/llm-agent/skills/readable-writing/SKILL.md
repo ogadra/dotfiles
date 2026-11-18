@@ -84,7 +84,7 @@ metadata:
     - 太字の疑似見出しとスコープ外の節
     - 本文を繰り返すまとめ
     - 本文に残った書き方の指示
-    - The head of a design document
+    - Bold pseudo-headings and out-of-scope sections
 - 修辞
     - 二項対比
     - 否定的列挙
