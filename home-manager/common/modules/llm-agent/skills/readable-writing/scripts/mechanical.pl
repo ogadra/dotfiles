@@ -109,6 +109,13 @@ my $spaced = qr/(?<=[\p{Hiragana}\p{Katakana}\p{Han}]) (?=[\p{Hiragana}\p{Kataka
 my $terminator = qr/[。．.！？!?：:；;」』）】\)\]"']$/;
 my $emoji = qr/[\x{1F000}-\x{1FAFF}\x{2600}-\x{26FF}\x{2705}\x{2728}\x{274C}\x{FE0F}]/;
 
+# Thresholds follow AnIT012/nihongo trim_commas.py; a sentence any longer or with a second comma needs a reader to judge
+my $comma_head = qr/(?:は|では|には|で|から|まで|までに|に|も)$/;
+my %comma_keep_head = map { $_ => 1 } qw(では それでは これでは 実は 要は 特に さらに 次に 最後に 最初に 逆に 同時に 実際に);
+my $comma_clause_before = qr/(?:る|た|い|ない)(?:まで|までは|うちは|ときは|時は|前は|あとは|後は)$/;
+my $comma_clause_after = qr/(?:てから|でから|たら|だら|れば|ので|ながら|つつ)[^、。]{2,}/;
+my $comma_keep_de = qr/(?:無料|有料|簡単|可能|不要|必要|便利|安全|丁寧|元気|静か)で$/;
+
 for my $i (0 .. $#lines - 1) {
     next if $skip[$i] || $skip[$i + 1];
     my ($cur, $next) = ($lines[$i], $lines[$i + 1]);
@@ -168,6 +175,7 @@ for my $i (0 .. $#lines) {
             (my $fix = $line) =~ s/$spaced//g;
             add('記号', $no, $line, '不要な半角スペース', '全角文字との境界に半角スペースが入っている。', $fix);
         }
+        check_ja_commas($no, $line, $body) unless $body =~ /^\s*\|/;
     }
 
     add('記号', $no, $line, 'Em dashes', 'em dashで文を繋いでいる。', undef)
@@ -265,6 +273,38 @@ if ($lang{ja}) {
         add('語彙', $polite[0], $lines[ $polite[0] - 1 ], '文末の敬体',
             '敬体と常体が混ざっている。',
             '文書全体を常体に書き換える。体言止めもこれに入る。敬体に揃える形は取らない。');
+    }
+}
+
+sub check_ja_commas {
+    my ($no, $line, $body) = @_;
+    for my $s (split /(?<=[。！？])/, $body) {
+        (my $core = $s) =~ s/^\s*(?:#+|[-*+]|\d+\.)\s+//;
+        $core =~ s/^\s+|\s+$//g;
+        my $commas = () = $core =~ /、/g;
+        next unless $commas;
+
+        my $objects = () = $core =~ /を、/g;
+        if ($objects == 1) {
+            my $fix;
+            ($fix = $line) =~ s/を、/を/ if (() = $line =~ /を、/g) == 1;
+            add('記号', $no, $line, '間を作る読点', '`を` のあとに読点を打っている。', $fix);
+            next;
+        }
+
+        next unless $commas == 1 && length($core) <= 36;
+        my ($before, $after) = split /、/, $core, 2;
+        my ($head) = $before =~ /([^「」（）()\s]*)$/;
+        next unless length($head) <= 9 && $head =~ $comma_head;
+        next if $comma_keep_head{$head} || $head =~ /つ目(?:は|に)$/;
+        next if $head =~ $comma_clause_before || $head =~ $comma_keep_de;
+        next if $after =~ $comma_clause_after;
+        # A second subject right after the comma, or a parallel topic, needs the comma to stay readable
+        next if $after =~ /^[^、。]{1,10}が/;
+        next if $after =~ /^[^、。]{1,12}(?:は|も)/ && substr($before, 0, -1) =~ /(?:は|も)/;
+        my $fix;
+        ($fix = $line) =~ s/\Q$head\E、/$head/ if index($line, "$head、") >= 0;
+        add('記号', $no, $line, '間を作る読点', "文頭の短い主題のあとに読点で間を作っている。（`$head、`）", $fix);
     }
 }
 
