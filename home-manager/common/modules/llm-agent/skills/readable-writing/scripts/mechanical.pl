@@ -278,7 +278,8 @@ if ($lang{ja}) {
             my $body = masked($lines[$i]);
             for my $form (keys %$group) {
                 next if $first{$form};
-                $first{$form} = [$i + 1, $-[0]] if $body =~ /$group->{$form}/;
+                # A katakana word right after the form makes a compound such as メモリリーク, which has its own spelling
+                $first{$form} = [$i + 1, $-[0]] if $body =~ /(?:$group->{$form})(?![ァ-ヴー])/;
             }
         }
         next unless keys %first >= 2;
