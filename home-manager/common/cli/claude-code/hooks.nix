@@ -150,6 +150,7 @@ in
     else
       {
         ".claude/scripts/block-sudo.sh" = mkScript (shared + "/scripts/block-sudo.sh");
+        ".claude/scripts/block-non-nix.sh" = mkScript (shared + "/scripts/block-non-nix.sh");
         ".claude/scripts/git/block-no-verify.sh" = mkScript (shared + "/scripts/git/block-no-verify.sh");
         ".claude/scripts/git/block-merge-non-base.sh" = mkScript (
           shared + "/scripts/git/block-merge-non-base.sh"
