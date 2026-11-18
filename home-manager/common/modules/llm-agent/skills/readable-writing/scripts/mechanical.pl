@@ -166,7 +166,7 @@ for my $i (0 .. $#lines) {
 
     if ($lang{ja}) {
         add('記号', $no, $line, '全角ダッシュ', '英語のem dashをそのまま持ち込んでいる。', undef)
-            if $body =~ /──/;
+            if $body =~ /──|[—―━]/;
         add('記号', $no, $line, '中黒並列', '地の文の並列を中黒で作っている。', undef)
             if $body =~ /\S・\S/;
         add('記号', $no, $line, '地の文のコロン', '前を予告して後ろで受ける英語のコロンを地の文に持ち込んでいる。', undef)
