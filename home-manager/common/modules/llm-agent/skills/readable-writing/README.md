@@ -21,6 +21,10 @@ AIが書いた文章特有の読みにくさを、エージェントが直すSki
 - 英語のパターン
     - [hardikpandya/stop-slop](https://github.com/hardikpandya/stop-slop)
     - MIT
+- 日本語の読点、語彙、構文の一部
+    - [AnIT012/nihongo](https://github.com/AnIT012/nihongo)
+    - [nanaism/yomiyasu](https://github.com/nanaism/yomiyasu)
+    - MIT
 
 ## 構成
 
