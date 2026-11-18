@@ -427,6 +427,107 @@ Don't poll with `gh run list` or `gh run view`. Report whether the push succeede
         - 判断の材料になる事実を書く
         - 「テストが3分を超えたら分割を検討する」の3分がこれにあたる
 
+### 本文を繰り返すまとめ
+
+本文で言い終えたことを、文書の最後でもう一度並べる。
+
+- 節の見出し
+    - 「まとめ」
+    - 「おわりに」
+    - 「Summary」
+- 段落の書き出し
+    - `まとめると、`
+    - `要するに、`
+    - `In summary,`
+
+#### AI版
+
+```
+## 原因
+
+`package-lock.json` のハッシュがキーに入っていなかった。
+
+## 対応
+
+キーにハッシュを足し、初回ビルドが9分から3分になった。
+
+## まとめ
+
+キャッシュのキーを見直したことで、ビルドが速くなった。
+
+## Cause
+
+The cache key left out the hash of `package-lock.json`.
+
+## Fix
+
+Adding the hash to the key took the first build from nine minutes to three.
+
+## Summary
+
+Revisiting the cache key made the build faster.
+```
+
+#### 修正版
+
+```
+## 原因
+
+`package-lock.json` のハッシュがキーに入っていなかった。
+
+## 対応
+
+キーにハッシュを足し、初回ビルドが9分から3分になった。
+
+## Cause
+
+The cache key left out the hash of `package-lock.json`.
+
+## Fix
+
+Adding the hash to the key took the first build from nine minutes to three.
+```
+
+#### 修正の型
+
+- 消す
+- まとめにしか無い数値、条件、例外
+    - 本文の該当する節へ移してから消す
+- 残すもの
+    - 本文に無い結論
+    - 読み手が次にすること
+
+### 書き方の指示の残り
+
+書き手がAIに出した指示や、書くときに決めた方針が本文に残っている。
+
+- 口調や文体の宣言
+- 扱う範囲を絞ったことの宣言
+- 使わなかった書き方の宣言
+
+#### AI版
+
+```
+今回は専門用語をできるだけ使わずに、変更の要点に絞って説明します。
+
+I'll keep this jargon-free and stick to the key points of the change.
+```
+
+#### 修正版
+
+```
+ログイン画面でパスワードを3回間違えると、10分ロックするようにした。
+
+The login screen now locks for ten minutes after three wrong passwords.
+```
+
+#### 修正の型
+
+- 宣言の文を消す
+- 宣言のあとの本文から書き始める
+- 読み手のために範囲や前提を示す文は残す
+    - `この手順は macOS だけを対象にする`
+
 ## 検出手順
 
 1. 見出しをすべて抜き出す
@@ -483,3 +584,12 @@ Don't poll with `gh run list` or `gh run view`. Report whether the push succeede
     - 手順の前後にある、その手順を取る理由の説明を集める
         - できない方法の記述もこれにあたる
         - 失敗する手順の記述もこれにあたる
+9. 文書の最後の節と段落を集める
+    - 本文に無い情報があるか確かめる
+10. 書く行為を述べる文を集める
+    - 探す語
+        - `説明します`
+        - `紹介します`
+        - `まとめます`
+        - `I'll`
+    - 口調や範囲の決め方を宣言していないか確かめる
