@@ -202,12 +202,21 @@ for my $i (0 .. $#lines) {
             next unless $body =~ $re;
             my $fix;
             if ($rule->{cut}) {
-                my $cut = 0;
+                my ($cut, $segment) = (0, 0);
                 $fix = outside_masked($line, sub {
                     my $s = shift;
+                    # outside_masked hands over the text before the first code span or URL first, so only that part touches the line start
+                    my $at_line_start = $segment++ == 0;
+                    return $s if $cut;
                     # The comma that closed the cut phrase would otherwise start the remaining sentence
-                    $cut = 1 if !$cut && $s =~ s/$re(?:\s*[、，,])?[ \t　]*//;
-                    return $s;
+                    return $s unless $s =~ /$re(?:\s*[、，,])?[ \t　]*/;
+                    my $before = substr($s, 0, $-[0]);
+                    my $rest = substr($s, $+[0]);
+                    my $sentence_start = ($at_line_start && $before =~ /^\s*(?:[-*+]\s+|\d+\.\s+|>\s*)?$/)
+                        || $before =~ /[.!?]\s+$/;
+                    $rest =~ s/^([a-z])/\u$1/ if $sentence_start;
+                    $cut = 1;
+                    return $before . $rest;
                 });
                 $fix =~ s/\s{2,}/ /g;
                 $fix =~ s/^\s+|\s+$//g;
