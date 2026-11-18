@@ -215,7 +215,7 @@ for my $i (0 .. $#lines) {
                     return $before . $rest;
                 });
                 $fix = outside_masked($fix, sub { (my $s = shift) =~ s/\s{2,}/ /g; return $s });
-                # Code spans and URLs never begin or end with whitespace, so trimming the line ends leaves them intact
+                # A code span is bounded by backticks and a matched URL holds no whitespace, so trimming the line ends never reaches inside either
                 $fix =~ s/^\s+|\s+$//g;
                 undef $fix if $fix eq '' || !$cut;
             }
