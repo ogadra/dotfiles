@@ -558,7 +558,7 @@ The login screen now locks for ten minutes after three wrong passwords.
     - 書き手が同名の別物を打ち消す文を集める
         - `〜は別物`
         - `〜とは無関係`
-    - しないことの記述の修正の型に沿って、集めた文を分ける
+    - しないことの記述にある修正の型で集めた文を分ける
 5. 経緯の記録を集める
     - 探す語
         - `変更点`
