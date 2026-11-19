@@ -194,21 +194,6 @@ my @LITERAL = (
         ],
     },
     {
-        p => '語彙', c => '補助語の漢字',
-        problem => '補助動詞か形式名詞を漢字で書いている。',
-        cut => 0,
-        terms => [
-            'て下さい',
-            '出来ます',
-            '出来る',
-            '出来な',
-            'て頂',
-            '但し',
-            '是非',
-            '既に',
-        ],
-    },
-    {
         p => '語彙', c => '咳払いの前置き',
         problem => '本題に入る前の時間稼ぎ。',
         cut => 1,
@@ -458,9 +443,16 @@ my @FAMILY = (
     },
 );
 
-my @FORMAL_NOUNS = (
-    '事',
-    '為',
+my @AUX_KANJI = (
+    { surface => '事', pos => '名詞', sub1 => '非自立' },
+    { surface => '為', pos => '名詞', sub1 => '非自立' },
+    { surface => '但し', pos => '接続詞' },
+    { surface => '是非', pos => '副詞' },
+    { surface => '既に', pos => '副詞' },
+    { base => '出来る', pos => '動詞' },
+    { base => '下さる', pos => '動詞', prev => 'て' },
+    { base => '頂く', pos => '動詞', prev => 'て' },
+    { base => '頂ける', pos => '動詞', prev => 'て' },
 );
 
 my @DOUBLE_NEGATIVES = (
@@ -504,6 +496,6 @@ return {
     family   => \@FAMILY,
     variants => \@VARIANTS,
     double_negatives => \@DOUBLE_NEGATIVES,
-    formal_nouns => \@FORMAL_NOUNS,
+    aux_kanji => \@AUX_KANJI,
     adverbs  => \@ADVERBS,
 };

@@ -96,7 +96,7 @@ sub term_re {
 
 # Word lists live in per-language files, so bake the language that was read into every rule
 my $rules_dir = File::Spec->catdir(dirname(__FILE__), 'rules');
-my (@LITERAL, @FAMILY, @VARIANTS, @DOUBLE_NEGATIVES, @FORMAL_NOUNS, @JA_ADVERBS, %LY_STOP);
+my (@LITERAL, @FAMILY, @VARIANTS, @DOUBLE_NEGATIVES, @AUX_KANJI, @JA_ADVERBS, %LY_STOP);
 for my $l (sort keys %lang) {
     my $path = File::Spec->catfile($rules_dir, "$l.pl");
     my $rules = do($path)
@@ -105,7 +105,7 @@ for my $l (sort keys %lang) {
     push @FAMILY,  map { { %$_, l => $l } } @{ $rules->{family}  // [] };
     push @VARIANTS, @{ $rules->{variants} // [] };
     push @DOUBLE_NEGATIVES, @{ $rules->{double_negatives} // [] };
-    push @FORMAL_NOUNS, @{ $rules->{formal_nouns} // [] };
+    push @AUX_KANJI, @{ $rules->{aux_kanji} // [] };
     push @JA_ADVERBS, @{ $rules->{adverbs} // [] };
     $LY_STOP{$_} = 1 for keys %{ $rules->{ly_stop} // {} };
 }
@@ -278,7 +278,7 @@ if ($lang{ja}) {
 
     check_ja_no_chains();
     check_ja_double_negatives();
-    check_ja_formal_nouns();
+    check_ja_aux_kanji();
 
     for my $group (@VARIANTS) {
         my %first;
@@ -450,14 +450,29 @@ sub check_ja_double_negatives {
     }
 }
 
-sub check_ja_formal_nouns {
+sub aux_kanji_matches {
+    my ($entry, $tokens, $k) = @_;
+    my $t = $tokens->[$k];
+    return 0 if defined $entry->{surface} && $t->{surface} ne $entry->{surface};
+    return 0 if defined $entry->{base} && ($t->{base} // '') ne $entry->{base};
+    return 0 if $t->{pos} ne $entry->{pos};
+    return 0 if defined $entry->{sub1} && $t->{sub1} ne $entry->{sub1};
+    return 0 if defined $entry->{prev} && !($k > 0 && $tokens->[ $k - 1 ]{surface} eq $entry->{prev});
+    return 1;
+}
+
+sub check_ja_aux_kanji {
     my $tokens = mecab_tokens();
-    my %formal = map { $_ => 1 } @FORMAL_NOUNS;
     for my $i (0 .. $#lines) {
         next if $skip[$i];
-        my ($hit) = grep { $formal{ $_->{surface} } && $_->{pos} eq '名詞' && $_->{sub1} eq '非自立' } @{ $tokens->[$i] };
-        next unless $hit;
-        add('語彙', $i + 1, $lines[$i], '補助語の漢字', "形式名詞を漢字で書いている。（`$hit->{surface}`）", undef);
+        my $line_tokens = $tokens->[$i];
+        my ($hit) = grep {
+            my $k = $_;
+            $line_tokens->[$k]{surface} =~ /\p{Han}/ && grep { aux_kanji_matches($_, $line_tokens, $k) } @AUX_KANJI
+        } 0 .. $#$line_tokens;
+        next unless defined $hit;
+        add('語彙', $i + 1, $lines[$i], '補助語の漢字',
+            "補助動詞、形式名詞、副詞、接続詞を漢字で書いている。（`$line_tokens->[$hit]{surface}`）", undef);
     }
 }
 

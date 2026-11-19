@@ -88,7 +88,7 @@ policies/
 |---|---|
 | 禁止する語 | `scripts/rules/<lang>.pl` の `@LITERAL` |
 | 二重否定の言い回し | `scripts/rules/ja.pl` の `@DOUBLE_NEGATIVES` |
-| ひらがなで書く形式名詞 | `scripts/rules/ja.pl` の `@FORMAL_NOUNS` |
+| ひらがなで書く補助語 | `scripts/rules/ja.pl` の `@AUX_KANJI` |
 | 系統ごとの出現回数で見る語 | `scripts/rules/ja.pl` の `@FAMILY` |
 | 1つの文書で書き方をそろえる語 | `scripts/rules/ja.pl` の `@VARIANTS` |
 | 何を指摘し何を見送るか | `prompts/judgement.md` |
@@ -111,7 +111,7 @@ policies/
 | 正規表現で決まる規則の検出 | `scripts/mechanical.pl` |
 | 「の」の連続の判定 | `scripts/mechanical.pl` の `check_ja_no_chains` |
 | 二重否定の判定 | `scripts/mechanical.pl` の `check_ja_double_negatives` |
-| 形式名詞の判定 | `scripts/mechanical.pl` の `check_ja_formal_nouns` |
+| 補助語の漢字の判定 | `scripts/mechanical.pl` の `check_ja_aux_kanji` |
 | `mechanical.pl` を動かすパッケージ | `scripts/review.sh` の `nix shell nixpkgs#perl nixpkgs#mecab` |
 
 | 観点を足すときに触る場所 | やること |
