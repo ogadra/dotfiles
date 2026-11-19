@@ -392,7 +392,7 @@ sub check_ja_no_chains {
         next if $skip[$i];
         my @units;
         for my $t (@{ $tokens->[$i] }) {
-            if ($t->{pos} eq '名詞' || $t->{pos} eq '接頭詞') {
+            if (($t->{pos} eq '名詞' || $t->{pos} eq '接頭詞') && $t->{surface} =~ /[\p{L}\p{N}]/) {
                 if (@units && $units[-1]{kind} eq 'noun') {
                     $units[-1]{text} .= $t->{surface};
                     $units[-1]{sahen} = $t->{pos} eq '名詞' && $t->{sub1} eq 'サ変接続';
