@@ -187,6 +187,10 @@ for my $i (0 .. $#lines) {
             add('記号', $no, $line, '不要な半角スペース', '全角文字との境界に半角スペースが入っている。', $fix);
         }
         check_ja_commas($no, $line, $body) unless $body =~ /^\s*\|/;
+        # Kana before の would also catch この and その, so only a noun written in kanji, katakana, or Latin letters counts as a link
+        if ($body =~ /((?:[\p{Han}\p{Katakana}ーA-Za-z0-9]+の){3,}[\p{Han}\p{Katakana}ーA-Za-z0-9]+)/) {
+            add('修辞', $no, $line, '「の」の連続', "名詞を「の」で3つ以上つないでいる。（`$1`）", undef);
+        }
         if ($body =~ /[０-９Ａ-Ｚａ-ｚ]/) {
             my $fix = outside_masked($line, sub { (my $s = shift) =~ tr/０-９Ａ-Ｚａ-ｚ/0-9A-Za-z/; return $s });
             add('記号', $no, $line, '全角の英数字', '和文の中の英数字を全角で書いている。', $fix);
