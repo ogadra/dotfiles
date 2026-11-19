@@ -8,14 +8,10 @@ let
   shared = ../../modules/llm-agent;
 
   devinManifest = lib.importJSON ./manifest.json;
-  devinTargets = {
-    x86_64-linux = "x86_64-unknown-linux";
-    aarch64-darwin = "aarch64-apple-darwin";
-  };
   devin-cli-unwrapped = pkgs.devin-cli.overrideAttrs {
     inherit (devinManifest) version;
     src = pkgs.fetchurl {
-      inherit (devinManifest.platforms.${devinTargets.${pkgs.stdenv.hostPlatform.system}}) url sha256;
+      inherit (devinManifest.platforms.${pkgs.stdenv.hostPlatform.system}) url sha256;
     };
   };
 
