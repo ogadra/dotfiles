@@ -4,6 +4,7 @@ use utf8;
 use open qw(:std :utf8);
 use File::Basename qw(dirname);
 use File::Spec;
+use File::Temp qw(tempfile);
 
 my ($lang_dirs, $target) = @ARGV;
 die "usage: mechanical.pl <lang-dirs> <target-file>\n" unless defined $target;
@@ -186,9 +187,6 @@ for my $i (0 .. $#lines) {
             add('記号', $no, $line, '不要な半角スペース', '全角文字との境界に半角スペースが入っている。', $fix);
         }
         check_ja_commas($no, $line, $body) unless $body =~ /^\s*\|/;
-        if ($body =~ /((?:[\p{Han}\p{Katakana}ーA-Za-z0-9]+の){3,}[\p{Han}\p{Katakana}ーA-Za-z0-9]+)/) {
-            add('修辞', $no, $line, '「の」の連続', "「の」を3つ以上重ねている。（`$1`）", undef);
-        }
         if ($body =~ /[０-９Ａ-Ｚａ-ｚ]/) {
             my $fix = outside_masked($line, sub { (my $s = shift) =~ tr/０-９Ａ-Ｚａ-ｚ/0-9A-Za-z/; return $s });
             add('記号', $no, $line, '全角の英数字', '和文の中の英数字を全角で書いている。', $fix);
@@ -277,6 +275,8 @@ if ($lang{ja}) {
         }
     }
 
+    check_ja_no_chains();
+
     for my $group (@VARIANTS) {
         my %first;
         for my $i (0 .. $#lines) {
@@ -353,6 +353,72 @@ sub check_ja_commas {
         });
         undef $fix unless $cut;
         add('記号', $no, $line, '間を作る読点', "文頭の短い主題のあとに読点で間を作っている。（`$head、`）", $fix);
+    }
+}
+
+my $mecab_tokens;
+sub mecab_tokens {
+    return $mecab_tokens if $mecab_tokens;
+    my ($fh, $path) = tempfile(UNLINK => 1);
+    binmode $fh, ':encoding(UTF-8)';
+    print $fh (($skip[$_] ? '' : masked($lines[$_])) . "\n") for 0 .. $#lines;
+    close $fh or die "mechanical.pl: cannot write $path: $!\n";
+    open my $out, '-|', 'mecab', $path or die "mechanical.pl: cannot run mecab: $!\n";
+    my (@sentences, @current);
+    while (my $row = <$out>) {
+        chomp $row;
+        if ($row eq 'EOS') {
+            push @sentences, [@current];
+            @current = ();
+            next;
+        }
+        my ($surface, $feature) = split /\t/, $row, 2;
+        my @f = split /,/, $feature;
+        push @current, { surface => $surface, pos => $f[0], sub1 => $f[1], base => $f[6] };
+    }
+    close $out or die "mechanical.pl: mecab failed (status $?)\n";
+    die 'mechanical.pl: mecab returned ' . scalar(@sentences) . ' sentences for ' . scalar(@lines) . " lines\n"
+        unless @sentences == @lines;
+    $mecab_tokens = \@sentences;
+    return $mecab_tokens;
+}
+
+sub check_ja_no_chains {
+    my $tokens = mecab_tokens();
+    for my $i (0 .. $#lines) {
+        next if $skip[$i];
+        my @units;
+        for my $t (@{ $tokens->[$i] }) {
+            if ($t->{pos} eq '名詞' || $t->{pos} eq '接頭詞') {
+                if (@units && $units[-1]{kind} eq 'noun') {
+                    $units[-1]{text} .= $t->{surface};
+                    $units[-1]{sahen} = $t->{pos} eq '名詞' && $t->{sub1} eq 'サ変接続';
+                } else {
+                    push @units, { kind => 'noun', text => $t->{surface}, sahen => $t->{pos} eq '名詞' && $t->{sub1} eq 'サ変接続' };
+                }
+            } elsif ($t->{pos} eq '助詞' && $t->{sub1} eq '連体化' && $t->{surface} eq 'の') {
+                push @units, { kind => 'no', text => 'の' };
+            } else {
+                push @units, { kind => 'other' };
+            }
+        }
+        my $start = 0;
+        while ($start < @units) {
+            if ($units[$start]{kind} ne 'noun') {
+                $start++;
+                next;
+            }
+            my $end = $start;
+            $end += 2 while $end + 2 <= $#units && $units[ $end + 1 ]{kind} eq 'no' && $units[ $end + 2 ]{kind} eq 'noun';
+            my $links = ($end - $start) / 2;
+            my $sahen = grep { $units[$_]{sahen} } grep { ($_ - $start) % 2 == 0 } $start .. $end;
+            if ($links >= 3 && $sahen >= 2) {
+                my $chain = join '', map { $units[$_]{text} } $start .. $end;
+                add('修辞', $i + 1, $lines[$i], '「の」の連続',
+                    "動作の名詞を含む語を「の」で3つ以上重ねている。（`$chain`）", undef);
+            }
+            $start = $end + 1;
+        }
     }
 }
 

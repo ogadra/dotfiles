@@ -32,7 +32,7 @@ AIが書いた文章特有の読みにくさをエージェントが直すスキ
 SKILL.md                 対象、レビューの起動、統合、修正、検出対象の一覧
 scripts/
 ├── review.sh            観点ごとに agent -p を並列起動し、findingsのJSONを返す
-├── mechanical.pl        正規表現で確定判定できるものを集める
+├── mechanical.pl        正規表現とMeCabの品詞で確定判定できるものを集める
 └── rules/               mechanical.pl が使う語リスト
     ├── ja.pl
     └── en.pl
@@ -103,6 +103,8 @@ policies/
 | 検出対象を足す | `policies/<lang>/<観点>.md` と `SKILL.md` の一覧 |
 | プロンプトの組み立て、言語判定、並列の起動 | `scripts/review.sh` |
 | 正規表現で決まる規則の検出 | `scripts/mechanical.pl` |
+| 品詞で決まる規則の検出 | `scripts/mechanical.pl` の `mecab_tokens` |
+| `mechanical.pl` を動かすパッケージ | `scripts/review.sh` の `nix shell nixpkgs#perl nixpkgs#mecab` |
 
 | 観点を足すときに触る場所 | やること |
 |---|---|
