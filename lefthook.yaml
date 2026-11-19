@@ -49,3 +49,6 @@ pre-commit:
       glob: "*.nix"
       run: nix fmt {staged_files}
       stage_fixed: true
+    08_systems:
+      glob: "*.nix"
+      run: uv run --locked python .github/scripts/check_systems.py {staged_files}
