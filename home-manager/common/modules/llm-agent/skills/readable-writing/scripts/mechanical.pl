@@ -190,7 +190,7 @@ for my $i (0 .. $#lines) {
         check_ja_commas($no, $line, $body) unless $body =~ /^\s*\|/;
         # Kana before の would also catch この and その, so only a noun written in kanji, katakana, or Latin letters counts as a link
         if ($body =~ /((?:[\p{Han}\p{Katakana}ーA-Za-z0-9]+の){3,}[\p{Han}\p{Katakana}ーA-Za-z0-9]+)/) {
-            add('修辞', $no, $line, '「の」の連続', "名詞を「の」で3つ以上つないでいる。（`$1`）", undef);
+            add('修辞', $no, $line, '「の」の連続', "「の」を3つ以上重ねている。（`$1`）", undef);
         }
         if ($body =~ /[０-９Ａ-Ｚａ-ｚ]/) {
             my $fix = outside_masked($line, sub { (my $s = shift) =~ tr/０-９Ａ-Ｚａ-ｚ/0-9A-Za-z/; return $s });
