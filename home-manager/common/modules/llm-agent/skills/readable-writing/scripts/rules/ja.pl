@@ -203,8 +203,6 @@ my @LITERAL = (
             '出来る',
             '出来な',
             'て頂',
-            'する事',
-            'する為',
             '但し',
             '是非',
             '既に',
@@ -460,6 +458,11 @@ my @FAMILY = (
     },
 );
 
+my @FORMAL_NOUNS = (
+    '事',
+    '為',
+);
+
 my @DOUBLE_NEGATIVES = (
     'ないわけではない',
     'ないわけではありません',
@@ -501,5 +504,6 @@ return {
     family   => \@FAMILY,
     variants => \@VARIANTS,
     double_negatives => \@DOUBLE_NEGATIVES,
+    formal_nouns => \@FORMAL_NOUNS,
     adverbs  => \@ADVERBS,
 };

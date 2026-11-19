@@ -96,7 +96,7 @@ sub term_re {
 
 # Word lists live in per-language files, so bake the language that was read into every rule
 my $rules_dir = File::Spec->catdir(dirname(__FILE__), 'rules');
-my (@LITERAL, @FAMILY, @VARIANTS, @DOUBLE_NEGATIVES, @JA_ADVERBS, %LY_STOP);
+my (@LITERAL, @FAMILY, @VARIANTS, @DOUBLE_NEGATIVES, @FORMAL_NOUNS, @JA_ADVERBS, %LY_STOP);
 for my $l (sort keys %lang) {
     my $path = File::Spec->catfile($rules_dir, "$l.pl");
     my $rules = do($path)
@@ -105,6 +105,7 @@ for my $l (sort keys %lang) {
     push @FAMILY,  map { { %$_, l => $l } } @{ $rules->{family}  // [] };
     push @VARIANTS, @{ $rules->{variants} // [] };
     push @DOUBLE_NEGATIVES, @{ $rules->{double_negatives} // [] };
+    push @FORMAL_NOUNS, @{ $rules->{formal_nouns} // [] };
     push @JA_ADVERBS, @{ $rules->{adverbs} // [] };
     $LY_STOP{$_} = 1 for keys %{ $rules->{ly_stop} // {} };
 }
@@ -277,6 +278,7 @@ if ($lang{ja}) {
 
     check_ja_no_chains();
     check_ja_double_negatives();
+    check_ja_formal_nouns();
 
     for my $group (@VARIANTS) {
         my %first;
@@ -445,6 +447,17 @@ sub check_ja_double_negatives {
             add('立場', $i + 1, $lines[$i], '弱い否定', "否定を重ねて、言い切る強さを弱めている。（`$term`）", undef);
             last;
         }
+    }
+}
+
+sub check_ja_formal_nouns {
+    my $tokens = mecab_tokens();
+    my %formal = map { $_ => 1 } @FORMAL_NOUNS;
+    for my $i (0 .. $#lines) {
+        next if $skip[$i];
+        my ($hit) = grep { $formal{ $_->{surface} } && $_->{pos} eq '名詞' && $_->{sub1} eq '非自立' } @{ $tokens->[$i] };
+        next unless $hit;
+        add('語彙', $i + 1, $lines[$i], '補助語の漢字', "形式名詞を漢字で書いている。（`$hit->{surface}`）", undef);
     }
 }
 
