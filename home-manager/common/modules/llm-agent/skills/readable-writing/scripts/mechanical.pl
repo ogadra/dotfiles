@@ -457,7 +457,11 @@ sub aux_kanji_matches {
     return 0 if defined $entry->{base} && ($t->{base} // '') ne $entry->{base};
     return 0 if $t->{pos} ne $entry->{pos};
     return 0 if defined $entry->{sub1} && $t->{sub1} ne $entry->{sub1};
-    return 0 if defined $entry->{prev} && !($k > 0 && $tokens->[ $k - 1 ]{surface} eq $entry->{prev});
+    if ($entry->{after_te}) {
+        return 0 unless $k > 0;
+        my $p = $tokens->[ $k - 1 ];
+        return 0 unless $p->{pos} eq '助詞' && $p->{sub1} eq '接続助詞' && $p->{surface} =~ /^[てで]$/;
+    }
     return 1;
 }
 

@@ -450,9 +450,9 @@ my @AUX_KANJI = (
     { surface => '是非', pos => '副詞' },
     { surface => '既に', pos => '副詞' },
     { base => '出来る', pos => '動詞' },
-    { base => '下さる', pos => '動詞', prev => 'て' },
-    { base => '頂く', pos => '動詞', prev => 'て' },
-    { base => '頂ける', pos => '動詞', prev => 'て' },
+    { base => '下さる', pos => '動詞', after_te => 1 },
+    { base => '頂く', pos => '動詞', after_te => 1 },
+    { base => '頂ける', pos => '動詞', after_te => 1 },
 );
 
 my @DOUBLE_NEGATIVES = (
