@@ -83,10 +83,9 @@ sub add {
 }
 
 sub term_re {
-    my ($term, $l, $before) = @_;
+    my ($term, $l) = @_;
     my @parts = split /〜|○○|\[X\]/, $term, -1;
     my $pat = join('.{0,25}', map { quotemeta } @parts);
-    $pat = "(?<=$before)$pat" if defined $before;
     if ($l eq 'en') {
         $pat = '\b' . $pat if $term =~ /^\w/;
         $pat = $pat . '\b' if $term =~ /\w$/;
@@ -97,7 +96,7 @@ sub term_re {
 
 # Word lists live in per-language files, so bake the language that was read into every rule
 my $rules_dir = File::Spec->catdir(dirname(__FILE__), 'rules');
-my (@LITERAL, @FAMILY, @VARIANTS, @JA_ADVERBS, %LY_STOP);
+my (@LITERAL, @FAMILY, @VARIANTS, @DOUBLE_NEGATIVES, @JA_ADVERBS, %LY_STOP);
 for my $l (sort keys %lang) {
     my $path = File::Spec->catfile($rules_dir, "$l.pl");
     my $rules = do($path)
@@ -105,6 +104,7 @@ for my $l (sort keys %lang) {
     push @LITERAL, map { { %$_, l => $l } } @{ $rules->{literal} // [] };
     push @FAMILY,  map { { %$_, l => $l } } @{ $rules->{family}  // [] };
     push @VARIANTS, @{ $rules->{variants} // [] };
+    push @DOUBLE_NEGATIVES, @{ $rules->{double_negatives} // [] };
     push @JA_ADVERBS, @{ $rules->{adverbs} // [] };
     $LY_STOP{$_} = 1 for keys %{ $rules->{ly_stop} // {} };
 }
@@ -198,7 +198,7 @@ for my $i (0 .. $#lines) {
 
     for my $rule (@LITERAL) {
         for my $term (@{ $rule->{terms} }) {
-            my $re = term_re($term, $rule->{l}, $rule->{before});
+            my $re = term_re($term, $rule->{l});
             next unless $body =~ $re;
             my $fix;
             if ($rule->{cut}) {
@@ -276,6 +276,7 @@ if ($lang{ja}) {
     }
 
     check_ja_no_chains();
+    check_ja_double_negatives();
 
     for my $group (@VARIANTS) {
         my %first;
@@ -418,6 +419,31 @@ sub check_ja_no_chains {
                     "動作の名詞を含む語を「の」で3つ以上重ねている。（`$chain`）", undef);
             }
             $start = $end + 1;
+        }
+    }
+}
+
+sub is_ja_negation {
+    my ($tokens, $k) = @_;
+    my $t = $tokens->[$k];
+    return 0 unless ($t->{base} // '') eq 'ない';
+    return 1 if $t->{pos} eq '形容詞';
+    return 0 unless $t->{pos} eq '助動詞';
+    return !($k > 0 && $tokens->[ $k - 1 ]{sub1} eq 'ナイ形容詞語幹');
+}
+
+sub check_ja_double_negatives {
+    my $tokens = mecab_tokens();
+    for my $i (0 .. $#lines) {
+        next if $skip[$i];
+        my $line_tokens = $tokens->[$i];
+        for my $k (0 .. $#$line_tokens) {
+            next unless is_ja_negation($line_tokens, $k);
+            my $tail = join '', map { $_->{surface} } @{$line_tokens}[ $k .. $#$line_tokens ];
+            my ($term) = grep { index($tail, $_) == 0 } @DOUBLE_NEGATIVES;
+            next unless defined $term;
+            add('立場', $i + 1, $lines[$i], '弱い否定', "否定を重ねて、言い切る強さを弱めている。（`$term`）", undef);
+            last;
         }
     }
 }
