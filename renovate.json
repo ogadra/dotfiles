@@ -30,9 +30,31 @@
       "matchStrings": ["python-version: \"?(?<currentValue>[^\"\\s]+)\"?"],
       "datasourceTemplate": "python-version",
       "depNameTemplate": "python"
+    },
+    {
+      "customType": "regex",
+      "description": "Track the devin-cli version in the copy of its manifest",
+      "managerFilePatterns": ["home-manager/common/cli/devin/manifest.json"],
+      "matchStrings": ["\"version\": \"(?<currentValue>[^\"]+)\""],
+      "datasourceTemplate": "custom.devin-cli",
+      "depNameTemplate": "devin-cli"
     }
   ],
+  "customDatasources": {
+    "devin-cli": {
+      "defaultRegistryUrlTemplate": "https://static.devin.ai/cli/current/manifest.json",
+      "transformTemplates": ["{\"releases\": [{\"version\": version}]}"]
+    }
+  },
   "packageRules": [
+    {
+      "matchDatasources": ["custom.devin-cli"],
+      "postUpgradeTasks": {
+        "commands": ["node home-manager/common/cli/devin/update-manifest.mjs"],
+        "fileFilters": ["home-manager/common/cli/devin/manifest.json"],
+        "executionMode": "update"
+      }
+    },
     {
       "matchManagers": ["nix"],
       "automerge": false,
