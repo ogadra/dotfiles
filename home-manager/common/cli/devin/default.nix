@@ -7,24 +7,15 @@
 let
   shared = ../../modules/llm-agent;
 
-  # static.devin.ai deletes superseded tarballs, so nixpkgs' pinned 3000.12.57 returns 403; values come from https://static.devin.ai/cli/current/manifest.json
-  devinVersion = "3000.14.30821";
-  devinSources = {
-    x86_64-linux = {
-      target = "x86_64-unknown-linux";
-      sha256 = "4dc43e3e4388bace60fe2aa8010cbb399402e724892d7175845b1cdef00e7ddb";
-    };
-    aarch64-darwin = {
-      target = "aarch64-apple-darwin";
-      sha256 = "46ef1a75d8bd851665179e136b7e39ad597d3d7913b95d67fd2b88e9c8af0061";
-    };
+  devinManifest = lib.importJSON ./manifest.json;
+  devinTargets = {
+    x86_64-linux = "x86_64-unknown-linux";
+    aarch64-darwin = "aarch64-apple-darwin";
   };
-  devinSource = devinSources.${pkgs.stdenv.hostPlatform.system};
   devin-cli-unwrapped = pkgs.devin-cli.overrideAttrs {
-    version = devinVersion;
+    inherit (devinManifest) version;
     src = pkgs.fetchurl {
-      url = "https://static.devin.ai/cli/${devinVersion}/devin-${devinVersion}-${devinSource.target}.tar.gz";
-      inherit (devinSource) sha256;
+      inherit (devinManifest.platforms.${devinTargets.${pkgs.stdenv.hostPlatform.system}}) url sha256;
     };
   };
 

@@ -1,0 +1,45 @@
+{
+  "version": "3000.14.30821",
+  "platforms": {
+    "aarch64-apple-darwin": {
+      "url": "https://static.devin.ai/cli/3000.14.30821/devin-3000.14.30821-aarch64-apple-darwin.tar.gz",
+      "sha256": "46ef1a75d8bd851665179e136b7e39ad597d3d7913b95d67fd2b88e9c8af0061"
+    },
+    "aarch64-unknown-linux": {
+      "url": "https://static.devin.ai/cli/3000.14.30821/devin-3000.14.30821-aarch64-unknown-linux.tar.gz",
+      "sha256": "3deb8af6b026060e975ed371936e139818020e5dc5abbcba07cde039f473a5a5"
+    },
+    "x86_64-apple-darwin": {
+      "url": "https://static.devin.ai/cli/3000.14.30821/devin-3000.14.30821-x86_64-apple-darwin.tar.gz",
+      "sha256": "e0ffc5fb0bc367270f20f15686bba74a2851959e782a37c016c68b91229ec0db"
+    },
+    "x86_64-unknown-linux": {
+      "url": "https://static.devin.ai/cli/3000.14.30821/devin-3000.14.30821-x86_64-unknown-linux.tar.gz",
+      "sha256": "4dc43e3e4388bace60fe2aa8010cbb399402e724892d7175845b1cdef00e7ddb"
+    },
+    "aarch64-pc-windows": {
+      "url": "https://static.devin.ai/cli/3000.14.30821/devin-3000.14.30821-aarch64-pc-windows.zip",
+      "sha256": "94a412821542021d5472c23ba167b9fd283e1e39852455647a8998312f0b9c72"
+    },
+    "x86_64-pc-windows": {
+      "url": "https://static.devin.ai/cli/3000.14.30821/devin-3000.14.30821-x86_64-pc-windows.zip",
+      "sha256": "23e723a68f4bebe4c5f57f42e0f9d8b069c91407d62584afefa05e246c51cf4d"
+    },
+    "x86_64-unknown-linux-musl": {
+      "url": "https://static.devin.ai/cli/3000.14.30821/devin-3000.14.30821-x86_64-unknown-linux.tar.gz",
+      "sha256": "4dc43e3e4388bace60fe2aa8010cbb399402e724892d7175845b1cdef00e7ddb"
+    },
+    "aarch64-unknown-linux-musl": {
+      "url": "https://static.devin.ai/cli/3000.14.30821/devin-3000.14.30821-aarch64-unknown-linux.tar.gz",
+      "sha256": "3deb8af6b026060e975ed371936e139818020e5dc5abbcba07cde039f473a5a5"
+    },
+    "x86_64-pc-windows-gnu": {
+      "url": "https://static.devin.ai/cli/3000.14.30821/devin-3000.14.30821-x86_64-pc-windows.zip",
+      "sha256": "23e723a68f4bebe4c5f57f42e0f9d8b069c91407d62584afefa05e246c51cf4d"
+    },
+    "aarch64-pc-windows-gnullvm": {
+      "url": "https://static.devin.ai/cli/3000.14.30821/devin-3000.14.30821-aarch64-pc-windows.zip",
+      "sha256": "94a412821542021d5472c23ba167b9fd283e1e39852455647a8998312f0b9c72"
+    }
+  }
+}
