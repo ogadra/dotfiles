@@ -50,7 +50,7 @@
     {
       "matchDatasources": ["custom.devin-cli"],
       "postUpgradeTasks": {
-        "commands": ["node home-manager/common/cli/devin/update-manifest.mjs"],
+        "commands": ["node home-manager/common/cli/devin/update-manifest.ts"],
         "fileFilters": ["home-manager/common/cli/devin/manifest.json"],
         "executionMode": "update"
       }
