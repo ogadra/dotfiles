@@ -82,6 +82,8 @@ my @LITERAL = (
         p => '立場', c => '弱い否定',
         problem => '否定を重ねて、言い切る強さを弱めている。',
         cut => 0,
+        # A verb or auxiliary negation ends in hiragana before ない (使えない, できない); a kanji there is an adjective such as 少ない or 危ない, at the cost of missing 関係なくはない
+        before => '\p{Hiragana}',
         terms => [
             'ないわけではない',
             'ないわけではありません',

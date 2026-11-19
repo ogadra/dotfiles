@@ -87,6 +87,7 @@ policies/
 | 直したいもの | 触るファイル |
 |---|---|
 | 禁止する語 | `scripts/rules/<lang>.pl` の `@LITERAL` |
+| 直前の字で当てる範囲を絞る語 | `scripts/rules/<lang>.pl` の `@LITERAL` の `before` |
 | 系統ごとの出現回数で見る語 | `scripts/rules/ja.pl` の `@FAMILY` |
 | 1つの文書で書き方をそろえる語 | `scripts/rules/ja.pl` の `@VARIANTS` |
 | 何を指摘し何を見送るか | `prompts/judgement.md` |

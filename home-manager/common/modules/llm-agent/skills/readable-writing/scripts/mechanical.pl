@@ -83,9 +83,10 @@ sub add {
 }
 
 sub term_re {
-    my ($term, $l) = @_;
+    my ($term, $l, $before) = @_;
     my @parts = split /〜|○○|\[X\]/, $term, -1;
     my $pat = join('.{0,25}', map { quotemeta } @parts);
+    $pat = "(?<=$before)$pat" if defined $before;
     if ($l eq 'en') {
         $pat = '\b' . $pat if $term =~ /^\w/;
         $pat = $pat . '\b' if $term =~ /\w$/;
@@ -202,7 +203,7 @@ for my $i (0 .. $#lines) {
 
     for my $rule (@LITERAL) {
         for my $term (@{ $rule->{terms} }) {
-            my $re = term_re($term, $rule->{l});
+            my $re = term_re($term, $rule->{l}, $rule->{before});
             next unless $body =~ $re;
             my $fix;
             if ($rule->{cut}) {
