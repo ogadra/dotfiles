@@ -7,9 +7,34 @@
 let
   shared = ../../modules/llm-agent;
 
+  # static.devin.ai deletes superseded tarballs, so nixpkgs' pinned 3000.12.57 returns 403; values come from https://static.devin.ai/cli/current/manifest.json
+  devinVersion = "3000.14.30821";
+  devinSources = {
+    x86_64-linux = {
+      target = "x86_64-unknown-linux";
+      sha256 = "4dc43e3e4388bace60fe2aa8010cbb399402e724892d7175845b1cdef00e7ddb";
+    };
+    aarch64-linux = {
+      target = "aarch64-unknown-linux";
+      sha256 = "3deb8af6b026060e975ed371936e139818020e5dc5abbcba07cde039f473a5a5";
+    };
+    aarch64-darwin = {
+      target = "aarch64-apple-darwin";
+      sha256 = "46ef1a75d8bd851665179e136b7e39ad597d3d7913b95d67fd2b88e9c8af0061";
+    };
+  };
+  devinSource = devinSources.${pkgs.stdenv.hostPlatform.system};
+  devin-cli-unwrapped = pkgs.devin-cli.overrideAttrs {
+    version = devinVersion;
+    src = pkgs.fetchurl {
+      url = "https://static.devin.ai/cli/${devinVersion}/devin-${devinVersion}-${devinSource.target}.tar.gz";
+      inherit (devinSource) sha256;
+    };
+  };
+
   devin-cli = pkgs.symlinkJoin {
     name = "devin-cli-wrapped";
-    paths = [ pkgs.devin-cli ];
+    paths = [ devin-cli-unwrapped ];
     nativeBuildInputs = [ pkgs.makeWrapper ];
     postBuild = ''
       wrapProgram $out/bin/devin \
