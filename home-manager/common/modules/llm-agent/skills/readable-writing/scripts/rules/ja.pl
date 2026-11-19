@@ -82,7 +82,6 @@ my @LITERAL = (
         p => '立場', c => '弱い否定',
         problem => '否定を重ねて、言い切る強さを弱めている。',
         cut => 0,
-        # A verb or auxiliary negation ends in hiragana before ない (使えない, できない); a kanji there is an adjective such as 少ない or 危ない, at the cost of missing 関係なくはない
         before => '\p{Hiragana}',
         terms => [
             'ないわけではない',
@@ -475,7 +474,6 @@ my @FAMILY = (
     },
 );
 
-# Each group lists the spellings of one word; a document that uses two of them gets one finding
 my @VARIANTS = (
     { 'サーバー' => 'サーバー', 'サーバ' => 'サーバ(?!ー)' },
     { 'ユーザー' => 'ユーザー', 'ユーザ' => 'ユーザ(?!ー)' },

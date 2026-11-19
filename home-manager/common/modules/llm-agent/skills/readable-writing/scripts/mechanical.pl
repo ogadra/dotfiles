@@ -50,7 +50,6 @@ sub masked {
     return $line;
 }
 
-# Rewrites only the parts masked() leaves visible, so a fix never touches inline code or URLs
 sub outside_masked {
     my ($line, $edit) = @_;
     return join '', map { /^(?:`[^`]*`|https?:\/\/\S+)$/ ? $_ : $edit->($_) }
@@ -118,7 +117,6 @@ my $spaced = qr/(?<=[\p{Hiragana}\p{Katakana}\p{Han}]) (?=[\p{Hiragana}\p{Kataka
 my $terminator = qr/[。．.！？!?：:；;」』）】\)\]"']$/;
 my $emoji = qr/[\x{1F000}-\x{1FAFF}\x{2600}-\x{26FF}\x{2705}\x{2728}\x{274C}\x{FE0F}]/;
 
-# Thresholds follow AnIT012/nihongo trim_commas.py; a sentence any longer or with a second comma needs a reader to judge
 my $comma_head = qr/(?:は|では|には|で|から|まで|までに|に|も)$/;
 my %comma_keep_head = map { $_ => 1 } qw(では それでは これでは 実は 要は 特に さらに 次に 最後に 最初に 逆に 同時に 実際に);
 my $comma_clause_before = qr/(?:る|た|い|ない)(?:まで|までは|うちは|ときは|時は|前は|あとは|後は)$/;
@@ -188,7 +186,6 @@ for my $i (0 .. $#lines) {
             add('記号', $no, $line, '不要な半角スペース', '全角文字との境界に半角スペースが入っている。', $fix);
         }
         check_ja_commas($no, $line, $body) unless $body =~ /^\s*\|/;
-        # Kana before の would also catch この and その, so only a noun written in kanji, katakana, or Latin letters counts as a link
         if ($body =~ /((?:[\p{Han}\p{Katakana}ーA-Za-z0-9]+の){3,}[\p{Han}\p{Katakana}ーA-Za-z0-9]+)/) {
             add('修辞', $no, $line, '「の」の連続', "「の」を3つ以上重ねている。（`$1`）", undef);
         }
@@ -211,16 +208,13 @@ for my $i (0 .. $#lines) {
                 $fix = outside_masked($line, sub {
                     my $s = shift;
                     return $s if $cut;
-                    # The comma that closed the cut phrase would otherwise start the remaining sentence
                     return $s unless $s =~ /$re(?:\s*[、，,])?[ \t　]*/;
                     my ($before, $removed, $rest) = (substr($s, 0, $-[0]), substr($s, $-[0], $+[0] - $-[0]), substr($s, $+[0]));
-                    # A capital on the cut word shows the writer started a sentence there; guessing from a preceding period misreads e.g. and Mr., and an all-lowercase name such as npm still gets capitalized
                     $rest =~ s/^([a-z])/\u$1/ if $removed =~ /^[A-Z]/ && $rest !~ /^[a-z]+[A-Z]/;
                     $cut = 1;
                     return $before . $rest;
                 });
                 $fix = outside_masked($fix, sub { (my $s = shift) =~ s/\s{2,}/ /g; return $s });
-                # A code span is bounded by backticks and a matched URL holds no whitespace, so trimming the line ends never reaches inside either
                 $fix =~ s/^\s+|\s+$//g;
                 undef $fix if $fix eq '' || !$cut;
             }
@@ -290,7 +284,6 @@ if ($lang{ja}) {
             my $body = masked($lines[$i]);
             for my $form (keys %$group) {
                 next if $first{$form};
-                # A katakana word right after the form makes a compound such as メモリリーク, which has its own spelling
                 $first{$form} = [$i + 1, $-[0]] if $body =~ /(?:$group->{$form})(?![ァ-ヴー])/;
             }
         }
@@ -350,7 +343,6 @@ sub check_ja_commas {
         next if $comma_keep_head{$head} || $head =~ /つ目(?:は|に)$/;
         next if $head =~ $comma_clause_before || $head =~ $comma_keep_de;
         next if $after =~ $comma_clause_after;
-        # A second subject right after the comma, or a parallel topic, needs the comma to stay readable
         next if $after =~ /^[^、。]{1,10}が/;
         next if $after =~ /^[^、。]{1,12}(?:は|も)/ && substr($before, 0, -1) =~ /(?:は|も)/;
         my $cut = 0;
