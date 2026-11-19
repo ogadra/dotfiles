@@ -82,7 +82,7 @@ policies/
 
 ファイルは自動では消えない。大きくなったら古い行を手で消す。
 
-## ルールの追加と修正
+## 変えるときに触るファイル
 
 | 直したいもの | 触るファイル |
 |---|---|
@@ -97,14 +97,21 @@ policies/
 | その言語だけの言い回し | `policies/<lang>/<観点>.md` |
 | 箇条書きの書き方 | `policies/common/lists.md` |
 | 見出しと節の立て方 | `policies/common/document.md` |
-| 記号の使い方 | `policies/common/symbols.md`, `policies/<lang>/symbols.md` |
+| 記号の使い方 | `policies/common/symbols.md` |
+| その言語だけの記号の使い方 | `policies/<lang>/symbols.md` |
 | 主語の立て方 | `policies/common/agency.md` |
-| 主張の強さ、引き受け方 | `policies/common/stance.md` |
-| 対象文書、統合、修正 | `SKILL.md` |
-| 検出対象を足す | `policies/<lang>/<観点>.md` と `SKILL.md` の一覧 |
-| プロンプトの組み立て、言語判定、並列の起動 | `scripts/review.sh` |
+| 書き手が主張をどこまで言い切るか | `policies/common/stance.md` |
+| 対象文書 | `SKILL.md` |
+| 指摘の統合 | `SKILL.md` |
+| 指摘の直し方 | `SKILL.md` |
+| 検出対象の一覧 | `SKILL.md` の `## 検出対象` |
+| レビュアーへのプロンプト | `scripts/review.sh` |
+| 本文の言語の判定 | `scripts/review.sh` |
+| 観点ごとのレビュアーの起動 | `scripts/review.sh` |
 | 正規表現で決まる規則の検出 | `scripts/mechanical.pl` |
-| 品詞で決まる規則の検出 | `scripts/mechanical.pl` の `mecab_tokens` |
+| 「の」の連続の判定 | `scripts/mechanical.pl` の `check_ja_no_chains` |
+| 二重否定の判定 | `scripts/mechanical.pl` の `check_ja_double_negatives` |
+| 形式名詞の判定 | `scripts/mechanical.pl` の `check_ja_formal_nouns` |
 | `mechanical.pl` を動かすパッケージ | `scripts/review.sh` の `nix shell nixpkgs#perl nixpkgs#mecab` |
 
 | 観点を足すときに触る場所 | やること |
