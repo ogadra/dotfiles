@@ -35,3 +35,4 @@ jobs:
           configurationFile: renovate-dated-config.json
         env:
           RENOVATE_REPOSITORIES: ${{ github.repository }}
+          RENOVATE_ALLOWED_COMMANDS: '["^node home-manager/common/cli/devin/update-manifest\\.ts$"]'
