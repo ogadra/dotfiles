@@ -6,16 +6,13 @@
 
 Rewrite each as a plain description.
 
-- Why We Chose X
-    - Reasons for picking X
-- What X Taught Us About Y
-    - Findings from the X outage
-- X Dies the Moment You Lose Y
-    - Impact of removing Y
-- Three Principles From the Trenches
-    - Rules we follow now
-- How X Solves Y
-    - X and Y
+| Before | After |
+|---|---|
+| Why We Chose X | Reasons for picking X |
+| What X Taught Us About Y | Findings from the X outage |
+| X Dies the Moment You Lose Y | Impact of removing Y |
+| Three Principles From the Trenches | Rules we follow now |
+| How X Solves Y | X and Y |
 
 ### Announcing the structure
 
