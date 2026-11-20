@@ -23,6 +23,7 @@ let
   desktopSettings = {
     AnalyticsEnabled = false;
     AutoDownloadUpdates = false;
+    AutoStart = false;
     EnableCLIHints = false;
     EnableDockerAI = false;
     EnableIntegrityCheck = false;
