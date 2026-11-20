@@ -17,6 +17,7 @@ jobs:
       - run: uv run --locked ruff check .github/scripts
       - run: uv run --locked mypy
       - run: uv run --locked python -m unittest discover -s .github/scripts/tests -t .github/scripts
+      - run: uv run --locked python .github/scripts/check_systems.py $(git ls-files "*.nix")
   nix:
     runs-on: ubuntu-latest
     steps:
