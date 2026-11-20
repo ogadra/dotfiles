@@ -14,18 +14,18 @@
 | `doesn't mean X, but actually Y` | `means Y` |
 | `is about X but not Y` | `is about X` |
 | `not just X but also Y` | `X and Y` |
-| `X that isn't Y` | `The retry loop drops the last error.` |
+| `X that isn't Y` | `X` |
 
 #### Before
 
 ```
-What if I told you that the best teams don't optimize for productivity? Here's what I mean: they optimize for learning. Think about it.
+The cache isn't the problem. The lockfile is. The build doesn't fail because of the network. It fails because of the hash.
 ```
 
 #### After
 
 ```
-The best teams optimize for learning.
+The cache key leaves out the lockfile hash, so every build misses.
 ```
 
 ### Negative listing
@@ -85,7 +85,7 @@ Search for `three` followed by a noun.
 ### Uniform paragraph endings
 
 - A short punch line closing paragraph after paragraph
-    - Vary the length of the closing sentence
+    - Vary the length of the punch line
 - `Not always. Not perfectly.`
     - Delete
 - `And that's okay.`

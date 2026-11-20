@@ -4,8 +4,6 @@
 
 ### Scare quotes
 
-You wrap an adjective or a judgment in quotes.
-
 #### Before
 
 - a "simple" fix

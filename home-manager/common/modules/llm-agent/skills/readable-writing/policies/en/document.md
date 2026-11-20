@@ -65,9 +65,9 @@ Rewrite each as a plain description.
 |---|---|---|
 | `**Goal**: text` | `本文中の強調` | Strips the `**` |
 | `**Out of scope**:` | `本文中の強調` | Strips the `**` |
-| `**Out of scope**:` | `見出しの代用` | None |
-| `**Goal**` | `見出しの代用` | None |
-| `- **Goal**: text` | `平坦な箇条書き` | None |
+| `**Out of scope**:` | `見出しの代用` | Fix by hand |
+| `**Goal**` | `見出しの代用` | Fix by hand |
+| `- **Goal**: text` | `平坦な箇条書き` | Fix by hand |
 
 #### Before
 
@@ -102,5 +102,5 @@ Stop losing compound words in search. A query for "machine learning" splits into
 
 1. Delete each out-of-scope bold label with its contents
 2. Turn the remaining bold labels into `##` headings
-3. Move the means under the goal heading into their own section
+3. Move the means under the goal heading into an `## Approach` section
 4. Write what hurts under the goal heading

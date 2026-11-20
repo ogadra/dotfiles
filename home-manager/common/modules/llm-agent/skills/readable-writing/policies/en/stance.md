@@ -25,6 +25,8 @@ This refactor has a structural problem. The implications are significant and the
 This refactor left seven places where `OrderService` calls `PaymentGateway` directly. Swapping the payment provider means editing all seven.
 ```
 
+#### How to fix
+
 Name the specific thing: the seven call sites, the missing index, whatever it is. If you can't name it, cut the sentence.
 
 ### Dodging the conclusion
@@ -77,9 +79,9 @@ Say `Don't do X`, and name the breaking point.
 
 Write what you measured.
 
-- `12 minutes down to 3`
-- `within noise`
-- `it flipped under load`
+- `It went from 12 minutes to 3`
+- `The difference was within noise`
+- `It flipped under load`
 
 #### Before
 

@@ -11,34 +11,39 @@ AIが書いた文章特有の読みにくさをエージェントが直すスキ
 - コード内コメント
 - 実装計画書
 
-`scripts/review.sh` は観点ごとのレビュアーを `agent -p` で並列に起動する。スキルを呼んだエージェントはレビュアーの指摘を同じセッションで直し、修正後の文章だけを返す。ポリシー全文はレビュアーだけが持ち、スキルを呼んだエージェントは `SKILL.md` の検出対象の一覧から必要な節だけを開く。
+`scripts/review.sh` は観点ごとのレビュアーを `agent -p` で並列に起動する。スキルを呼んだエージェントはレビュアーの指摘を同じセッションで直す。
+
+1. `SKILL.md` の検出対象の一覧から、指摘に当たる節だけを開く
+2. 指摘を直す
+3. 修正後の文章だけを返す
 
 ## 由来
 
 - 日本語のパターン
     - [iKora128/stop-ai-slop-jp](https://github.com/iKora128/stop-ai-slop-jp)
-    - MIT
+        - MIT
 - 英語のパターン
     - [hardikpandya/stop-slop](https://github.com/hardikpandya/stop-slop)
-    - MIT
-- 日本語に後から足した規則
+        - MIT
+- 日本語の文法と表記の規則
     - [AnIT012/nihongo](https://github.com/AnIT012/nihongo)
+        - MIT
     - [nanaism/yomiyasu](https://github.com/nanaism/yomiyasu)
-    - MIT
+        - MIT
 
 ## 構成
 
 ```
-SKILL.md                 対象、レビューの起動、統合、修正、検出対象の一覧
+SKILL.md                 対象、レビュアーの起動、統合、修正、検出対象の一覧
 scripts/
-├── review.sh            観点ごとに agent -p を並列起動し、findingsのJSONを返す
-├── mechanical.pl        正規表現とMeCabの品詞で確定判定できるものを集める
+├── review.sh            観点ごとに agent -p を並列起動し、指摘のJSONを返す
+├── mechanical.pl        正規表現とMeCabの品詞で機械的に判定できるものを集める
 └── rules/               mechanical.pl が使う語リスト
     ├── ja.pl
     └── en.pl
 prompts/                 レビュアーへの指示
 ├── judgement.md         何を指摘し何を見送るか
-└── fields.md            findingsの各フィールドに入れるもの
+└── fields.md            指摘の各フィールドに入れるもの
 policies/
 ├── common/              言語非依存のパターンと直し方
 │   ├── stance.md
@@ -64,7 +69,7 @@ policies/
 
 ## ポリシーの選択
 
-言語を見て、`review.sh` が該当ファイルの中身をプロンプトに埋め込む。
+`review.sh` は本文の文字種から言語を判定し、その言語のポリシーファイルの中身をプロンプトに埋め込む。
 
 - 全言語
     - `common/`
@@ -78,9 +83,9 @@ policies/
 
 `review.sh` は出した指摘を `${XDG_STATE_HOME:-~/.local/state}/readable-writing/findings.tsv` に追記する。
 
-1指摘1行のTSV。ヘッダ行はない。列は `review.sh` の `log_findings` にある。
+1指摘1行のTSVで、1行目から指摘が並ぶ。列は `review.sh` の `log_findings` にある。
 
-ファイルは自動では消えない。大きくなったら古い行を手で消す。
+ファイルは追記され続ける。大きくなったら古い行を手で消す。
 
 ## 変えるときに触るファイル
 
