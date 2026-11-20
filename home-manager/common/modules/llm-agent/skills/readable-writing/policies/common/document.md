@@ -73,7 +73,7 @@ Switch the retry interval to exponential backoff
 
 消した結果、本文が空になったら見出しだけを置く。
 
-### 見出しと中身のずれ
+### 見出しと本文のずれ
 
 見出しを立てたあと、手元にある中身でそこを埋める。
 

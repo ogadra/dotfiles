@@ -31,7 +31,7 @@
 どの語かを示すときにだけ括弧を使う。
 
 - 原語の併記
-    - `否定的列挙 (negative listing)`
+    - `否定の前置き (negative listing)`
 - 略語が初めて出る箇所での正式名称
     - `RAG (Retrieval-Augmented Generation)`
 

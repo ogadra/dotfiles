@@ -37,7 +37,7 @@ This skill keeps what the writer saw and got stuck on in the text.
         - 「この場面では速さより正確さを取った」
         - "Here we chose accuracy over speed."
 
-### 否定的列挙
+### 否定の前置き
 
 言いたいものの前に何でないかを並べる。
 
@@ -61,7 +61,7 @@ It finds the places where the writer has vanished from the text.
 
 言いたいものを最初に書く。
 
-### 劇的な断片化
+### 短文の連打
 
 短文を連発して深さを演出する。
 
@@ -114,7 +114,7 @@ Bauer was born in New York in 1958. He was an early cognitive science researcher
 - 自分で検証した事実
     - 断定で書く
 
-### 3項目並列
+### 数を3つにそろえた並列
 
 項目を3つ並べ、`3つのポイント` のような見出しを付ける。
 
@@ -150,7 +150,7 @@ Bauer was born in New York in 1958. He was an early cognitive science researcher
 
 3項目が並んでいたら、3つとも別の内容か確かめる。重なっているものを削る。
 
-### ムラの欠如
+### そろいすぎた段落
 
 段落の長さもトーンも揃えてしまう。どこに時間をかけてどこを流したかが長さと密度に出ないので、読み手は書き手が何に引っかかったのかを追えない。
 
@@ -201,7 +201,7 @@ The waiting was the problem. At nine minutes I would switch branches and start s
     - ここだけ詳しく書く
     - ここは雑に書く
 
-### 段落の均一な閉じ方
+### 段落の均一な終わり方
 
 #### AI版
 
@@ -292,7 +292,7 @@ This skill reviews from seven perspectives. It works in Japanese and English, an
 
 繰り返している語を含む文を別の語から始まる形に書き直す。
 
-### 同じものの呼び替え
+### 1つのものに付けた複数の呼び名
 
 同じ語の繰り返しを避けて、1つのものを文ごとに別の名前で呼ぶ。読み手は別のものが出てきたと受け取る。
 
@@ -324,7 +324,7 @@ This skill reviews from seven perspectives. It works in Japanese and English, an
 1. 否定のあとに肯定が続く形を集める
 2. 否定が3回以上続く箇所を探す
 3. 名詞で終わる短文が3つ以上連続する箇所を探す
-4. 3項目並列を探す
+4. 数を3つにそろえた並列を探す
     - 探す語
         - `3つの`
         - `three`

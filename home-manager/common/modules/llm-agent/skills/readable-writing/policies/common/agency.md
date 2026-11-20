@@ -95,7 +95,7 @@ Load testing put this endpoint over 500ms, so I put a cache in front of it.
 - 行為者がいない場合
     - 状態を表す文に書き換える
 
-### 遠くから語る話者
+### 遠くから語る書き手
 
 #### AI版
 

@@ -194,7 +194,7 @@ I've confirmed this works up to a hundred thousand jobs a day.
 - 適用範囲を書いても読み手が同じ判断をする場合
     - その節ごと消す
 
-### 儀式化した免責
+### 決まり文句の免責
 
 #### AI版
 
@@ -244,7 +244,7 @@ We retry up to three times. I picked that from a workload of a hundred thousand 
 - 根拠が無い場合
     - 免責の文を削る
 
-### 実施と予定の取り違え
+### 変更報告の取り違え
 
 変更を報告する文で、済んだことと予定、確かめたことと確かめていないことを区別せずに書く。
 
