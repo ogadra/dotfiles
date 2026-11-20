@@ -11,6 +11,7 @@ let
     ../../common/apps/karabiner
     ../../common/apps/macskk
     ../../common/apps/mos
+    ../../common/apps/rancher-desktop
     ../../common/apps/raycast
     ../../common/apps/shottr
     ../../common/apps/terminal
