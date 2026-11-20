@@ -2,7 +2,7 @@
 
 English phrasings for who did what.
 
-## What to find
+## Patterns
 
 ### False agency
 

@@ -1,6 +1,6 @@
 # Rhetoric
 
-## What to find
+## Patterns
 
 ### Binary contrasts
 

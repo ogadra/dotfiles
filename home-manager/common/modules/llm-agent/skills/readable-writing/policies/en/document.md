@@ -1,6 +1,6 @@
 # Document structure
 
-## What to find
+## Patterns
 
 ### Headings where you make a claim
 

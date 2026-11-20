@@ -1,6 +1,6 @@
 # Stance
 
-## What to find
+## Patterns
 
 ### Claims you can't argue with
 

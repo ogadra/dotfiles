@@ -1,6 +1,6 @@
 # Symbols
 
-## What to find
+## Patterns
 
 ### Scare quotes
 
