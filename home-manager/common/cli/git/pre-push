@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# Reject a push that carries commits without a good signature, since plumbing like `git commit-tree` ignores commit.gpgsign and re-signing pushed commits means rewriting history.
+set -u
+
+STATUS=0
+while read -r _ LOCAL_SHA _ _; do
+  # An all-zero sha is a branch deletion, which carries no commits
+  case "$LOCAL_SHA" in *[!0]*) ;; *) continue ;; esac
+  # Commits already on any remote were checked when they left, and others' merges there may be signed with keys this machine cannot verify
+  UNSIGNED=$(git log --format='%G? %h %s' "$LOCAL_SHA" --not --remotes | grep -v '^G ')
+  if [ -n "$UNSIGNED" ]; then
+    printf 'Rejected: these commits lack a good signature (%%G? is not G):\n%s\n' "$UNSIGNED" >&2
+    STATUS=1
+  fi
+done
+exit "$STATUS"
