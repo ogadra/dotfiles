@@ -1,27 +1,34 @@
 {
+  config,
+  lib,
   username,
   ...
 }:
 let
   shared = ../../modules/llm-agent;
 
-  mkHook = name: {
+  mkAgentHook = name: {
     source = shared + "/hooks/${name}";
+    executable = true;
+  };
+
+  hooksDir = "${config.xdg.configHome}/git/hooks";
+
+  mkHumanHook = name: {
+    source = ./hooks + "/${name}";
     executable = true;
   };
 in
 {
   home.file.".ssh/allowed_signers".source = ./allowed_signers;
 
-  # Hooks for LLM agent sessions, reached through core.hooksPath in the .gitconfig those sessions load via GIT_CONFIG_GLOBAL.
   xdg.configFile = {
-    "git/hooks-llm-agent/commit-msg" = mkHook "commit-msg";
-    "git/hooks-llm-agent/pre-commit" = mkHook "pre-commit";
-    "git/hooks-llm-agent/pre-push" = mkHook "pre-push";
-    "git/hooks/pre-push" = {
-      source = ./pre-push;
-      executable = true;
-    };
+    "git/hooks-llm-agent/commit-msg" = mkAgentHook "commit-msg";
+    "git/hooks-llm-agent/pre-commit" = mkAgentHook "pre-commit";
+    "git/hooks-llm-agent/pre-push" = mkAgentHook "pre-push";
+    "git/hooks/pre-commit" = mkHumanHook "pre-commit";
+    "git/hooks/pre-push" = mkHumanHook "pre-push";
+    "git/hooks/run-repo-hook" = mkHumanHook "run-repo-hook";
   };
 
   programs.git = {
@@ -32,6 +39,8 @@ in
         name = username;
         email = "61941819+ogadra@users.noreply.github.com";
       };
+
+      core.hooksPath = hooksDir;
 
       init.defaultBranch = "main";
       push.default = "current";
@@ -51,4 +60,13 @@ in
 
     ignores = import ./ignores.nix;
   };
+
+  home.activation.captureLefthookHooks = lib.hm.dag.entryBefore [ "checkLinkTargets" ] ''
+    for name in pre-commit pre-push; do
+      hook="${hooksDir}/$name"
+      if [ -f "$hook" ] && [ ! -L "$hook" ] && grep -q lefthook "$hook"; then
+        run mv "$hook" "${hooksDir}/$name.lefthook"
+      fi
+    done
+  '';
 }

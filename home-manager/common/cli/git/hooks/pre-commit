@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+set -eu
+
+if command -v gitleaks >/dev/null 2>&1; then
+  gitleaks protect --staged --redact --no-banner
+fi
+
+exec "$(dirname "$0")/run-repo-hook" pre-commit "$@"
