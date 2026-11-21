@@ -42,6 +42,7 @@ let
     ../../nixos/kwin
     ../../nixos/mouse
     ../../nixos/klipper
+    ../../nixos/libskk
     ../../nixos/mime-apps
     ../../nixos/screenlocker
     ../../nixos/wl-clipboard
