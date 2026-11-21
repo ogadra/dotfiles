@@ -4,6 +4,7 @@ use utf8;
 use open qw(:std :utf8);
 use File::Basename qw(dirname);
 use File::Spec;
+use File::Temp qw(tempfile);
 
 my ($lang_dirs, $target) = @ARGV;
 die "usage: mechanical.pl <lang-dirs> <target-file>\n" unless defined $target;
@@ -50,6 +51,12 @@ sub masked {
     return $line;
 }
 
+sub outside_masked {
+    my ($line, $edit) = @_;
+    return join '', map { /^(?:`[^`]*`|https?:\/\/\S+)$/ ? $_ : $edit->($_) }
+        split /(`[^`]*`|https?:\/\/\S+)/, $line, -1;
+}
+
 sub is_structural {
     my $line = shift;
     return 1 if $line =~ /^\s*$/;
@@ -89,13 +96,16 @@ sub term_re {
 
 # Word lists live in per-language files, so bake the language that was read into every rule
 my $rules_dir = File::Spec->catdir(dirname(__FILE__), 'rules');
-my (@LITERAL, @FAMILY, @JA_ADVERBS, %LY_STOP);
+my (@LITERAL, @FAMILY, @VARIANTS, @DOUBLE_NEGATIVES, @AUX_KANJI, @JA_ADVERBS, %LY_STOP);
 for my $l (sort keys %lang) {
     my $path = File::Spec->catfile($rules_dir, "$l.pl");
     my $rules = do($path)
         or die "mechanical.pl: cannot load $path: $@$!\n";
     push @LITERAL, map { { %$_, l => $l } } @{ $rules->{literal} // [] };
     push @FAMILY,  map { { %$_, l => $l } } @{ $rules->{family}  // [] };
+    push @VARIANTS, @{ $rules->{variants} // [] };
+    push @DOUBLE_NEGATIVES, @{ $rules->{double_negatives} // [] };
+    push @AUX_KANJI, @{ $rules->{aux_kanji} // [] };
     push @JA_ADVERBS, @{ $rules->{adverbs} // [] };
     $LY_STOP{$_} = 1 for keys %{ $rules->{ly_stop} // {} };
 }
@@ -108,6 +118,12 @@ for my $rule (@LITERAL) {
 my $spaced = qr/(?<=[\p{Hiragana}\p{Katakana}\p{Han}]) (?=[\p{Hiragana}\p{Katakana}\p{Han}A-Za-z0-9])|(?<=[A-Za-z0-9]) (?=[\p{Hiragana}\p{Katakana}\p{Han}])/;
 my $terminator = qr/[。．.！？!?：:；;」』）】\)\]"']$/;
 my $emoji = qr/[\x{1F000}-\x{1FAFF}\x{2600}-\x{26FF}\x{2705}\x{2728}\x{274C}\x{FE0F}]/;
+
+my $comma_head = qr/(?:は|では|には|で|から|まで|までに|に|も)$/;
+my %comma_keep_head = map { $_ => 1 } qw(では それでは これでは 実は 要は 特に さらに 次に 最後に 最初に 逆に 同時に 実際に);
+my $comma_clause_before = qr/(?:る|た|い|ない)(?:まで|までは|うちは|ときは|時は|前は|あとは|後は)$/;
+my $comma_clause_after = qr/(?:てから|でから|たら|だら|れば|ので|ながら|つつ)[^、。]{2,}/;
+my $comma_keep_de = qr/(?:無料|有料|簡単|可能|不要|必要|便利|安全|丁寧|元気|静か)で$/;
 
 for my $i (0 .. $#lines - 1) {
     next if $skip[$i] || $skip[$i + 1];
@@ -127,13 +143,16 @@ for my $i (0 .. $#lines) {
     my $bold_only = $body =~ /^\s*\*\*[^*]+\*\*\s*$/;
     my $bold_item = $body =~ /^\s*[-*+]\s+\*\*/;
     if ($body =~ /\*\*/ && !$bold_only && !$bold_item) {
-        (my $fix = $line) =~ s/\*\*//g;
-        $fix =~ s/$spaced//g if $lang{ja};
+        my $fix = outside_masked($line, sub {
+            (my $s = shift) =~ s/\*\*//g;
+            $s =~ s/$spaced//g if $lang{ja};
+            return $s;
+        });
         add('記号', $no, $line, '本文中の強調', '地の文の一部を太字にしている。', $fix);
     }
 
     if ($body =~ $emoji) {
-        (my $fix = $line) =~ s/\s*$emoji//g;
+        my $fix = outside_masked($line, sub { (my $s = shift) =~ s/\s*$emoji//g; return $s });
         add('記号', $no, $line, '装飾絵文字', '装飾の絵文字が入っている。', $fix);
     }
 
@@ -159,14 +178,19 @@ for my $i (0 .. $#lines) {
 
     if ($lang{ja}) {
         add('記号', $no, $line, '全角ダッシュ', '英語のem dashをそのまま持ち込んでいる。', undef)
-            if $body =~ /──/;
+            if $body =~ /──|[—―━]/;
         add('記号', $no, $line, '中黒並列', '地の文の並列を中黒で作っている。', undef)
             if $body =~ /\S・\S/;
         add('記号', $no, $line, '地の文のコロン', '前を予告して後ろで受ける英語のコロンを地の文に持ち込んでいる。', undef)
             if $body =~ /[\p{Hiragana}\p{Katakana}\p{Han}][：:]/ && $body !~ /[：:]\s*$/;
         if ($body =~ $spaced) {
-            (my $fix = $line) =~ s/$spaced//g;
+            my $fix = outside_masked($line, sub { (my $s = shift) =~ s/$spaced//g; return $s });
             add('記号', $no, $line, '不要な半角スペース', '全角文字との境界に半角スペースが入っている。', $fix);
+        }
+        check_ja_commas($no, $line, $body) unless $body =~ /^\s*\|/;
+        if ($body =~ /[０-９Ａ-Ｚａ-ｚ]/) {
+            my $fix = outside_masked($line, sub { (my $s = shift) =~ tr/０-９Ａ-Ｚａ-ｚ/0-9A-Za-z/; return $s });
+            add('記号', $no, $line, '全角の英数字', '和文の中の英数字を全角で書いている。', $fix);
         }
     }
 
@@ -179,10 +203,19 @@ for my $i (0 .. $#lines) {
             next unless $body =~ $re;
             my $fix;
             if ($rule->{cut}) {
-                ($fix = $line) =~ s/$re//;
-                $fix =~ s/\s{2,}/ /g;
+                my $cut = 0;
+                $fix = outside_masked($line, sub {
+                    my $s = shift;
+                    return $s if $cut;
+                    return $s unless $s =~ /$re(?:\s*[、，,])?[ \t　]*/;
+                    my ($before, $removed, $rest) = (substr($s, 0, $-[0]), substr($s, $-[0], $+[0] - $-[0]), substr($s, $+[0]));
+                    $rest =~ s/^([a-z])/\u$1/ if $removed =~ /^[A-Z]/ && $rest !~ /^[a-z]+[A-Z]/;
+                    $cut = 1;
+                    return $before . $rest;
+                });
+                $fix = outside_masked($fix, sub { (my $s = shift) =~ s/\s{2,}/ /g; return $s });
                 $fix =~ s/^\s+|\s+$//g;
-                undef $fix if $fix eq '';
+                undef $fix if $fix eq '' || !$cut;
             }
             add($rule->{p}, $no, $line, $rule->{c}, "$rule->{problem}（`$term`）", $fix);
             last;
@@ -243,6 +276,27 @@ if ($lang{ja}) {
         }
     }
 
+    check_ja_no_chains();
+    check_ja_double_negatives();
+    check_ja_aux_kanji();
+
+    for my $group (@VARIANTS) {
+        my %first;
+        for my $i (0 .. $#lines) {
+            next if $skip[$i];
+            my $body = masked($lines[$i]);
+            for my $form (keys %$group) {
+                next if $first{$form};
+                $first{$form} = [$i + 1, $-[0]] if $body =~ /(?:$group->{$form})(?![ァ-ヴー])/;
+            }
+        }
+        next unless keys %first >= 2;
+        my @forms = sort { $first{$a}[0] <=> $first{$b}[0] || $first{$a}[1] <=> $first{$b}[1] } keys %first;
+        my $line = $first{ $forms[1] }[0];
+        add('語彙', $line, $lines[$line - 1], '表記ゆれ',
+            '同じ語を2通り以上に書いている。（' . join('、', @forms) . '）', undef);
+    }
+
     my @para;
     for my $i (0 .. $#lines) {
         if ($skip[$i] || $lines[$i] =~ /^\s*$/) {
@@ -265,6 +319,164 @@ if ($lang{ja}) {
         add('語彙', $polite[0], $lines[ $polite[0] - 1 ], '文末の敬体',
             '敬体と常体が混ざっている。',
             '文書全体を常体に書き換える。体言止めもこれに入る。敬体に揃える形は取らない。');
+    }
+}
+
+sub check_ja_commas {
+    my ($no, $line, $body) = @_;
+    for my $s (split /(?<=[。！？])/, $body) {
+        (my $core = $s) =~ s/^\s*(?:#+|[-*+]|\d+\.)\s+//;
+        $core =~ s/^\s+|\s+$//g;
+        my $commas = () = $core =~ /、/g;
+        next unless $commas;
+
+        my $objects = () = $core =~ /を、/g;
+        if ($objects == 1) {
+            my $fix;
+            $fix = outside_masked($line, sub { (my $s = shift) =~ s/を、/を/; return $s })
+                if (() = $body =~ /を、/g) == 1;
+            add('記号', $no, $line, '間を作る読点', '`を` のあとに読点を打っている。', $fix);
+            next;
+        }
+
+        next unless $commas == 1 && length($core) <= 36;
+        my ($before, $after) = split /、/, $core, 2;
+        my ($head) = $before =~ /([^「」（）()\s]*)$/;
+        next unless length($head) <= 9 && $head =~ $comma_head;
+        next if $comma_keep_head{$head} || $head =~ /つ目(?:は|に)$/;
+        next if $head =~ $comma_clause_before || $head =~ $comma_keep_de;
+        next if $after =~ $comma_clause_after;
+        next if $after =~ /^[^、。]{1,10}が/;
+        next if $after =~ /^[^、。]{1,12}(?:は|も)/ && substr($before, 0, -1) =~ /(?:は|も)/;
+        my $cut = 0;
+        my $fix = outside_masked($line, sub {
+            my $s = shift;
+            $cut = 1 if !$cut && $s =~ s/\Q$head\E、/$head/;
+            return $s;
+        });
+        undef $fix unless $cut;
+        add('記号', $no, $line, '間を作る読点', "文頭の短い主題のあとに読点で間を作っている。（`$head、`）", $fix);
+    }
+}
+
+my $mecab_tokens;
+sub mecab_tokens {
+    return $mecab_tokens if $mecab_tokens;
+    my ($fh, $path) = tempfile(UNLINK => 1);
+    binmode $fh, ':encoding(UTF-8)';
+    print $fh (($skip[$_] ? '' : masked($lines[$_])) . "\n") for 0 .. $#lines;
+    close $fh or die "mechanical.pl: cannot write $path: $!\n";
+    open my $out, '-|', 'mecab', $path or die "mechanical.pl: cannot run mecab: $!\n";
+    my (@sentences, @current);
+    while (my $row = <$out>) {
+        chomp $row;
+        if ($row eq 'EOS') {
+            push @sentences, [@current];
+            @current = ();
+            next;
+        }
+        my ($surface, $feature) = split /\t/, $row, 2;
+        my @f = split /,/, $feature;
+        push @current, { surface => $surface, pos => $f[0], sub1 => $f[1], base => $f[6] };
+    }
+    close $out or die "mechanical.pl: mecab failed (status $?)\n";
+    die 'mechanical.pl: mecab returned ' . scalar(@sentences) . ' sentences for ' . scalar(@lines) . " lines\n"
+        unless @sentences == @lines;
+    $mecab_tokens = \@sentences;
+    return $mecab_tokens;
+}
+
+sub check_ja_no_chains {
+    my $tokens = mecab_tokens();
+    for my $i (0 .. $#lines) {
+        next if $skip[$i];
+        my @units;
+        for my $t (@{ $tokens->[$i] }) {
+            if (($t->{pos} eq '名詞' || $t->{pos} eq '接頭詞') && $t->{surface} =~ /[\p{L}\p{N}]/) {
+                if (@units && $units[-1]{kind} eq 'noun') {
+                    $units[-1]{text} .= $t->{surface};
+                    $units[-1]{sahen} = $t->{pos} eq '名詞' && $t->{sub1} eq 'サ変接続';
+                } else {
+                    push @units, { kind => 'noun', text => $t->{surface}, sahen => $t->{pos} eq '名詞' && $t->{sub1} eq 'サ変接続' };
+                }
+            } elsif ($t->{pos} eq '助詞' && $t->{sub1} eq '連体化' && $t->{surface} eq 'の') {
+                push @units, { kind => 'no', text => 'の' };
+            } else {
+                push @units, { kind => 'other' };
+            }
+        }
+        my $start = 0;
+        while ($start < @units) {
+            if ($units[$start]{kind} ne 'noun') {
+                $start++;
+                next;
+            }
+            my $end = $start;
+            $end += 2 while $end + 2 <= $#units && $units[ $end + 1 ]{kind} eq 'no' && $units[ $end + 2 ]{kind} eq 'noun';
+            my $links = ($end - $start) / 2;
+            my $sahen = grep { $units[$_]{sahen} } grep { ($_ - $start) % 2 == 0 } $start .. $end;
+            if ($links >= 3 && $sahen >= 2) {
+                my $chain = join '', map { $units[$_]{text} } $start .. $end;
+                add('修辞', $i + 1, $lines[$i], '「の」の連続',
+                    "動作の名詞を含む語を「の」で3つ以上重ねている。（`$chain`）", undef);
+            }
+            $start = $end + 1;
+        }
+    }
+}
+
+sub is_ja_negation {
+    my ($tokens, $k) = @_;
+    my $t = $tokens->[$k];
+    return 0 unless ($t->{base} // '') eq 'ない';
+    return 1 if $t->{pos} eq '形容詞';
+    return 0 unless $t->{pos} eq '助動詞';
+    return !($k > 0 && $tokens->[ $k - 1 ]{sub1} eq 'ナイ形容詞語幹');
+}
+
+sub check_ja_double_negatives {
+    my $tokens = mecab_tokens();
+    for my $i (0 .. $#lines) {
+        next if $skip[$i];
+        my $line_tokens = $tokens->[$i];
+        for my $k (0 .. $#$line_tokens) {
+            next unless is_ja_negation($line_tokens, $k);
+            my $tail = join '', map { $_->{surface} } @{$line_tokens}[ $k .. $#$line_tokens ];
+            my ($term) = grep { index($tail, $_) == 0 } @DOUBLE_NEGATIVES;
+            next unless defined $term;
+            add('立場', $i + 1, $lines[$i], '弱い否定', "否定を重ねて、言い切る強さを弱めている。（`$term`）", undef);
+            last;
+        }
+    }
+}
+
+sub aux_kanji_matches {
+    my ($entry, $tokens, $k) = @_;
+    my $t = $tokens->[$k];
+    return 0 if defined $entry->{surface} && $t->{surface} ne $entry->{surface};
+    return 0 if defined $entry->{base} && ($t->{base} // '') ne $entry->{base};
+    return 0 if $t->{pos} ne $entry->{pos};
+    return 0 if defined $entry->{sub1} && $t->{sub1} ne $entry->{sub1};
+    if ($entry->{after_te}) {
+        return 0 unless $k > 0;
+        my $p = $tokens->[ $k - 1 ];
+        return 0 unless $p->{pos} eq '助詞' && $p->{sub1} eq '接続助詞' && $p->{surface} =~ /^[てで]$/;
+    }
+    return 1;
+}
+
+sub check_ja_aux_kanji {
+    my $tokens = mecab_tokens();
+    for my $i (0 .. $#lines) {
+        next if $skip[$i];
+        my $line_tokens = $tokens->[$i];
+        my ($hit) = grep {
+            my $k = $_;
+            $line_tokens->[$k]{surface} =~ /\p{Han}/ && grep { aux_kanji_matches($_, $line_tokens, $k) } @AUX_KANJI
+        } 0 .. $#$line_tokens;
+        next unless defined $hit;
+        add('語彙', $i + 1, $lines[$i], '補助語の漢字',
+            "補助動詞、形式名詞、副詞、接続詞を漢字で書いている。（`$line_tokens->[$hit]{surface}`）", undef);
     }
 }
 

@@ -1,21 +1,18 @@
 # Document structure
 
-## What to find
+## Patterns
 
 ### Headings where you make a claim
 
 Rewrite each as a plain description.
 
-- Why We Chose X
-    - Reasons for picking X
-- What X Taught Us About Y
-    - Findings from the X outage
-- X Dies the Moment You Lose Y
-    - Impact of removing Y
-- Three Principles From the Trenches
-    - Rules we follow now
-- How X Solves Y
-    - X and Y
+| Before | After |
+|---|---|
+| Why We Chose X | Reasons for picking X |
+| What X Taught Us About Y | Findings from the X outage |
+| X Dies the Moment You Lose Y | Impact of removing Y |
+| Three Principles From the Trenches | Rules we follow now |
+| How X Solves Y | X and Y |
 
 ### Announcing the structure
 
@@ -62,7 +59,15 @@ Rewrite each as a plain description.
 - READMEs
 ```
 
-### The head of a design document
+### Sections split by bold labels
+
+| Bold label form | `scripts/mechanical.pl` finding | `fix` |
+|---|---|---|
+| `**Goal**: text` | `本文中の強調` | Strips the `**` |
+| `**Out of scope**:` | `本文中の強調` | Strips the `**` |
+| `**Out of scope**:` | `見出しの代用` | Fix by hand |
+| `**Goal**` | `見出しの代用` | Fix by hand |
+| `- **Goal**: text` | `平坦な箇条書き` | Fix by hand |
 
 #### Before
 
@@ -93,7 +98,9 @@ Stop losing compound words in search. A query for "machine learning" splits into
 - Swap the Japanese tokenizer from Kuromoji to Sudachi
 ```
 
-- Turn the bold labels into headings
-- Delete the out-of-scope section
-- Write what hurts under "Goal"
-- Move the means into its own section
+#### How to fix
+
+1. Delete each out-of-scope bold label with its contents
+2. Turn the remaining bold labels into `##` headings
+3. Move the means under the goal heading into an `## Approach` section
+4. Write what hurts under the goal heading
