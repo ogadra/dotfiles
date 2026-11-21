@@ -7,9 +7,17 @@
 let
   shared = ../../modules/llm-agent;
 
+  devinManifest = lib.importJSON ./manifest.json;
+  devin-cli-unwrapped = pkgs.devin-cli.overrideAttrs {
+    inherit (devinManifest) version;
+    src = pkgs.fetchurl {
+      inherit (devinManifest.platforms.${pkgs.stdenv.hostPlatform.system}) url sha256;
+    };
+  };
+
   devin-cli = pkgs.symlinkJoin {
     name = "devin-cli-wrapped";
-    paths = [ pkgs.devin-cli ];
+    paths = [ devin-cli-unwrapped ];
     nativeBuildInputs = [ pkgs.makeWrapper ];
     postBuild = ''
       wrapProgram $out/bin/devin \
