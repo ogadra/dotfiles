@@ -68,6 +68,8 @@
           addons.skk.globalSection.InitialInputMode = "Latin";
           # Picks candidates with a,s,d,f,... so the fingers stay on the home row
           addons.skk.globalSection.CandidateChooseKey = "Qwerty Center Row (a,s,d,...)";
+          # Uses the rule from home-manager/nixos/libskk, which is the default rule without the \ kuten key
+          addons.skk.globalSection.Rule = "no-kuten";
         };
       };
     };
