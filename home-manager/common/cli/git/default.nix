@@ -18,7 +18,6 @@ in
     "git/hooks-llm-agent/commit-msg" = mkHook "commit-msg";
     "git/hooks-llm-agent/pre-commit" = mkHook "pre-commit";
     "git/hooks-llm-agent/pre-push" = mkHook "pre-push";
-    # Lives in the hooksPath that gitleaks sets for human sessions, which the agent hook above hands off to
     "git/hooks/pre-push" = {
       source = ./pre-push;
       executable = true;
