@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+set -u
+
+INPUT=$(cat)
+STATUS=0
+while read -r _ LOCAL_SHA _ _; do
+  case "$LOCAL_SHA" in *[!0]*) ;; *) continue ;; esac
+  UNSIGNED=$(git log --format='%G? %h %s' "$LOCAL_SHA" --not --remotes | grep -v '^G ')
+  if [ -n "$UNSIGNED" ]; then
+    printf 'Rejected: these commits lack a good signature (%%G? is not G):\n%s\n' "$UNSIGNED" >&2
+    STATUS=1
+  fi
+done <<< "$INPUT"
+[ "$STATUS" -eq 0 ] || exit "$STATUS"
+
+exec "$(dirname "$0")/run-repo-hook" pre-push "$@" <<< "$INPUT"

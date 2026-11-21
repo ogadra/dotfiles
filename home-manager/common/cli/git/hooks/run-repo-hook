@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+set -u
+
+NAME=$1
+shift
+HOOKS_DIR=$(cd "$(dirname "$0")" && pwd)
+
+REPO_HOOK="$(git rev-parse --git-dir)/hooks/$NAME"
+[ -x "$REPO_HOOK" ] && exec "$REPO_HOOK" "$@"
+
+TOP=$(git rev-parse --show-toplevel)
+for BASE in lefthook .lefthook .config/lefthook; do
+  for EXT in yml yaml toml json; do
+    [ -f "$TOP/$BASE.$EXT" ] || continue
+    [ -x "$HOOKS_DIR/$NAME.lefthook" ] && exec "$HOOKS_DIR/$NAME.lefthook" "$@"
+    command -v lefthook >/dev/null 2>&1 && exec lefthook run "$NAME" "$@"
+  done
+done
+exit 0
