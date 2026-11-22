@@ -60,7 +60,7 @@ trap 'rm -rf "$tmp"' EXIT
 
 awk '{ printf "%d\t%s\n", NR, $0 }' "$target" > "$tmp/numbered"
 
-nix run nixpkgs#perl -- "$skill_dir/scripts/mechanical.pl" "$lang_dirs" "$target" \
+nix shell nixpkgs#perl nixpkgs#mecab -c perl "$skill_dir/scripts/mechanical.pl" "$lang_dirs" "$target" \
     | jq --arg f "$target" 'map({file: $f, source: "mechanical"} + .)' > "$tmp/json.mechanical"
 
 policy_files() {
