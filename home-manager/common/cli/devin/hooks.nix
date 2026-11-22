@@ -81,6 +81,9 @@ in
     ".config/devin/scripts/git/block-rewrite-pushed.sh" = mkScript (
       shared + "/scripts/git/block-rewrite-pushed.sh"
     );
+    ".config/devin/scripts/git/block-unsigned-commit.sh" = mkScript (
+      shared + "/scripts/git/block-unsigned-commit.sh"
+    );
     ".config/devin/scripts/git/block-clone.sh" = mkScript (shared + "/scripts/git/block-clone.sh");
     ".config/devin/scripts/git/block-worktree-outside.sh" = mkScript (
       shared + "/scripts/git/block-worktree-outside.sh"

@@ -137,6 +137,9 @@ in
     ".claude/scripts/git/block-rewrite-pushed.sh" = mkScript (
       shared + "/scripts/git/block-rewrite-pushed.sh"
     );
+    ".claude/scripts/git/block-unsigned-commit.sh" = mkScript (
+      shared + "/scripts/git/block-unsigned-commit.sh"
+    );
     ".claude/scripts/git/block-clone.sh" = mkScript (shared + "/scripts/git/block-clone.sh");
     ".claude/scripts/git/block-worktree-outside.sh" = mkScript (
       shared + "/scripts/git/block-worktree-outside.sh"

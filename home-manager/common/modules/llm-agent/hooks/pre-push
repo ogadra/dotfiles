@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+set -u
+
+HOOK="$HOME/.config/git/hooks/pre-push"
+[ -x "$HOOK" ] || exit 0
+exec "$HOOK" "$@"
