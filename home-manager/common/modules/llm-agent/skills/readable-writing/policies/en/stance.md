@@ -1,6 +1,6 @@
 # Stance
 
-## What to find
+## Patterns
 
 ### Claims you can't argue with
 
@@ -24,6 +24,8 @@ This refactor has a structural problem. The implications are significant and the
 ```
 This refactor left seven places where `OrderService` calls `PaymentGateway` directly. Swapping the payment provider means editing all seven.
 ```
+
+#### How to fix
 
 Name the specific thing: the seven call sites, the missing index, whatever it is. If you can't name it, cut the sentence.
 
@@ -49,11 +51,10 @@ We went with a monorepo. We only have three packages, and keeping their versions
 
 ### Praising everything
 
-- Each has its own strengths
-    - We use X
-    - We dropped Y
-- It's a matter of preference
-    - We picked X for this codebase
+| Before | After |
+|---|---|
+| `Each has its own strengths` | `We use X. We dropped Y.` |
+| `It's a matter of preference` | `We picked X for this codebase` |
 
 ### Weak negatives
 
@@ -64,8 +65,9 @@ We went with a monorepo. We only have three packages, and keeping their versions
 
 Say `Don't do X`, and name the breaking point.
 
-- Maintenance cost may grow
-    - This breaks once the team passes ten people
+| Before | After |
+|---|---|
+| `Maintenance cost may grow` | `This breaks once the team passes ten people` |
 
 ### Extremes with no middle
 
@@ -77,9 +79,9 @@ Say `Don't do X`, and name the breaking point.
 
 Write what you measured.
 
-- `12 minutes down to 3`
-- `within noise`
-- `it flipped under load`
+- `It went from 12 minutes to 3`
+- `The difference was within noise`
+- `It flipped under load`
 
 #### Before
 
@@ -122,12 +124,13 @@ KDE dropped `org_kde_kwin_blur` in KWin 6.7 and added `ext_background_effect_man
 - `in some cases`
 - `arguably`
 
-A hedge is a word you use to narrow what you take on. Two or more in one sentence is the finding.
+Two or more of these in one sentence is the finding.
 
 Write the scope you're claiming.
 
-- This might arguably be true in some cases
-    - On my ten-person team
+| Before | After |
+|---|---|
+| `This might arguably be true in some cases` | `On my ten-person team` |
 
 ### Ritual disclaimers
 

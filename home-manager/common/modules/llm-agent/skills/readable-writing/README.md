@@ -1,6 +1,6 @@
 # readable-writing
 
-AIが書いた文章特有の読みにくさを、エージェントが直すSkill。
+AIが書いた文章特有の読みにくさをエージェントが直すスキル。
 
 対象は次の文書。
 
@@ -11,30 +11,39 @@ AIが書いた文章特有の読みにくさを、エージェントが直すSki
 - コード内コメント
 - 実装計画書
 
-観点ごとに、`scripts/review.sh` が `agent -p` を並列で起動する。スキルを呼んだエージェントは出た指摘を同じセッションで直し、修正後の文章だけを返す。ポリシー全文はレビュアーだけが持ち、直すエージェントは `SKILL.md` の検出対象の一覧から必要な節だけを開く。
+`scripts/review.sh` は観点ごとのレビュアーを `agent -p` で並列に起動する。スキルを呼んだエージェントはレビュアーの指摘を同じセッションで直す。
+
+1. `SKILL.md` の検出対象の一覧から、指摘に当たる節だけを開く
+2. 指摘を直す
+3. 修正後の文章だけを返す
 
 ## 由来
 
 - 日本語のパターン
     - [iKora128/stop-ai-slop-jp](https://github.com/iKora128/stop-ai-slop-jp)
-    - MIT
+        - MIT
 - 英語のパターン
     - [hardikpandya/stop-slop](https://github.com/hardikpandya/stop-slop)
-    - MIT
+        - MIT
+- 日本語の文法と表記の規則
+    - [AnIT012/nihongo](https://github.com/AnIT012/nihongo)
+        - MIT
+    - [nanaism/yomiyasu](https://github.com/nanaism/yomiyasu)
+        - MIT
 
 ## 構成
 
 ```
-SKILL.md                 対象、レビューの起動、統合、修正、検出対象の一覧
+SKILL.md                 対象、レビュアーの起動、統合、修正、検出対象の一覧
 scripts/
-├── review.sh            観点ごとに agent -p を並列起動し、findingsのJSONを返す
-├── mechanical.pl        正規表現で確定判定できるものを集める
+├── review.sh            観点ごとに agent -p を並列起動し、指摘のJSONを返す
+├── mechanical.pl        正規表現とMeCabの品詞で機械的に判定できるものを集める
 └── rules/               mechanical.pl が使う語リスト
     ├── ja.pl
     └── en.pl
 prompts/                 レビュアーへの指示
 ├── judgement.md         何を指摘し何を見送るか
-└── fields.md            findingsの各フィールドに入れるもの
+└── fields.md            指摘の各フィールドに入れるもの
 policies/
 ├── common/              言語非依存のパターンと直し方
 │   ├── stance.md
@@ -60,7 +69,7 @@ policies/
 
 ## ポリシーの選択
 
-言語を見て、`review.sh` が該当ファイルの中身をプロンプトに埋め込む。
+`review.sh` は本文の文字種から言語を判定し、その言語のポリシーファイルの中身をプロンプトに埋め込む。
 
 - 全言語
     - `common/`
@@ -72,31 +81,43 @@ policies/
 
 ## 指摘のログ
 
-出した指摘を、`review.sh` が `${XDG_STATE_HOME:-~/.local/state}/readable-writing/findings.tsv` に追記する。
+`review.sh` は出した指摘を `${XDG_STATE_HOME:-~/.local/state}/readable-writing/findings.tsv` に追記する。
 
-1指摘1行のTSV。ヘッダ行はない。列は `review.sh` の `log_findings` にある。
+1指摘1行のTSVで、1行目から指摘が並ぶ。列は `review.sh` の `log_findings` にある。
 
-肥大したら自分で切る。
+ファイルは追記され続ける。大きくなったら古い行を手で消す。
 
-## ルールの追加と修正
+## 変えるときに触るファイル
 
 | 直したいもの | 触るファイル |
 |---|---|
 | 禁止する語 | `scripts/rules/<lang>.pl` の `@LITERAL` |
+| 二重否定の言い回し | `scripts/rules/ja.pl` の `@DOUBLE_NEGATIVES` |
+| ひらがなで書く補助語 | `scripts/rules/ja.pl` の `@AUX_KANJI` |
 | 系統ごとの出現回数で見る語 | `scripts/rules/ja.pl` の `@FAMILY` |
+| 1つの文書で書き方をそろえる語 | `scripts/rules/ja.pl` の `@VARIANTS` |
 | 何を指摘し何を見送るか | `prompts/judgement.md` |
-| findingsの各フィールドの中身 | `prompts/fields.md` |
+| 指摘の各フィールドの中身 | `prompts/fields.md` |
 | 文と文の並べ方 | `policies/common/rhetoric.md` |
 | その言語だけの言い回し | `policies/<lang>/<観点>.md` |
 | 箇条書きの書き方 | `policies/common/lists.md` |
 | 見出しと節の立て方 | `policies/common/document.md` |
-| 記号の使い方 | `policies/common/symbols.md`, `policies/<lang>/symbols.md` |
+| 記号の使い方 | `policies/common/symbols.md` |
+| その言語だけの記号の使い方 | `policies/<lang>/symbols.md` |
 | 主語の立て方 | `policies/common/agency.md` |
-| 主張の強さ、引き受け方 | `policies/common/stance.md` |
-| 対象文書、統合、修正 | `SKILL.md` |
-| 検出対象を足す | `policies/<lang>/<観点>.md` と `SKILL.md` の一覧 |
-| プロンプトの組み立て、言語判定、並列の起動 | `scripts/review.sh` |
+| 書き手が主張をどこまで言い切るか | `policies/common/stance.md` |
+| 対象文書 | `SKILL.md` |
+| 指摘の統合 | `SKILL.md` |
+| 指摘の直し方 | `SKILL.md` |
+| 検出対象の一覧 | `SKILL.md` の `## 検出対象` |
+| レビュアーへのプロンプト | `scripts/review.sh` |
+| 本文の言語の判定 | `scripts/review.sh` |
+| 観点ごとのレビュアーの起動 | `scripts/review.sh` |
 | 正規表現で決まる規則の検出 | `scripts/mechanical.pl` |
+| 「の」の連続の判定 | `scripts/mechanical.pl` の `check_ja_no_chains` |
+| 二重否定の判定 | `scripts/mechanical.pl` の `check_ja_double_negatives` |
+| 補助語の漢字の判定 | `scripts/mechanical.pl` の `check_ja_aux_kanji` |
+| `mechanical.pl` を動かすパッケージ | `scripts/review.sh` の `nix shell nixpkgs#perl nixpkgs#mecab` |
 
 | 観点を足すときに触る場所 | やること |
 |---|---|
