@@ -5,12 +5,12 @@ let
     ../../common/apps/1password
     ../../common/apps/alt-tab
     ../../common/apps/dbeaver
-    ../../common/apps/docker
     ../../common/apps/editor
     ../../common/apps/espanso
     ../../common/apps/karabiner
     ../../common/apps/macskk
     ../../common/apps/mos
+    ../../common/apps/rancher-desktop
     ../../common/apps/raycast
     ../../common/apps/shottr
     ../../common/apps/terminal
