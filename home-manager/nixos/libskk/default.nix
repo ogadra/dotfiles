@@ -1,0 +1,33 @@
+{ ... }:
+let
+  ruleName = "no-kuten";
+  keymap = mode: overrides: {
+    include = [ "default/${mode}" ];
+    define.keymap = overrides;
+  };
+  noKuten = {
+    "\\" = null;
+  };
+  files = {
+    "metadata.json" = {
+      name = "No Kuten";
+      description = "Default typing rule without kuten input";
+    };
+    "keymap/hiragana.json" = keymap "hiragana" noKuten;
+    "keymap/katakana.json" = keymap "katakana" noKuten;
+    "keymap/hankaku-katakana.json" = keymap "hankaku-katakana" noKuten;
+    "keymap/latin.json" = keymap "latin" { };
+    "keymap/wide-latin.json" = keymap "wide-latin" { };
+    "rom-kana/default.json" = {
+      include = [ "default/default" ];
+    };
+  };
+in
+{
+  xdg.configFile = builtins.listToAttrs (
+    map (path: {
+      name = "libskk/rules/${ruleName}/${path}";
+      value.text = builtins.toJSON files.${path};
+    }) (builtins.attrNames files)
+  );
+}

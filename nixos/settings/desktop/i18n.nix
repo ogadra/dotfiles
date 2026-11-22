@@ -68,6 +68,7 @@
           addons.skk.globalSection.InitialInputMode = "Latin";
           # Picks candidates with a,s,d,f,... so the fingers stay on the home row
           addons.skk.globalSection.CandidateChooseKey = "Qwerty Center Row (a,s,d,...)";
+          addons.skk.globalSection.Rule = "no-kuten";
         };
       };
     };
