@@ -1,56 +1,47 @@
 # Rhetoric
 
-## What to find
+## Patterns
 
 ### Binary contrasts
 
-- "Not because X. Because Y."
-    - "Because Y."
-- "[X] isn't the problem. [Y] is."
-    - "[Y] is the problem."
-- "[Subject] isn't X. It's Y."
-    - "[Subject] is Y."
-- "Not X. But Y."
-    - "Y."
-- "stops being X and starts being Y"
-    - "becomes Y"
-- "doesn't mean X, but actually Y"
-    - "means Y"
-- "is about X but not Y"
-    - "is about X"
-- "not just X but also Y"
-    - "X and Y"
-- "X that isn't Y"
-    - Name what breaks it
-        - "The retry loop drops the last error."
+| Before | After |
+|---|---|
+| `Not because X. Because Y.` | `Because Y.` |
+| `[X] isn't the problem. [Y] is.` | `[Y] is the problem.` |
+| `[Subject] isn't X. It's Y.` | `[Subject] is Y.` |
+| `Not X. But Y.` | `Y.` |
+| `stops being X and starts being Y` | `becomes Y` |
+| `doesn't mean X, but actually Y` | `means Y` |
+| `is about X but not Y` | `is about X` |
+| `not just X but also Y` | `X and Y` |
+| `X that isn't Y` | `X` |
 
 #### Before
 
 ```
-What if I told you that the best teams don't optimize for productivity? Here's what I mean: they optimize for learning. Think about it.
+The cache isn't the problem. The lockfile is. The build doesn't fail because of the network. It fails because of the hash.
 ```
 
 #### After
 
 ```
-The best teams optimize for learning.
+The cache key leaves out the lockfile hash, so every build misses.
 ```
 
 ### Negative listing
 
-- "Not a X... Not a Y... A Z."
-    - "It was Z."
-- "It wasn't X. It wasn't Y. It was Z."
-    - "It was Z."
+| Before | After |
+|---|---|
+| `Not a X... Not a Y... A Z.` | `It was Z.` |
+| `It wasn't X. It wasn't Y. It was Z.` | `It was Z.` |
 
 ### Dramatic fragmentation
 
-- "[Noun]. That's it. That's the [thing]."
-    - Write the complete sentence
-- "X. And Y. And Z."
-    - Write the complete sentence
-- "This unlocks something. [Word]."
-    - Name what you can do next
+| Before | After |
+|---|---|
+| `[Noun]. That's it. That's the [thing].` | Write the complete sentence |
+| `X. And Y. And Z.` | Write the complete sentence |
+| `This unlocks something. [Word].` | Name what you can do next |
 
 #### Before
 
@@ -69,9 +60,9 @@ Speed, quality, cost: pick two.
 Search for `three` followed by a noun.
 
 - A heading with the count in it
-    - Drop the count from the heading
+    - Delete the count from the heading
 - Items the writer added to pad the list to three
-    - Cut the ones that say the same thing as another item
+    - Delete the ones that say the same thing as another item
 
 #### Before
 
@@ -93,11 +84,11 @@ Search for `three` followed by a noun.
 
 ### Uniform paragraph endings
 
-- You end every paragraph on a short punch line
-    - Vary the length of the closing sentence
-- "Not always. Not perfectly."
+- A short punch line closing paragraph after paragraph
+    - Vary the length of the punch line
+- `Not always. Not perfectly.`
     - Delete
-- "And that's okay."
+- `And that's okay.`
     - Delete
 
 ### Sentence and paragraph starters
@@ -115,5 +106,5 @@ Search for `three` followed by a noun.
         - Rewrite "What makes this hard is..." as "The constraint is..."
 - Paragraphs that open with "So"
     - Start with content
-- Sentences that open with "Look,"
-    - Remove
+- Sentences that open with `Look,`
+    - Delete

@@ -1,10 +1,8 @@
 # Symbols
 
-## What to find
+## Patterns
 
 ### Scare quotes
-
-You wrap an adjective or a judgment in quotes.
 
 #### Before
 
