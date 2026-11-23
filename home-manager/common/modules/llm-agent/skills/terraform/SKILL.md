@@ -152,7 +152,7 @@ outputは、ほかのプログラムが参照するときだけ書く。参照�
 ```hcl
 output "app_bucket" {
   description = "Read by just deploy"
-  value       = aws_s3_bucket.app.bucket
+  value       = aws_s3_bucket.my_app.bucket
 }
 ```
 
@@ -174,11 +174,11 @@ output "app_bucket" {
     - `terraform/checkov/`
 
 ```hcl
-resource "aws_iam_role_policy" "app" {
+resource "aws_iam_role_policy" "my_app" {
   # checkov:skip=CKV_EXAMPLE_1:Resource does not support tags
   name   = "my-app"
-  role   = aws_iam_role.app.id
-  policy = data.aws_iam_policy_document.app.json
+  role   = aws_iam_role.my_app.id
+  policy = data.aws_iam_policy_document.my_app.json
 }
 ```
 
@@ -187,7 +187,7 @@ resource "aws_iam_role_policy" "app" {
 S3のバケットはaccount regional namespaceで作り、名前の末尾を `-<アカウントID>-<リージョン>-an` にする。
 
 ```hcl
-resource "aws_s3_bucket" "app" {
+resource "aws_s3_bucket" "my_app" {
   bucket           = format("my-app-%s-%s-an", data.aws_caller_identity.current.account_id, data.aws_region.current.region)
   bucket_namespace = "account-regional"
 
@@ -201,10 +201,27 @@ resource "aws_s3_bucket" "app" {
 ## リソースの書き方
 
 - ローカル名
-    - snake_caseで書く
-    - 役割で名付ける
-        - `app_bucket`
-        - `deploy_role`
+    - 書式
+        - snake_case
+    - 同じ種類に1つだけのリソース
+        - プロジェクト名にする
+            - `aws_lb.my_app`
+    - 役割のあるリソース
+        - `<プロジェクト名>_<役割>` にする
+            - `aws_lb_listener.my_app_https`
+            - `aws_globalaccelerator_endpoint_group.my_app_alb`
+    - 役割の名前だけでプロジェクトが分かるリソース
+        - 役割の名前にする
+            - `aws_cloudwatch_log_group.ingest_logs`
+    - APIを有効にする `google_project_service`
+        - APIの短い名前にする
+            - `google_project_service.run`
+            - `google_project_service.pubsub`
+    - 実行環境の情報を取得するデータソース
+        - `current` にする
+            - `data.aws_caller_identity.current`
+            - `data.aws_region.current`
+            - `data.google_project.current`
 - クラウド上の名前
     - 先頭にプロジェクト名を付ける
         - `name = "my-app-api"`
