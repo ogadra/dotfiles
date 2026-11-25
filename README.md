@@ -13,6 +13,12 @@
 
 ## セットアップ
 
+まっさらなmacOSでは、Nixのインストール、リポジトリのclone、nix-darwinの適用をまとめて行う。
+
+```bash
+bash <(curl -fsSL https://raw.githubusercontent.com/ogadra/dotfiles/main/scripts/bootstrap-darwin.sh) wormadam
+```
+
 ```bash
 # 適用
 make switch
