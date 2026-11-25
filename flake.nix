@@ -120,11 +120,6 @@
       };
 
       darwinConfigurations = {
-        latias = darwinSystem (darwinSystemArgs {
-          system = "x86_64-darwin";
-          profile = "latias";
-          username = "ogadra";
-        });
         stakataka = darwinSystem (darwinSystemArgs {
           system = "aarch64-darwin";
           profile = "stakataka";
