@@ -42,7 +42,6 @@
     let
       supportedSystems = [
         "x86_64-linux"
-        "x86_64-darwin"
         "aarch64-darwin"
       ];
       forAllSystems = nixpkgs.lib.genAttrs supportedSystems;
@@ -120,11 +119,6 @@
       };
 
       darwinConfigurations = {
-        latias = darwinSystem (darwinSystemArgs {
-          system = "x86_64-darwin";
-          profile = "latias";
-          username = "ogadra";
-        });
         stakataka = darwinSystem (darwinSystemArgs {
           system = "aarch64-darwin";
           profile = "stakataka";
