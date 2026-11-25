@@ -5,11 +5,10 @@ from lib.systems import Finding, supported_systems, unsupported
 FLAKE = """
       supportedSystems = [
         "x86_64-linux"
-        "x86_64-darwin"
         "aarch64-darwin"
       ];
 """
-SUPPORTED = {"x86_64-linux", "x86_64-darwin", "aarch64-darwin"}
+SUPPORTED = {"x86_64-linux", "aarch64-darwin"}
 
 
 class SupportedSystemsTest(unittest.TestCase):
