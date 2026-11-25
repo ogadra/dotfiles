@@ -236,7 +236,13 @@ waitが返ったら `herdr agent read <pane> --source recent-unwrapped --lines 1
 
 #### ユーザーにレーンでの操作を頼む
 
-コマンドの実行やダイアログへの応答をユーザーに頼むときは、対象のレーンを、ユーザーがサイドバーで探せるタブ名で示す。タブ名はhookがプロンプトのたびに書き換えるので、頼む直前に次の順で取り直す。
+レーンのworktreeで実行するコマンドは、親が別タブに入れる。
+
+1. `herdr tab create --workspace <ws> --cwd <レーンのworktreeの絶対パス> --label <task_id>-cmd --no-focus` でタブを作る
+2. 出力の `root_pane.pane_id` へ `herdr pane send-text <pane> '<コマンド>'` で入れる
+3. タブ名 `<task_id>-cmd` をユーザーに伝える
+
+ダイアログへの応答をユーザーに頼むときは、対象のレーンを、ユーザーがサイドバーで探せるタブ名で示す。タブ名はhookがプロンプトのたびに書き換えるので、頼む直前に次の順で取り直す。
 
 1. `herdr pane get <pane>` の `.result.pane.tab_id` を読む
 2. `herdr tab get <tab_id>` の `.result.tab.label` を読む

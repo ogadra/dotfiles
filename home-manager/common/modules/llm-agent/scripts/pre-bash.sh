@@ -12,15 +12,25 @@ if [ -n "$CWD" ]; then
   cd "$CWD" 2>/dev/null || true
 fi
 
-SEGMENTS=$(printf '%s' "$CMD" | "$SCRIPT_DIR/normalize.sh")
-
-# normalize.sh splits quoted multi-line arguments apart, so guards that read such an argument need the command as written
-export AGENT_RAW_COMMAND="$CMD"
-
 deny() {
   printf 'Blocked: %s\n' "$1" >&2
   exit 2
 }
+
+# The text only fills an input box and the user decides whether to run it, so the guards skip it; cd is denied so the directory comes from the pane itself
+if TEXT=$(printf '%s' "$CMD" | "$SCRIPT_DIR/send-text.sh"); then
+  while IFS= read -r SEG; do
+    case "$SEG" in
+      cd|"cd "*) deny "cd is not allowed in herdr pane send-text. Open a tab with herdr tab create --cwd <dir> and send the command there." ;;
+    esac
+  done < <(printf '%s' "$TEXT" | "$SCRIPT_DIR/normalize.sh")
+  exit 0
+fi
+
+SEGMENTS=$(printf '%s' "$CMD" | "$SCRIPT_DIR/normalize.sh")
+
+# normalize.sh splits quoted multi-line arguments apart, so guards that read such an argument need the command as written
+export AGENT_RAW_COMMAND="$CMD"
 
 while IFS= read -r SEG; do
   [ -n "$SEG" ] || continue

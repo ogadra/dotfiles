@@ -1,5 +1,4 @@
 {
-  pkgs,
   isucon ? false,
 }:
 let
@@ -110,6 +109,7 @@ in
   scripts = {
     ".claude/scripts/pre-bash.sh" = mkScript (shared + "/scripts/pre-bash.sh");
     ".claude/scripts/normalize.sh" = mkScript (shared + "/scripts/normalize.sh");
+    ".claude/scripts/send-text.sh" = mkScript (shared + "/scripts/send-text.sh");
     ".claude/scripts/rtk-hook.sh" = mkScript (shared + "/scripts/rtk-hook.sh");
     ".claude/scripts/ensure-trailing-newline.sh" = mkScript (
       shared + "/scripts/ensure-trailing-newline.sh"
@@ -117,14 +117,7 @@ in
     ".claude/scripts/herdr-name-tab.sh" = mkScript (shared + "/scripts/herdr-name-tab.sh");
     ".claude/scripts/ask-gate.sh" = mkScript (shared + "/scripts/ask-gate.sh");
     ".claude/scripts/unverified-gate.sh" = mkScript (shared + "/scripts/unverified-gate.sh");
-    ".claude/scripts/orchestrator-gate.sh" = mkScript (
-      pkgs.replaceVarsWith {
-        src = shared + "/scripts/orchestrator-gate.sh";
-        # replaceVars drops the exec bit that mkScript relies on
-        isExecutable = true;
-        replacements.clipboardCommand = if pkgs.stdenv.hostPlatform.isLinux then "wl-copy" else "pbcopy";
-      }
-    );
+    ".claude/scripts/orchestrator-gate.sh" = mkScript (shared + "/scripts/orchestrator-gate.sh");
     ".claude/scripts/statusline.sh" = mkScript ./scripts/statusline.sh;
     ".claude/scripts/git/check.sh" = mkScript (shared + "/scripts/git/check.sh");
     ".claude/scripts/git/block-default-commit.sh" = mkScript (
