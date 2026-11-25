@@ -124,6 +124,11 @@
           profile = "stakataka";
           username = "ogadra";
         });
+        wormadam = darwinSystem (darwinSystemArgs {
+          system = "aarch64-darwin";
+          profile = "wormadam";
+          username = "ogadra";
+        });
       };
 
       formatter = forAllSystems (system: nixpkgs.legacyPackages.${system}.nixfmt-tree);

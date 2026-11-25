@@ -9,6 +9,7 @@
 | `bisharp` | NixOS (KDE Plasma 6) | x86_64-linux |
 | `xurkitree` | NixOS (KDE Plasma 6) | x86_64-linux |
 | `stakataka` | macOS (nix-darwin) | aarch64-darwin |
+| `wormadam` | macOS (nix-darwin) | aarch64-darwin |
 
 ## セットアップ
 

@@ -11,6 +11,7 @@ Nix Flakes + Home Managerで管理するdotfiles。これらのマシンで使�
 | `bisharp` | x86_64-linux | NixOS | KDE Plasma 6 |
 | `xurkitree` | x86_64-linux | NixOS | KDE Plasma 6 |
 | `stakataka` | aarch64-darwin | macOS | - |
+| `wormadam` | aarch64-darwin | macOS | - |
 
 ## 検証
 
