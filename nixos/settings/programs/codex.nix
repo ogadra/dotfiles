@@ -41,6 +41,9 @@ in
     "codex/hooks/gh/check.sh" = {
       source = shared + "/scripts/gh/check.sh";
     };
+    "codex/hooks/gh/lib.sh" = {
+      source = shared + "/scripts/gh/lib.sh";
+    };
     "codex/hooks/gh/block-repo-clone.sh" = {
       source = shared + "/scripts/gh/block-repo-clone.sh";
     };

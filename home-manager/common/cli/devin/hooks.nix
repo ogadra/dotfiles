@@ -89,6 +89,7 @@ in
       shared + "/scripts/git/block-worktree-outside.sh"
     );
     ".config/devin/scripts/gh/check.sh" = mkScript (shared + "/scripts/gh/check.sh");
+    ".config/devin/scripts/gh/lib.sh" = mkScript (shared + "/scripts/gh/lib.sh");
     ".config/devin/scripts/gh/block-repo-clone.sh" = mkScript (
       shared + "/scripts/gh/block-repo-clone.sh"
     );
