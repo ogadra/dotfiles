@@ -8,6 +8,10 @@ allowed-tools: Bash(gh pr list:*), Bash(jq:*), Bash(git checkout:*), Bash(git sw
 
 Propagate changes from a source branch through all dependent branches in a PR chain.
 
+## Where to Change
+
+If you change your approach to something you added in an upstream PR, make the change in the upstream PR and cascade merge the upstream PR's branch down the chain. Do not delete it, move it, or change its value in a downstream PR.
+
 ## Workflow
 
 ### 1. Identify Downstream Branches
