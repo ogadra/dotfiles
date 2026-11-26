@@ -1,6 +1,6 @@
 { ... }:
 let
-  # GUI Applications (cross-platform)
+  # GUI Applications
   appConfigs = [
     ../../common/apps/1password
     ../../common/apps/alt-tab
@@ -15,7 +15,7 @@ let
     ../../common/apps/terminal
   ];
 
-  # CLI tools (cross-platform)
+  # CLI tools
   commonConfigs = [
     ../../common/cli/bat
     ../../common/cli/direnv
