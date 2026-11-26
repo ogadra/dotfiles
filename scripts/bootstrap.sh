@@ -1,7 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-profile="${1:?usage: bootstrap-darwin.sh <profile>}"
+if [ "$(uname -s)" != "Darwin" ]; then
+  printf 'bootstrap.sh: unsupported OS: %s\n' "$(uname -s)" >&2
+  exit 1
+fi
+
+profile="${1:?usage: bootstrap.sh <profile>}"
 repo_dir="$HOME/codes/github.com/ogadra/dotfiles"
 nix_flags=(--extra-experimental-features "nix-command flakes")
 
