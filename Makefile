@@ -6,12 +6,6 @@ FLAKE := .\#$(HOST)$(FLAKE_SUFFIX)
 .PHONY: ensure-nix build switch update clean
 
 ensure-nix:
-	@command -v nix >/dev/null 2>&1 || { \
-		echo "Nix not found. Installing..."; \
-		curl -L https://nixos.org/nix/install | sh; \
-		echo "Restarting shell and running make..."; \
-		exec fish -c "cd $(PWD) && make"; \
-	}
 	@command -v darwin-rebuild >/dev/null 2>&1 || { \
 		echo "darwin-rebuild not found. Bootstrapping nix-darwin..."; \
 		sudo nix --extra-experimental-features 'nix-command flakes' run nix-darwin -- switch --flake $(FLAKE); \
