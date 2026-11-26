@@ -48,18 +48,6 @@
              StatusLineItem::CodexVersion => StatusSurfacePreviewItem::CodexVersion,
              StatusLineItem::ContextWindowSize => StatusSurfacePreviewItem::ContextWindowSize,
              StatusLineItem::UsedTokens => StatusSurfacePreviewItem::UsedTokens,
-@@ -396,7 +416,10 @@
-         let default_name = item.to_string();
-         let default_description = item.description();
-         let (name, description) = match item {
--            StatusLineItem::FiveHourLimit | StatusLineItem::WeeklyLimit => (
-+            StatusLineItem::FiveHourLimit
-+            | StatusLineItem::FiveHourUsed
-+            | StatusLineItem::WeeklyLimit
-+            | StatusLineItem::WeeklyUsed => (
-                 preview_data.rate_limit_item_name(item.preview_item(), &default_name),
-                 preview_data.rate_limit_item_description(item.preview_item(), default_description),
-             ),
 --- a/tui/src/bottom_pane/status_line_style.rs
 +++ b/tui/src/bottom_pane/status_line_style.rs
 @@ -53,8 +53,12 @@
@@ -112,10 +100,22 @@
              Self::CodexVersion,
              Self::ContextWindowSize,
              Self::UsedTokens,
+@@ -254,9 +263,11 @@
+                     .filter(|item| {
+                         matches!(
+                             item,
+                             StatusSurfacePreviewItem::FiveHourLimit
++                                | StatusSurfacePreviewItem::FiveHourUsed
+                                 | StatusSurfacePreviewItem::WeeklyLimit
++                                | StatusSurfacePreviewItem::WeeklyUsed
+                         )
+                     })
+                     .and_then(|item| self.live_value_for(item))
+                     .and_then(rate_limit_preview_copy);
 --- a/tui/src/chatwidget/status_controls.rs
 +++ b/tui/src/chatwidget/status_controls.rs
-@@ -7,6 +7,24 @@
- use super::*;
+@@ -9,6 +9,24 @@
+ use crate::bottom_pane::terminal_title_setup;
  use crate::status::thread_cost_micros;
  
 +use std::process::Command;
