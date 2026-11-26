@@ -50,6 +50,8 @@ fi
 case "$TOOL" in
   Bash)
     CMD=$(printf '%s' "$INPUT" | jq -r '.tool_input.command // ""')
+    # The text is typed into an input box for the user to run, so it is not work the parent does inline
+    printf '%s' "$CMD" | "$SCRIPT_DIR/send-text.sh" >/dev/null && exit 0
     while IFS= read -r SEG; do
       [ -n "$SEG" ] || continue
       # Instructions travel by SendMessage or as a file path in `herdr agent start` arguments, so no herdr command needs a substitution and any substitution could run work inline
@@ -63,8 +65,8 @@ case "$TOOL" in
       esac
       case "$SEG" in
         # Issue reading and report checks run in lanes too, so the parent keeps only what driving lanes and handing commands to the user need
-        "herdr "* | "jq "* | @clipboardCommand@ | "@clipboardCommand@ "*) ;;
-        *) deny "only herdr, jq and @clipboardCommand@ run here." ;;
+        "herdr "* | "jq "*) ;;
+        *) deny "only herdr and jq run here." ;;
       esac
     done < <(printf '%s' "$CMD" | "$SCRIPT_DIR/normalize.sh")
     ;;
