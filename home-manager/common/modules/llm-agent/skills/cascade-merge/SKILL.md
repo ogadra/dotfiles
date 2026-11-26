@@ -1,7 +1,7 @@
 ---
 name: cascade-merge
 description: PRのチェーンで、上流のブランチの変更を下流のブランチへ順にマージする。stacked PRを更新するとき、親ブランチの変更を下流のブランチすべてに反映するとき、またはユーザーが「cascade merge」「下流に反映して」「依存ブランチを更新して」と言ったときに使う。Cascade merges changes through a chain of dependent branches.
-allowed-tools: Bash(gh pr list:*), Bash(jq:*), Bash(git checkout:*), Bash(git switch:*), Bash(git merge:*), Bash(git push origin:*), Bash(git status:*), Bash(git branch:*), Bash(git fetch:*)
+allowed-tools: Bash(gh pr list:*), Bash(jq:*), Bash(git checkout:*), Bash(git switch:*), Bash(git merge:*), Bash(git add:*), Bash(git commit:*), Bash(git push origin:*), Bash(git status:*), Bash(git branch:*), Bash(git fetch:*)
 ---
 
 # Cascade Merge
@@ -49,11 +49,14 @@ default branch以外をbaseにするPRでは、上流のブランチが持つコ
 
 ### 3. コンフリクトに対処する
 
-1. ユーザーにコンフリクトを報告する
-2. 進め方をユーザーに聞く
-    - 手で解決する
-    - そのブランチを飛ばす
-    - 中止する
+マージでコンフリクトが起きたら、次の順に解決する。
+
+1. コンフリクトしたファイルを開き、上流と下流の両方の変更が残るように書き直す
+2. 書き直したファイルを `git add` する
+3. `git commit --no-edit` でマージを完了する
+4. 下流のブランチをpushする
+
+解決したブランチは、出力の表の `Status` に `Resolved` と書く。
 
 ## 例
 
