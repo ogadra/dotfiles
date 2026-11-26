@@ -1,30 +1,36 @@
 ---
 name: cascade-merge
-description: Cascade merge changes through a chain of dependent branches. Use when updating stacked/chained PRs, propagating changes from a parent branch to all downstream branches, or when the user mentions "cascade merge", "propagate changes", "update dependent branches", or "merge to downstream branches".
+description: 連なったPRで、上流のブランチの変更を下流のブランチへ順にマージする。stacked PRを更新するとき、親ブランチの変更を下流のブランチすべてに反映するとき、またはユーザーが「cascade merge」「下流に反映して」「依存ブランチを更新して」と言ったときに使う。Cascade merges changes through a chain of dependent branches.
 allowed-tools: Bash(gh pr list:*), Bash(jq:*), Bash(git checkout:*), Bash(git switch:*), Bash(git merge:*), Bash(git push origin:*), Bash(git status:*), Bash(git branch:*), Bash(git fetch:*)
 ---
 
 # Cascade Merge
 
-Propagate changes from a source branch through all dependent branches in a PR chain.
+起点のブランチの変更を、PRの連なりにある下流のブランチすべてへ順に反映する。
 
-## Where to Change
+## どのPRで直すか
 
-If you change your approach to something you added in an upstream PR, make the change in the upstream PR and cascade merge the upstream PR's branch down the chain. Do not delete it, move it, or change its value in a downstream PR.
+上流のPRで足したもののやり方を変えるときは、上流のPRで直し、上流のPRのブランチを下流へcascade mergeする。
 
-## Workflow
+下流のPRでは、上流のPRで足したものに次のことをしない。
 
-### 1. Identify Downstream Branches
+- 削除
+- 移動
+- 値の変更
+
+## 手順
+
+### 1. 下流のブランチを洗い出す
 
 ```bash
 gh pr list --state open --json number,title,headRefName,baseRefName --limit 50 | jq -r '.[] | "\(.baseRefName)\t\(.headRefName)"'
 ```
 
-Build the dependency chain by finding PRs where `baseRefName` matches the current branch, then recursively find PRs based on those branches.
+`baseRefName` が今のブランチと一致するPRを探し、そのPRのブランチをbaseにするPRを再帰的にたどって連なりを組む。
 
-### 2. Merge and Push Each Branch
+### 2. ブランチごとにマージしてpushする
 
-Fetch first, then for each downstream branch in order:
+先にfetchし、下流のブランチを上から順に処理する。
 
 ```bash
 git fetch origin
@@ -33,19 +39,47 @@ git merge origin/<upstream-branch> --no-edit
 git push origin <downstream-branch>
 ```
 
-A hook allows `git merge` only for the remote-tracking branch of the PR's base, so merge `origin/<upstream-branch>`, not the local branch. Pushing the upstream branch updates `origin/<upstream-branch>` before the next downstream merge.
+- マージ元
+    - `origin/<upstream-branch>`
+    - ローカルのブランチは使わない
+    - hookは、PRのbaseのリモート追跡ブランチからの `git merge` だけを許す
+- 上流のブランチのpush
+    - `origin/<upstream-branch>` が更新される
+    - 次の下流のマージより前に済ませる
 
-Do not cherry-pick into a downstream branch, even when the merge is blocked or only one commit is needed. A cherry-picked commit gets a new hash, so git cannot tell it is the same change as the upstream commit. Every later change upstream has to be picked again by hand, and each round leaves duplicate commits and conflicts in the downstream history. When the PR targets a branch other than the default branch, a hook blocks `git cherry-pick` of any commit that an upstream branch already holds. Upstream branches are the base, its own PR bases up the chain, and the default branch. If the merge you need is blocked, report it to the user instead of looking for another route.
+下流のブランチへcherry-pickしない。マージがブロックされたときや、必要なコミットが1つだけのときも同じ。
 
-### 3. Handle Conflicts
+- cherry-pickしたコミット
+    - 新しいハッシュになる
+    - gitは上流のコミットと同じ変更だと判別できない
+    - 上流で変更するたびに手で拾い直すことになる
+    - 拾い直すたびに、下流の履歴に重複したコミットとコンフリクトが残る
+- hookによるブロック
+    - 対象
+        - default branch以外をbaseにするPR
+    - ブロックするもの
+        - 上流のブランチが既に持つコミットの `git cherry-pick`
+    - 上流のブランチ
+        - base
+        - baseのPRのbaseを連なりの上までたどったもの
+        - default branch
 
-If a merge conflict occurs:
-1. Report the conflict to the user
-2. Ask how to proceed (resolve manually, skip branch, or abort)
+必要なマージがブロックされたら、別の手段を探さずにユーザーへ報告する。
 
-## Example
+### 3. コンフリクトに対処する
 
-Given this PR chain:
+マージでコンフリクトが起きたら、次の順に進める。
+
+1. ユーザーにコンフリクトを報告する
+2. 進め方をユーザーに聞く
+    - 手で解決する
+    - そのブランチを飛ばす
+    - 中止する
+
+## 例
+
+次のPRの連なりがあるとする。
+
 ```
 main
  └── feature-1
@@ -53,13 +87,14 @@ main
            └── feature-3
 ```
 
-When `feature-1` is updated, cascade merge will:
-1. Merge `feature-1` into `feature-2`, push
-2. Merge `feature-2` into `feature-3`, push
+`feature-1` を更新したとき、cascade mergeは次のことをする。
 
-## Output
+1. `feature-1` を `feature-2` へマージしてpushする
+2. `feature-2` を `feature-3` へマージしてpushする
 
-Report results as a table:
+## 出力
+
+結果を表で報告する。
 
 | Branch | Merged From | Status |
 |--------|-------------|--------|
