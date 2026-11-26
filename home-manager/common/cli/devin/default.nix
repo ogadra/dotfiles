@@ -1,6 +1,7 @@
 {
   pkgs,
   lib,
+  inputs,
   isucon ? false,
   ...
 }:
@@ -28,7 +29,7 @@ let
     '';
   };
 
-  hooksConfig = import ./hooks.nix { inherit isucon; };
+  hooksConfig = import ./hooks.nix { inherit pkgs inputs isucon; };
 
   mergedConfig = pkgs.writeText "devin-config-fragment.json" (
     builtins.toJSON {

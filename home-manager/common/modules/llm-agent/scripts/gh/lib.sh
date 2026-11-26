@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Helpers the gh guards source; check.sh runs only block-*.sh, so this file never runs as a guard itself.
+# Helpers the gh guards source; check.sh runs only block-*, so this file never runs as a guard itself.
 
 # normalize.sh splits a multi-line body or GraphQL query into lines that no longer start with `gh`, so guards match against the raw command pre-bash.sh exports
 RAW_COMMAND="${AGENT_RAW_COMMAND:-}"

@@ -14,7 +14,7 @@ done
 [ -z "$GH_SEGMENTS" ] && exit 0
 
 # Run whichever guards the profile deployed
-for child in "$SCRIPT_DIR"/block-*.sh; do
+for child in "$SCRIPT_DIR"/block-*; do
   printf '%s' "$GH_SEGMENTS" | "$child"
   rc=$?
   [ "$rc" -ne 0 ] && exit "$rc"
