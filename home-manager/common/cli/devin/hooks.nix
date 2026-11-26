@@ -63,6 +63,7 @@ in
   scripts = {
     ".config/devin/scripts/pre-bash.sh" = mkScript (shared + "/scripts/pre-bash.sh");
     ".config/devin/scripts/normalize.sh" = mkScript (shared + "/scripts/normalize.sh");
+    ".config/devin/scripts/send-text.sh" = mkScript (shared + "/scripts/send-text.sh");
     ".config/devin/scripts/rtk-hook.sh" = mkScript (shared + "/scripts/rtk-hook.sh");
     ".config/devin/scripts/herdr-name-tab.sh" = mkScript (shared + "/scripts/herdr-name-tab.sh");
     ".config/devin/scripts/ensure-trailing-newline.sh" = mkScript (
