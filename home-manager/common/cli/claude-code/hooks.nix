@@ -1,5 +1,6 @@
 {
   pkgs,
+  inputs,
   isucon ? false,
 }:
 let
@@ -169,7 +170,7 @@ in
         ".claude/scripts/git/block-commit-all.sh" = mkScript (shared + "/scripts/git/block-commit-all.sh");
         ".claude/scripts/git/block-bulk-add.sh" = mkScript (shared + "/scripts/git/block-bulk-add.sh");
         ".claude/scripts/gh/block-pr-body".source = import (shared + "/scripts/gh/block-pr-body.nix") {
-          inherit pkgs;
+          inherit pkgs inputs;
         };
       }
   );

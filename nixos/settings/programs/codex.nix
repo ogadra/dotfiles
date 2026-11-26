@@ -1,4 +1,9 @@
-{ isucon, pkgs, ... }:
+{
+  isucon,
+  pkgs,
+  inputs,
+  ...
+}:
 let
   shared = ../../../home-manager/common/modules/llm-agent;
 in
@@ -81,7 +86,7 @@ in
           source = shared + "/scripts/git/block-bulk-add.sh";
         };
         "codex/hooks/gh/block-pr-body" = {
-          source = import (shared + "/scripts/gh/block-pr-body.nix") { inherit pkgs; };
+          source = import (shared + "/scripts/gh/block-pr-body.nix") { inherit pkgs inputs; };
         };
       }
   );

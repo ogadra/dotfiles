@@ -1,5 +1,6 @@
 {
   pkgs,
+  inputs,
   isucon ? false,
 }:
 let
@@ -122,7 +123,7 @@ in
         ".config/devin/scripts/gh/block-pr-body".source =
           import (shared + "/scripts/gh/block-pr-body.nix")
             {
-              inherit pkgs;
+              inherit pkgs inputs;
             };
       }
   );
