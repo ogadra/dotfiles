@@ -28,7 +28,7 @@ let
     '';
   };
 
-  hooksConfig = import ./hooks.nix { inherit isucon; };
+  hooksConfig = import ./hooks.nix { inherit pkgs isucon; };
 
   mergedConfig = pkgs.writeText "devin-config-fragment.json" (
     builtins.toJSON {

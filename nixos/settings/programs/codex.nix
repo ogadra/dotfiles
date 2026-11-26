@@ -80,8 +80,8 @@ in
         "codex/hooks/git/block-bulk-add.sh" = {
           source = shared + "/scripts/git/block-bulk-add.sh";
         };
-        "codex/hooks/gh/block-pr-body.sh" = {
-          source = shared + "/scripts/gh/block-pr-body.sh";
+        "codex/hooks/gh/block-pr-body" = {
+          source = import (shared + "/scripts/gh/block-pr-body.nix") { inherit pkgs; };
         };
       }
   );

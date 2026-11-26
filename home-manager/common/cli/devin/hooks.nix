@@ -1,4 +1,5 @@
 {
+  pkgs,
   isucon ? false,
 }:
 let
@@ -118,7 +119,11 @@ in
         ".config/devin/scripts/git/block-bulk-add.sh" = mkScript (
           shared + "/scripts/git/block-bulk-add.sh"
         );
-        ".config/devin/scripts/gh/block-pr-body.sh" = mkScript (shared + "/scripts/gh/block-pr-body.sh");
+        ".config/devin/scripts/gh/block-pr-body".source =
+          import (shared + "/scripts/gh/block-pr-body.nix")
+            {
+              inherit pkgs;
+            };
       }
   );
 }
