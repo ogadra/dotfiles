@@ -114,8 +114,8 @@
                      .and_then(rate_limit_preview_copy);
 --- a/tui/src/chatwidget/status_controls.rs
 +++ b/tui/src/chatwidget/status_controls.rs
-@@ -7,6 +7,24 @@
- use super::*;
+@@ -9,6 +9,24 @@
+ use crate::bottom_pane::terminal_title_setup;
  use crate::status::thread_cost_micros;
  
 +use std::process::Command;
