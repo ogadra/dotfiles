@@ -255,16 +255,6 @@ waitが返ったら `herdr agent read <pane> --source recent-unwrapped --lines 1
 
 #### ユーザーにレーンでの操作を頼む
 
-レーンのworktreeで実行するコマンドは、AGENTS.mdの「ユーザーに実行してもらうコマンド」に従って入れる。
-
-- `sudo` が要らないコマンド
-    - 親のpaneの入力欄に `! <コマンド>` で入れる
-    - worktreeは `git -C <レーンのworktreeの絶対パス>` や絶対パスで引数に書く
-- `sudo` が要るコマンド
-    1. `herdr tab create --workspace <ws> --cwd <レーンのworktreeの絶対パス> --label <task_id>-cmd --no-focus` でタブを作る
-    2. 出力の `root_pane.pane_id` へ `herdr pane send-text <pane> '<コマンド>'` で入れる
-    3. タブ名 `<task_id>-cmd` をユーザーに伝える
-
 ダイアログへの応答をユーザーに頼むときは、対象のレーンを、ユーザーがサイドバーで探せるタブ名で示す。タブ名はhookがプロンプトのたびに書き換えるので、頼む直前に次の順で取り直す。
 
 1. `herdr pane get <pane>` の `.result.pane.tab_id` を読む
@@ -390,7 +380,11 @@ waitが返ったら `herdr agent read <pane> --source recent-unwrapped --lines 1
     - 裏取りで一致した
     - ユーザーが `AskUserQuestion` でpushを承認した
 - 終了条件の既定値
-    - ユーザーが閉じるよう指示した
+    - マージが無いので、作業レーンの「マージを確かめるまで閉じない」は当てはめない
+    - 次のどれかを満たした
+        - `pushed` の報告を裏取りレーンが確かめた
+        - ユーザーが `AskUserQuestion` でpushを断った
+        - `done` の報告をユーザーへ中継した
 - 閉じる手順
     - `herdr tab close` でタブを閉じる
     - 残すもの
