@@ -3,11 +3,13 @@ let
   # GUI Applications
   appConfigs = [
     ../../common/apps/1password
+    ../../common/apps/aerospace
     ../../common/apps/alt-tab
     ../../common/apps/chrome
     ../../common/apps/discord
     ../../common/apps/editor/emacs
     ../../common/apps/karabiner
+    ../../common/apps/maccy
     ../../common/apps/macskk
     ../../common/apps/mos
     ../../common/apps/raycast
