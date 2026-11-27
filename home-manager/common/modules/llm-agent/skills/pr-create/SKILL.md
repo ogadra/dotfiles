@@ -85,10 +85,6 @@ mktemp
 
 ## スクリプトが拒否したときの対応
 
-- titleのprefixがない
-    - 先頭に `feat:` などを付ける
-- titleやbodyに日本語がない
-    - 日本語で書き直す
 - 行数超過
     - bodyを3行以内に削る
 - findings

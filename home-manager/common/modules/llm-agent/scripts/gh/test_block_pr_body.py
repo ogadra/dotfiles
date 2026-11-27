@@ -29,6 +29,15 @@ def verdict(script: str) -> str:
     return "allowed"
 
 
+def denial(script: str) -> str:
+    try:
+        for command in gh_commands(script):
+            check(command)
+    except BlockedError as blocked:
+        return str(blocked)
+    raise AssertionError(f"not blocked: {script}")
+
+
 class PrCommandTest(unittest.TestCase):
     def test_pr_create_is_denied(self) -> None:
         self.assertEqual(verdict("gh pr create --title t --body b"), "denied")
@@ -50,6 +59,22 @@ class PrCommandTest(unittest.TestCase):
         for flags in ["--title t", "-t t", "--title=t", "-tt"]:
             with self.subTest(flags=flags):
                 self.assertEqual(verdict(f"gh pr edit 1 {flags}"), "denied")
+
+    def test_title_edit_denial_points_to_pr_body_edit(self) -> None:
+        for script in [
+            "gh pr edit 1 --title t",
+            "gh api -X PATCH repos/o/r/pulls/3 -f title=t",
+            f"gh api graphql -f query='{MUTATION_TITLE}'",
+        ]:
+            with self.subTest(script=script):
+                message = denial(script)
+                self.assertIn("pr-body.sh --edit [--title <title>] [--body-file <path>]", message)
+                self.assertIn("prefixの後ろを日本語で書く", message)
+
+    def test_pr_create_denial_points_to_pr_body(self) -> None:
+        message = denial("gh pr create --title t --body b")
+        self.assertIn("pr-body.sh --title <title> --body-file <path>", message)
+        self.assertIn("日本語で3行以内", message)
 
     def test_pr_edit_without_title_or_body_is_allowed(self) -> None:
         self.assertEqual(verdict("gh pr edit 1 --add-label bug"), "allowed")

@@ -34,7 +34,6 @@ matches() {
   jq -Rse --arg re "$1" 'test($re)' > /dev/null
 }
 
-# gh pr edit keeps the current title or body when its option is omitted, so only creation requires both
 if [ "$edit" -eq 1 ]; then
   [ -n "$title" ] || [ -n "$body_file" ] || usage
 else
@@ -43,11 +42,11 @@ fi
 
 if [ -n "$title" ]; then
   if ! printf '%s' "$title" | matches "$PREFIX"; then
-    echo "pr-body.sh: titleの先頭にConventional Commitsのprefix(feat: や docs(scope): など)がない。" >&2
+    echo "pr-body.sh: titleの先頭にConventional Commitsのprefixがない。先頭に feat: や docs(scope): などのprefixを付けて再実行する。" >&2
     exit 1
   fi
   if ! printf '%s' "$title" | matches "$PREFIX.*$JAPANESE"; then
-    echo "pr-body.sh: titleのprefixの後ろに日本語(ひらがな、カタカナ、漢字)がない。prefixの後ろは日本語で書く。" >&2
+    echo "pr-body.sh: titleのprefixの後ろに日本語(ひらがな、カタカナ、漢字)がない。prefixの後ろを日本語で書き直して再実行する。" >&2
     exit 1
   fi
 fi
@@ -69,7 +68,7 @@ EOF
   exit 1
 fi
 if ! matches "$JAPANESE" < "$body_file"; then
-  echo "pr-body.sh: bodyに日本語(ひらがな、カタカナ、漢字)がない。bodyは日本語で書く。" >&2
+  echo "pr-body.sh: bodyに日本語(ひらがな、カタカナ、漢字)がない。bodyを日本語で書き直して再実行する。" >&2
   exit 1
 fi
 

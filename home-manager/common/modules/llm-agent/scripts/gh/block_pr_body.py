@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# Block PR creation and title or body edits outside pr-body.sh; reads AGENT_RAW_COMMAND.
 
 import json
 import os
@@ -75,7 +74,7 @@ def deny(command: str, usage: str) -> BlockedError:
         "PRのtitleはConventional Commitsのprefixの後ろを日本語で書く。\n"
         "PRのbodyは、やったことを日本語で3行以内で書く。"
         "理由、見出し、動作確認、変更ファイルの列挙は書かない。\n"
-        "bodyを一時ファイルに書いてから次を実行する。\n"
+        "代わりに次を実行する。bodyは一時ファイルに書いて --body-file で渡す。\n"
         f"  {usage}"
     )
 

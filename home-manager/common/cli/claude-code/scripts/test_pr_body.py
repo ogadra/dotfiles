@@ -7,6 +7,9 @@ from pathlib import Path
 SCRIPT = Path(__file__).with_name("pr-body.sh")
 JAPANESE_BODY = "`internal/server` のタイムアウトを30秒にした\n"
 JAPANESE_TITLE = "fix(server): タイムアウトを延ばす"
+PREFIX_FIX = "先頭に feat: や docs(scope): などのprefixを付けて再実行する"
+TITLE_FIX = "prefixの後ろを日本語で書き直して再実行する"
+BODY_FIX = "bodyを日本語で書き直して再実行する"
 
 
 class PrBodyTest(unittest.TestCase):
@@ -67,7 +70,7 @@ class PrBodyTest(unittest.TestCase):
             "--title", "fix: extend the timeout", "--body-file", self.body(JAPANESE_BODY)
         )
         self.assertEqual(result.returncode, 1)
-        self.assertIn("prefixの後ろに日本語", result.stderr)
+        self.assertIn(TITLE_FIX, result.stderr)
         self.assertFalse(self.gh_log.exists())
 
     def test_prefix_only_title_is_rejected(self) -> None:
@@ -75,22 +78,22 @@ class PrBodyTest(unittest.TestCase):
             with self.subTest(title=title):
                 result = self.run_script("--title", title, "--body-file", self.body(JAPANESE_BODY))
                 self.assertEqual(result.returncode, 1)
-                self.assertIn("prefixの後ろに日本語", result.stderr)
+                self.assertIn(TITLE_FIX, result.stderr)
 
     def test_title_without_prefix_is_rejected(self) -> None:
         for title in ["タイムアウトを延ばす", "fix:タイムアウトを延ばす"]:
             with self.subTest(title=title):
                 result = self.run_script("--title", title, "--body-file", self.body(JAPANESE_BODY))
                 self.assertEqual(result.returncode, 1)
-                self.assertIn("prefix", result.stderr)
-                self.assertNotIn("prefixの後ろ", result.stderr)
+                self.assertIn(PREFIX_FIX, result.stderr)
+                self.assertNotIn(TITLE_FIX, result.stderr)
 
     def test_english_body_is_rejected(self) -> None:
         result = self.run_script(
             "--title", JAPANESE_TITLE, "--body-file", self.body("Extend `internal/server`\n")
         )
         self.assertEqual(result.returncode, 1)
-        self.assertIn("bodyに日本語", result.stderr)
+        self.assertIn(BODY_FIX, result.stderr)
         self.assertFalse(self.gh_log.exists())
 
     def test_title_only_edit_skips_the_body(self) -> None:
@@ -101,12 +104,12 @@ class PrBodyTest(unittest.TestCase):
     def test_english_title_edit_is_rejected(self) -> None:
         result = self.run_script("--edit", "--title", "fix: extend the timeout")
         self.assertEqual(result.returncode, 1)
-        self.assertIn("prefixの後ろに日本語", result.stderr)
+        self.assertIn(TITLE_FIX, result.stderr)
 
     def test_body_edit_without_title_checks_the_body(self) -> None:
         result = self.run_script("--edit", "--body-file", self.body("Extend the timeout\n"))
         self.assertEqual(result.returncode, 1)
-        self.assertIn("bodyに日本語", result.stderr)
+        self.assertIn(BODY_FIX, result.stderr)
 
     def test_edit_without_title_or_body_is_a_usage_error(self) -> None:
         self.assertEqual(self.run_script("--edit", "12").returncode, 2)
