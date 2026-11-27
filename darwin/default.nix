@@ -21,6 +21,7 @@ let
     ./settings/keyboard.nix
     ./settings/launchservices.nix
     ./settings/login.nix
+    ./settings/menushortcuts.nix
     ./settings/pki.nix
     ./settings/pointing
     ./settings/screensaver.nix
