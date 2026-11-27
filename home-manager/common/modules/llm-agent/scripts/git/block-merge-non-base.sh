@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# Block `git merge` and `git pull` unless they bring in the remote base branch of the current PR, or `git pull` brings in the current branch itself; input is one normalized git command per stdin line.
+# Block `git merge` and `git pull` unless they bring in the remote base branch of the current PR, the remote branch the current branch was created from when it has no PR, or for `git pull` the current branch itself; input is one normalized git command per stdin line.
 set -u
 
 deny() {
   printf 'Blocked: %s\n' "$1" >&2
-  printf 'Only `git merge <remote>/<base>` or `git pull <remote> <base>` is allowed, where <base> is the base branch of the GitHub PR for the current branch, or `git pull <remote> <current branch>`.\n' >&2
+  printf 'Only `git merge <remote>/<base>` or `git pull <remote> <base>` is allowed, where <base> is the base branch of the GitHub PR for the current branch, or the remote branch the current branch was created from when it has no PR, or `git pull <remote> <current branch>`.\n' >&2
   exit 2
 }
 
@@ -25,6 +25,19 @@ remote_branch() {
   git -C "$RUN_CWD" for-each-ref --format='%(refname:lstrip=3)' "$REF"
 }
 
+fork_branch() {
+  CUR_REF=$(git -C "$RUN_CWD" symbolic-ref --quiet HEAD 2>/dev/null) || return 0
+  CREATED=$(git -C "$RUN_CWD" log --walk-reflogs --format=%gs "$CUR_REF" -- 2>/dev/null | tail -n 1)
+  case "$CREATED" in
+    "branch: Created from "*) ;;
+    *) return 0 ;;
+  esac
+  START=$(git -C "$RUN_CWD" rev-parse --symbolic-full-name "${CREATED#branch: Created from }" 2>/dev/null)
+  case "$START" in
+    refs/remotes/*) git -C "$RUN_CWD" for-each-ref --format='%(refname:lstrip=3)' "$START" ;;
+  esac
+}
+
 # $1 is the rebase command suggested when there is no PR and HEAD is not pushed; the rest are branch names on the remote
 require_base() {
   SUGGEST=$1
@@ -32,7 +45,14 @@ require_base() {
   # The network call runs last so a local-branch merge is rejected without querying GitHub
   BASE=$(cd "$RUN_CWD" && gh pr view --json baseRefName --jq .baseRefName 2>/dev/null)
   if [ -z "$BASE" ]; then
-    printf 'Blocked: the current branch has no GitHub PR, so there is no base branch to merge.\n' >&2
+    FORK=$(fork_branch)
+    if [ -n "$FORK" ]; then
+      for B in "$@"; do
+        [ "$B" = "$FORK" ] || deny "the current branch has no GitHub PR, and \"$B\" is not \"$FORK\", the remote branch it was created from."
+      done
+      return 0
+    fi
+    printf 'Blocked: the current branch has no GitHub PR and was not created from a remote-tracking branch, so there is no base branch to merge.\n' >&2
     # A pushed HEAD cannot be rebased under block-rewrite-pushed.sh, so it needs a PR to get a base branch to merge
     if pushed; then
       printf 'HEAD is already pushed (%s). Open a PR for the current branch first, then merge its base branch.\n' "$REMOTE_BRANCHES" >&2
