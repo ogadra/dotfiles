@@ -22,11 +22,18 @@ let
     ../../common/cli/git
     ../../common/cli/gh
     ../../common/cli/ghq
+    ../../common/cli/gitleaks
     ../../common/cli/gnumake
     ../../common/cli/gomi
+    ../../common/cli/hunk
+    ../../common/cli/ccusage
+    ../../common/cli/claude-code
     ../../common/cli/fish
     ../../common/cli/fzf
+    ../../common/cli/herdr
+    ../../common/cli/mpv
     ../../common/cli/nano
+    ../../common/cli/rtk
     ../../common/cli/starship
     ../../common/cli/tree
     ../../common/cli/zsh
