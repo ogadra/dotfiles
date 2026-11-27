@@ -36,7 +36,6 @@ user-invocable: true
     - 自分のセッション名を調べる
 - `SendMessage`
     - 作業レーンへ指示を送る
-    - 裏取りレーンへ依頼を送る
 - 指示ファイルの書き込み
     - `/tmp` 配下にWriteツールで書く
 
@@ -46,9 +45,9 @@ user-invocable: true
 | --- | --- | --- | --- |
 | 作業レーン | タスクごとに1つ | 自分のworktreeでタスクを進める | `merged` の報告を受け、裏取りレーンがマージを確かめた |
 | 調査レーン | タスクごとに1つ | 自分のworktreeで調べ、結果をファイルか報告で返す | `done` の報告をユーザーへ中継した |
-| 裏取りレーン | 1つ | 作業レーンの報告を `git` と `gh` で確かめる | 作業レーンをすべて閉じた |
+| 裏取りレーン | 裏取りごとに1つ | 作業レーンの報告1件を `git` と `gh` で確かめる | `[orchestrator:verify ...]` の結果を受けた |
 
-作業レーンと調査レーンの終了条件は、タスクごとに「2. タスク一覧を作って承認を取る」で決める。
+作業レーンと調査レーンの終了条件は、タスクごとに「2. タスク一覧を作って承認を取る」で決める。作業レーンは、PRのマージを裏取りレーンが確かめるまで閉じない。
 
 ## 道具の使い分け
 
@@ -58,7 +57,6 @@ user-invocable: true
 
 - 親からレーンへ送るもの
     - 2回目以降の指示
-    - 裏取りの依頼
 - レーンから親へ送るもの
     - 報告
 
@@ -116,7 +114,8 @@ herdrは次の操作に使う。
         - 例
             - `merged` の報告を受け、裏取りレーンがマージを確かめた
             - `done` の報告をユーザーへ中継した
-            - `pr-created` の報告を裏取りレーンが確かめた
+    - 作業レーンの終了条件
+        - PRのマージを裏取りレーンが確かめたことを含める
     - ユーザーの依頼に指定が無い場合
         - レーンの種類の既定値を使う
 
@@ -170,11 +169,20 @@ herdr agent start <task_id> --kind claude --pane <pane> -- "<指示ファイル�
 
 ### 4. 裏取りレーンを立てる
 
-最初の作業レーンの直後に立てる。立て方は作業レーンと同じで、`--label` は `verify`、指示文は「裏取りレーンへ渡す指示文の雛形」を使う。
+作業レーンの報告を確かめるたびに、新しい裏取りレーンを1つ立てる。
+
+- 立て方
+    - 作業レーンと同じ
+    - `--label`
+        - `verify-<task_id>`
+    - 指示文
+        - 「裏取りレーンへ渡す指示文の雛形」に、「6. 監視、裏取り、ユーザーへの中継」で挙げた確かめる内容を書き足す
+- 閉じるとき
+    - `[orchestrator:verify ...]` の結果を受けたら、`herdr tab close` で閉じる
 
 ### 5. レーンのセッション名を控える
 
-レーンは最初の報告に、`ListAgents` で調べた自分のセッション名を書く。作業レーンは、ブランチ名とworktreeの絶対パスも書く。親はこれらをレーンごとに控え、以後の指示はその名前宛ての `SendMessage` で送る。
+作業レーンと調査レーンは、最初の報告に `ListAgents` で調べた自分のセッション名を書く。作業レーンは、ブランチ名とworktreeの絶対パスも書く。親はこれらをレーンごとに控え、以後の指示はその名前宛ての `SendMessage` で送る。
 
 最初の報告にセッション名が無いレーンがあれば、親は「レーンを起動しなおす」の手順でそのレーンを起動しなおす。
 
@@ -182,7 +190,7 @@ herdr agent start <task_id> --kind claude --pane <pane> -- "<指示ファイル�
 
 レーンごとにバックグラウンドBashで `herdr agent wait <pane>` を張る。イベントを処理したらwaitを張り直し、直後に `herdr agent get <pane>` で現在状態を直接確認する。
 
-`<cross-session-message from="...">` に包まれた `[orchestrator:report ...]` 形式の報告が会話に届いたら、次の内容を裏取りレーンへ `SendMessage` で送り、`[orchestrator:verify ...]` の結果を受けてから次の行動を決める。
+`<cross-session-message from="...">` に包まれた `[orchestrator:report ...]` 形式の報告が会話に届いたら、次の内容を指示文に書いた裏取りレーンを「4. 裏取りレーンを立てる」の手順で立て、`[orchestrator:verify ...]` の結果を受けてから次の行動を決める。
 
 - `task_id`
 - 対象リポジトリの絶対パス
@@ -194,7 +202,7 @@ herdr agent start <task_id> --kind claude --pane <pane> -- "<指示ファイル�
 #### コミットの裏取りからpushとPR作成まで
 
 1. 作業レーンがコミットし、その一覧を `ready-to-push` で報告する
-2. 親がその報告を裏取りレーンへ回す
+2. 親がその報告を確かめる裏取りレーンを立てる
 3. 裏取りの結果で次の指示を決める
     - 一致した場合
         - 確かめたコミットのハッシュを控える
@@ -209,11 +217,11 @@ herdr agent start <task_id> --kind claude --pane <pane> -- "<指示ファイル�
         - `pushed` で報告する
     - PRを作った場合
         - `pr-created` で報告する
-5. 親が報告を裏取りレーンへ回す
-    - 回す報告
+5. 親が報告を確かめる裏取りレーンを立てる
+    - 確かめる報告
         - `pushed`
         - `pr-created`
-    - 添えるもの
+    - 指示文に書き足すもの
         - 控えたハッシュ
 
 #### 報告をユーザーへ中継する
@@ -300,17 +308,15 @@ waitが返ったら `herdr agent read <pane> --source recent-unwrapped --lines 1
 
 親は、報告や裏取りの結果を処理するたびに、そのレーンの終了条件を満たしたかを照らし合わせる。満たしたら、ユーザーに確かめずに次の手順でレーンを閉じ、閉じたことをユーザーへの中継に書く。
 
-作業レーンは次の順に閉じる。PRのマージより前に終了条件を満たした場合は、`herdr tab close` でタブだけを閉じ、worktreeとブランチは残す。
+作業レーンは次の順に閉じる。
 
 1. ワーカーに後片付けを `SendMessage` で指示する
     - 指示文の雛形にある後片付けの手順に従わせる
 2. ワーカーから `cleaned` の報告を受ける
-3. 裏取りレーンに後片付けの結果を確かめさせる
+3. 後片付けの結果を確かめる裏取りレーンを立てる
 4. `herdr tab close` でタブを閉じる
 
 ユーザーが自分でタブを閉じたら、親はそのレーンを控えた一覧から外す。
-
-作業レーンをすべて閉じたら、裏取りレーンを `herdr tab close` で閉じる。
 
 ## ワーカーへ渡す指示文の雛形
 
@@ -345,18 +351,17 @@ waitが返ったら `herdr agent read <pane> --source recent-unwrapped --lines 1
 
 ```text
 裏取りレーンの規約:
-- 最初に ListAgents で自分のセッション名を調べ、SendMessage ツールで to に "<親のセッション名>"、message に "[orchestrator:verify] started: session=<自分のセッション名>" を渡して親へ報告する
-- 親から SendMessage で、task_id、対象リポジトリとworktreeの絶対パス、ブランチ名、分岐元ブランチ、確かめる報告が届く
+- 確かめる報告は1件で、この指示ファイルに task_id、対象リポジトリとworktreeの絶対パス、ブランチ名、分岐元ブランチと一緒に書いてある
 - git -C <パス> status、git -C <パス> log、git -C <パス> worktree list、git -C <パス> branch、gh pr list --head <ブランチ名>、gh pr view で、報告と事実を突き合わせる
 - ready-to-push の報告は、worktree のローカルのコミットを git -C <worktree> log、show、diff、status で確かめる
   - 結果には、確かめたブランチの先端のコミットのハッシュを書く
-- pushed の報告は、git -C <worktree> ls-remote origin refs/heads/<ブランチ名> の先端が、親から届いたハッシュと同じかだけを見る
+- pushed の報告は、git -C <worktree> ls-remote origin refs/heads/<ブランチ名> の先端が、指示ファイルに書いてあるハッシュと同じかだけを見る
 - pr-created の報告は、次のものを見る
-  - git -C <worktree> ls-remote origin refs/heads/<ブランチ名> の先端が、親から届いたハッシュと同じか
-  - gh pr view <PRのURL> --json baseRefName,headRefName,headRefOid,body で、base が分岐元ブランチ、head がブランチ名、headRefOid が親から届いたハッシュと同じか
+  - git -C <worktree> ls-remote origin refs/heads/<ブランチ名> の先端が、指示ファイルに書いてあるハッシュと同じか
+  - gh pr view <PRのURL> --json baseRefName,headRefName,headRefOid,body で、base が分岐元ブランチ、head がブランチ名、headRefOid が指示ファイルに書いてあるハッシュと同じか
   - body が3行以内か
 - リポジトリの状態を読むコマンドだけを使う
-- 結果は SendMessage ツールで to に "<親のセッション名>"、message に "[orchestrator:verify <task_id>] <一致 / 不一致>: <根拠>" を渡して親へ送る
+- 結果は SendMessage ツールで to に "<親のセッション名>"、message に "[orchestrator:verify <task_id>] <一致 / 不一致>: <根拠>" を渡して親へ送り、止まる
 ```
 
 ## レーンの沈黙と入力中に届いた報告
@@ -410,7 +415,7 @@ waitが返ったら `herdr agent read <pane> --source recent-unwrapped --lines 1
         - 調べ終えたら "[orchestrator:report <task_id>] done: <結果の要約と成果物のファイルの絶対パス>" で報告して止まる
         - 報告の前にAskUserQuestionでユーザーへ質問しない。判断が要る点はdoneの報告に書いて親へ返す
 - 裏取り
-    - `done` の報告は裏取りレーンへ回さない
+    - `done` の報告を確かめる裏取りレーンは立てない
     - 調査レーンだけのとき
         - 裏取りレーンを立てない
 - 終了条件を満たしたときの閉じる手順
