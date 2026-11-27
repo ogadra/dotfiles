@@ -12,6 +12,8 @@ PRの作成とbodyの変更は `~/.claude/scripts/gh/pr-body.sh` から実行す
 
 やったことを書く。
 
+- 言語
+    - 日本語
 - 行数
     - 3行以内
     - 空行
@@ -57,7 +59,9 @@ mktemp
 スクリプトが終わるまで待つ。
 
 - `--title`
-    - 英語のconventional commit形式で書く
+    - 先頭にConventional Commitsのprefixを付ける
+        - `feat:` など
+    - prefixの後ろは日本語で書く
 - body
     - `--body-file` でだけ渡せる
 - `--draft` などの残りの引数
