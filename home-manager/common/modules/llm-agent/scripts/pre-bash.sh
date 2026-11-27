@@ -24,18 +24,15 @@ if OUT=$(printf '%s' "$CMD" | "$SCRIPT_DIR/send-text.sh"); then
   HAS_SUDO=0
   while IFS= read -r SEG; do
     case "$SEG" in
-      # cd in a `!` command moves the agent's own shell, so another directory goes in as git -C or an absolute path
       cd|"cd "*) deny "cd is not allowed in herdr pane send-text. Pass the directory with an option such as git -C <dir> or an absolute path, or open a tab with herdr tab create --cwd <dir> for a sudo command." ;;
       sudo|"sudo "*) HAS_SUDO=1 ;;
     esac
   done < <(printf '%s' "$TEXT" | NORMALIZE_KEEP_GIT=1 "$SCRIPT_DIR/normalize.sh")
   if [ "$PANE" != "${HERDR_PANE_ID:-}" ]; then
-    # A `!` command in the agent's own pane cannot answer a password prompt, so only sudo needs a shell in another tab
     [ "$HAS_SUDO" = 1 ] || deny "only commands with sudo go to another tab. Send other commands to your own pane (${HERDR_PANE_ID:-herdr pane current}) as '! <command>'."
     exit 0
   fi
   SCREEN=$(herdr pane read "$PANE" --source visible) || deny "could not read pane $PANE to check its input box."
-  # Claude Code draws its input box between the last two horizontal rules, with a prompt mark at the head of the first line
   BOX=$(printf '%s\n' "$SCREEN" | awk '/^───/ { prev = cur; cur = NR } { line[NR] = $0 } END { for (i = prev + 1; i < cur; i++) print line[i] }' | sed -e 's/^❯//' -e 's/^!//' -e 's/\xc2\xa0//g')
   [ -z "${BOX//[[:space:]]/}" ] || deny "the input box of pane $PANE already has text the user typed. Ask the user to send or clear it, then try again."
   exit 0
