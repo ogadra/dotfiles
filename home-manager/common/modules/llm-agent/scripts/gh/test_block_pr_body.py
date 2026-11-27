@@ -12,6 +12,9 @@ MUTATION_BODY = (
 MUTATION_TITLE = (
     'mutation { updatePullRequest(input: {pullRequestId: "x", title: "t"}) { clientMutationId } }'
 )
+MUTATION_LABEL = (
+    'mutation { updatePullRequest(input: {pullRequestId: "x", labelIds: []}) { clientMutationId } }'
+)
 MUTATION_VARIABLE = (
     "mutation($in: UpdatePullRequestInput!) { updatePullRequest(input: $in) { clientMutationId } }"
 )
@@ -24,6 +27,15 @@ def verdict(script: str) -> str:
     except BlockedError as blocked:
         return "undecidable" if "判定できない" in str(blocked) else "denied"
     return "allowed"
+
+
+def denial(script: str) -> str:
+    try:
+        for command in gh_commands(script):
+            check(command)
+    except BlockedError as blocked:
+        return str(blocked)
+    raise AssertionError(f"not blocked: {script}")
 
 
 class PrCommandTest(unittest.TestCase):
@@ -43,8 +55,29 @@ class PrCommandTest(unittest.TestCase):
             with self.subTest(flags=flags):
                 self.assertEqual(verdict(f"gh pr edit 1 {flags}"), "denied")
 
-    def test_pr_edit_without_body_is_allowed(self) -> None:
-        self.assertEqual(verdict("gh pr edit 1 --add-label bug --title t"), "allowed")
+    def test_pr_edit_title_flags_are_denied(self) -> None:
+        for flags in ["--title t", "-t t", "--title=t", "-tt"]:
+            with self.subTest(flags=flags):
+                self.assertEqual(verdict(f"gh pr edit 1 {flags}"), "denied")
+
+    def test_title_edit_denial_points_to_pr_body_edit(self) -> None:
+        for script in [
+            "gh pr edit 1 --title t",
+            "gh api -X PATCH repos/o/r/pulls/3 -f title=t",
+            f"gh api graphql -f query='{MUTATION_TITLE}'",
+        ]:
+            with self.subTest(script=script):
+                message = denial(script)
+                self.assertIn("pr-body.sh --edit [--title <title>] [--body-file <path>]", message)
+                self.assertIn("prefixの後ろを日本語で書く", message)
+
+    def test_pr_create_denial_points_to_pr_body(self) -> None:
+        message = denial("gh pr create --title t --body b")
+        self.assertIn("pr-body.sh --title <title> --body-file <path>", message)
+        self.assertIn("日本語で3行以内", message)
+
+    def test_pr_edit_without_title_or_body_is_allowed(self) -> None:
+        self.assertEqual(verdict("gh pr edit 1 --add-label bug"), "allowed")
 
     def test_other_gh_commands_are_allowed(self) -> None:
         self.assertEqual(verdict("gh pr view 1 && echo 'gh pr create'"), "allowed")
@@ -54,23 +87,35 @@ class PrCommandTest(unittest.TestCase):
 
 
 class RestApiTest(unittest.TestCase):
-    def test_creating_pull_with_body_is_denied(self) -> None:
+    def test_creating_pull_is_denied(self) -> None:
         self.assertEqual(verdict("gh api repos/o/r/pulls -f title=t -f body=b"), "denied")
+        self.assertEqual(verdict("gh api repos/o/r/pulls -f title=t -f head=h -f base=b"), "denied")
         self.assertEqual(verdict("gh api /repos/o/r/pulls --input pr.json"), "denied")
 
-    def test_patching_pull_body_is_denied(self) -> None:
-        self.assertEqual(verdict("gh api -X PATCH repos/o/r/pulls/3 -f body=b"), "denied")
+    def test_patching_pull_title_or_body_is_denied(self) -> None:
+        for field in ["body=b", "title=t"]:
+            with self.subTest(field=field):
+                script = f"gh api -X PATCH repos/o/r/pulls/3 -f {field}"
+                self.assertEqual(verdict(script), "denied")
 
-    def test_pull_requests_without_body_are_allowed(self) -> None:
+    def test_pull_requests_without_title_or_body_are_allowed(self) -> None:
         self.assertEqual(verdict("gh api repos/o/r/pulls"), "allowed")
-        self.assertEqual(verdict("gh api -X PATCH repos/o/r/pulls/3 -f title=t"), "allowed")
+        self.assertEqual(verdict("gh api -X PATCH repos/o/r/pulls/3 -f state=closed"), "allowed")
         self.assertEqual(verdict("gh api repos/o/r/pulls/3/comments -f body=b"), "allowed")
 
-    def test_patching_issue_body_depends_on_whether_it_is_a_pr(self) -> None:
-        script = "gh api -X PATCH repos/o/r/issues/5 -f body=b"
-        for answer, expected in [("true", "denied"), ("false", "allowed"), ("?", "undecidable")]:
-            with self.subTest(answer=answer), patch("block_pr_body.gh_output", return_value=answer):
-                self.assertEqual(verdict(script), expected)
+    def test_patching_issue_text_depends_on_whether_it_is_a_pr(self) -> None:
+        for field in ["body=b", "title=t"]:
+            script = f"gh api -X PATCH repos/o/r/issues/5 -f {field}"
+            for answer, expected in [
+                ("true", "denied"),
+                ("false", "allowed"),
+                ("?", "undecidable"),
+            ]:
+                with (
+                    self.subTest(field=field, answer=answer),
+                    patch("block_pr_body.gh_output", return_value=answer),
+                ):
+                    self.assertEqual(verdict(script), expected)
 
     def test_patching_issue_body_is_undecidable_when_github_is_unreachable(self) -> None:
         error = subprocess.CalledProcessError(1, "gh")
@@ -86,8 +131,11 @@ class GraphqlTest(unittest.TestCase):
     def test_body_in_inline_input_is_denied(self) -> None:
         self.assertEqual(verdict(f"gh api graphql -f query='{MUTATION_BODY}'"), "denied")
 
-    def test_update_without_body_is_allowed(self) -> None:
-        self.assertEqual(verdict(f"gh api graphql -f query='{MUTATION_TITLE}'"), "allowed")
+    def test_title_in_inline_input_is_denied(self) -> None:
+        self.assertEqual(verdict(f"gh api graphql -f query='{MUTATION_TITLE}'"), "denied")
+
+    def test_update_without_title_or_body_is_allowed(self) -> None:
+        self.assertEqual(verdict(f"gh api graphql -f query='{MUTATION_LABEL}'"), "allowed")
 
     def test_queries_are_allowed(self) -> None:
         self.assertEqual(verdict("gh api graphql -f query='{ viewer { login } }'"), "allowed")
@@ -97,15 +145,19 @@ class GraphqlTest(unittest.TestCase):
         self.assertEqual(verdict(script), "denied")
 
     def test_query_from_tab_stripped_heredoc_is_read(self) -> None:
-        script = f"gh api graphql -F query=@- <<-EOF\n\t{MUTATION_TITLE}\n\tEOF"
+        script = f"gh api graphql -F query=@- <<-EOF\n\t{MUTATION_LABEL}\n\tEOF"
         self.assertEqual(verdict(script), "allowed")
 
     def test_body_in_variable_is_denied(self) -> None:
         script = f"gh api graphql -f query='{MUTATION_VARIABLE}' -F 'in[body]=b'"
         self.assertEqual(verdict(script), "denied")
 
-    def test_variable_without_body_is_allowed(self) -> None:
+    def test_title_in_variable_is_denied(self) -> None:
         script = f"gh api graphql -f query='{MUTATION_VARIABLE}' -f 'in[title]=t'"
+        self.assertEqual(verdict(script), "denied")
+
+    def test_variable_without_title_or_body_is_allowed(self) -> None:
+        script = f"gh api graphql -f query='{MUTATION_VARIABLE}' -f 'in[state]=CLOSED'"
         self.assertEqual(verdict(script), "allowed")
 
     def test_missing_variable_is_undecidable(self) -> None:

@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# Block PR creation and body edits that bypass pr-body.sh; reads the command from AGENT_RAW_COMMAND.
 
 import json
 import os
@@ -24,7 +23,7 @@ from tree_sitter import Language, Node, Parser
 
 WRAPPER = Path.home() / ".claude/scripts/gh/pr-body.sh"
 CREATE_USAGE = f"{WRAPPER} --title <title> --body-file <path> [gh pr create の引数]"
-EDIT_USAGE = f"{WRAPPER} --edit --body-file <path> [gh pr edit の引数]"
+EDIT_USAGE = f"{WRAPPER} --edit [--title <title>] [--body-file <path>] [gh pr edit の引数]"
 
 PULLS = re.compile(r"repos/[^/]+/[^/]+/pulls")
 PULL = re.compile(r"repos/[^/]+/[^/]+/pulls/\d+")
@@ -40,7 +39,8 @@ EXPANSIONS = {
     "arithmetic_expansion",
     "ansi_c_string",
 }
-PR_EDIT_VALUE_OPTIONS = {"--body", "-b", "--body-file", "-F"}
+PR_EDIT_TEXT_OPTIONS = {"--title", "-t", "--body", "-b", "--body-file", "-F"}
+PR_TEXT_FIELDS = {"title", "body"}
 API_VALUE_OPTIONS = {
     "-X",
     "--method",
@@ -71,18 +71,19 @@ class BlockedError(Exception):
 def deny(command: str, usage: str) -> BlockedError:
     return BlockedError(
         f"Blocked: `{command}` は直接実行できない。\n"
-        "PR bodyは、やったことを3行以内で書く。"
+        "PRのtitleはConventional Commitsのprefixの後ろを日本語で書く。\n"
+        "PRのbodyは、やったことを日本語で3行以内で書く。"
         "理由、見出し、動作確認、変更ファイルの列挙は書かない。\n"
-        "bodyを一時ファイルに書いてから次を実行する。\n"
+        "代わりに次を実行する。bodyは一時ファイルに書いて --body-file で渡す。\n"
         f"  {usage}"
     )
 
 
 def undecidable(command: str, reason: str) -> BlockedError:
     return BlockedError(
-        f"Blocked: `{command}` がPRを作るか、PRのbodyを書き換えるかを判定できない。\n"
+        f"Blocked: `{command}` がPRを作るか、PRのtitleかbodyを書き換えるかを判定できない。\n"
         f"理由: {reason}\n"
-        "PRの作成とbodyの書き換えは、bodyを一時ファイルに書いてから次で行う。\n"
+        "PRの作成と、titleとbodyの書き換えは、次で行う。\n"
         f"  {CREATE_USAGE}\n"
         f"  {EDIT_USAGE}"
     )
@@ -299,17 +300,17 @@ def graphql_request(call: ApiCall, stdin: str | None) -> tuple[object, dict[str,
     return query, variables if isinstance(variables, dict) else {}
 
 
-def updates_body(mutation: FieldNode, variables: dict[str, object]) -> bool:
+def updates_text(mutation: FieldNode, variables: dict[str, object]) -> bool:
     argument = next((a for a in mutation.arguments if a.name.value == "input"), None)
     if argument is None:
         return False
     value = argument.value
     if isinstance(value, ObjectValueNode):
-        return any(f.name.value == "body" for f in value.fields)
+        return any(f.name.value in PR_TEXT_FIELDS for f in value.fields)
     if isinstance(value, VariableNode):
         resolved = variables.get(value.name.value)
         if isinstance(resolved, dict):
-            return "body" in resolved
+            return not PR_TEXT_FIELDS.isdisjoint(resolved)
         raise undecidable(
             "gh api graphql",
             f"updatePullRequestのinputに渡す変数 ${value.name.value} の中身が、"
@@ -339,7 +340,7 @@ def check_graphql(call: ApiCall, stdin: str | None) -> None:
                 raise undecidable("gh api graphql", "mutationのfragmentは解析しない")
             if selection.name.value == "createPullRequest":
                 raise deny("gh api graphql createPullRequest", CREATE_USAGE)
-            if selection.name.value == "updatePullRequest" and updates_body(selection, variables):
+            if selection.name.value == "updatePullRequest" and updates_text(selection, variables):
                 raise deny("gh api graphql updatePullRequest", EDIT_USAGE)
 
 
@@ -359,11 +360,13 @@ def ask_issue_is_pr(owner: str, repo: str, number: str) -> str:
 
 
 def check_rest(call: ApiCall) -> None:
-    if call.endpoint is None or not (call.input or any(f.key == "body" for f in call.fields)):
+    if call.endpoint is None:
         return
     path = call.endpoint.text.lstrip("/").split("?", 1)[0]
     if call.method == "POST" and PULLS.fullmatch(path):
         raise deny("gh api POST /repos/<owner>/<repo>/pulls", CREATE_USAGE)
+    if not (call.input or any(f.key in PR_TEXT_FIELDS for f in call.fields)):
+        return
     if call.method == "PATCH" and PULL.fullmatch(path):
         raise deny("gh api PATCH /repos/<owner>/<repo>/pulls/<number>", EDIT_USAGE)
     issue = ISSUE.fullmatch(path)
@@ -378,7 +381,7 @@ def check_rest(call: ApiCall) -> None:
             command, f"#{number} がPRかどうかをGitHubに問い合わせられなかった"
         ) from None
     if answer == "true":
-        raise deny(command, f"{WRAPPER} --edit --body-file <path> {number}")
+        raise deny(command, f"{WRAPPER} --edit [--title <title>] [--body-file <path>] {number}")
     if answer != "false":
         raise undecidable(
             command, f"#{number} がPRかどうかの問い合わせが想定しない結果を返した: {answer}"
@@ -392,10 +395,10 @@ def check(command: Command) -> None:
             raise deny("gh pr create", CREATE_USAGE)
         case ["pr", "edit", *_]:
             if any(
-                name in PR_EDIT_VALUE_OPTIONS
-                for name, _ in options(command.words[2:], PR_EDIT_VALUE_OPTIONS)
+                name in PR_EDIT_TEXT_OPTIONS
+                for name, _ in options(command.words[2:], PR_EDIT_TEXT_OPTIONS)
             ):
-                raise deny("gh pr edit --body", EDIT_USAGE)
+                raise deny("gh pr edit --title/--body", EDIT_USAGE)
         case ["api", *_]:
             call = parse_api(command.words[1:])
             if call.endpoint and call.endpoint.text == "graphql":
