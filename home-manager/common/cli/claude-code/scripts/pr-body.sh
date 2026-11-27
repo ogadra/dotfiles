@@ -2,12 +2,14 @@
 set -uo pipefail
 
 MAX_LINES=3
+PREFIX='^[a-z]+(\([^()]+\))?!?: '
+JAPANESE='[\p{Hiragana}\p{Katakana}\p{Han}]'
 REVIEW="$HOME/.claude/skills/readable-writing/scripts/review.sh"
 
 usage() {
   cat >&2 <<'EOF'
 usage: pr-body.sh --title <title> --body-file <path> [gh pr create args...]
-       pr-body.sh --edit [--title <title>] --body-file <path> [gh pr edit args...]
+       pr-body.sh --edit [--title <title>] [--body-file <path>] [gh pr edit args...]
 EOF
   exit 2
 }
@@ -28,9 +30,29 @@ while [ $# -gt 0 ]; do
   esac
 done
 
-# gh pr edit keeps the current title when --title is omitted, so only creation requires one
-[ -n "$title" ] || [ "$edit" -eq 1 ] || usage
-[ -n "$body_file" ] || usage
+matches() {
+  jq -Rse --arg re "$1" 'test($re)' > /dev/null
+}
+
+if [ "$edit" -eq 1 ]; then
+  [ -n "$title" ] || [ -n "$body_file" ] || usage
+else
+  [ -n "$title" ] && [ -n "$body_file" ] || usage
+fi
+
+if [ -n "$title" ]; then
+  if ! printf '%s' "$title" | matches "$PREFIX"; then
+    echo "pr-body.sh: titleの先頭にConventional Commitsのprefixがない。先頭に feat: や docs(scope): などのprefixを付けて再実行する。" >&2
+    exit 1
+  fi
+  if ! printf '%s' "$title" | matches "$PREFIX.*$JAPANESE"; then
+    echo "pr-body.sh: titleのprefixの後ろに日本語(ひらがな、カタカナ、漢字)がない。prefixの後ろを日本語で書き直して再実行する。" >&2
+    exit 1
+  fi
+fi
+
+[ -n "$body_file" ] || exec gh pr edit --title "$title" ${rest[@]+"${rest[@]}"}
+
 [ -f "$body_file" ] || { echo "pr-body.sh: no such file: $body_file" >&2; exit 1; }
 
 lines=$(grep -c '[^[:space:]]' "$body_file")
@@ -43,6 +65,10 @@ if [ "$lines" -gt "$MAX_LINES" ]; then
 pr-body.sh: bodyが${lines}行ある。${MAX_LINES}行以内に収める。
 やったことだけを書く。理由、見出し、動作確認、変更ファイルの列挙は書かない。
 EOF
+  exit 1
+fi
+if ! matches "$JAPANESE" < "$body_file"; then
+  echo "pr-body.sh: bodyに日本語(ひらがな、カタカナ、漢字)がない。bodyを日本語で書き直して再実行する。" >&2
   exit 1
 fi
 

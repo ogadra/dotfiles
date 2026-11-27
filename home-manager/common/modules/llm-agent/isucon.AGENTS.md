@@ -6,12 +6,18 @@
     - Enterは送らず、ユーザーが押す
     - 文字列は単引用符で囲む
     - `cd` は入れない
-- 自分のcwdで実行でき、`sudo` が要らないコマンド
+- `sudo` が要らないコマンド
     - 自分のpaneの入力欄に、先頭に `!` を付けて入れる
         - pane
             - `herdr pane current` の `.result.pane.pane_id`
     - `herdr pane send-text <pane> '! <コマンド>'`
-- `sudo` が要るコマンド、または別のディレクトリで実行するコマンド
+    - 入れる前に、入力欄が空かを確かめる
+        - `herdr pane read <pane> --source visible` で読む
+        - 文が入っている場合
+            - 入れずに、送るか消すようユーザーに頼む
+    - 別のディレクトリで実行するコマンド
+        - `git -C <ディレクトリ>` や絶対パスで、ディレクトリを引数に書く
+- `sudo` が要るコマンド
     - 別タブのshellに入れる
     1. `herdr tab create --workspace <ws> --cwd <実行するディレクトリ> --label cmd --no-focus` でタブを作る
         - ws

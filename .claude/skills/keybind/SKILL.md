@@ -76,8 +76,6 @@ description: キーバインドを足す、変える、消す。ユーザーが�
             - macSKKのソースの `macSKK/KeyBinding.swift`
         - weztermの `macos_forward_to_ime_modifier_mask = 'SHIFT|CTRL'`
             - CtrlかShiftを含むキーは、weztermより先にmacSKKに渡る
-    - Raycast
-        - `home-manager/common/apps/raycast/default.nix`
     - AltTab
         - `home-manager/common/apps/alt-tab/default.nix`
     - Hammerspoon
