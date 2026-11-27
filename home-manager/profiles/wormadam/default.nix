@@ -7,7 +7,9 @@ let
     ../../common/apps/chrome
     ../../common/apps/discord
     ../../common/apps/editor/emacs
+    ../../common/apps/hammerspoon
     ../../common/apps/karabiner
+    ../../common/apps/maccy
     ../../common/apps/macskk
     ../../common/apps/mos
     ../../common/apps/raycast

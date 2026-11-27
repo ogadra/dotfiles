@@ -78,6 +78,10 @@ description: キーバインドを足す、変える、消す。ユーザーが�
             - CtrlかShiftを含むキーは、weztermより先にmacSKKに渡る
     - AltTab
         - `home-manager/common/apps/alt-tab/default.nix`
+    - Hammerspoon
+        - `home-manager/common/apps/hammerspoon/default.nix`
+    - Maccy
+        - `home-manager/common/apps/maccy/default.nix`
 
 ### 4. ユーザーに選んでもらう
 
