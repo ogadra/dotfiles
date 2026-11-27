@@ -18,6 +18,11 @@ let
     ../../nixos/settings/hardware/thunderbolt.nix
   ];
 
+  # Network
+  networkSettings = [
+    ../../nixos/settings/network/arp.nix
+  ];
+
   # Nix-ld
   nixLdSettings = [
     ../../nixos/settings/nix-ld/default.nix
@@ -57,6 +62,7 @@ in
   ]
   ++ desktopSettings
   ++ hardwareSettings
+  ++ networkSettings
   ++ nixLdSettings
   ++ powerSettings
   ++ programsSettings
