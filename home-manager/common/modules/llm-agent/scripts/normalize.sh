@@ -78,7 +78,7 @@ while IFS= read -r SEG; do
 
   [ -n "$SEG" ] || continue
   case "$SEG" in
-    "git"|"git "*) strip_git_globals "$SEG" ;;
+    "git"|"git "*) if [ "${NORMALIZE_KEEP_GIT:-}" = 1 ]; then printf '%s\n' "$SEG"; else strip_git_globals "$SEG"; fi ;;
     *) printf '%s\n' "$SEG" ;;
   esac
 done < <(printf '%s\n' "$CMD" | tr ';&|' '\n')
