@@ -1,6 +1,6 @@
 ---
 name: pr-create
-description: PRを作る、または既存PRのtitleやbodyを直す。ユーザーが「PRを作る」「PR出して」「PRのbodyを直して」「PRのtitleを直して」と言ったとき、ユーザーが `/pr-create` と打ったとき、または `gh pr create` や `gh pr edit --title`、`gh pr edit --body` がhookにブロックされたときに使う。Creates or edits a pull request with a Japanese title and a three-line Japanese body.
+description: PRを作る、または既存PRのtitleやbodyを直す。ユーザーが「PRを作る」「PR出して」「PRのbodyを直して」「PRのtitleを直して」と言ったとき、ユーザーが `/pr-create` と打ったとき、または `gh pr create` や `gh pr edit --title`、`gh pr edit --body` がhookにブロックされたときに使う。Creates or edits a pull request title and a three-line body.
 allowed-tools: Bash(git status:*), Bash(git diff:*), Bash(git log:*), Bash(git rev-parse:*), Bash(git branch:*), Bash(git push:*), Bash(gh pr view:*), Bash(gh pr list:*), Bash(gh repo view:*), Bash($HOME/.claude/scripts/gh/pr-body.sh:*), Read, Write
 ---
 
@@ -12,8 +12,6 @@ PRの作成と、titleとbodyの変更は `~/.claude/scripts/gh/pr-body.sh` か�
 
 やったことを書く。
 
-- 言語
-    - 日本語
 - 行数
     - 3行以内
     - 空行
@@ -58,10 +56,6 @@ mktemp
 
 スクリプトが終わるまで待つ。
 
-- `--title`
-    - 先頭にConventional Commitsのprefixを付ける
-        - `feat:` など
-    - prefixの後ろは日本語で書く
 - body
     - `--body-file` でだけ渡せる
 - `--draft` などの残りの引数
