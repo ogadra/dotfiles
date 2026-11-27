@@ -77,7 +77,8 @@ description: キーバインドを足す、変える、消す。ユーザーが�
         - weztermの `macos_forward_to_ime_modifier_mask = 'SHIFT|CTRL'`
             - CtrlかShiftを含むキーは、weztermより先にmacSKKに渡る
     - Raycast
-        - `home-manager/common/apps/raycast/default.nix`
+        - 実機のSettings → Extensions
+            - hotkeyは暗号化DBにあり、Nixでは管理していない
     - AltTab
         - `home-manager/common/apps/alt-tab/default.nix`
 
