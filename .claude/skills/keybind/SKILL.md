@@ -80,6 +80,10 @@ description: キーバインドを足す、変える、消す。ユーザーが�
         - `home-manager/common/apps/raycast/default.nix`
     - AltTab
         - `home-manager/common/apps/alt-tab/default.nix`
+    - AeroSpace
+        - `home-manager/common/apps/aerospace/default.nix`
+    - Maccy
+        - `home-manager/common/apps/maccy/default.nix`
 
 ### 4. ユーザーに選んでもらう
 
